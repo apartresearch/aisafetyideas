@@ -173,7 +173,7 @@
   .input-wrapper {
     display: flex;
     flex-direction: column;
-    margin: 5px;
+    margin: 2px;
     width: 100%;
   }
   .input-wrapper input {
@@ -182,6 +182,8 @@
 
   .description input {
     height: 250px;
+    text-align: left;
+    vertical-align: top;
   }
 
   label {
