@@ -91,15 +91,42 @@
   };
 </script>
 
-<input type="text" bind:value={author} />
-<input type="text" bind:value={title} />
-<input type="text" bind:value={description} height="300px" />
-<Select items={categories} bind:value={tags} isMulti={true} />
-<Select items={superprojects} bind:value={superprojects_ids} isMulti={true} />
-<Select items={problems} bind:value={problem_ids} isMulti={true} />
-<Select items={ideas} bind:value={related_ideas} isMulti={true} />
-<input type="checkbox" bind:checked={filtered} />
-<input type="checkbox" bind:checked={verified} />
+<div>
+  <label for="author">Author</label>
+  <input type="text" bind:value={author} />
+</div>
+<div>
+  <label for="title">Title</label>
+  <input type="text" bind:value={title} />
+</div>
+<div>
+  <label for="description">Description</label>
+  <input type="text" bind:value={description} height="300px" />
+</div>
+<div>
+  <label for="tags">Tags</label>
+  <Select items={categories} bind:value={tags} isMulti={true} />
+</div>
+<div>
+  <label for="superprojects">Superprojects</label>
+  <Select items={superprojects} bind:value={superprojects_ids} isMulti={true} />
+</div>
+<div>
+  <label for="related_ideas">Related Ideas</label>
+  <Select items={problems} bind:value={problem_ids} isMulti={true} />
+</div>
+<div>
+  <label for="filtered">Filtered</label>
+  <Select items={ideas} bind:value={related_ideas} isMulti={true} />
+</div>
+<div>
+  <label for="verified">Verified</label>
+  <input type="checkbox" bind:checked={filtered} />
+</div>
+<div>
+  <label for="verified">Verified</label>
+  <input type="checkbox" bind:checked={verified} />
+</div>
 
 <button
   on:click={() =>
