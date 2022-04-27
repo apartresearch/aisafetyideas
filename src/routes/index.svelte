@@ -14,13 +14,13 @@
 
   onMount(async () => {
     console.log($user);
-    if (!$user) {
-      goto("/login");
-    }
     await getAllIdeas();
     await getAllSuperprojects();
     await getAllCategories();
   });
+
+  let emailInput = "";
+  let passwordInput = "";
 
   const getAllIdeas = async () => {
     try {
@@ -57,7 +57,18 @@
 
   const getAllSuperprojects = async () => {
     try {
-      let { data, error } = await supabase.from("superprojects").select("*");
+      let { data, error } = await supabase
+        .from("ideas_superprojects")
+        .select("*");
+      superprojects = data;
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const getAllCategories = async () => {
+    try {
+      let { data, error } = await supabase.from("ideas_categories").select("*");
       superprojects = data;
     } catch (err) {
       console.log(err);
@@ -74,6 +85,52 @@
     let { error } = await supabase.auth.signOut();
     goto("/login");
   };
+
+  const signInWithX = async (X) => {
+    if (X != "email") {
+      const {
+        user: userDetails,
+        session,
+        error,
+      } = await supabase.auth.signIn({
+        provider: X,
+      });
+    } else {
+      const {
+        user: userDetails,
+        session,
+        error,
+      } = await supabase.auth.signIn({
+        email: "",
+        password: "",
+      });
+    }
+    $user = userDetails;
+  };
+
+  const signUpWithX = async (X) => {
+    if (X != "email") {
+      const {
+        user: userDetails,
+        session,
+        error,
+      } = await supabase.auth.signUp({
+        provider: X,
+      });
+    } else {
+      const {
+        user: userDetails,
+        session,
+        error,
+      } = await supabase.auth.signUp({
+        email: "",
+        password: "",
+      });
+    }
+    $user = userDetails;
+  };
+
+  $: signup = false;
 </script>
 
 <h4>Welcome {$user ? $user.email : ""}!</h4>
@@ -94,6 +151,28 @@
 {/if}
 
 <svelte:window on:keypress={handleKeyPress} />
+
+<div class="login">
+  {#if !signup}
+    <button on:click={signInWithX("google")}>Google</button>
+    <button on:click={signInWithX("github")}>Github</button>
+    <button on:click={signInWithX("twitter")}>Twitter</button>
+    <input type="text" bind:value={emailInput} />
+    <input type="password" bind:value={passwordInput} />
+    <button on:click={signInWithX("email")}>Email</button>
+  {/if}
+  {#if signup}
+    <button on:click={signUpWithX("google")}>Google</button>
+    <button on:click={signUpWithX("github")}>Github</button>
+    <button on:click={signUpWithX("twitter")}>Twitter</button>
+    <input type="text" bind:value={emailInput} />
+    <input type="password" bind:value={passwordInput} />
+    <button on:click={signUpWithX("email")}>Email</button>
+  {/if}
+  <button on:click={() => (signup = !signup)}
+    >{signup ? "Sign In" : "Sign Up"}</button
+  >
+</div>
 
 <style>
 </style>
