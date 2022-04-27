@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
 
   import supabase from "$lib/db";
+  import { user } from "$lib/stores";
   import Todo from "$lib/Todo.svelte";
   import { onMount } from "svelte";
 
@@ -9,13 +10,11 @@
   let superprojects = [];
   let categories = [];
   let ideaTitle = "";
-  let user = null;
   let session = null;
 
   onMount(async () => {
-    user = supabase.auth.user();
-    console.log(user);
-    if (!user) {
+    console.log($user);
+    if (!$user) {
       goto("/login");
     }
     await getAllIdeas();
@@ -77,7 +76,7 @@
   };
 </script>
 
-<h4>Welcome {user ? user.email : ""}!</h4>
+<h4>Welcome {$user ? $user.email : ""}!</h4>
 
 <div class="add-todo">
   <input type="text" bind:value={ideaTitle} />
@@ -90,7 +89,7 @@
   <p>No ideas found</p>
 {/each}
 
-{#if user ? user.email : false}
+{#if $user ? $user.email : false}
   <button on:click={logOut} class="switch">Logout</button>
 {/if}
 
