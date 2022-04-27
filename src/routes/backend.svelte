@@ -106,7 +106,7 @@
     <input type="text" bind:value={title} />
   </div>
   <div class="input-wrapper description">
-    <label for="description">Description</label>
+    <label for="description">Description (supports markdown)</label>
     <input type="text" bind:value={description} height="300px" />
   </div>
   <div class="input-wrapper">
@@ -135,28 +135,32 @@
     <label for="verified">Verified</label>
     <input type="checkbox" bind:checked={verified} />
   </div>
+  <button
+    on:click={() =>
+      addNewIdea(
+        {
+          author,
+          title,
+          summary: description,
+          verified,
+          filtered,
+          tags: tags.map((tag) => tag.id),
+        },
+        tags,
+        superprojects_ids,
+        problem_ids,
+
+        related_ideas
+      )}>Submit idea</button
+  >
 </div>
 
-<button
-  on:click={() =>
-    addNewIdea(
-      {
-        author,
-        title,
-        summary: description,
-        verified,
-        filtered,
-        tags: tags.map((tag) => tag.id),
-      },
-      tags,
-      superprojects_ids,
-      problem_ids,
-
-      related_ideas
-    )}>Submit idea</button
->
-
 <style>
+  button {
+    margin: 10px;
+    padding: 10px;
+  }
+
   .add-idea-wrapper {
     display: flex;
     flex-direction: column;
@@ -169,22 +173,19 @@
   .input-wrapper {
     display: flex;
     flex-direction: column;
-    margin: 10px;
+    margin: 5px;
     width: 100%;
-  }
-  .input-wrapper label {
-    margin-bottom: 5px;
   }
   .input-wrapper input {
     margin-bottom: 5px;
   }
 
   .description input {
-    height: 300px;
+    height: 250px;
   }
 
   label {
-    font-size: 11px;
+    font-size: 18px;
     font-style: none;
   }
 </style>
