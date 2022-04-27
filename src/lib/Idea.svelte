@@ -1,5 +1,5 @@
 <script>
-  export let todo, updateTodo, deleteTodo;
+  export let idea, updateIdea, deleteIdea;
 </script>
 
 <div class="todos" class:done={todo.isComplete}>
