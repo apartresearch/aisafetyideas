@@ -122,15 +122,15 @@
     />
   </div>
   <div class="input-wrapper">
-    <label for="related_ideas">Related Ideas</label>
+    <label for="related_ideas">Related problems</label>
     <Select items={problems} bind:value={problem_ids} isMulti={true} />
   </div>
   <div class="input-wrapper">
-    <label for="filtered">Filtered</label>
+    <label for="filtered">Related ideas</label>
     <Select items={ideas} bind:value={related_ideas} isMulti={true} />
   </div>
   <div class="input-wrapper">
-    <label for="verified">Verified</label>
+    <label for="verified">Filtered</label>
     <input type="checkbox" bind:checked={filtered} />
     <label for="verified">Verified</label>
     <input type="checkbox" bind:checked={verified} />
