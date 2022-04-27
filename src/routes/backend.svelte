@@ -142,7 +142,11 @@
     <input type="checkbox" bind:checked={verified} />
   </div>
   <button
-    on:click={() =>
+    on:click={() => {
+      console.table(superprojects_ids);
+      console.table(problem_ids);
+      console.table(tags);
+      console.table(related_ideas);
       addNewIdea(
         {
           author,
@@ -150,14 +154,14 @@
           summary: description,
           verified,
           filtered,
-          tags: tags.map((tag) => tag.id),
         },
         tags,
         superprojects_ids,
         problem_ids,
 
         related_ideas
-      )}>Submit idea</button
+      );
+    }}>Submit idea</button
   >
 </div>
 
