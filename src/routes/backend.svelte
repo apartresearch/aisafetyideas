@@ -36,16 +36,20 @@
     ideas_ids
   ) => {
     try {
+      console.table(idea);
       const { data, error } = await supabase.from("ideas").insert(idea);
+      console.log("Uploaded idea...");
       await categories_ids.forEach(async (category_id) => {
         await supabase.from("idea_category_relation").insert(idea);
       });
+      console.log("Uploaded categories relations...");
       await superprojects_ids.forEach(async (superproject_id) => {
         await supabase.from("idea_superproject_relation").insert({
           idea: idea.id,
           superproject: superproject_id,
         });
       });
+      console.log("Uploaded superprojects relations...");
       await problems_ids.forEach(async (problem_id) => {
         await supabase.from("idea_problem_relation").insert(
           {
@@ -57,12 +61,14 @@
           }
         );
       });
+      console.log("Uploaded problems relations...");
       await ideas_ids.forEach(async (idea_id) => {
         await supabase.from("idea_idea_relation").insert({
           idea_1: idea.id,
           idea_2: idea_id,
         });
       });
+      console.log("Uploaded idea relations...");
     } catch (err) {
       console.log(err);
     }
@@ -107,7 +113,7 @@
   </div>
   <div class="input-wrapper description">
     <label for="description">Description (supports markdown)</label>
-    <textarea bind:value={description} />
+    <textarea rows="8" bind:value={description} />
   </div>
   <div class="input-wrapper">
     <label for="tags">Tags</label>
