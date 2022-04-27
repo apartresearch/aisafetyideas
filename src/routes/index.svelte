@@ -14,10 +14,10 @@
 
   onMount(async () => {
     user = supabase.auth.user();
+    console.log(user);
     if (!user) {
       goto("/login");
     }
-    session = await supabase.session.get();
     await getAllIdeas();
     await getAllSuperprojects();
     await getAllCategories();
