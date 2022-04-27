@@ -164,11 +164,12 @@
     justify-content: center;
     max-width: 500px;
     height: 100%;
+    margin: auto;
   }
   .input-wrapper {
     display: flex;
     flex-direction: column;
-    margin-bottom: 20px;
+    margin: 10px;
     width: 100%;
   }
   .input-wrapper label {
