@@ -95,41 +95,46 @@
   };
 </script>
 
-<div>
-  <label for="author">Author</label>
-  <input type="text" bind:value={author} />
-</div>
-<div>
-  <label for="title">Title</label>
-  <input type="text" bind:value={title} />
-</div>
-<div>
-  <label for="description">Description</label>
-  <input type="text" bind:value={description} height="300px" />
-</div>
-<div>
-  <label for="tags">Tags</label>
-  <Select items={categories} bind:value={tags} isMulti={true} />
-</div>
-<div>
-  <label for="superprojects">Superprojects</label>
-  <Select items={superprojects} bind:value={superprojects_ids} isMulti={true} />
-</div>
-<div>
-  <label for="related_ideas">Related Ideas</label>
-  <Select items={problems} bind:value={problem_ids} isMulti={true} />
-</div>
-<div>
-  <label for="filtered">Filtered</label>
-  <Select items={ideas} bind:value={related_ideas} isMulti={true} />
-</div>
-<div>
-  <label for="verified">Verified</label>
-  <input type="checkbox" bind:checked={filtered} />
-</div>
-<div>
-  <label for="verified">Verified</label>
-  <input type="checkbox" bind:checked={verified} />
+<div class="add-idea-wrapper">
+  <h2>Insert idea</h2>
+  <div class="input-wrapper">
+    <label for="author">Author</label>
+    <input type="text" bind:value={author} />
+  </div>
+  <div class="input-wrapper">
+    <label for="title">Title</label>
+    <input type="text" bind:value={title} />
+  </div>
+  <div class="input-wrapper">
+    <label for="description">Description</label>
+    <input type="text" bind:value={description} height="300px" />
+  </div>
+  <div class="input-wrapper">
+    <label for="tags">Tags</label>
+    <Select items={categories} bind:value={tags} isMulti={true} />
+  </div>
+  <div class="input-wrapper">
+    <label for="superprojects">Superprojects</label>
+    <Select
+      items={superprojects}
+      bind:value={superprojects_ids}
+      isMulti={true}
+    />
+  </div>
+  <div class="input-wrapper">
+    <label for="related_ideas">Related Ideas</label>
+    <Select items={problems} bind:value={problem_ids} isMulti={true} />
+  </div>
+  <div class="input-wrapper">
+    <label for="filtered">Filtered</label>
+    <Select items={ideas} bind:value={related_ideas} isMulti={true} />
+  </div>
+  <div class="input-wrapper">
+    <label for="verified">Verified</label>
+    <input type="checkbox" bind:checked={filtered} />
+    <label for="verified">Verified</label>
+    <input type="checkbox" bind:checked={verified} />
+  </div>
 </div>
 
 <button
@@ -150,3 +155,25 @@
       related_ideas
     )}>Submit idea</button
 >
+
+<style>
+  .add-idea-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 500px;
+    height: 100%;
+  }
+  .input-wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+  .input-wrapper label {
+    margin-bottom: 5px;
+  }
+  .input-wrapper input {
+    margin-bottom: 5px;
+  }
+</style>
