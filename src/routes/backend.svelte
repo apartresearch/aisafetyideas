@@ -182,4 +182,9 @@
   .description input {
     height: 300px;
   }
+
+  label {
+    font-size: 11px;
+    font-style: none;
+  }
 </style>
