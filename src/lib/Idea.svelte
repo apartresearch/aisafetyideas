@@ -2,10 +2,10 @@
   export let idea, updateIdea, deleteIdea;
 </script>
 
-<div class="todos" class:done={todo.isComplete}>
+<div class="idea">
   <input
     type="checkbox"
-    checked={todo.isComplete}
+    checked={idea.isComplete}
     on:change={(e) => {
       todo.isComplete = e.currentTarget.checked;
       updateTodo(todo);

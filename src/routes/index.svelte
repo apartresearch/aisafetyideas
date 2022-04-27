@@ -3,7 +3,7 @@
 
   import supabase from "$lib/db";
   import { user } from "$lib/stores";
-  import Todo from "$lib/Todo.svelte";
+  import Todo from "$lib/Idea.svelte";
   import { onMount } from "svelte";
 
   let ideas = [];
@@ -13,14 +13,10 @@
   let session = null;
 
   onMount(async () => {
-    console.log($user);
     await getAllIdeas();
     await getAllSuperprojects();
     await getAllCategories();
   });
-
-  let emailInput = "";
-  let passwordInput = "";
 
   const getAllIdeas = async () => {
     try {
