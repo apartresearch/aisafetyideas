@@ -169,6 +169,7 @@
     display: flex;
     flex-direction: column;
     margin-bottom: 20px;
+    width: 100%;
   }
   .input-wrapper label {
     margin-bottom: 5px;
