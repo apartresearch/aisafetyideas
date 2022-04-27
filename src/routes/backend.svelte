@@ -105,7 +105,7 @@
     <label for="title">Title</label>
     <input type="text" bind:value={title} />
   </div>
-  <div class="input-wrapper">
+  <div class="input-wrapper description">
     <label for="description">Description</label>
     <input type="text" bind:value={description} height="300px" />
   </div>
@@ -177,5 +177,9 @@
   }
   .input-wrapper input {
     margin-bottom: 5px;
+  }
+
+  .description input {
+    height: 300px;
   }
 </style>
