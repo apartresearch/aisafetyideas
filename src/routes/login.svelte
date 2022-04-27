@@ -1,42 +1,26 @@
 <script>
+  import Auth from "supabase-ui-svelte";
+
+  import { user } from "$lib/stores";
   import { goto } from "$app/navigation";
   import supabase from "$lib/db";
-  import { user } from "$lib/stores";
-
-  let email = "";
-  let isNewRegistration = false;
-
-  const signUp = async () => {
-    let { user: userDetails, error } = await supabase.auth.signUp({
-      email: email,
-      password: "VRBBcygxwRculfTvPjat",
-    });
-    $user = userDetails;
-    goto("/");
-  };
-
-  const logIn = async () => {
-    let { user: userDetails, error } = await supabase.auth.signIn({
-      email: email,
-      password: "VRBBcygxwRculfTvPjat",
-    });
-    $user = userDetails;
-    goto("/");
-  };
 </script>
 
-<label for="">
-  Email:
-  <input bind:value={email} type="email" placeholder="email@email.com" />
-</label>
-<br />
-<br />
-{#if isNewRegistration}
-  <button on:click={signUp}>SignUp</button>
-  <p class="switch" on:click={() => (isNewRegistration = false)}>
-    Already have an account?
-  </p>
-{:else}
-  <button on:click={logIn}>Login</button>
-  <p class="switch" on:click={() => isNewRegistration = true}>Create a new account?</p>
-{/if}
+<div class="auth_wrapper">
+  <Auth
+    supabaseClient={supabase}
+    providers={["google", "github", "twitter"]}
+    socialLayout={"horizontal"}
+  />
+</div>
+
+<style>
+  .auth_wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+</style>

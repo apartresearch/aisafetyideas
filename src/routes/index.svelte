@@ -2,56 +2,64 @@
   import { goto } from "$app/navigation";
 
   import supabase from "$lib/db";
-  import { user } from "$lib/stores";
   import Todo from "$lib/Todo.svelte";
   import { onMount } from "svelte";
 
-  let todos = [];
-  let newTask = "";
+  let ideas = [];
+  let superprojects = [];
+  let categories = [];
+  let ideaTitle = "";
+  let user = null;
+  let session = null;
 
   onMount(async () => {
-    await getAllTodos();
+    user = supabase.auth.user();
+    if (!user) {
+      goto("/login");
+    }
+    session = await supabase.session.get();
+    await getAllIdeas();
+    await getAllSuperprojects();
+    await getAllCategories();
   });
 
-  const getAllTodos = async () => {
+  const getAllIdeas = async () => {
     try {
-      let { data, error } = await supabase.from("todos").select("*");
-      todos = data;
+      let { data, error } = await supabase.from("ideas").select("*");
+      ideas = data;
     } catch (err) {
       console.log(err);
     }
   };
 
-  const addNewTodo = async () => {
+  const addNewIdea = async (title) => {
     try {
       const { data, error } = await supabase
-        .from("todos")
-        .insert([{ task: newTask, user_id: $user.id }]);
-      await getAllTodos();
+        .from("ideas")
+        .insert([{ task: newTask, user_id: "22" }]);
+      await getAllIdeas();
       newTask = "";
     } catch (err) {
       console.log(err);
     }
   };
 
-  const updateTodo = async (todo) => {
+  const updateIdea = async (idea) => {
     try {
       const { data, error } = await supabase
-        .from("todos")
-        .update({ task: todo.task, isComplete: todo.isComplete })
-        .eq("id", todo.id);
-      await getAllTodos();
+        .from("ideas")
+        .update({ task: idea.task, isComplete: idea.isComplete })
+        .eq("id", idea.id);
+      await getAllIdeas();
     } catch (err) {
       console.log(err);
     }
   };
-  const deleteTodo = async (todo) => {
+
+  const getAllSuperprojects = async () => {
     try {
-      const { data, error } = await supabase
-        .from("todos")
-        .delete()
-        .eq("id", todo.id);
-      await getAllTodos();
+      let { data, error } = await supabase.from("superprojects").select("*");
+      superprojects = data;
     } catch (err) {
       console.log(err);
     }
@@ -65,43 +73,28 @@
 
   const logOut = async () => {
     let { error } = await supabase.auth.signOut();
-    $user = false;
     goto("/login");
   };
-
-  $: console.log($user);
 </script>
 
-<h4>Welcome {$user?.email ? $user.email : ""}!</h4>
+<h4>Welcome {user ? user.email : ""}!</h4>
 
 <div class="add-todo">
-  <input type="text" bind:value={newTask} />
-  <button on:click={() => addNewTodo()}>Add Task</button>
+  <input type="text" bind:value={ideaTitle} />
+  <button on:click={() => addNewIdea()}>Add Task</button>
 </div>
 
-{#each todos as todo}
-  <Todo {todo} {updateTodo} {deleteTodo} />
+{#each ideas as idea}
+  <p>IDEA HERE WOW! {JSON.stringify(idea)}</p>
 {:else}
-  <p>No todos found</p>
+  <p>No ideas found</p>
 {/each}
 
-{#if $user.email}
-  <p on:click={logOut} class="switch">Logout</p>
+{#if user ? user.email : false}
+  <button on:click={logOut} class="switch">Logout</button>
 {/if}
+
 <svelte:window on:keypress={handleKeyPress} />
 
 <style>
-  .add-todo {
-    display: flex;
-    margin-bottom: 0.5em;
-  }
-
-  :global(.switch) {
-    color: lightskyblue;
-    cursor: pointer;
-  }
-
-  :global(.switch:hover) {
-    text-decoration: underline;
-  }
 </style>

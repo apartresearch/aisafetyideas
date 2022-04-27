@@ -1,1 +1,1 @@
-# A simple todo app made with Supabse and Sveltekit
+# AI Safety Research Ideas
