@@ -86,51 +86,51 @@
     goto("/login");
   };
 
-  const signInWithX = async (X) => {
-    if (X != "email") {
-      const {
-        user: userDetails,
-        session,
-        error,
-      } = await supabase.auth.signIn({
-        provider: X,
-      });
-    } else {
-      const {
-        user: userDetails,
-        session,
-        error,
-      } = await supabase.auth.signIn({
-        email: "",
-        password: "",
-      });
-    }
-    $user = userDetails;
-  };
+  // const signInWithX = async (X) => {
+  //   if (X != "email") {
+  //     const {
+  //       user: userDetails,
+  //       session,
+  //       error,
+  //     } = await supabase.auth.signIn({
+  //       provider: X,
+  //     });
+  //   } else {
+  //     const {
+  //       user: userDetails,
+  //       session,
+  //       error,
+  //     } = await supabase.auth.signIn({
+  //       email: "",
+  //       password: "",
+  //     });
+  //   }
+  //   $user = userDetails;
+  // };
 
-  const signUpWithX = async (X) => {
-    if (X != "email") {
-      const {
-        user: userDetails,
-        session,
-        error,
-      } = await supabase.auth.signUp({
-        provider: X,
-      });
-    } else {
-      const {
-        user: userDetails,
-        session,
-        error,
-      } = await supabase.auth.signUp({
-        email: "",
-        password: "",
-      });
-    }
-    $user = userDetails;
-  };
+  // const signUpWithX = async (X) => {
+  //   if (X != "email") {
+  //     const {
+  //       user: userDetails,
+  //       session,
+  //       error,
+  //     } = await supabase.auth.signUp({
+  //       provider: X,
+  //     });
+  //   } else {
+  //     const {
+  //       user: userDetails,
+  //       session,
+  //       error,
+  //     } = await supabase.auth.signUp({
+  //       email: "",
+  //       password: "",
+  //     });
+  //   }
+  //   $user = userDetails;
+  // };
 
-  $: signup = false;
+  // $: signup = false;
 </script>
 
 <h4>Welcome {$user ? $user.email : ""}!</h4>
@@ -152,7 +152,7 @@
 
 <svelte:window on:keypress={handleKeyPress} />
 
-<div class="login">
+<!-- <div class="login">
   {#if !signup}
     <button on:click={signInWithX("google")}>Google</button>
     <button on:click={signInWithX("github")}>Github</button>
@@ -172,7 +172,6 @@
   <button on:click={() => (signup = !signup)}
     >{signup ? "Sign In" : "Sign Up"}</button
   >
-</div>
-
+</div> -->
 <style>
 </style>
