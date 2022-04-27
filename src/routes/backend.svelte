@@ -107,7 +107,7 @@
   </div>
   <div class="input-wrapper description">
     <label for="description">Description (supports markdown)</label>
-    <input type="text" bind:value={description} height="300px" />
+    <textarea bind:value={description} />
   </div>
   <div class="input-wrapper">
     <label for="tags">Tags</label>
@@ -180,10 +180,8 @@
     margin-bottom: 5px;
   }
 
-  .description input {
+  .description textarea {
     height: 250px;
-    text-align: left;
-    vertical-align: top;
   }
 
   label {
