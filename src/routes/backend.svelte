@@ -18,7 +18,11 @@
   const getTable = async (table_name) => {
     try {
       let { data, error } = await supabase.from(table_name).select("*");
-      return data.map((elm) => ({ ...elm, value: elm.title }));
+      return data.map((elm) => ({
+        ...elm,
+        value: elm.title,
+        label: elm.title,
+      }));
     } catch (err) {
       console.log(err);
     }
