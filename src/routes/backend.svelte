@@ -18,7 +18,7 @@
   const getTable = async (table_name) => {
     try {
       let { data, error } = await supabase.from(table_name).select("*");
-      return data;
+      return data.map((elm) => ({ ...elm, value: elm.title }));
     } catch (err) {
       console.log(err);
     }
@@ -93,7 +93,7 @@
 
 <input type="text" bind:value={author} />
 <input type="text" bind:value={title} />
-<input type="text" bind:value={description} />
+<input type="text" bind:value={description} height="300px" />
 <Select items={categories} bind:value={tags} isMulti={true} />
 <Select items={superprojects} bind:value={superprojects_ids} isMulti={true} />
 <Select items={problems} bind:value={problem_ids} isMulti={true} />
@@ -113,9 +113,9 @@
         tags: tags.map((tag) => tag.id),
       },
       tags,
-       superprojects_ids,
+      superprojects_ids,
       problem_ids,
-      
+
       related_ideas
     )}>Submit idea</button
 >
