@@ -118,83 +118,84 @@
 </script>
 
 <div class="cols-wrapper">
-<div class="col-parent">
-<div class="add-idea-wrapper">
-  <h2>Insert idea</h2>
-  <div class="input-wrapper">
-    <label for="id">ID (only used when editing)</label>
-    <input type="number" bind:value={id} />
+  <div class="col-parent">
+    <div class="add-idea-wrapper">
+      <h2>Insert idea</h2>
+      <div class="input-wrapper">
+        <label for="id">ID (only used when editing)</label>
+        <input type="number" bind:value={id} />
+      </div>
+      <div class="input-wrapper">
+        <label for="author">Author</label>
+        <input type="text" bind:value={author} />
+      </div>
+      <div class="input-wrapper">
+        <label for="title">Title</label>
+        <input type="text" bind:value={title} />
+      </div>
+      <div class="input-wrapper description">
+        <label for="description">Description (supports markdown)</label>
+        <textarea rows="8" bind:value={description} />
+      </div>
+      <div class="input-wrapper">
+        <label for="tags">Tags</label>
+        <Select items={categories} bind:value={tags} isMulti={true} />
+      </div>
+      <div class="input-wrapper">
+        <label for="superprojects">Superprojects</label>
+        <Select
+          items={superprojects}
+          bind:value={superprojects_ids}
+          isMulti={true}
+        />
+      </div>
+      <div class="input-wrapper">
+        <label for="related_ideas">Related problems</label>
+        <Select items={problems} bind:value={problem_ids} isMulti={true} />
+      </div>
+      <div class="input-wrapper">
+        <label for="filtered">Related ideas</label>
+        <Select items={ideas} bind:value={related_ideas} isMulti={true} />
+      </div>
+      <div class="input-wrapper">
+        <label for="verified">Filtered</label>
+        <input type="checkbox" bind:checked={filtered} />
+        <label for="verified">Verified</label>
+        <input type="checkbox" bind:checked={verified} />
+      </div>
+      <button
+        on:click={() => {
+          console.table(superprojects_ids);
+          console.table(problem_ids);
+          console.table(tags);
+          console.table(related_ideas);
+          addNewIdea(
+            {
+              author,
+              title,
+              summary: description,
+              verified_by_expert: verified,
+              filtered,
+            },
+            tags,
+            superprojects_ids.map((elm) => ({
+              superproject: elm.title,
+              idea: next_id,
+            })),
+            superprojects_ids,
+            problem_ids,
+            related_ideas
+          );
+        }}>Submit idea</button
+      >
+    </div>
   </div>
-  <div class="input-wrapper">
-    <label for="author">Author</label>
-    <input type="text" bind:value={author} />
+  <div>
+    <h2>Edit ideas</h2>
+    {#each ideas as idea}{/each}
+    <script defer src="https://cdn.commento.io/js/commento.js"></script>
+    <div id="commento" />
   </div>
-  <div class="input-wrapper">
-    <label for="title">Title</label>
-    <input type="text" bind:value={title} />
-  </div>
-  <div class="input-wrapper description">
-    <label for="description">Description (supports markdown)</label>
-    <textarea rows="8" bind:value={description} />
-  </div>
-  <div class="input-wrapper">
-    <label for="tags">Tags</label>
-    <Select items={categories} bind:value={tags} isMulti={true} />
-  </div>
-  <div class="input-wrapper">
-    <label for="superprojects">Superprojects</label>
-    <Select
-      items={superprojects}
-      bind:value={superprojects_ids}
-      isMulti={true}
-    />
-  </div>
-  <div class="input-wrapper">
-    <label for="related_ideas">Related problems</label>
-    <Select items={problems} bind:value={problem_ids} isMulti={true} />
-  </div>
-  <div class="input-wrapper">
-    <label for="filtered">Related ideas</label>
-    <Select items={ideas} bind:value={related_ideas} isMulti={true} />
-  </div>
-  <div class="input-wrapper">
-    <label for="verified">Filtered</label>
-    <input type="checkbox" bind:checked={filtered} />
-    <label for="verified">Verified</label>
-    <input type="checkbox" bind:checked={verified} />
-  </div>
-  <button
-    on:click={() => {
-      console.table(superprojects_ids);
-      console.table(problem_ids);
-      console.table(tags);
-      console.table(related_ideas);
-      addNewIdea(
-        {
-          author,
-          title,
-          summary: description,
-          verified_by_expert: verified,
-          filtered,
-        },
-        tags,
-        superprojects_ids.map((elm) => {superproject: elm.title, idea: next_id}),
-        superprojects_ids,
-        problem_ids,
-        related_ideas
-      );
-    }}>Submit idea</button
-  >
-</div>
-</div>
-<div>
-  <h2>Edit ideas</h2>
-  {#each ideas as idea}
-  
-  {/each}
-  <script defer src="https://cdn.commento.io/js/commento.js"></script>
-  <div id="commento"></div>
-</div>
 </div>
 
 <style>
