@@ -69,6 +69,7 @@
         });
       });
       console.log("Uploaded idea relations...");
+      resetData();
     } catch (err) {
       console.log(err);
     }
@@ -86,7 +87,8 @@
     related_ideas = [],
     filtered = true,
     verified = true,
-    problem_ids = [];
+    problem_ids = [],
+    idea_id = NaN;
 
   const resetData = () => {
     author = "";
@@ -98,11 +100,31 @@
     filtered = true;
     verified = true;
     problem_ids = [];
+    idea_id = NaN;
+  };
+
+  const editIdea = (idea) => {
+    idea_id = idea.id;
+    author = idea.author;
+    title = idea.title;
+    description = idea.description;
+    tags = idea.tags;
+    superprojects_ids = idea.superprojects_ids;
+    related_ideas = idea.related_ideas;
+    filtered = idea.filtered;
+    verified = idea.verified;
+    problem_ids = idea.problem_ids;
   };
 </script>
 
+<div class="cols-wrapper">
+<div class="col-parent">
 <div class="add-idea-wrapper">
   <h2>Insert idea</h2>
+  <div class="input-wrapper">
+    <label for="id">ID (only used when editing)</label>
+    <input type="number" bind:value={id} />
+  </div>
   <div class="input-wrapper">
     <label for="author">Author</label>
     <input type="text" bind:value={author} />
@@ -152,20 +174,39 @@
           author,
           title,
           summary: description,
-          verified,
+          verified_by_expert: verified,
           filtered,
         },
         tags,
+        superprojects_ids.map((elm) => {superproject: elm.title, idea: next_id}),
         superprojects_ids,
         problem_ids,
-
         related_ideas
       );
     }}>Submit idea</button
   >
 </div>
+</div>
+<div>
+  <h2>Edit ideas</h2>
+  {#each ideas as idea}
+
+  {/each}
+</div>
+</div>
 
 <style>
+  .cols-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    max-width: 1100px;
+  }
+
+  .col-parent {
+    width: 50%;
+  }
+
   button {
     margin: 10px;
     padding: 10px;
