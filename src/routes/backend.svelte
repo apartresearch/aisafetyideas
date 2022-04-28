@@ -190,8 +190,10 @@
 <div>
   <h2>Edit ideas</h2>
   {#each ideas as idea}
-
+  
   {/each}
+  <script defer src="https://cdn.commento.io/js/commento.js"></script>
+  <div id="commento"></div>
 </div>
 </div>
 
