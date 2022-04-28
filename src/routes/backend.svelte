@@ -123,7 +123,7 @@
       <h2>Insert idea</h2>
       <div class="input-wrapper">
         <label for="id">ID (only used when editing)</label>
-        <input type="number" bind:value={id} />
+        <input type="number" bind:value={idea_id} />
       </div>
       <div class="input-wrapper">
         <label for="author">Author</label>
