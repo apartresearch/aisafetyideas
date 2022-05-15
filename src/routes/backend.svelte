@@ -40,33 +40,21 @@
       const { data, error } = await supabase.from("ideas").insert(idea);
       console.log("Uploaded idea...");
       await categories_ids.forEach(async (category_id) => {
-        await supabase.from("idea_category_relation").insert(idea);
+        await supabase.from("idea_category_relation").insert(category_id);
       });
       console.log("Uploaded categories relations...");
       await superprojects_ids.forEach(async (superproject_id) => {
-        await supabase.from("idea_superproject_relation").insert({
-          idea: idea.id,
-          superproject: superproject_id,
-        });
+        await supabase
+          .from("idea_superproject_relation")
+          .insert(superproject_id);
       });
       console.log("Uploaded superprojects relations...");
       await problems_ids.forEach(async (problem_id) => {
-        await supabase.from("idea_problem_relation").insert(
-          {
-            idea: idea.id,
-            problem: problem_id,
-          },
-          {
-            conflict: "update",
-          }
-        );
+        await supabase.from("idea_problem_relation").insert(problem_id);
       });
       console.log("Uploaded problems relations...");
       await ideas_ids.forEach(async (idea_id) => {
-        await supabase.from("idea_idea_relation").insert({
-          idea_1: idea.id,
-          idea_2: idea_id,
-        });
+        await supabase.from("idea_idea_relation").insert(idea_id);
       });
       console.log("Uploaded idea relations...");
       resetData();
@@ -171,7 +159,7 @@
           console.table(related_ideas);
           addNewIdea(
             {
-              idea_id,
+              id: idea_id,
               author,
               title,
               summary: description,
@@ -200,7 +188,7 @@
   </div>
   <div>
     <h2>Edit ideas</h2>
-    {#each ideas as idea}ideas {idea.id}{/each}
+    {#each ideas as idea}ideas {idea.id}\n{/each}
     <script defer src="https://cdn.commento.io/js/commento.js"></script>
     <div id="commento" />
   </div>
