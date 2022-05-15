@@ -185,12 +185,13 @@
       </button>
     </div>
   </div>
-  <div>
-    <h2>Edit ideas</h2>
+  <div class="col-parent">
+    <h2>See ideas</h2>
     {#each ideas as idea}
       {idea.title}<br />
       {idea.author}<br />
       {idea.summary}<br />
+      <br />
     {/each}
     <script defer src="https://cdn.commento.io/js/commento.js"></script>
     <div id="commento" />
@@ -208,6 +209,7 @@
 
   .col-parent {
     max-width: 50%;
+    margin: 0 10px;
   }
 
   button {
