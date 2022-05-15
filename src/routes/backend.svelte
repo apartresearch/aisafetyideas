@@ -183,12 +183,13 @@
               superproject: elm.title,
               idea: idea_id,
             })),
-            superprojects_ids,
             problem_ids,
             related_ideas
           );
-        }}>Submit idea</button
+        }}
       >
+        Submit idea
+      </button>
     </div>
   </div>
   <div>
