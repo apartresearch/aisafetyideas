@@ -153,10 +153,6 @@
       </div>
       <button
         on:click={() => {
-          console.table(superprojects_ids);
-          console.table(problem_ids);
-          console.table(tags);
-          console.table(related_ideas);
           addNewIdea(
             {
               id: idea_id,
@@ -210,7 +206,7 @@
   }
 
   .col-parent {
-    width: 50%;
+    max-width: 50%;
   }
 
   button {
