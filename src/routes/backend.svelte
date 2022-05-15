@@ -180,7 +180,7 @@
             tags,
             superprojects_ids.map((elm) => ({
               superproject: elm.title,
-              idea: next_id,
+              idea: ideas[-1].id + 1,
             })),
             superprojects_ids,
             problem_ids,
@@ -192,7 +192,7 @@
   </div>
   <div>
     <h2>Edit ideas</h2>
-    {#each ideas as idea}{/each}
+    {#each ideas as idea}ideas {idea.id}{/each}
     <script defer src="https://cdn.commento.io/js/commento.js"></script>
     <div id="commento" />
   </div>
