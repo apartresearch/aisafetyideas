@@ -188,10 +188,9 @@
   <div class="col-parent">
     <h2>See ideas</h2>
     {#each ideas as idea}
-      {idea.author}<br />
+      <i>{idea.author}</i><br />
       <b>{idea.title}</b><br />
       {@html markdown(idea.summary)}<br />
-      <br />
     {/each}
     <script defer src="https://cdn.commento.io/js/commento.js"></script>
     <div id="commento" />
@@ -221,11 +220,7 @@
   .add-idea-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    max-width: 500px;
     height: 100%;
-    margin: auto;
   }
   .input-wrapper {
     display: flex;
