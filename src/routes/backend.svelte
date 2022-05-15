@@ -88,7 +88,7 @@
     filtered = true,
     verified = true,
     problem_ids = [],
-    idea_id = NaN;
+    idea_id = parseInt(Math.random() * 100);
 
   const resetData = () => {
     author = "";
@@ -100,7 +100,7 @@
     filtered = true;
     verified = true;
     problem_ids = [];
-    idea_id = NaN;
+    idea_id = parseInt(Math.random() * 100);
   };
 
   const editIdea = (idea) => {
@@ -122,8 +122,8 @@
     <div class="add-idea-wrapper">
       <h2>Insert idea</h2>
       <div class="input-wrapper">
-        <label for="id">ID (only used when editing)</label>
-        <input type="number" bind:value={idea_id} />
+        <label for="id">ID</label>
+        <input type="number" disabled bind:value={idea_id} />
       </div>
       <div class="input-wrapper">
         <label for="author">Author</label>
@@ -171,6 +171,7 @@
           console.table(related_ideas);
           addNewIdea(
             {
+              idea_id,
               author,
               title,
               summary: description,
@@ -180,7 +181,7 @@
             tags,
             superprojects_ids.map((elm) => ({
               superproject: elm.title,
-              idea: ideas[-1].id + 1,
+              idea: idea_id,
             })),
             superprojects_ids,
             problem_ids,
