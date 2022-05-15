@@ -203,6 +203,7 @@
     flex-direction: row;
     justify-content: space-between;
     max-width: 1100px;
+    margin: 0 auto;
   }
 
   .col-parent {
