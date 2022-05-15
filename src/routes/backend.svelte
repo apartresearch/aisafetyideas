@@ -190,7 +190,7 @@
     {#each ideas as idea}
       <i>{idea.author}</i><br />
       <b>{idea.title}</b><br />
-      {@html markdown(idea.summary)}<br />
+      {@html markdown(idea.summary)}
     {/each}
     <script defer src="https://cdn.commento.io/js/commento.js"></script>
     <div id="commento" />
