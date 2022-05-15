@@ -88,7 +88,7 @@
     filtered = true,
     verified = true,
     problem_ids = [],
-    idea_id = parseInt(Math.random() * 100);
+    idea_id = parseInt(Math.random() * 1e10);
 
   const resetData = () => {
     author = "";
@@ -100,7 +100,7 @@
     filtered = true;
     verified = true;
     problem_ids = [];
-    idea_id = parseInt(Math.random() * 100);
+    idea_id = parseInt(Math.random() * 1e10);
   };
 
   const editIdea = (idea) => {
@@ -183,8 +183,14 @@
               superproject: elm.title,
               idea: idea_id,
             })),
-            problem_ids,
-            related_ideas
+            problem_ids.map((elm) => ({
+              problem: elm.title,
+              idea: idea_id,
+            })),
+            related_ideas.map((elm) => ({
+              idea_1: idea_id,
+              idea_2: elm.id,
+            }))
           );
         }}
       >
