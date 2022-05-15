@@ -188,9 +188,9 @@
   <div class="col-parent">
     <h2>See ideas</h2>
     {#each ideas as idea}
-      {idea.title}<br />
       {idea.author}<br />
-      {markdown(idea.summary)}<br />
+      <b>{idea.title}</b><br />
+      {@html markdown(idea.summary)}<br />
       <br />
     {/each}
     <script defer src="https://cdn.commento.io/js/commento.js"></script>
