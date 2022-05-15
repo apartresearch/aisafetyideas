@@ -190,7 +190,7 @@
     {#each ideas as idea}
       {idea.title}<br />
       {idea.author}<br />
-      {idea.summary}<br />
+      {markdown(idea.summary)}<br />
       <br />
     {/each}
     <script defer src="https://cdn.commento.io/js/commento.js"></script>
@@ -208,8 +208,9 @@
   }
 
   .col-parent {
-    max-width: 50%;
+    width: 50%;
     margin: 0 10px;
+    vertical-align: top;
   }
 
   button {
