@@ -191,7 +191,11 @@
   </div>
   <div>
     <h2>Edit ideas</h2>
-    {#each ideas as idea}ideas {idea.id}\n{/each}
+    {#each ideas as idea}
+      {idea.title}<br />
+      {idea.author}<br />
+      {idea.summary}<br />
+    {/each}
     <script defer src="https://cdn.commento.io/js/commento.js"></script>
     <div id="commento" />
   </div>
