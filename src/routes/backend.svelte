@@ -166,7 +166,10 @@
               verified_by_expert: verified,
               filtered,
             },
-            tags,
+            tags.map((elm) => ({
+              idea: idea_id,
+              category: elm.title,
+            })),
             superprojects_ids.map((elm) => ({
               superproject: elm.title,
               idea: idea_id,
