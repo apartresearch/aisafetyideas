@@ -14,6 +14,8 @@
     problemRelations = [],
     ideaRelations = [];
 
+  let currentIdea = {};
+
   onMount(async () => {
     ideas = await getTable("ideas");
     superprojects = await getTable("idea_superprojects");
@@ -40,18 +42,18 @@
 
       idea.categories.forEach((category) => {
         category.category = categories.find(
-          (cat) => cat.id === category.category_id
+          (cat) => cat.title === category.category
         );
       });
 
       idea.superprojects.forEach((superproject) => {
         superproject.superproject = superprojects.find(
-          (sp) => sp.id === superproject.superproject_id
+          (sp) => sp.title === superproject.superproject
         );
       });
 
       idea.problems.forEach((problem) => {
-        problem.problem = problems.find((p) => p.id === problem.problem_id);
+        problem.problem = problems.find((p) => p.title === problem.problem);
       });
     });
   });
