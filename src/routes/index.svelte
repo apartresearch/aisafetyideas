@@ -37,6 +37,22 @@
       idea.ideas = ideaRelations.filter(
         (relation) => relation.idea_id === idea.id
       );
+
+      idea.categories.forEach((category) => {
+        category.category = categories.find(
+          (cat) => cat.id === category.category_id
+        );
+      });
+
+      idea.superprojects.forEach((superproject) => {
+        superproject.superproject = superprojects.find(
+          (sp) => sp.id === superproject.superproject_id
+        );
+      });
+
+      idea.problems.forEach((problem) => {
+        problem.problem = problems.find((p) => p.id === problem.problem_id);
+      });
     });
   });
 
@@ -103,10 +119,16 @@
         {@html markdown(idea.summary)}
       </div>
       {#each idea.categories as category}
-        <div class="idea-category">{category.title}</div>
+        <div
+          class="idea-category"
+          title={category.category.tooltip}
+          use:tooltip
+        >
+          {category.category.title}
+        </div>
       {/each}
       {#each idea.superprojects as superproject}
-        <div class="idea-superproject">{superproject.title}</div>
+        <div class="idea-superproject">{superproject.superproject.title}</div>
       {/each}
     </div>
   {:else}
