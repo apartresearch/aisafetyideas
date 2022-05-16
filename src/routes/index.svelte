@@ -59,9 +59,11 @@
 </header>
 <h2>See ideas</h2>
 {#each ideas as idea}
-  <i>{idea.author}</i><br />
-  <b>{idea.title}</b><br />
-  {@html markdown(idea.summary)}
+  <div class="idea-card">
+    <p class="idea-author">{idea.author}</p>
+    <h3 class="idea-title">{idea.title}</h3>
+    <div class="idea-text">{@html markdown(idea.summary)}</div>
+  </div>
 {:else}
   <p>No ideas found</p>
 {/each}
@@ -71,75 +73,29 @@
     text-align: center;
   }
 
-  .button {
-    margin: 0 auto;
-    display: block;
-    width: 100%;
-    max-width: 300px;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #00bcd4;
-    color: #fff;
-    font-size: 1.2rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease-in-out;
-  }
-
-  .button:hover {
-    background-color: #00bcd4;
-    color: #fff;
-  }
-
   body {
     background-color: #fafafa;
   }
 
-  .nav-logo {
-    width: 100px;
-    height: 100px;
+  .idea-card {
+    background-color: #fff;
+    border-radius: 5px;
+    padding: 20px;
+    margin-bottom: 20px;
   }
 
-  .nav-logo-link {
-    text-decoration: none;
+  .idea-author {
+    font-size: 0.8em;
+    font-style: italic;
+    margin-bottom: 10px;
   }
 
-  .nav-logo-link:hover {
-    text-decoration: none;
+  .idea-title {
+    font-size: 1.2em;
+    margin-bottom: 10px;
   }
 
-  .logotext {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-align: center;
-  }
-
-  .nav-grid {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .nav-grid li {
-    list-style: none;
-  }
-
-  .nav-grid li a {
-    text-decoration: none;
-    color: #000;
-  }
-
-  .nav-grid li a:hover {
-    text-decoration: none;
-  }
-
-  .nav-grid li a.w--current {
-    text-decoration: none;
-    color: #000;
+  .idea-text {
+    font-size: 0.8em;
   }
 </style>
