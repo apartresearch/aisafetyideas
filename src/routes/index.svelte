@@ -23,6 +23,21 @@
     superprojectRelations = await getTable("idea_superproject_relation", false);
     problemRelations = await getTable("idea_problem_relation", false);
     ideaRelations = await getTable("idea_idea_relation", false);
+
+    ideas.forEach((idea) => {
+      idea.categories = categoryRelations.filter(
+        (relation) => relation.idea_id === idea.id
+      );
+      idea.superprojects = superprojectRelations.filter(
+        (relation) => relation.idea_id === idea.id
+      );
+      idea.problems = problemRelations.filter(
+        (relation) => relation.idea_id === idea.id
+      );
+      idea.ideas = ideaRelations.filter(
+        (relation) => relation.idea_id === idea.id
+      );
+    });
   });
 
   const getTable = async (table_name, grabTitle = false) => {
@@ -84,7 +99,15 @@
     <div class="idea-card">
       <p class="idea-author">{idea.author}</p>
       <h3 class="idea-title">{idea.title}</h3>
-      <div class="idea-text">{@html markdown(idea.summary)}</div>
+      <div class="idea-text">
+        {@html markdown(idea.summary)}
+      </div>
+      {#each idea.categories as category}
+        <div class="idea-category">{category.title}</div>
+      {/each}
+      {#each idea.superprojects as superproject}
+        <div class="idea-superproject">{superproject.title}</div>
+      {/each}
     </div>
   {:else}
     <p>No ideas found</p>
@@ -101,8 +124,9 @@
 
   .idea-author {
     font-size: 0.8em;
+    line-height: 1em;
     font-style: italic;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
   }
 
   .idea-title {
