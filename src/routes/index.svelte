@@ -14,7 +14,7 @@
     problemRelations = [],
     ideaRelations = [];
 
-  let currentIdea = {};
+  $: currentIdea = {};
 
   onMount(async () => {
     ideas = await getTable("ideas");
@@ -56,9 +56,11 @@
         problem.problem = problems.find((p) => p.title === problem.problem);
       });
     });
+
+    currentIdea = ideas[0];
   });
 
-  const getTable = async (table_name, grabTitle = false) => {
+  const getTable = async (table_name, grabTitle = true) => {
     try {
       let { data, error } = await supabase.from(table_name).select("*");
       return data.map((elm) => ({
@@ -70,6 +72,11 @@
       console.log(err);
     }
   };
+
+  const selectIdea = (idea) => {
+    currentIdea = idea;
+    console.log(currentIdea);
+  };
 </script>
 
 <svelte:head>
@@ -77,7 +84,7 @@
     body {
       margin: 0;
       padding: 0;
-      background-color: #fafafa;
+      background-color: #f7f7f7;
     }
   </style>
 </svelte:head>
@@ -102,6 +109,7 @@
           <button
             data-tally-open="mZqqAn"
             data-tally-hide-title="1"
+            href="backend"
             class="button utility w-button"
           >
             Submit an idea
@@ -113,29 +121,61 @@
   </nav>
 </header>
 <div class="container w-container">
-  {#each ideas as idea}
-    <div class="idea-card">
-      <p class="idea-author">{idea.author}</p>
-      <h3 class="idea-title">{idea.title}</h3>
-      <div class="idea-text">
-        {@html markdown(idea.summary)}
-      </div>
-      {#each idea.categories as category}
-        <div
-          class="idea-category"
-          title={category.category.tooltip}
-          use:tooltip
-        >
-          {category.category.title}
+  <div class="ideas-col">
+    {#each ideas as idea}
+      <div class="idea-card" on:mousedown={() => selectIdea(idea)}>
+        <p class="idea-author">{idea.author}</p>
+        <h3 class="idea-title">{idea.title}</h3>
+        <div class="idea-text">
+          {@html markdown(idea.summary)}
         </div>
-      {/each}
-      {#each idea.superprojects as superproject}
-        <div class="idea-superproject">{superproject.superproject.title}</div>
-      {/each}
-    </div>
-  {:else}
-    <p>No ideas found</p>
-  {/each}
+        {#if idea.categories}
+          {#each idea.categories as category}
+            <div
+              class="idea-category"
+              title={category.category.tooltip}
+              use:tooltip
+            >
+              {category.category.title}
+            </div>
+          {/each}
+        {/if}
+        {#if idea.superprojects}
+          {#each idea.superprojects as superproject}
+            <div class="idea-superproject">
+              {superproject.superproject.title}
+            </div>
+          {/each}
+        {/if}
+      </div>
+    {:else}
+      <p>No ideas found</p>
+    {/each}
+  </div>
+  <div class="current-idea-col">
+    {#if currentIdea.title}
+      <p class="idea-author">{currentIdea.author}</p>
+      <h2>{currentIdea.title}</h2>
+      <div class="current-idea-text">
+        {@html markdown(currentIdea.summary)}
+      </div>
+      <div>
+        {#if currentIdea.categories}
+          {#each currentIdea.categories as category}
+            <div
+              class="idea-category"
+              title={category.category.tooltip}
+              use:tooltip
+            >
+              {category.category.title}
+            </div>
+          {/each}
+        {/if}
+      </div>
+    {:else}
+      <h3>No idea selected...</h3>
+    {/if}
+  </div>
 </div>
 
 <style>
@@ -146,19 +186,54 @@
     margin-bottom: 20px;
   }
 
+  .idea-card:hover {
+    background-color: #fafafa;
+    cursor: pointer;
+  }
+
   .idea-author {
     font-size: 0.8em;
     line-height: 1em;
     font-style: italic;
-    margin-bottom: 0px;
+    margin-bottom: 4px;
   }
 
   .idea-title {
     font-size: 1.2em;
-    margin-bottom: 10px;
+    line-height: 1.2em;
+    margin: 0;
+    margin-bottom: 4px;
   }
 
   .idea-text {
     font-size: 0.8em;
+  }
+
+  .container {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+  }
+
+  .ideas-col {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    width: 50%;
+    left: 0;
+    padding-right: 20px;
+  }
+
+  .current-idea-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: top;
+    align-items: top;
+    margin-bottom: 20px;
+    width: 50%;
+    position: fixed;
+    right: 0;
   }
 </style>
