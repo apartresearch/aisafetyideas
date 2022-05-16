@@ -14,6 +14,19 @@
     categories = await getTable("idea_categories");
     problems = await getTable("problems");
   });
+
+  const getTable = async (table_name) => {
+    try {
+      let { data, error } = await supabase.from(table_name).select("*");
+      return data.map((elm) => ({
+        ...elm,
+        value: elm.title,
+        label: elm.title,
+      }));
+    } catch (err) {
+      console.log(err);
+    }
+  };
 </script>
 
 <header id="nav" class="sticky-nav">
@@ -56,5 +69,77 @@
 <style>
   h2 {
     text-align: center;
+  }
+
+  .button {
+    margin: 0 auto;
+    display: block;
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #00bcd4;
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .button:hover {
+    background-color: #00bcd4;
+    color: #fff;
+  }
+
+  body {
+    background-color: #fafafa;
+  }
+
+  .nav-logo {
+    width: 100px;
+    height: 100px;
+  }
+
+  .nav-logo-link {
+    text-decoration: none;
+  }
+
+  .nav-logo-link:hover {
+    text-decoration: none;
+  }
+
+  .logotext {
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+  }
+
+  .nav-grid {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .nav-grid li {
+    list-style: none;
+  }
+
+  .nav-grid li a {
+    text-decoration: none;
+    color: #000;
+  }
+
+  .nav-grid li a:hover {
+    text-decoration: none;
+  }
+
+  .nav-grid li a.w--current {
+    text-decoration: none;
+    color: #000;
   }
 </style>
