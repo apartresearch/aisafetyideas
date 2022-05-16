@@ -2,6 +2,8 @@
   import supabase from "$lib/db";
   import { onMount } from "svelte";
   import Select from "svelte-select";
+  import Tooltip from "../lib/Tooltip.svelte";
+  import { tooltip } from "../lib/tooltip";
 
   let ideas = [],
     superprojects = [],
@@ -35,9 +37,11 @@
       <li class="list-item">
         <a href="/" aria-current="page" class="nav-logo-link w--current">
           <img
+            title="Navigate to front page"
             src="https://uploads-ssl.webflow.com/622160bba1d5c0dcf96f8bdf/62431292c50af756943fd210_ideas_icon.png"
             alt="AI safety ideas logo"
             class="nav-logo"
+            use:tooltip
           />
         </a>
         <h1 class="logotext">AI Safety Research Ideas</h1>
@@ -57,16 +61,17 @@
     </ul>
   </nav>
 </header>
-<h2>See ideas</h2>
-{#each ideas as idea}
-  <div class="idea-card">
-    <p class="idea-author">{idea.author}</p>
-    <h3 class="idea-title">{idea.title}</h3>
-    <div class="idea-text">{@html markdown(idea.summary)}</div>
-  </div>
-{:else}
-  <p>No ideas found</p>
-{/each}
+<div class="container w-container">
+  {#each ideas as idea}
+    <div class="idea-card">
+      <p class="idea-author">{idea.author}</p>
+      <h3 class="idea-title">{idea.title}</h3>
+      <div class="idea-text">{@html markdown(idea.summary)}</div>
+    </div>
+  {:else}
+    <p>No ideas found</p>
+  {/each}
+</div>
 
 <style>
   h2 {
