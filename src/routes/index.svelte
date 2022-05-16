@@ -8,28 +8,46 @@
   let ideas = [],
     superprojects = [],
     categories = [],
-    problems = [];
+    problems = [],
+    categoryRelations = [],
+    superprojectRelations = [],
+    problemRelations = [],
+    ideaRelations = [];
 
   onMount(async () => {
     ideas = await getTable("ideas");
     superprojects = await getTable("idea_superprojects");
     categories = await getTable("idea_categories");
     problems = await getTable("problems");
+    categoryRelations = await getTable("idea_category_relation", false);
+    superprojectRelations = await getTable("idea_superproject_relation", false);
+    problemRelations = await getTable("idea_problem_relation", false);
+    ideaRelations = await getTable("idea_idea_relation", false);
   });
 
-  const getTable = async (table_name) => {
+  const getTable = async (table_name, grabTitle = false) => {
     try {
       let { data, error } = await supabase.from(table_name).select("*");
       return data.map((elm) => ({
         ...elm,
-        value: elm.title,
-        label: elm.title,
+        value: grabTitle ? elm.title : "",
+        label: grabTitle ? elm.title : "",
       }));
     } catch (err) {
       console.log(err);
     }
   };
 </script>
+
+<svelte:head>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #fafafa;
+    }
+  </style>
+</svelte:head>
 
 <header id="nav" class="sticky-nav">
   <nav class="container w-container">
@@ -74,14 +92,6 @@
 </div>
 
 <style>
-  h2 {
-    text-align: center;
-  }
-
-  body {
-    background-color: #fafafa;
-  }
-
   .idea-card {
     background-color: #fff;
     border-radius: 5px;
