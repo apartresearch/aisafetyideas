@@ -70,6 +70,7 @@
   let author = "",
     title = "",
     description = "",
+    sourced = "",
     tags = [],
     superprojects_ids = [],
     related_ideas = [],
@@ -82,6 +83,7 @@
     author = "";
     title = "";
     description = "";
+    sourced = "";
     tags = [];
     superprojects_ids = [];
     related_ideas = [];
@@ -126,6 +128,10 @@
         <textarea rows="8" bind:value={description} />
       </div>
       <div class="input-wrapper">
+        <label for="sourced"> Source link (leave blank if not sourced) </label>
+        <input type="text" bind:value={sourced} />
+      </div>
+      <div class="input-wrapper">
         <label for="tags">Tags</label>
         <Select items={categories} bind:value={tags} isMulti={true} />
       </div>
@@ -161,6 +167,7 @@
               summary: description,
               verified_by_expert: verified,
               filtered,
+              sourced: sourced,
             },
             tags.map((elm) => ({
               idea: idea_id,

@@ -2,8 +2,7 @@
   import supabase from "$lib/db";
   import { onMount } from "svelte";
   import Select from "svelte-select";
-  import Tooltip from "../lib/Tooltip.svelte";
-  import { tooltip } from "../lib/tooltip";
+  import SvelteTooltip from "svelte-tooltip";
 
   let ideas = [],
     superprojects = [],
@@ -15,6 +14,8 @@
     ideaRelations = [];
 
   $: currentIdea = {};
+
+  let canClick = false;
 
   onMount(async () => {
     ideas = await getTable("ideas");
@@ -57,7 +58,7 @@
       });
     });
 
-    currentIdea = ideas[0];
+    currentIdea = ideas[ideas.length - 1];
 
     console.table(categories);
     console.table(superprojects);
@@ -65,6 +66,8 @@
     console.table(categoryRelations);
 
     console.table(ideas);
+
+    canClick = true;
   });
 
   const getTable = async (table_name, grabTitle = true) => {
@@ -81,8 +84,11 @@
   };
 
   const selectIdea = (idea) => {
-    currentIdea = idea;
-    console.log(currentIdea);
+    if (canClick) {
+      currentIdea = idea;
+    } else {
+      console.log("Cannot click before it has loaded.");
+    }
   };
 </script>
 
@@ -106,7 +112,6 @@
             src="https://uploads-ssl.webflow.com/622160bba1d5c0dcf96f8bdf/62431292c50af756943fd210_ideas_icon.png"
             alt="AI safety ideas logo"
             class="nav-logo"
-            use:tooltip
           />
         </a>
         <h1 class="logotext">AI Safety Research Ideas</h1>
@@ -131,21 +136,50 @@
   <div class="ideas-col">
     {#each ideas as idea}
       <div class="idea-card" on:mousedown={() => selectIdea(idea)}>
-        <p class="idea-author">{idea.author}</p>
-        <h3 class="idea-title">{idea.title}</h3>
-        <div class="idea-text">
-          {@html markdown(idea.summary)}
+        <div class="idea-top">
+          <p class="idea-author">{idea.author}</p>
+          <div class="idea-icons">
+            {#if idea.contact}
+              <a
+                href="mailto:{idea.contact}"
+                title="Write to the author: {idea.contact}"
+              >
+                <img src="images/at.svg" alt="Send email to author icon" />
+              </a>
+            {/if}
+            {#if idea.sourced}
+              <a
+                href={idea.sourced}
+                target="_blank"
+                title="Found elsewhere; click to view the source"
+              >
+                <img src="images/link.svg" alt="Source link icon" />
+              </a>
+            {/if}
+            {#if idea.verified_by_expert}
+              <div
+                title="Verified by {!idea.verifier
+                  ? 'an expert'
+                  : idea.verifier}"
+              >
+                <img src="images/checkmark.svg" alt="Expert verified icon" />
+              </div>
+            {/if}
+          </div>
         </div>
-        {#if idea.categories}
-          {#each idea.categories as category}
-            <div
-              class="idea-category"
-              title={category.category.tooltip}
-              use:tooltip
-            >
-              {category.category.title}
-            </div>
-          {/each}
+        <h3 class="idea-title">{idea.title}</h3>
+        <!-- <div class="idea-text">
+          {@html markdown(idea.summary)}
+        </div> -->
+        {#if "categories" in idea}
+          DUCKs
+          <div class="idea-categories-wrapper">
+            {#each idea.categories as cat}
+              <div class="idea-category" title={cat.category.tooltip}>
+                {cat.category.title}
+              </div>
+            {/each}
+          </div>
         {/if}
         {#if idea.superprojects}
           {#each idea.superprojects as superproject}
@@ -161,26 +195,33 @@
   </div>
   <div class="current-idea-col">
     {#if currentIdea.title}
-      <p>{currentIdea.author}</p>
-      <h2>{currentIdea.title}</h2>
+      <p class="current-idea-author">{currentIdea.author}</p>
+      <h2 class="current-idea-title">{currentIdea.title}</h2>
       <div class="current-idea-text">
         {@html markdown(currentIdea.summary)}
       </div>
-      <div>
-        {#if currentIdea.categories}
+      {#if currentIdea.categories[0]}
+        <h4>Categories</h4>
+        <div class="idea-categories-wrapper">
           {#each currentIdea.categories as category}
-            <div
-              class="idea-category"
-              title={category.category.tooltip}
-              use:tooltip
-            >
+            <div class="idea-category" title={category.category.tooltip}>
               {category.category.title}
             </div>
           {/each}
-        {/if}
-      </div>
+        </div>
+      {/if}
+      {#if currentIdea.superprojects[0]}
+        <h4>Superprojects</h4>
+        <div class="idea-superprojects-wrapper">
+          {#each currentIdea.superprojects as superproject}
+            <div class="idea-superproject">
+              {superproject.superproject.title}
+            </div>
+          {/each}
+        </div>
+      {/if}
     {:else}
-      <h3>No idea selected...</h3>
+      <h3>Loading...</h3>
     {/if}
   </div>
 </div>
@@ -188,9 +229,11 @@
 <style>
   .idea-card {
     background-color: #fff;
-    border-radius: 5px;
-    padding: 10px;
-    margin-bottom: 10px;
+    padding: 7px 10px;
+    margin: 0;
+    border-right: 2px solid #f9f9f9;
+    border-bottom: 2px solid #f9f9f9;
+    width: 100%;
   }
 
   .idea-card:hover {
@@ -198,11 +241,41 @@
     cursor: pointer;
   }
 
+  .idea-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: -3px;
+  }
+
+  .idea-icons {
+    display: flex;
+    align-items: right;
+    font-size: 0.7em;
+    line-height: 0.8em;
+  }
+
+  .idea-icons * {
+    margin: 0;
+    margin-left: 0.1em;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .idea-icons > * > * {
+    margin: 0;
+    height: 1.4em;
+  }
+
+  .idea-icons *:hover {
+    opacity: 0.75;
+  }
+
   .idea-author {
     font-size: 0.7em;
     line-height: 0.8em;
-    font-style: italic;
     margin-bottom: 4px;
+    opacity: 0.9;
   }
 
   .idea-title {
@@ -221,6 +294,7 @@
     display: flex;
     flex-direction: row;
     justify-content: start;
+    max-width: 1100px;
   }
 
   .ideas-col {
@@ -228,10 +302,11 @@
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
+    margin: 0;
+    padding: 0;
     margin-bottom: 20px;
     width: 50%;
     left: 0;
-    padding-right: 20px;
   }
 
   .current-idea-col {
@@ -240,8 +315,72 @@
     justify-content: top;
     align-items: top;
     margin-bottom: 20px;
-    width: 50%;
     position: fixed;
-    right: 0;
+    left: 50%;
+    width: 50%;
+    max-width: 550px;
+    padding: 20px;
+    background-color: #fff;
+    height: 100vh;
+  }
+
+  .idea-categories-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: start;
+    align-items: center;
+  }
+
+  .current-idea-author {
+    margin-bottom: 4px;
+    line-height: 1em;
+  }
+
+  .current-idea-title {
+    margin-top: 0;
+  }
+
+  .idea-category {
+    /* Styling for a tag */
+    background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
+    border-radius: 5px;
+    padding: 2px 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 0.7em;
+    line-height: 1em;
+  }
+
+  .idea-category:hover {
+    background-color: #fafafa;
+    cursor: pointer;
+  }
+
+  .idea-superprojects-wrapper {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: start;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .idea-superproject {
+    /* Styling for a tag */
+    background-color: #f5f5f5;
+    border: 1px solid #e3e3e3;
+    border-radius: 5px;
+    padding: 2px 5px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    font-size: 0.7em;
+    line-height: 1em;
+  }
+
+  .idea-superproject:hover {
+    background-color: #fafafa;
+    cursor: pointer;
   }
 </style>
