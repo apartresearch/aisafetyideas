@@ -14,8 +14,7 @@
     ideaRelations = [];
 
   $: currentIdea = {};
-
-  let canClick = false;
+  $: canClick = false;
 
   onMount(async () => {
     ideas = await getTable("ideas");
@@ -128,70 +127,84 @@
           </button>
         </div>
       </li>
-      <li><a href="#" class="button utility w-button"> Dark mode </a></li>
     </ul>
   </nav>
 </header>
 <div class="container w-container">
   <div class="ideas-col">
-    {#each ideas as idea}
-      <div class="idea-card" on:mousedown={() => selectIdea(idea)}>
-        <div class="idea-top">
-          <p class="idea-author">{idea.author}</p>
-          <div class="idea-icons">
-            {#if idea.contact}
-              <a
-                href="mailto:{idea.contact}"
-                title="Write to the author: {idea.contact}"
-              >
-                <img src="images/at.svg" alt="Send email to author icon" />
-              </a>
-            {/if}
-            {#if idea.sourced}
-              <a
-                href={idea.sourced}
-                target="_blank"
-                title="Found elsewhere; click to view the source"
-              >
-                <img src="images/link.svg" alt="Source link icon" />
-              </a>
-            {/if}
-            {#if idea.verified_by_expert}
-              <div
-                title="Verified by {!idea.verifier
-                  ? 'an expert'
-                  : idea.verifier}"
-              >
-                <img src="images/checkmark.svg" alt="Expert verified icon" />
+    {#if canClick}
+      {#each ideas as idea}
+        <div class="idea-card" on:mousedown={() => selectIdea(idea)}>
+          <div class="idea-top">
+            <div class="idea-superprojects-wrapper list-item">
+              <div class="idea-author">
+                {idea.author}
               </div>
-            {/if}
+              {#if idea.superprojects[0]}
+                {#each idea.superprojects as superproject}
+                  <div
+                    class="idea-superproject list-item"
+                    title={superproject.superproject.description}
+                  >
+                    <img src="images/arrow-up.svg" alt="arrow" />
+                    {superproject.superproject.title}
+                  </div>
+                {/each}
+              {/if}
+            </div>
+            <div class="idea-icons">
+              {#if idea.contact}
+                <a
+                  href="mailto:{idea.contact}"
+                  title="Write to the author: {idea.contact}"
+                >
+                  <img src="images/at.svg" alt="Send email to author icon" />
+                </a>
+              {/if}
+              {#if idea.sourced}
+                <a
+                  href={idea.sourced}
+                  target="_blank"
+                  title="Found elsewhere; click to view the source"
+                >
+                  <img src="images/link.svg" alt="Source link icon" />
+                </a>
+              {/if}
+              {#if idea.verified_by_expert}
+                <div
+                  title="Verified by {!idea.verifier
+                    ? 'an expert'
+                    : idea.verifier}"
+                >
+                  <img src="images/checkmark.svg" alt="Expert verified icon" />
+                </div>
+              {/if}
+            </div>
           </div>
-        </div>
-        <h3 class="idea-title">{idea.title}</h3>
-        <!-- <div class="idea-text">
+          <h3 class="idea-title">{idea.title}</h3>
+          <!-- <div class="idea-text">
           {@html markdown(idea.summary)}
         </div> -->
-        {#if "categories" in idea}
-          DUCKs
-          <div class="idea-categories-wrapper">
-            {#each idea.categories as cat}
-              <div class="idea-category" title={cat.category.tooltip}>
-                {cat.category.title}
-              </div>
-            {/each}
-          </div>
-        {/if}
-        {#if idea.superprojects}
-          {#each idea.superprojects as superproject}
-            <div class="idea-superproject">
-              {superproject.superproject.title}
+          {#if idea.categories[0]}
+            <div class="idea-categories-wrapper list-item">
+              {#each idea.categories as cat, i}
+                <div
+                  class="idea-category list-item"
+                  title={cat.category.tooltip}
+                >
+                  {cat.category.title}
+                </div>
+                {#if i < idea.categories.length - 1}
+                  <div class="idea-category-separator">·</div>
+                {/if}
+              {/each}
             </div>
-          {/each}
-        {/if}
-      </div>
-    {:else}
-      <p>No ideas found</p>
-    {/each}
+          {/if}
+        </div>
+      {:else}
+        <p>No ideas found</p>
+      {/each}
+    {/if}
   </div>
   <div class="current-idea-col">
     {#if currentIdea.title}
@@ -244,8 +257,8 @@
   .idea-top {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: -3px;
+    align-items: start;
+    margin-bottom: -0.2em;
   }
 
   .idea-icons {
@@ -274,15 +287,17 @@
   .idea-author {
     font-size: 0.7em;
     line-height: 0.8em;
-    margin-bottom: 4px;
-    opacity: 0.9;
+    border: 0;
+    padding: 0;
+    vertical-align: bottom;
+    margin-right: 0.6em;
+    margin-top: 0.1em;
   }
 
   .idea-title {
     font-size: 0.8em;
     line-height: 1em;
-    margin: 0;
-    margin-bottom: 4px;
+    margin: 5px 0 5px 0;
   }
 
   .idea-text {
@@ -332,6 +347,17 @@
     align-items: center;
   }
 
+  .idea-categories-wrapper.list-item {
+    opacity: 0.75;
+    font-style: italic;
+    margin-left: -0.1em;
+  }
+
+  .idea-category-separator {
+    margin: 0 0.1em 0.1em 0;
+    line-height: 0.8em;
+  }
+
   .current-idea-author {
     margin-bottom: 4px;
     line-height: 1em;
@@ -353,8 +379,16 @@
     line-height: 1em;
   }
 
+  .idea-category.list-item {
+    margin: 0;
+    margin-right: 2px;
+    padding: 2px;
+    background-color: transparent;
+    border: none;
+  }
+
   .idea-category:hover {
-    background-color: #fafafa;
+    opacity: 0.75;
     cursor: pointer;
   }
 
@@ -367,6 +401,10 @@
     margin-bottom: 10px;
   }
 
+  .idea-superprojects-wrapper.list-item {
+    margin: 0;
+  }
+
   .idea-superproject {
     /* Styling for a tag */
     background-color: #f5f5f5;
@@ -376,11 +414,37 @@
     margin-right: 5px;
     margin-bottom: 5px;
     font-size: 0.7em;
-    line-height: 1em;
+    vertical-align: bottom;
+    line-height: 0.8em;
+  }
+
+  .idea-superproject.list-item {
+    border: 0;
+    padding: 0;
+    margin: 0;
+    border-radius: 0;
+    margin-right: 4px;
+    background-color: transparent;
+  }
+
+  .idea-superproject > img {
+    width: 0.7em;
+    height: 0.7em;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 0.4em;
+  }
+
+  .idea-author > img {
+    width: 0.6em;
+    height: 0.6em;
+    margin-right: -2px;
+    opacity: 0.75;
+    margin-bottom: 0.5em;
   }
 
   .idea-superproject:hover {
-    background-color: #fafafa;
+    opacity: 0.75;
     cursor: pointer;
   }
 </style>
