@@ -28,16 +28,16 @@
 
     ideas.forEach((idea) => {
       idea.categories = categoryRelations.filter(
-        (relation) => relation.idea_id === idea.id
+        (relation) => relation.idea === idea.id
       );
       idea.superprojects = superprojectRelations.filter(
-        (relation) => relation.idea_id === idea.id
+        (relation) => relation.idea === idea.id
       );
       idea.problems = problemRelations.filter(
-        (relation) => relation.idea_id === idea.id
+        (relation) => relation.idea === idea.id
       );
       idea.ideas = ideaRelations.filter(
-        (relation) => relation.idea_id === idea.id
+        (relation) => relation.idea === idea.id
       );
 
       idea.categories.forEach((category) => {
@@ -58,6 +58,13 @@
     });
 
     currentIdea = ideas[0];
+
+    console.table(categories);
+    console.table(superprojects);
+    console.table(problems);
+    console.table(categoryRelations);
+
+    console.table(ideas);
   });
 
   const getTable = async (table_name, grabTitle = true) => {
@@ -154,7 +161,7 @@
   </div>
   <div class="current-idea-col">
     {#if currentIdea.title}
-      <p class="idea-author">{currentIdea.author}</p>
+      <p>{currentIdea.author}</p>
       <h2>{currentIdea.title}</h2>
       <div class="current-idea-text">
         {@html markdown(currentIdea.summary)}
@@ -182,8 +189,8 @@
   .idea-card {
     background-color: #fff;
     border-radius: 5px;
-    padding: 20px;
-    margin-bottom: 20px;
+    padding: 10px;
+    margin-bottom: 10px;
   }
 
   .idea-card:hover {
@@ -192,21 +199,22 @@
   }
 
   .idea-author {
-    font-size: 0.8em;
-    line-height: 1em;
+    font-size: 0.7em;
+    line-height: 0.8em;
     font-style: italic;
     margin-bottom: 4px;
   }
 
   .idea-title {
-    font-size: 1.2em;
-    line-height: 1.2em;
+    font-size: 0.8em;
+    line-height: 1em;
     margin: 0;
     margin-bottom: 4px;
   }
 
   .idea-text {
-    font-size: 0.8em;
+    font-size: 0.7em;
+    line-height: 1.2em;
   }
 
   .container {
