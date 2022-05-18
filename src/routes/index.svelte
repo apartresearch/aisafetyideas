@@ -1,15 +1,7 @@
 <script>
   import supabase from "$lib/db";
   import { onMount } from "svelte";
-  import Select from "svelte-select";
   import tippy from "sveltejs-tippy";
-  import {
-    LoadRipple,
-    LoadCoin,
-    LoadHourGlass,
-    LoadEllipsis,
-    LoadSpinner,
-  } from "svelte-loading-animation";
 
   let ideas = [],
     superprojects = [],
@@ -20,9 +12,12 @@
     problemRelations = [],
     ideaRelations = [];
 
-  $: currentIdea = {};
-  $: canClick = false;
-  $: selectedCategories = [];
+  let currentIdea = {};
+  let canClick = false;
+
+  let selectedCategories = [];
+
+  let shownIdeas = [];
 
   onMount(async () => {
     let startTime = performance.now();
@@ -72,14 +67,14 @@
           (sp) => sp.title === superproject.superproject
         );
       });
-
       idea.problems.forEach((problem) => {
         problem.problem = problems.find((p) => p.title === problem.problem);
       });
-      console.log("Updated ideas with relations...");
+      idea.shown = true;
     });
 
     canClick = true;
+    shownIdeas = ideas;
   });
 
   const getTable = async (table_name, grabTitle = true) => {
@@ -102,17 +97,41 @@
       console.log("Cannot click before it has loaded.");
     }
   };
-</script>
 
-<svelte:head>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #f7f7f7;
+  const selectCategory = (category) => {
+    if (canClick) {
+      if (selectedCategories.includes(category)) {
+        selectedCategories.splice(selectedCategories.indexOf(category), 1);
+        selectedCategories = selectedCategories;
+      } else {
+        selectedCategories = [...selectedCategories, category];
+      }
+
+      categories.forEach((elm) => {
+        elm.selected = selectedCategories.includes(elm.title);
+      });
+      categories = categories;
+
+      // Filter which ideas are shown based on selectedCategories
+      ideas.forEach((idea) => {
+        if (
+          idea.categories.find((category) => {
+            return selectedCategories.includes(category.category.title);
+          }) ||
+          selectedCategories.length === 0
+        ) {
+          idea.shown = true;
+        } else {
+          idea.shown = false;
+        }
+      });
+
+      shownIdeas = ideas.filter((idea) => idea.shown);
+    } else {
+      console.log("Cannot click before it has loaded.");
     }
-  </style>
-</svelte:head>
+  };
+</script>
 
 <header id="nav" class="sticky-nav">
   <nav class="container w-container">
@@ -121,7 +140,7 @@
         <a href="/" aria-current="page" class="nav-logo-link w--current">
           <img
             title="Navigate to front page"
-            src="https://uploads-ssl.webflow.com/622160bba1d5c0dcf96f8bdf/62431292c50af756943fd210_ideas_icon.png"
+            src="images/ideas_icon.png"
             alt="AI safety ideas logo"
             class="nav-logo"
           />
@@ -150,12 +169,16 @@
       <div class="idea-categories-wrapper">
         {#each categories as cat, i}
           <div
-            class="idea-category filter"
+            class="idea-category filter {cat.selected ? 'selected' : ''}"
             use:tippy={{
               content: `<div class='tooltip'><h5>${cat.title}</h5>${
                 cat.tooltip !== null ? `<p>${markdown(cat.tooltip)}</p>` : ""
               }<p><i>Click to filter ideas for this category</i></p></div>`,
               allowHTML: true,
+              delay: [1000, 0],
+            }}
+            on:click={() => {
+              selectCategory(cat.title);
             }}
           >
             {cat.title}
@@ -164,7 +187,7 @@
       </div>
 
       {#if canClick}
-        {#each ideas as idea}
+        {#each shownIdeas as idea}
           <div class="idea-card" on:mousedown={() => selectIdea(idea)}>
             <div class="idea-top">
               <div class="idea-superprojects-wrapper list-item">
@@ -182,6 +205,8 @@
                           superproject.superproject.description
                         )}<p><i>Click to see more ideas</i></p></div>`,
                         allowHTML: true,
+                        interactive: true,
+                        delay: [500, 0],
                       }}
                     >
                       <img src="images/arrow-up.svg" alt="arrow" />
@@ -249,6 +274,7 @@
                           : ""
                       }<p><i>Click to see more ideas in this category</i></p></div>`,
                       allowHTML: true,
+                      delay: [1000, 0],
                     }}
                   >
                     {cat.category.title}
@@ -287,6 +313,7 @@
                       : ""
                   }<p><i>Click to see more ideas in this category</i></p></div>`,
                   allowHTML: true,
+                  delay: [1000, 0],
                 }}
               >
                 {cat.category.title}
@@ -309,6 +336,8 @@
                     superproject.superproject.description
                   )}<p><i>Click to see more ideas</i></p></div>`,
                   allowHTML: true,
+                  interactive: true,
+                  delay: [500, 0],
                 }}
               >
                 {superproject.superproject.title}
@@ -317,7 +346,7 @@
           </div>
         {/if}
       {:else}
-        <h3>Loading...</h3>
+        <h3>Select an idea</h3>
       {/if}
     </div>
   </div>
@@ -427,6 +456,7 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    flex-grow: 2000;
     justify-content: start;
     align-items: center;
   }
@@ -463,7 +493,7 @@
     line-height: 1em;
   }
 
-  .idea-category.active {
+  .idea-category.filter.selected {
     /* Make background green */
     background-color: #44ff98;
   }
@@ -570,5 +600,11 @@
 
   :global(a:hover) {
     text-decoration: underline;
+  }
+
+  :global(body) {
+    margin: 0;
+    padding: 0;
+    background-color: #f7f7f7;
   }
 </style>
