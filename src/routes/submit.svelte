@@ -7,7 +7,15 @@
   let ideas = [],
     superprojects = [],
     categories = [],
-    problems = [];
+    problems = [],
+    categoryRelations = [],
+    superprojectRelations = [],
+    problemRelations = [],
+    ideaRelations = [],
+    currentIdea = {},
+    loaded = false,
+    selectedCategories = [],
+    shownIdeas = [];
 
   let author = "",
     title = "",
@@ -26,10 +34,55 @@
   onMount(async () => getTables());
 
   const getTables = async () => {
-    ideas = await getTable("ideas");
-    superprojects = await getTable("superprojects");
-    categories = await getTable("categories");
-    problems = await getTable("problems");
+    [
+      ideas,
+      superprojects,
+      categories,
+      problems,
+      categoryRelations,
+      superprojectRelations,
+      problemRelations,
+      ideaRelations,
+    ] = await Promise.all([
+      getTable("ideas"),
+      getTable("superprojects"),
+      getTable("categories"),
+      getTable("problems"),
+      getTable("idea_category_relation"),
+      getTable("idea_superproject_relation"),
+      getTable("idea_problem_relation"),
+      getTable("idea_idea_relation"),
+    ]);
+
+    console.log(superprojects, categories);
+
+    ideas.forEach((idea) => {
+      idea.categories = categoryRelations.filter(
+        (relation) => relation.idea === idea.id
+      );
+      idea.superprojects = superprojectRelations.filter(
+        (relation) => relation.idea === idea.id
+      );
+      idea.problems = problemRelations.filter(
+        (relation) => relation.idea === idea.id
+      );
+      idea.ideas = ideaRelations.filter(
+        (relation) => relation.idea === idea.id
+      );
+      idea.categories.forEach((category) => {
+        category.category = categories.find(
+          (cat) => cat.title === category.category
+        );
+      });
+      idea.superprojects.forEach((superproject) => {
+        superproject.superproject = superprojects.find(
+          (sp) => sp.title === superproject.superproject
+        );
+      });
+      idea.problems.forEach((problem) => {
+        problem.problem = problems.find((p) => p.title === problem.problem);
+      });
+    });
 
     idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
   };
@@ -100,6 +153,7 @@
   const editIdea = (id) => {
     let idea = ideas.find((idea) => idea.id == id);
     if (idea) {
+      console.log(idea);
       author = idea.author;
       title = idea.title;
       description = idea.summary;
@@ -201,13 +255,13 @@
           tags ? tags.map((tag) => ({ category: tag.id, idea: idea_id })) : [],
           superprojects_ids
             ? superprojects_ids.map((elm) => ({
-                superproject: elm.title,
+                superproject: elm.id,
                 idea: idea_id,
               }))
             : [],
           problem_ids
             ? problem_ids.map((elm) => ({
-                problem: elm.title,
+                problem: elm.id,
                 idea: idea_id,
               }))
             : [],
@@ -236,12 +290,6 @@
     margin: 0 auto;
   }
 
-  .col-parent {
-    width: 50%;
-    margin: 0 10px;
-    vertical-align: top;
-  }
-
   button {
     margin: 10px;
     padding: 10px;
@@ -251,6 +299,8 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    width: 100%;
+    max-width: 500px;
   }
   .input-wrapper {
     display: flex;
