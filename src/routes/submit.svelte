@@ -2,18 +2,21 @@
   import supabase from "$lib/db";
   import { onMount } from "svelte";
   import Select from "svelte-select";
+  import Nav from "../lib/Nav.svelte";
 
   let ideas = [],
     superprojects = [],
     categories = [],
     problems = [];
 
-  onMount(async () => {
+  onMount(async () => getTables());
+
+  const getTables = async () => {
     ideas = await getTable("ideas");
     superprojects = await getTable("idea_superprojects");
     categories = await getTable("idea_categories");
     problems = await getTable("problems");
-  });
+  };
 
   const getTable = async (table_name) => {
     try {
@@ -74,12 +77,13 @@
     tags = [],
     superprojects_ids = [],
     related_ideas = [],
-    filtered = true,
-    verified = true,
+    filtered = false,
+    verified = false,
     problem_ids = [],
     idea_id = parseInt(Math.random() * 1e10);
 
   const resetData = () => {
+    getTables();
     author = "";
     title = "";
     description = "";
@@ -87,8 +91,8 @@
     tags = [];
     superprojects_ids = [];
     related_ideas = [];
-    filtered = true;
-    verified = true;
+    filtered = false;
+    verified = false;
     problem_ids = [];
     idea_id = parseInt(Math.random() * 1e10);
   };
@@ -107,100 +111,92 @@
   };
 </script>
 
+<Nav />
+
 <div class="cols-wrapper">
-  <div class="col-parent">
-    <div class="add-idea-wrapper">
-      <h2>Insert idea</h2>
-      <div class="input-wrapper">
-        <label for="id">ID</label>
-        <input type="number" disabled bind:value={idea_id} />
-      </div>
-      <div class="input-wrapper">
-        <label for="author">Author</label>
-        <input type="text" bind:value={author} />
-      </div>
-      <div class="input-wrapper">
-        <label for="title">Title</label>
-        <input type="text" bind:value={title} />
-      </div>
-      <div class="input-wrapper description">
-        <label for="description">Description (supports markdown)</label>
-        <textarea rows="8" bind:value={description} />
-      </div>
-      <div class="input-wrapper">
-        <label for="sourced"> Source link (leave blank if not sourced) </label>
-        <input type="text" bind:value={sourced} />
-      </div>
-      <div class="input-wrapper">
-        <label for="tags">Tags</label>
-        <Select items={categories} bind:value={tags} isMulti={true} />
-      </div>
-      <div class="input-wrapper">
-        <label for="superprojects">Superprojects</label>
-        <Select
-          items={superprojects}
-          bind:value={superprojects_ids}
-          isMulti={true}
-        />
-      </div>
-      <div class="input-wrapper">
-        <label for="related_ideas">Related problems</label>
-        <Select items={problems} bind:value={problem_ids} isMulti={true} />
-      </div>
-      <div class="input-wrapper">
-        <label for="filtered">Related ideas</label>
-        <Select items={ideas} bind:value={related_ideas} isMulti={true} />
-      </div>
-      <div class="input-wrapper">
-        <label for="verified">Filtered</label>
-        <input type="checkbox" bind:checked={filtered} />
-        <label for="verified">Verified</label>
-        <input type="checkbox" bind:checked={verified} />
-      </div>
-      <button
-        on:click={() => {
-          addNewIdea(
-            {
-              id: idea_id,
-              author,
-              title,
-              summary: description,
-              verified_by_expert: verified,
-              filtered,
-              sourced: sourced,
-            },
-            tags.map((elm) => ({
-              idea: idea_id,
-              category: elm.title,
-            })),
-            superprojects_ids.map((elm) => ({
-              superproject: elm.title,
-              idea: idea_id,
-            })),
-            problem_ids.map((elm) => ({
-              problem: elm.title,
-              idea: idea_id,
-            })),
-            related_ideas.map((elm) => ({
-              idea_1: idea_id,
-              idea_2: elm.id,
-            }))
-          );
-        }}
-      >
-        Submit idea
-      </button>
+  <!-- <div class="col-parent"> -->
+  <div class="add-idea-wrapper">
+    <h2>Insert idea</h2>
+    <div class="input-wrapper">
+      <label for="id">ID</label>
+      <input type="number" disabled bind:value={idea_id} />
     </div>
-  </div>
-  <div class="col-parent">
-    <h2>See ideas</h2>
-    {#each ideas as idea}
-      <i>{idea.author}</i><br />
-      <b>{idea.title}</b><br />
-      {@html markdown(idea.summary)}
-    {/each}
-    <script defer src="https://cdn.commento.io/js/commento.js"></script>
-    <div id="commento" />
+    <div class="input-wrapper">
+      <label for="author">Author</label>
+      <input type="text" bind:value={author} />
+    </div>
+    <div class="input-wrapper">
+      <label for="title">Title</label>
+      <input type="text" bind:value={title} />
+    </div>
+    <div class="input-wrapper description">
+      <label for="description">Description (supports markdown)</label>
+      <textarea rows="8" bind:value={description} />
+    </div>
+    <div class="input-wrapper">
+      <label for="sourced"> Source link (leave blank if not sourced) </label>
+      <input type="text" bind:value={sourced} />
+    </div>
+    <div class="input-wrapper">
+      <label for="tags">Tags</label>
+      <Select items={categories} bind:value={tags} isMulti={true} />
+    </div>
+    <div class="input-wrapper">
+      <label for="superprojects">Superprojects</label>
+      <Select
+        items={superprojects}
+        bind:value={superprojects_ids}
+        isMulti={true}
+      />
+    </div>
+    <div class="input-wrapper">
+      <label for="related_ideas">Related problems</label>
+      <Select items={problems} bind:value={problem_ids} isMulti={true} />
+    </div>
+    <div class="input-wrapper">
+      <label for="filtered">Related ideas</label>
+      <Select items={ideas} bind:value={related_ideas} isMulti={true} />
+    </div>
+    <div class="input-wrapper">
+      <label for="verified">Filtered</label>
+      <input type="checkbox" bind:checked={filtered} />
+      <label for="verified">Verified</label>
+      <input type="checkbox" bind:checked={verified} />
+    </div>
+    <button
+      on:click={() => {
+        addNewIdea(
+          {
+            id: idea_id,
+            author,
+            title,
+            summary: description,
+            verified_by_expert: verified,
+            filtered,
+            sourced: sourced,
+          },
+          tags.map((elm) => ({
+            idea: idea_id,
+            category: elm.title,
+          })),
+          superprojects_ids.map((elm) => ({
+            superproject: elm.title,
+            idea: idea_id,
+          })),
+          problem_ids.map((elm) => ({
+            problem: elm.title,
+            idea: idea_id,
+          })),
+          related_ideas.map((elm) => ({
+            idea_1: idea_id,
+            idea_2: elm.id,
+          }))
+        );
+      }}
+    >
+      Submit idea
+    </button>
+    <!-- </div> -->
   </div>
 </div>
 
@@ -208,7 +204,7 @@
   .cols-wrapper {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: center;
     max-width: 1100px;
     margin: 0 auto;
   }
