@@ -2,7 +2,7 @@
   import supabase from "$lib/db";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
-  import Nav from "../lib/Nav.svelte";
+  import Nav from "../lib//Nav.svelte";
 
   let ideas = [],
     superprojects = [],
@@ -429,7 +429,6 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    flex-grow: 1;
     justify-content: start;
     align-items: center;
   }
@@ -473,6 +472,8 @@
 
   .idea-category.filter {
     background-color: #fff;
+    flex-grow: 1;
+    text-align: center;
   }
 
   .idea-category.list-item {
