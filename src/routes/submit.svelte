@@ -9,6 +9,20 @@
     categories = [],
     problems = [];
 
+  let author = "",
+    title = "",
+    description = "",
+    sourced = "",
+    tags = [],
+    superprojects_ids = [],
+    related_ideas = [],
+    problem_ids = [],
+    filtered = false,
+    verified = false,
+    idea_id = 0;
+
+  let editWarning = "";
+
   onMount(async () => getTables());
 
   const getTables = async () => {
@@ -16,6 +30,8 @@
     superprojects = await getTable("superprojects");
     categories = await getTable("categories");
     problems = await getTable("problems");
+
+    idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
   };
 
   const getTable = async (table_name) => {
@@ -39,8 +55,8 @@
     ideas_ids
   ) => {
     try {
-      console.table(idea);
-      const { data, error } = await supabase.from("ideas").insert(idea);
+      // Add idea and replace if id exists
+      const { data, error } = await supabase.from("ideas").upsert(idea);
       console.log("Uploaded idea...");
       await categories_ids.forEach(async (category_id) => {
         await supabase.from("idea_category_relation").insert(category_id);
@@ -70,18 +86,6 @@
     console.log(select.value);
   };
 
-  let author = "",
-    title = "",
-    description = "",
-    sourced = "",
-    tags = [],
-    superprojects_ids = [],
-    related_ideas = [],
-    filtered = false,
-    verified = false,
-    problem_ids = [],
-    idea_id = parseInt(Math.random() * 1e10);
-
   const resetData = () => {
     getTables();
     author = "";
@@ -94,20 +98,26 @@
     filtered = false;
     verified = false;
     problem_ids = [];
-    idea_id = parseInt(Math.random() * 1e10);
+    idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
   };
 
-  const editIdea = (idea) => {
-    idea_id = idea.id;
-    author = idea.author;
-    title = idea.title;
-    description = idea.description;
-    tags = idea.tags;
-    superprojects_ids = idea.superprojects_ids;
-    related_ideas = idea.related_ideas;
-    filtered = idea.filtered;
-    verified = idea.verified;
-    problem_ids = idea.problem_ids;
+  const editIdea = (id) => {
+    let idea = ideas.find((idea) => idea.id == id);
+    if (idea) {
+      author = idea.author;
+      title = idea.title;
+      description = idea.summary;
+      sourced = idea.sourced;
+      tags = idea.tags;
+      superprojects_ids = idea.superprojects_ids;
+      related_ideas = idea.related_ideas;
+      filtered = idea.filtered;
+      verified = idea.verified;
+      problem_ids = idea.problem_ids;
+    } else {
+      resetData();
+      editWarning = "Idea not found";
+    }
   };
 </script>
 
@@ -119,7 +129,7 @@
     <h2>Insert idea</h2>
     <div class="input-wrapper">
       <label for="id">ID</label>
-      <input type="number" disabled bind:value={idea_id} />
+      <input type="number" bind:value={idea_id} on:input={editIdea(idea_id)} />
     </div>
     <div class="input-wrapper">
       <label for="author">Author</label>
@@ -175,22 +185,25 @@
             filtered,
             sourced: sourced,
           },
-          tags.map((elm) => ({
-            idea: idea_id,
-            category: elm.title,
-          })),
-          superprojects_ids.map((elm) => ({
-            superproject: elm.title,
-            idea: idea_id,
-          })),
-          problem_ids.map((elm) => ({
-            problem: elm.title,
-            idea: idea_id,
-          })),
-          related_ideas.map((elm) => ({
-            idea_1: idea_id,
-            idea_2: elm.id,
-          }))
+          tags ? tags.map((tag) => ({ category: tag.id, idea: idea_id })) : [],
+          superprojects_ids
+            ? superprojects_ids.map((elm) => ({
+                superproject: elm.title,
+                idea: idea_id,
+              }))
+            : [],
+          problem_ids
+            ? problem_ids.map((elm) => ({
+                problem: elm.title,
+                idea: idea_id,
+              }))
+            : [],
+          related_ideas
+            ? related_ideas.map((elm) => ({
+                idea_1: idea_id,
+                idea_2: elm.id,
+              }))
+            : []
         );
       }}
     >

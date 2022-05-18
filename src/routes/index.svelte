@@ -5,6 +5,10 @@
   import Nav from "../lib//Nav.svelte";
   import Idea from "../lib/Idea.svelte";
 
+  let url = ``,
+    ideaParam = "";
+  // console.log($page.url.searchParams.has("meme"));
+
   let ideas = [],
     superprojects = [],
     categories = [],
@@ -14,11 +18,15 @@
     problemRelations = [],
     ideaRelations = [],
     currentIdea = {},
-    canClick = false,
+    loaded = false,
     selectedCategories = [],
     shownIdeas = [];
 
   onMount(async () => {
+    url = new URL(window.location.href);
+    ideaParam = url.searchParams.get("idea");
+    console.log("Idea:", ideaParam);
+
     let startTime = performance.now();
     [
       ideas,
@@ -72,8 +80,14 @@
       idea.shown = true;
     });
 
-    canClick = true;
+    loaded = true;
     shownIdeas = ideas;
+    if (ideaParam) {
+      currentIdea = ideas.find((idea) => idea.id == ideaParam);
+      if (!currentIdea) {
+        currentIdea = {};
+      }
+    }
   });
 
   const getTable = async (table_name, grabTitle = true) => {
@@ -90,15 +104,17 @@
   };
 
   const selectIdea = (idea) => {
-    if (canClick) {
+    if (loaded) {
       currentIdea = idea;
+      url.searchParams.set("idea", idea.id);
+      window.history.pushState(null, document, url.href);
     } else {
       console.log("Cannot click before it has loaded.");
     }
   };
 
   const selectCategory = (category) => {
-    if (canClick) {
+    if (loaded) {
       if (selectedCategories.includes(category)) {
         selectedCategories.splice(selectedCategories.indexOf(category), 1);
         selectedCategories = selectedCategories;
@@ -134,7 +150,7 @@
 
 <Nav />
 
-{#if canClick}
+{#if loaded}
   <div class="container w-container">
     <div class="ideas-col">
       <div class="idea-categories-wrapper">
@@ -157,7 +173,7 @@
         {/each}
       </div>
 
-      {#if canClick}
+      {#if loaded}
         {#each shownIdeas as idea}
           <Idea {idea} {selectIdea} />
         {:else}

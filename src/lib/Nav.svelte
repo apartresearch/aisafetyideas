@@ -5,7 +5,7 @@
         <a href="/" aria-current="page" class="nav-logo-link w--current">
           <img
             title="Navigate to front page"
-            src="images/ideas_icon.png"
+            src="/images/ideas_icon.png"
             alt="AI safety ideas logo"
             class="nav-logo"
           />

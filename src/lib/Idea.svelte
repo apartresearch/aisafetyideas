@@ -11,7 +11,7 @@
       </div>
       {#if idea.superprojects[0]}
         {#each idea.superprojects as superproject}
-          <div
+          <a
             class="idea-superproject list-item"
             use:tippy={{
               content: `<div class='tooltip'><h4>${
@@ -23,10 +23,11 @@
               interactive: true,
               delay: [500, 0],
             }}
+            href={`/superprojects/${superproject.superproject.slug}`}
           >
-            <img src="images/arrow-up.svg" alt="arrow" />
+            <img src="/images/arrow-up.svg" alt="arrow" />
             {superproject.superproject.title}
-          </div>
+          </a>
         {/each}
       {/if}
     </div>
@@ -42,7 +43,7 @@
             appendTo: document.body,
           }}
         >
-          <img src="images/at.svg" alt="Send email to author icon" />
+          <img src="/images/at.svg" alt="Send email to author icon" />
         </a>
       {/if}
       {#if idea.sourced}
@@ -55,7 +56,7 @@
             delay: [250, 0],
           }}
         >
-          <img src="images/link.svg" alt="Source link icon" />
+          <img src="/images/link.svg" alt="Source link icon" />
         </a>
       {/if}
       {#if idea.verified_by_expert}
@@ -68,7 +69,7 @@
             delay: [250, 0],
           }}
         >
-          <img src="images/checkmark.svg" alt="Expert verified icon" />
+          <img src="/images/checkmark.svg" alt="Expert verified icon" />
         </div>
       {/if}
     </div>
@@ -113,6 +114,7 @@
   .idea-category:hover,
   .idea-superproject:hover {
     opacity: 0.75;
+    text-decoration: none;
   }
 
   .idea-superprojects-wrapper.list-item {
@@ -130,6 +132,7 @@
     margin-right: 4px;
     background-color: transparent;
     white-space: nowrap;
+    color: black;
   }
 
   .idea-superproject > img {
