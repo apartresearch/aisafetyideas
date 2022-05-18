@@ -22,16 +22,32 @@
 
   $: currentIdea = {};
   $: canClick = false;
+  $: selectedCategories = [];
 
   onMount(async () => {
-    ideas = await getTable("ideas");
-    superprojects = await getTable("idea_superprojects");
-    categories = await getTable("idea_categories");
-    problems = await getTable("problems");
-    categoryRelations = await getTable("idea_category_relation", false);
-    superprojectRelations = await getTable("idea_superproject_relation", false);
-    problemRelations = await getTable("idea_problem_relation", false);
-    ideaRelations = await getTable("idea_idea_relation", false);
+    let startTime = performance.now();
+    [
+      ideas,
+      superprojects,
+      categories,
+      problems,
+      categoryRelations,
+      superprojectRelations,
+      problemRelations,
+      ideaRelations,
+    ] = await Promise.all([
+      getTable("ideas"),
+      getTable("idea_superprojects"),
+      getTable("idea_categories"),
+      getTable("problems"),
+      getTable("idea_category_relation"),
+      getTable("idea_superproject_relation"),
+      getTable("idea_problem_relation"),
+      getTable("idea_idea_relation"),
+    ]);
+    let endTime = performance.now();
+
+    console.log(`Time to load data: ${endTime - startTime}ms`);
 
     ideas.forEach((idea) => {
       idea.categories = categoryRelations.filter(
@@ -46,13 +62,11 @@
       idea.ideas = ideaRelations.filter(
         (relation) => relation.idea === idea.id
       );
-
       idea.categories.forEach((category) => {
         category.category = categories.find(
           (cat) => cat.title === category.category
         );
       });
-
       idea.superprojects.forEach((superproject) => {
         superproject.superproject = superprojects.find(
           (sp) => sp.title === superproject.superproject
@@ -62,16 +76,8 @@
       idea.problems.forEach((problem) => {
         problem.problem = problems.find((p) => p.title === problem.problem);
       });
+      console.log("Updated ideas with relations...");
     });
-
-    currentIdea = ideas[ideas.length - 1];
-
-    console.table(categories);
-    console.table(superprojects);
-    console.table(problems);
-    console.table(categoryRelations);
-
-    console.table(ideas);
 
     canClick = true;
   });
@@ -141,6 +147,22 @@
 {#if canClick}
   <div class="container w-container">
     <div class="ideas-col">
+      <div class="idea-categories-wrapper">
+        {#each categories as cat, i}
+          <div
+            class="idea-category filter"
+            use:tippy={{
+              content: `<div class='tooltip'><h5>${cat.title}</h5>${
+                cat.tooltip !== null ? `<p>${markdown(cat.tooltip)}</p>` : ""
+              }<p><i>Click to filter ideas for this category</i></p></div>`,
+              allowHTML: true,
+            }}
+          >
+            {cat.title}
+          </div>
+        {/each}
+      </div>
+
       {#if canClick}
         {#each ideas as idea}
           <div class="idea-card" on:mousedown={() => selectIdea(idea)}>
@@ -219,14 +241,15 @@
                   <div
                     class="idea-category list-item"
                     use:tippy={{
-                      content: `<div class='tooltip'><p>${cat.category.title}${
+                      content: `<div class='tooltip'><h5>${
+                        cat.category.title
+                      }</h5>${
                         cat.category.tooltip !== null
                           ? `<p>${markdown(cat.category.tooltip)}</p>`
-                          : "<br />"
-                      }<i>Click to see more ideas in this category</i></p></div>`,
+                          : ""
+                      }<p><i>Click to see more ideas in this category</i></p></div>`,
                       allowHTML: true,
                     }}
-                    title={cat.category.tooltip}
                   >
                     {cat.category.title}
                   </div>
@@ -252,18 +275,42 @@
         {#if currentIdea.categories[0]}
           <h4>Categories</h4>
           <div class="idea-categories-wrapper">
-            {#each currentIdea.categories as category}
-              <div class="idea-category" title={category.category.tooltip}>
-                {category.category.title}
+            {#each currentIdea.categories as cat}
+              <div
+                class="idea-category"
+                use:tippy={{
+                  content: `<div class='tooltip'><h5>${
+                    cat.category.title
+                  }</h5>${
+                    cat.category.tooltip !== null
+                      ? `<p>${markdown(cat.category.tooltip)}</p>`
+                      : ""
+                  }<p><i>Click to see more ideas in this category</i></p></div>`,
+                  allowHTML: true,
+                }}
+              >
+                {cat.category.title}
               </div>
             {/each}
           </div>
         {/if}
         {#if currentIdea.superprojects[0]}
-          <h4>Superprojects</h4>
+          <h4>
+            Superproject{currentIdea.superprojects.length > 1 ? "s" : ""}
+          </h4>
           <div class="idea-superprojects-wrapper">
             {#each currentIdea.superprojects as superproject}
-              <div class="idea-superproject">
+              <div
+                class="idea-superproject"
+                use:tippy={{
+                  content: `<div class='tooltip'><h4>${
+                    superproject.superproject.title
+                  }</h4>${markdown(
+                    superproject.superproject.description
+                  )}<p><i>Click to see more ideas</i></p></div>`,
+                  allowHTML: true,
+                }}
+              >
                 {superproject.superproject.title}
               </div>
             {/each}
@@ -409,18 +456,28 @@
     /* Styling for a tag */
     background-color: #f5f5f5;
     border: 1px solid #e3e3e3;
-    border-radius: 5px;
-    padding: 2px 5px;
-    margin-right: 5px;
-    margin-bottom: 5px;
-    font-size: 0.7em;
+    padding: 0.2em 0.5em;
+    margin-right: 0.4em;
+    margin-bottom: 0.3em;
+    font-size: 0.8em;
     line-height: 1em;
+  }
+
+  .idea-category.active {
+    /* Make background green */
+    background-color: #44ff98;
+  }
+
+  .idea-category.filter {
+    background-color: #fff;
   }
 
   .idea-category.list-item {
     margin: 0;
     margin-right: 2px;
     padding: 2px;
+    font-size: 0.7em;
+    line-height: 1em;
     background-color: transparent;
     border: none;
   }
@@ -447,19 +504,21 @@
     /* Styling for a tag */
     background-color: #f5f5f5;
     border: 1px solid #e3e3e3;
-    border-radius: 5px;
-    padding: 2px 5px;
-    margin-right: 5px;
-    margin-bottom: 5px;
-    font-size: 0.7em;
     vertical-align: bottom;
-    line-height: 0.8em;
+
+    padding: 0.2em 0.5em;
+    margin-right: 0.4em;
+    margin-bottom: 0.5em;
+    font-size: 0.8em;
+    line-height: 1em;
   }
 
   .idea-superproject.list-item {
     border: 0;
     padding: 0;
     margin: 0;
+    font-size: 0.7em;
+    line-height: 0.8em;
     border-radius: 0;
     margin-right: 4px;
     background-color: transparent;
@@ -471,14 +530,6 @@
     margin: 0;
     padding: 0;
     margin-bottom: 0.4em;
-  }
-
-  .idea-author > img {
-    width: 0.6em;
-    height: 0.6em;
-    margin-right: -2px;
-    opacity: 0.75;
-    margin-bottom: 0.5em;
   }
 
   .idea-superproject:hover {
