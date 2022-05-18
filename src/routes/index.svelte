@@ -2,8 +2,8 @@
   import supabase from "$lib/db";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
-  import Nav from "../lib//Nav.svelte";
-  import Idea from "../lib/Idea.svelte";
+  import Nav from "$lib//Nav.svelte";
+  import Idea from "$lib/Idea.svelte";
 
   let url = ``,
     ideaParam = "";
@@ -66,12 +66,13 @@
       );
       idea.categories.forEach((category) => {
         category.category = categories.find(
-          (cat) => cat.title === category.category
+          (cat) => cat.id === category.category
         );
+        console.log("Category:", category.category);
       });
       idea.superprojects.forEach((superproject) => {
         superproject.superproject = superprojects.find(
-          (sp) => sp.title === superproject.superproject
+          (sp) => sp.id === superproject.superproject
         );
       });
       idea.problems.forEach((problem) => {

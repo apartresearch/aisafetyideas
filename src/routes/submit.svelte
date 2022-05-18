@@ -54,8 +54,6 @@
       getTable("idea_idea_relation"),
     ]);
 
-    console.log(superprojects, categories);
-
     ideas.forEach((idea) => {
       idea.categories = categoryRelations.filter(
         (relation) => relation.idea === idea.id
@@ -71,18 +69,21 @@
       );
       idea.categories.forEach((category) => {
         category.category = categories.find(
-          (cat) => cat.title === category.category
+          (cat) => cat.id === category.category
         );
       });
       idea.superprojects.forEach((superproject) => {
         superproject.superproject = superprojects.find(
-          (sp) => sp.title === superproject.superproject
+          (sp) => sp.id === superproject.superproject
         );
       });
       idea.problems.forEach((problem) => {
         problem.problem = problems.find((p) => p.title === problem.problem);
       });
+      idea.shown = true;
     });
+
+    console.log(ideas[9]);
 
     idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
   };
@@ -108,6 +109,24 @@
     ideas_ids
   ) => {
     try {
+      // Delete existing relations
+      await supabase
+        .from("idea_category_relation")
+        .delete()
+        .match({ idea: idea.id });
+      await supabase
+        .from("idea_superproject_relation")
+        .delete()
+        .match({ idea: idea.id });
+      await supabase
+        .from("idea_problem_relation")
+        .delete()
+        .match({ idea: idea.id });
+      await supabase
+        .from("idea_idea_relation")
+        .delete()
+        .match({ idea_1: idea.id });
+
       // Add idea and replace if id exists
       const { data, error } = await supabase.from("ideas").upsert(idea);
       console.log("Uploaded idea...");
@@ -158,12 +177,14 @@
       title = idea.title;
       description = idea.summary;
       sourced = idea.sourced;
-      tags = idea.tags;
-      superprojects_ids = idea.superprojects_ids;
+      tags = idea.categories.map((category) => category.category);
+      superprojects_ids = idea.superprojects[0]
+        ? idea.superprojects.map((superproject) => superproject.superproject)
+        : [];
       related_ideas = idea.related_ideas;
       filtered = idea.filtered;
       verified = idea.verified;
-      problem_ids = idea.problem_ids;
+      problem_ids = idea.problems;
     } else {
       resetData();
       editWarning = "Idea not found";
