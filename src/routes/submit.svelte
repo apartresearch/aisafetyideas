@@ -82,10 +82,6 @@
     }
   };
 
-  const handleSelect = () => {
-    console.log(select.value);
-  };
-
   const resetData = () => {
     getTables();
     author = "";
@@ -117,6 +113,23 @@
     } else {
       resetData();
       editWarning = "Idea not found";
+    }
+  };
+
+  const deleteIdea = (id) => {
+    let idea = ideas.find((idea) => idea.id == id);
+    if (idea) {
+      supabase
+        .from("ideas")
+        .delete()
+        .match({ id: idea_id })
+        .then(() => {
+          resetData();
+          editWarning = "Idea deleted";
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
 </script>
@@ -209,6 +222,7 @@
     >
       Submit idea
     </button>
+    <button on:click={deleteIdea(idea_id)}> Delete selected idea </button>
     <!-- </div> -->
   </div>
 </div>
