@@ -61,12 +61,12 @@
       );
       idea.categories.forEach((category) => {
         category.category = categories.find(
-          (cat) => cat.title === category.category
+          (cat) => cat.id === category.category
         );
       });
       idea.superprojects.forEach((superproject) => {
         superproject.superproject = superprojects.find(
-          (sp) => sp.title === superproject.superproject
+          (sp) => sp.id === superproject.superproject
         );
       });
       idea.problems.forEach((problem) => {
@@ -104,10 +104,25 @@
 
 <Nav />
 
-{@html markdown(currentSuperproject.authors)}
-<h1>{currentSuperproject.title}</h1>
-{@html markdown(currentSuperproject.description)}
+<div>
+  {@html currentSuperproject.authors
+    ? markdown(currentSuperproject.authors)
+    : ""}
+  <h1>{currentSuperproject.title}</h1>
+  {@html markdown(currentSuperproject.description)}
 
-{#each shownIdeas as idea}
-  <Idea {idea} />
-{/each}
+  {#each shownIdeas as idea}
+    <Idea {idea} />
+  {/each}
+</div>
+
+<style>
+  div {
+    margin: 0 auto;
+    max-width: 800px;
+    margin-top: 50px;
+  }
+  div > h1 {
+    margin-top: 0;
+  }
+</style>
