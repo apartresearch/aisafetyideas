@@ -16,8 +16,10 @@
   "type": "module",
   "dependencies": {
     "supabase-ui-svelte": "^0.1.1",
+    "svelte-loading-animation": "^0.0.1",
     "svelte-select": "^4.4.7",
     "svelte-tooltip": "^1.2.0",
+    "sveltejs-tippy": "^3.0.0",
     "vercel": "^24.1.0"
   }
 }

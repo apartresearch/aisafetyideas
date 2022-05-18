@@ -2,7 +2,14 @@
   import supabase from "$lib/db";
   import { onMount } from "svelte";
   import Select from "svelte-select";
-  import SvelteTooltip from "svelte-tooltip";
+  import tippy from "sveltejs-tippy";
+  import {
+    LoadRipple,
+    LoadCoin,
+    LoadHourGlass,
+    LoadEllipsis,
+    LoadSpinner,
+  } from "svelte-loading-animation";
 
   let ideas = [],
     superprojects = [],
@@ -130,114 +137,149 @@
     </ul>
   </nav>
 </header>
-<div class="container w-container">
-  <div class="ideas-col">
-    {#if canClick}
-      {#each ideas as idea}
-        <div class="idea-card" on:mousedown={() => selectIdea(idea)}>
-          <div class="idea-top">
-            <div class="idea-superprojects-wrapper list-item">
-              <div class="idea-author">
-                {idea.author}
-              </div>
-              {#if idea.superprojects[0]}
-                {#each idea.superprojects as superproject}
-                  <div
-                    class="idea-superproject list-item"
-                    title={superproject.superproject.description}
-                  >
-                    <img src="images/arrow-up.svg" alt="arrow" />
-                    {superproject.superproject.title}
-                  </div>
-                {/each}
-              {/if}
-            </div>
-            <div class="idea-icons">
-              {#if idea.contact}
-                <a
-                  href="mailto:{idea.contact}"
-                  title="Write to the author: {idea.contact}"
-                >
-                  <img src="images/at.svg" alt="Send email to author icon" />
-                </a>
-              {/if}
-              {#if idea.sourced}
-                <a
-                  href={idea.sourced}
-                  target="_blank"
-                  title="Found elsewhere; click to view the source"
-                >
-                  <img src="images/link.svg" alt="Source link icon" />
-                </a>
-              {/if}
-              {#if idea.verified_by_expert}
-                <div
-                  title="Verified by {!idea.verifier
-                    ? 'an expert'
-                    : idea.verifier}"
-                >
-                  <img src="images/checkmark.svg" alt="Expert verified icon" />
+
+{#if canClick}
+  <div class="container w-container">
+    <div class="ideas-col">
+      {#if canClick}
+        {#each ideas as idea}
+          <div class="idea-card" on:mousedown={() => selectIdea(idea)}>
+            <div class="idea-top">
+              <div class="idea-superprojects-wrapper list-item">
+                <div class="idea-author">
+                  {idea.author}
                 </div>
-              {/if}
+                {#if idea.superprojects[0]}
+                  {#each idea.superprojects as superproject}
+                    <div
+                      class="idea-superproject list-item"
+                      use:tippy={{
+                        content: `<div class='tooltip'><h4>${
+                          superproject.superproject.title
+                        }</h4>${markdown(
+                          superproject.superproject.description
+                        )}<p><i>Click to see more ideas</i></p></div>`,
+                        allowHTML: true,
+                      }}
+                    >
+                      <img src="images/arrow-up.svg" alt="arrow" />
+                      {superproject.superproject.title}
+                    </div>
+                  {/each}
+                {/if}
+              </div>
+              <div class="idea-icons">
+                {#if idea.contact}
+                  <a
+                    href="mailto:{idea.contact}"
+                    use:tippy={{
+                      content: `Email the author: ${idea.contact}`,
+                      allowHTML: true,
+                    }}
+                  >
+                    <img src="images/at.svg" alt="Send email to author icon" />
+                  </a>
+                {/if}
+                {#if idea.sourced}
+                  <a
+                    href={idea.sourced}
+                    target="_blank"
+                    use:tippy={{
+                      content: `View the source of this idea`,
+                      allowHTML: true,
+                    }}
+                  >
+                    <img src="images/link.svg" alt="Source link icon" />
+                  </a>
+                {/if}
+                {#if idea.verified_by_expert}
+                  <div
+                    use:tippy={{
+                      content: `This idea has been verified by ${
+                        !idea.verifier ? "an expert" : idea.verifier
+                      }`,
+                      allowHTML: true,
+                    }}
+                  >
+                    <img
+                      src="images/checkmark.svg"
+                      alt="Expert verified icon"
+                    />
+                  </div>
+                {/if}
+              </div>
             </div>
-          </div>
-          <h3 class="idea-title">{idea.title}</h3>
-          <!-- <div class="idea-text">
+            <h3 class="idea-title">{idea.title}</h3>
+            <!-- <div class="idea-text">
           {@html markdown(idea.summary)}
         </div> -->
-          {#if idea.categories[0]}
-            <div class="idea-categories-wrapper list-item">
-              {#each idea.categories as cat, i}
-                <div
-                  class="idea-category list-item"
-                  title={cat.category.tooltip}
-                >
-                  {cat.category.title}
-                </div>
-                {#if i < idea.categories.length - 1}
-                  <div class="idea-category-separator">·</div>
-                {/if}
-              {/each}
-            </div>
-          {/if}
+            {#if idea.categories[0]}
+              <div class="idea-categories-wrapper list-item">
+                {#each idea.categories as cat, i}
+                  <div
+                    class="idea-category list-item"
+                    use:tippy={{
+                      content: `<div class='tooltip'><p>${cat.category.title}${
+                        cat.category.tooltip !== null
+                          ? `<p>${markdown(cat.category.tooltip)}</p>`
+                          : "<br />"
+                      }<i>Click to see more ideas in this category</i></p></div>`,
+                      allowHTML: true,
+                    }}
+                    title={cat.category.tooltip}
+                  >
+                    {cat.category.title}
+                  </div>
+                  {#if i < idea.categories.length - 1}
+                    <div class="idea-category-separator">·</div>
+                  {/if}
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {:else}
+          <p>No ideas found</p>
+        {/each}
+      {/if}
+    </div>
+    <div class="current-idea-col">
+      {#if currentIdea.title}
+        <p class="current-idea-author">{currentIdea.author}</p>
+        <h2 class="current-idea-title">{currentIdea.title}</h2>
+        <div class="current-idea-text">
+          {@html markdown(currentIdea.summary)}
         </div>
+        {#if currentIdea.categories[0]}
+          <h4>Categories</h4>
+          <div class="idea-categories-wrapper">
+            {#each currentIdea.categories as category}
+              <div class="idea-category" title={category.category.tooltip}>
+                {category.category.title}
+              </div>
+            {/each}
+          </div>
+        {/if}
+        {#if currentIdea.superprojects[0]}
+          <h4>Superprojects</h4>
+          <div class="idea-superprojects-wrapper">
+            {#each currentIdea.superprojects as superproject}
+              <div class="idea-superproject">
+                {superproject.superproject.title}
+              </div>
+            {/each}
+          </div>
+        {/if}
       {:else}
-        <p>No ideas found</p>
-      {/each}
-    {/if}
-  </div>
-  <div class="current-idea-col">
-    {#if currentIdea.title}
-      <p class="current-idea-author">{currentIdea.author}</p>
-      <h2 class="current-idea-title">{currentIdea.title}</h2>
-      <div class="current-idea-text">
-        {@html markdown(currentIdea.summary)}
-      </div>
-      {#if currentIdea.categories[0]}
-        <h4>Categories</h4>
-        <div class="idea-categories-wrapper">
-          {#each currentIdea.categories as category}
-            <div class="idea-category" title={category.category.tooltip}>
-              {category.category.title}
-            </div>
-          {/each}
-        </div>
+        <h3>Loading...</h3>
       {/if}
-      {#if currentIdea.superprojects[0]}
-        <h4>Superprojects</h4>
-        <div class="idea-superprojects-wrapper">
-          {#each currentIdea.superprojects as superproject}
-            <div class="idea-superproject">
-              {superproject.superproject.title}
-            </div>
-          {/each}
-        </div>
-      {/if}
-    {:else}
-      <h3>Loading...</h3>
-    {/if}
+    </div>
   </div>
-</div>
+{:else}
+  <div class="loading-wrapper">
+    <img src="images/load_icon.png" alt="Loading icon" class="loading-icon" />
+    <p>Loading...</p>
+  </div>
+{/if}
 
 <style>
   .idea-card {
@@ -300,11 +342,6 @@
     margin: 5px 0 5px 0;
   }
 
-  .idea-text {
-    font-size: 0.7em;
-    line-height: 1.2em;
-  }
-
   .container {
     display: flex;
     flex-direction: row;
@@ -365,6 +402,7 @@
 
   .current-idea-title {
     margin-top: 0;
+    margin-bottom: 0.14em;
   }
 
   .idea-category {
@@ -446,5 +484,40 @@
   .idea-superproject:hover {
     opacity: 0.75;
     cursor: pointer;
+  }
+
+  :global(.tooltip a) {
+    text-decoration: none;
+    color: #44ff98;
+  }
+
+  .loading-icon {
+    margin: 0 auto;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 5em;
+    height: 5em;
+    /* Rotate continusously */
+    -webkit-animation: spin 1.1s ease-in-out infinite;
+  }
+
+  .loading-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+
+  :global(a) {
+    text-decoration: none;
+    color: #02da6e;
+  }
+
+  :global(a:hover) {
+    text-decoration: underline;
   }
 </style>
