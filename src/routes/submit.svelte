@@ -13,8 +13,8 @@
 
   const getTables = async () => {
     ideas = await getTable("ideas");
-    superprojects = await getTable("idea_superprojects");
-    categories = await getTable("idea_categories");
+    superprojects = await getTable("superprojects");
+    categories = await getTable("categories");
     problems = await getTable("problems");
   };
 
@@ -138,7 +138,7 @@
       <input type="text" bind:value={sourced} />
     </div>
     <div class="input-wrapper">
-      <label for="tags">Tags</label>
+      <label for="tags">Category tags</label>
       <Select items={categories} bind:value={tags} isMulti={true} />
     </div>
     <div class="input-wrapper">

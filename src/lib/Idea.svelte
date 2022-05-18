@@ -1,6 +1,6 @@
 <script>
-  export let idea, selectIdea;
   import tippy from "sveltejs-tippy";
+  export let idea, selectIdea;
 </script>
 
 <div class="idea-card" on:mousedown={() => selectIdea(idea)}>
@@ -35,8 +35,11 @@
         <a
           href="mailto:{idea.contact}"
           use:tippy={{
-            content: `Email the author: ${idea.contact}`,
+            content: `Email the author: <a href="mailto:${idea.contact}">${idea.contact}</a>`,
             allowHTML: true,
+            interactive: true,
+            delay: [250, 0],
+            appendTo: document.body,
           }}
         >
           <img src="images/at.svg" alt="Send email to author icon" />
@@ -49,6 +52,7 @@
           use:tippy={{
             content: `View the source of this idea`,
             allowHTML: true,
+            delay: [250, 0],
           }}
         >
           <img src="images/link.svg" alt="Source link icon" />
@@ -61,6 +65,7 @@
               !idea.verifier ? "an expert" : idea.verifier
             }`,
             allowHTML: true,
+            delay: [250, 0],
           }}
         >
           <img src="images/checkmark.svg" alt="Expert verified icon" />
@@ -104,8 +109,16 @@
     background-color: transparent;
     border: none;
   }
+
+  .idea-category:hover,
+  .idea-superproject:hover {
+    opacity: 0.75;
+  }
+
   .idea-superprojects-wrapper.list-item {
     margin: 0;
+    display: flex;
+    flex-wrap: wrap;
   }
   .idea-superproject.list-item {
     border: 0;
@@ -116,6 +129,7 @@
     border-radius: 0;
     margin-right: 4px;
     background-color: transparent;
+    white-space: nowrap;
   }
 
   .idea-superproject > img {
@@ -189,6 +203,7 @@
     vertical-align: bottom;
     margin-right: 0.6em;
     margin-top: 0.1em;
+    white-space: nowrap;
   }
 
   .idea-title {

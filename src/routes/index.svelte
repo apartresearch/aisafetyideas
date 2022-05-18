@@ -12,14 +12,11 @@
     categoryRelations = [],
     superprojectRelations = [],
     problemRelations = [],
-    ideaRelations = [];
-
-  let currentIdea = {};
-  let canClick = false;
-
-  let selectedCategories = [];
-
-  let shownIdeas = [];
+    ideaRelations = [],
+    currentIdea = {},
+    canClick = false,
+    selectedCategories = [],
+    shownIdeas = [];
 
   onMount(async () => {
     let startTime = performance.now();
@@ -34,8 +31,8 @@
       ideaRelations,
     ] = await Promise.all([
       getTable("ideas"),
-      getTable("idea_superprojects"),
-      getTable("idea_categories"),
+      getTable("superprojects"),
+      getTable("categories"),
       getTable("problems"),
       getTable("idea_category_relation"),
       getTable("idea_superproject_relation"),
@@ -188,7 +185,7 @@
                     cat.category.tooltip !== null
                       ? `<p>${markdown(cat.category.tooltip)}</p>`
                       : ""
-                  }<p><i>Click to see more ideas in this category</i></p></div>`,
+                  }</div>`,
                   allowHTML: true,
                   delay: [1000, 0],
                 }}
@@ -341,11 +338,6 @@
     cursor: pointer;
   }
 
-  :global(.tooltip a) {
-    text-decoration: none;
-    color: #44ff98;
-  }
-
   .loading-icon {
     margin: 0 auto;
     margin-top: 20px;
@@ -380,5 +372,12 @@
     margin: 0;
     padding: 0;
     background-color: #f7f7f7;
+  }
+  :global(.tooltip a) {
+    text-decoration: none;
+    color: #44ff98;
+  }
+  :global(.tooltip a:hover) {
+    text-decoration: underline;
   }
 </style>
