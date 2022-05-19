@@ -18,7 +18,7 @@
     }<p><i>${
       selectCategory
         ? "Click to filter for this category"
-        : `<a href=${`/?category=${cat.id}`}>Click to see all ideas with this category</a>`
+        : `<a href=${`/?categories=${cat.title}`}>Click to see all ideas with this category</a>`
     }</i></p></div>`,
     allowHTML: true,
     interactive: selectCategory ? false : true,
