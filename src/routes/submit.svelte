@@ -341,4 +341,10 @@
     font-size: 18px;
     font-style: none;
   }
+
+  @media (max-width: 768px) {
+    .cols-wrapper {
+      padding: 0 10px;
+    }
+  }
 </style>
