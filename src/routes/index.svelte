@@ -111,12 +111,16 @@
   const selectIdea = (idea) => {
     if (loaded) {
       currentIdea = idea;
-      visible = true;
+      setVisible(true);
       url.searchParams.set("idea", idea.id);
       window.history.pushState(null, document, url.href);
     } else {
       console.log("Cannot click before it has loaded.");
     }
+  };
+
+  const setVisible = (bowl) => {
+    visible = bowl;
   };
 
   const selectCategory = (category) => {
@@ -157,8 +161,8 @@
 <Nav />
 
 <div class="container w-container">
-  <a href="https://apartresearch.com">Apart Research</a>
-  <h1>The AI Safety & Governance Ideas Directory</h1>
+  <a class="page-author" href="https://apartresearch.com">Apart Research</a>
+  <h1 class="page-title">The AI Safety & Governance Ideas Directory</h1>
   <p>
     The safe development and deployment of artificial intelligence is one of the
     most important tasks today. During the past two years, shovel-ready ideas
@@ -195,7 +199,7 @@
       <p>Loading...</p>
     </div>
   {/if}
-  <IdeaViewer idea={currentIdea} {visible} />
+  <IdeaViewer idea={currentIdea} {visible} {setVisible} />
 </div>
 
 <style>
@@ -265,5 +269,16 @@
   }
   :global(.tooltip a:hover) {
     text-decoration: underline;
+  }
+
+  .page-author {
+    font-size: 0.8em;
+    color: #000;
+  }
+
+  .page-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    margin: 0;
   }
 </style>
