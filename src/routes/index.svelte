@@ -98,6 +98,13 @@
         currentIdea = {};
       }
     }
+
+    if (
+      categoryParam &&
+      categories.find((category) => category.id == categoryParam)
+    ) {
+      selectCategory(categories.find((cat) => cat.id == categoryParam).title);
+    }
   });
 
   const getTable = async (table_name, grabTitle = true) => {
@@ -189,7 +196,7 @@
 
       {#if loaded}
         {#each shownIdeas as idea}
-          <Idea {idea} {selectIdea} />
+          <Idea {idea} {selectIdea} {selectCategory} />
         {:else}
           <p>No ideas found</p>
         {/each}

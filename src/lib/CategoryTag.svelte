@@ -18,9 +18,10 @@
     }<p><i>${
       selectCategory
         ? "Click to filter for this category"
-        : `<a href=${`/?category=${cat.id}`}Click to see all ideas with this category`
+        : `<a href=${`/?category=${cat.id}`}>Click to see all ideas with this category</a>`
     }</i></p></div>`,
     allowHTML: true,
+    interactive: selectCategory ? false : true,
     delay: [1000, 0],
   }}
   on:click={() => {
@@ -42,6 +43,7 @@
     margin-bottom: 0.3em;
     font-size: 0.8em;
     line-height: 1em;
+    opacity: 0.75;
   }
 
   .idea-category.filter.selected {
@@ -53,11 +55,7 @@
     background-color: #fff;
     flex-grow: 1;
     text-align: center;
-  }
-
-  .idea-category:hover {
-    opacity: 0.75;
-    cursor: pointer;
+    opacity: 1;
   }
 
   .idea-category.list-item {
@@ -69,8 +67,18 @@
     background-color: transparent;
     border: none;
   }
+
   .idea-category:hover {
-    opacity: 0.75;
+    cursor: pointer;
+    opacity: 0.5;
     text-decoration: none;
+  }
+
+  :global(.tooltip a) {
+    text-decoration: none;
+    color: #44ff98;
+  }
+  :global(.tooltip a:hover) {
+    text-decoration: underline;
   }
 </style>

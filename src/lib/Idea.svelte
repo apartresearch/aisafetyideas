@@ -3,7 +3,7 @@
   import tippy from "sveltejs-tippy";
   import CategoryTag from "$lib/CategoryTag.svelte";
   import SuperprojectTag from "$lib/SuperprojectTag.svelte";
-  export let idea, selectIdea;
+  export let idea, selectIdea, selectCategory;
 </script>
 
 <div class="idea-card" on:click={() => selectIdea(idea)}>
@@ -69,7 +69,7 @@
   {#if idea.categories[0]}
     <div class="idea-categories-wrapper list-item" on:click|stopPropagation>
       {#each idea.categories as cat, i}
-        <CategoryTag cat={cat.category} small={true} />
+        <CategoryTag cat={cat.category} small={true} {selectCategory} />
         {#if i < idea.categories.length - 1}
           <div class="idea-category-separator">·</div>
         {/if}
@@ -86,7 +86,6 @@
   }
 
   .idea-categories-wrapper.list-item {
-    opacity: 0.75;
     font-style: italic;
     margin-left: -0.1em;
     float: left;
