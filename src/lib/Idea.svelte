@@ -1,5 +1,8 @@
 <script>
+  import markdown from "$lib/drawdown";
   import tippy from "sveltejs-tippy";
+  import CategoryTag from "$lib/CategoryTag.svelte";
+  import SuperprojectTag from "$lib/SuperprojectTag.svelte";
   export let idea, selectIdea;
 </script>
 
@@ -11,23 +14,10 @@
       </div>
       {#if idea.superprojects[0]}
         {#each idea.superprojects as superproject}
-          <a
-            class="idea-superproject list-item"
-            use:tippy={{
-              content: `<div class='tooltip'><h4>${
-                superproject.superproject.title
-              }</h4>${markdown(
-                superproject.superproject.description
-              )}<p><i>Click to see more ideas</i></p></div>`,
-              allowHTML: true,
-              interactive: true,
-              delay: [500, 0],
-            }}
-            href={`/superprojects/${superproject.superproject.slug}`}
-          >
-            <img src="/images/arrow-up.svg" alt="arrow" />
-            {superproject.superproject.title}
-          </a>
+          <SuperprojectTag
+            superproject={superproject.superproject}
+            small={true}
+          />
         {/each}
       {/if}
     </div>
@@ -78,20 +68,7 @@
   {#if idea.categories[0]}
     <div class="idea-categories-wrapper list-item">
       {#each idea.categories as cat, i}
-        <div
-          class="idea-category list-item"
-          use:tippy={{
-            content: `<div class='tooltip'><h5>${cat.category.title}</h5>${
-              cat.category.tooltip !== null
-                ? `<p>${markdown(cat.category.tooltip)}</p>`
-                : ""
-            }<p><i>Click to see more ideas in this category</i></p></div>`,
-            allowHTML: true,
-            delay: [1000, 0],
-          }}
-        >
-          {cat.category.title}
-        </div>
+        <CategoryTag cat={cat.category} small={true} />
         {#if i < idea.categories.length - 1}
           <div class="idea-category-separator">·</div>
         {/if}
@@ -101,46 +78,10 @@
 </div>
 
 <style>
-  .idea-category.list-item {
-    margin: 0;
-    margin-right: 2px;
-    padding: 2px;
-    font-size: 0.7em;
-    line-height: 1em;
-    background-color: transparent;
-    border: none;
-  }
-
-  .idea-category:hover,
-  .idea-superproject:hover {
-    opacity: 0.75;
-    text-decoration: none;
-  }
-
   .idea-superprojects-wrapper.list-item {
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-  }
-  .idea-superproject.list-item {
-    border: 0;
-    padding: 0;
-    margin: 0;
-    font-size: 0.7em;
-    line-height: 0.8em;
-    border-radius: 0;
-    margin-right: 4px;
-    background-color: transparent;
-    white-space: nowrap;
-    color: black;
-  }
-
-  .idea-superproject > img {
-    width: 0.7em;
-    height: 0.7em;
-    margin: 0;
-    padding: 0;
-    margin-bottom: 0.4em;
   }
 
   .idea-categories-wrapper.list-item {

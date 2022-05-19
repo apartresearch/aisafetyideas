@@ -2,6 +2,7 @@
   import { page } from "$app/stores";
   console.log(page);
   import { onMount } from "svelte";
+  import markdown from "$lib/drawdown";
   import supabase from "$lib/db";
   import Nav from "$lib/Nav.svelte";
   import Idea from "$lib/Idea.svelte";
@@ -118,9 +119,9 @@
 
 <style>
   div {
-    margin: 0 auto;
+    margin: 50px auto;
+    margin-bottom: 100px;
     max-width: 800px;
-    margin-top: 50px;
   }
   div > h1 {
     margin-top: 0;

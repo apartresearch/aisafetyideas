@@ -2,8 +2,11 @@
   import supabase from "$lib/db";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
+  import markdown from "$lib/drawdown";
   import Nav from "$lib//Nav.svelte";
   import Idea from "$lib/Idea.svelte";
+  import IdeaViewer from "$lib/IdeaViewer.svelte";
+  import CategoryTag from "$lib/CategoryTag.svelte";
 
   let url = ``,
     ideaParam = "";
@@ -21,6 +24,8 @@
     loaded = false,
     selectedCategories = [],
     shownIdeas = [];
+
+  let visible = false;
 
   onMount(async () => {
     url = new URL(window.location.href);
@@ -68,7 +73,6 @@
         category.category = categories.find(
           (cat) => cat.id === category.category
         );
-        console.log("Category:", category.category);
       });
       idea.superprojects.forEach((superproject) => {
         superproject.superproject = superprojects.find(
@@ -107,6 +111,7 @@
   const selectIdea = (idea) => {
     if (loaded) {
       currentIdea = idea;
+      visible = true;
       url.searchParams.set("idea", idea.id);
       window.history.pushState(null, document, url.href);
     } else {
@@ -151,26 +156,28 @@
 
 <Nav />
 
-{#if loaded}
-  <div class="container w-container">
+<div class="container w-container">
+  <a href="https://apartresearch.com">Apart Research</a>
+  <h1>The AI Safety & Governance Ideas Directory</h1>
+  <p>
+    The safe development and deployment of artificial intelligence is one of the
+    most important tasks today. During the past two years, shovel-ready ideas
+    within these fields have become more abundant but a centralized directory
+    has still not been available. This project aims to solve this problem and
+    give easy access to exciting ideas that can progress these fields to new
+    entrants into the field.
+  </p>
+
+  {#if loaded}
     <div class="ideas-col">
       <div class="idea-categories-wrapper">
         {#each categories as cat, i}
-          <div
-            class="idea-category filter {cat.selected ? 'selected' : ''}"
-            use:tippy={{
-              content: `<div class='tooltip'><h5>${cat.title}</h5>${
-                cat.tooltip !== null ? `<p>${markdown(cat.tooltip)}</p>` : ""
-              }<p><i>Click to filter ideas for this category</i></p></div>`,
-              allowHTML: true,
-              delay: [1000, 0],
-            }}
-            on:click={() => {
-              selectCategory(cat.title);
-            }}
-          >
-            {cat.title}
-          </div>
+          <CategoryTag
+            {cat}
+            {selectCategory}
+            filter={true}
+            selected={cat.selected}
+          />
         {/each}
       </div>
 
@@ -182,78 +189,20 @@
         {/each}
       {/if}
     </div>
-    <div class="current-idea-col">
-      {#if currentIdea.title}
-        <p class="current-idea-author">{currentIdea.author}</p>
-        <h2 class="current-idea-title">{currentIdea.title}</h2>
-        <div class="current-idea-text">
-          {@html markdown(currentIdea.summary)}
-        </div>
-        {#if currentIdea.categories[0]}
-          <h4>Categories</h4>
-          <div class="idea-categories-wrapper">
-            {#each currentIdea.categories as cat}
-              <div
-                class="idea-category"
-                use:tippy={{
-                  content: `<div class='tooltip'><h5>${
-                    cat.category.title
-                  }</h5>${
-                    cat.category.tooltip !== null
-                      ? `<p>${markdown(cat.category.tooltip)}</p>`
-                      : ""
-                  }</div>`,
-                  allowHTML: true,
-                  delay: [1000, 0],
-                }}
-              >
-                {cat.category.title}
-              </div>
-            {/each}
-          </div>
-        {/if}
-        {#if currentIdea.superprojects[0]}
-          <h4>
-            Superproject{currentIdea.superprojects.length > 1 ? "s" : ""}
-          </h4>
-          <div class="idea-superprojects-wrapper">
-            {#each currentIdea.superprojects as superproject}
-              <div
-                class="idea-superproject"
-                use:tippy={{
-                  content: `<div class='tooltip'><h4>${
-                    superproject.superproject.title
-                  }</h4>${markdown(
-                    superproject.superproject.description
-                  )}<p><i>Click to see more ideas</i></p></div>`,
-                  allowHTML: true,
-                  interactive: true,
-                  delay: [500, 0],
-                }}
-              >
-                {superproject.superproject.title}
-              </div>
-            {/each}
-          </div>
-        {/if}
-      {:else}
-        <h3>Select an idea</h3>
-      {/if}
+  {:else}
+    <div class="loading-wrapper">
+      <img src="images/load_icon.png" alt="Loading icon" class="loading-icon" />
+      <p>Loading...</p>
     </div>
-  </div>
-{:else}
-  <div class="loading-wrapper">
-    <img src="images/load_icon.png" alt="Loading icon" class="loading-icon" />
-    <p>Loading...</p>
-  </div>
-{/if}
+  {/if}
+  <IdeaViewer idea={currentIdea} {visible} />
+</div>
 
 <style>
   .container {
-    display: flex;
-    flex-direction: row;
-    justify-content: start;
-    max-width: 1100px;
+    margin: 50px auto;
+    margin-bottom: 200px;
+    max-width: 800px;
   }
 
   .ideas-col {
@@ -264,23 +213,7 @@
     margin: 0;
     padding: 0;
     margin-bottom: 20px;
-    width: 50%;
     left: 0;
-  }
-
-  .current-idea-col {
-    display: flex;
-    flex-direction: column;
-    justify-content: top;
-    align-items: top;
-    margin-bottom: 20px;
-    position: fixed;
-    left: 50%;
-    width: 50%;
-    max-width: 550px;
-    padding: 20px;
-    background-color: #fff;
-    height: 100vh;
   }
 
   .idea-categories-wrapper {
@@ -289,70 +222,6 @@
     flex-wrap: wrap;
     justify-content: start;
     align-items: center;
-  }
-
-  .current-idea-author {
-    margin-bottom: 4px;
-    line-height: 1em;
-  }
-
-  .current-idea-title {
-    margin-top: 0;
-    margin-bottom: 0.14em;
-  }
-
-  .idea-category {
-    /* Styling for a tag */
-    background-color: #f5f5f5;
-    border: 1px solid #e3e3e3;
-    padding: 0.2em 0.5em;
-    margin-right: 0.4em;
-    margin-bottom: 0.3em;
-    font-size: 0.8em;
-    line-height: 1em;
-  }
-
-  .idea-category.filter.selected {
-    /* Make background green */
-    background-color: #44ff98;
-  }
-
-  .idea-category.filter {
-    background-color: #fff;
-    flex-grow: 1;
-    text-align: center;
-  }
-
-  .idea-category:hover {
-    opacity: 0.75;
-    cursor: pointer;
-  }
-
-  .idea-superprojects-wrapper {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: start;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-
-  .idea-superproject {
-    /* Styling for a tag */
-    background-color: #f5f5f5;
-    border: 1px solid #e3e3e3;
-    vertical-align: bottom;
-
-    padding: 0.2em 0.5em;
-    margin-right: 0.4em;
-    margin-bottom: 0.5em;
-    font-size: 0.8em;
-    line-height: 1em;
-  }
-
-  .idea-superproject:hover {
-    opacity: 0.75;
-    cursor: pointer;
   }
 
   .loading-icon {
