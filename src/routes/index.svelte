@@ -8,6 +8,7 @@
   import IdeaViewer from "$lib/IdeaViewer.svelte";
   import CategoryTag from "$lib/CategoryTag.svelte";
   import LoadIcon from "$lib/LoadIcon.svelte";
+  import Footer from "$lib/Footer.svelte";
 
   let url = ``,
     ideaParam = "",
@@ -30,12 +31,12 @@
   let visible = false;
 
   onMount(async () => {
-    url = new URL(window.location.href);
-    ideaParam = url.searchParams.get("idea");
-    categoryParam = url.searchParams.get("categories");
+    console.log("Refreshed");
 
-    console.log("Idea:", ideaParam);
-    console.log("Category:", categoryParam);
+    // Create event listener to listen for back button clicks
+    window.addEventListener("popstate", () => {
+      updateFromUrl();
+    });
 
     let startTime = performance.now();
     [
@@ -92,25 +93,7 @@
 
     loaded = true;
     shownIdeas = ideas;
-    if (ideaParam) {
-      selectIdea(ideas.find((idea) => idea.id == ideaParam));
-      if (!currentIdea) {
-        currentIdea = {};
-      }
-    }
-
-    if (categoryParam) {
-      categoryParam = categoryParam.split(",");
-      categoryParam.forEach((title) => {
-        if (categories.find((cat) => cat.title == title)) selectCategory(title);
-      });
-    }
-    if (
-      categoryParam &&
-      categories.find((category) => category.id == categoryParam)
-    ) {
-      selectCategory(categories.find((cat) => cat.id == categoryParam).title);
-    }
+    updateFromUrl();
   });
 
   const getTable = async (table_name, grabTitle = true) => {
@@ -139,6 +122,8 @@
 
   const setVisible = (bowl) => {
     visible = bowl;
+    url.searchParams.delete("idea");
+    window.history.pushState(null, document, url.href);
   };
 
   const selectCategory = (category) => {
@@ -151,6 +136,9 @@
       }
 
       url.searchParams.set("categories", selectedCategories.join(","));
+      if (selectedCategories.join(",").length < 1) {
+        url.searchParams.delete("categories");
+      }
       window.history.pushState(null, document, url.href);
 
       categories.forEach((elm) => {
@@ -175,6 +163,36 @@
       shownIdeas = ideas.filter((idea) => idea.shown);
     } else {
       console.log("Cannot click before it has loaded.");
+    }
+  };
+
+  const updateFromUrl = () => {
+    url = new URL(window.location.href);
+    ideaParam = url.searchParams.get("idea");
+    categoryParam = url.searchParams.get("categories");
+
+    if (ideaParam) {
+      selectIdea(ideas.find((idea) => idea.id == ideaParam));
+      if (!currentIdea) {
+        currentIdea = {};
+      }
+    }
+
+    if (categoryParam) {
+      categoryParam = categoryParam.split(",");
+      categoryParam.forEach((title) => {
+        if (categories.find((cat) => cat.title == title)) selectCategory(title);
+      });
+    }
+    if (
+      categoryParam &&
+      categories.find((category) => category.id == categoryParam)
+    ) {
+      selectCategory(categories.find((cat) => cat.id == categoryParam).title);
+    }
+
+    if (!ideaParam && !categoryParam) {
+      setVisible(false);
     }
   };
 </script>
@@ -216,12 +234,14 @@
   {/if}
   <IdeaViewer idea={currentIdea} {visible} {setVisible} />
 </div>
+<Footer />
 
 <style>
   .container {
     margin: 80px auto;
     margin-bottom: 200px;
     max-width: 800px;
+    min-height: 800px;
   }
 
   .ideas-col {

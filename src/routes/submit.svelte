@@ -308,7 +308,7 @@
     flex-direction: row;
     justify-content: center;
     max-width: 1100px;
-    margin: 0 auto;
+    margin: 75px auto;
   }
 
   button {
