@@ -292,7 +292,20 @@
 
   .page-title {
     font-size: 1.5em;
+    line-height: 1.2em;
     font-weight: bold;
-    margin: 0;
+    margin: 5px 0;
+  }
+
+  /* mobile style */
+  @media (max-width: 768px) {
+    .idea-categories-wrapper {
+      flex-wrap: nowrap;
+      overflow: auto;
+    }
+
+    .container {
+      padding: 0 10px;
+    }
   }
 </style>

@@ -81,4 +81,15 @@
   :global(.tooltip a:hover) {
     text-decoration: underline;
   }
+
+  /* mobile style */
+  @media (max-width: 768px) {
+    .idea-category.filter {
+      flex-grow: 0;
+      white-space: nowrap;
+      height: 2.4em;
+      line-height: 2em;
+      padding: auto 1em;
+    }
+  }
 </style>

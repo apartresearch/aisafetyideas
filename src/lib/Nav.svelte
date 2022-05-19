@@ -42,6 +42,7 @@
     left: 0;
     right: 0;
     z-index: 10;
+    padding: 5px;
   }
 
   .sticky-nav .nav-grid {

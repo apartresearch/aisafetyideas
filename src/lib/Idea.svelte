@@ -91,6 +91,8 @@
     font-style: italic;
     margin-left: -0.1em;
     float: left;
+    white-space: nowrap;
+    flex-wrap: wrap;
   }
 
   .idea-category-separator {

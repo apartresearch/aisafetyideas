@@ -76,7 +76,7 @@
     padding: 20px;
     background-color: #fff;
     min-height: 600px;
-    min-width: 400px;
+    min-width: 320px;
     cursor: default;
     border-radius: 5px;
   }
