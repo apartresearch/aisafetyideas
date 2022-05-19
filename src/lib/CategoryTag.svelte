@@ -15,14 +15,18 @@
   use:tippy={{
     content: `<div class='tooltip'><h5>${cat.title}</h5>${
       cat.tooltip !== null ? `<p>${markdown(cat.tooltip)}</p>` : ""
-    }<p><i>Click to filter ideas for this category</i></p></div>`,
+    }<p><i>${
+      selectCategory
+        ? "Click to filter for this category"
+        : `<a href=${`/?category=${cat.id}`}Click to see all ideas with this category`
+    }</i></p></div>`,
     allowHTML: true,
     delay: [1000, 0],
   }}
   on:click={() => {
     selectCategory
       ? selectCategory(cat.title)
-      : console.log("selectCategory is not defined.");
+      : console.log("selectCategory is not within scope.");
   }}
 >
   {cat.title}

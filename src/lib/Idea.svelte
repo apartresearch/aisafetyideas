@@ -6,9 +6,9 @@
   export let idea, selectIdea;
 </script>
 
-<div class="idea-card" on:mousedown={() => selectIdea(idea)}>
+<div class="idea-card" on:click={() => selectIdea(idea)}>
   <div class="idea-top">
-    <div class="idea-superprojects-wrapper list-item">
+    <div class="idea-superprojects-wrapper list-item" on:click|stopPropagation>
       <div class="idea-author">
         {idea.author}
       </div>
@@ -21,12 +21,13 @@
         {/each}
       {/if}
     </div>
-    <div class="idea-icons">
+    <div class="idea-icons" on:click|stopPropagation>
       {#if idea.contact}
         <a
+          target="_blank"
           href="mailto:{idea.contact}"
           use:tippy={{
-            content: `Email the author: <a href="mailto:${idea.contact}">${idea.contact}</a>`,
+            content: `Email the author: <a target="_blank" href="mailto:${idea.contact}">${idea.contact}</a>`,
             allowHTML: true,
             interactive: true,
             delay: [250, 0],
@@ -66,7 +67,7 @@
   </div>
   <h3 class="idea-title">{idea.title}</h3>
   {#if idea.categories[0]}
-    <div class="idea-categories-wrapper list-item">
+    <div class="idea-categories-wrapper list-item" on:click|stopPropagation>
       {#each idea.categories as cat, i}
         <CategoryTag cat={cat.category} small={true} />
         {#if i < idea.categories.length - 1}
@@ -88,6 +89,7 @@
     opacity: 0.75;
     font-style: italic;
     margin-left: -0.1em;
+    float: left;
   }
 
   .idea-category-separator {
@@ -102,6 +104,7 @@
     border-right: 2px solid #f9f9f9;
     border-bottom: 2px solid #f9f9f9;
     width: 100%;
+    overflow: auto;
   }
 
   .idea-card:hover {

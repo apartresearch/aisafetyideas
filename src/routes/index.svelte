@@ -7,9 +7,11 @@
   import Idea from "$lib/Idea.svelte";
   import IdeaViewer from "$lib/IdeaViewer.svelte";
   import CategoryTag from "$lib/CategoryTag.svelte";
+  import LoadIcon from "$lib/LoadIcon.svelte";
 
   let url = ``,
-    ideaParam = "";
+    ideaParam = "",
+    categoryParam = "";
   // console.log($page.url.searchParams.has("meme"));
 
   let ideas = [],
@@ -30,7 +32,10 @@
   onMount(async () => {
     url = new URL(window.location.href);
     ideaParam = url.searchParams.get("idea");
+    categoryParam = url.searchParams.get("category");
+
     console.log("Idea:", ideaParam);
+    console.log("Category:", categoryParam);
 
     let startTime = performance.now();
     [
@@ -164,12 +169,9 @@
   <a class="page-author" href="https://apartresearch.com">Apart Research</a>
   <h1 class="page-title">The AI Safety & Governance Ideas Directory</h1>
   <p>
-    The safe development and deployment of artificial intelligence is one of the
-    most important tasks today. During the past two years, shovel-ready ideas
-    within these fields have become more abundant but a centralized directory
-    has still not been available. This project aims to solve this problem and
-    give easy access to exciting ideas that can progress these fields to new
-    entrants into the field.
+    This is a directory of AI safety and governance ideas. The ideas are
+    shovel-ready for development and are linked to categories and superprojects
+    (aka agendas).
   </p>
 
   {#if loaded}
@@ -194,17 +196,14 @@
       {/if}
     </div>
   {:else}
-    <div class="loading-wrapper">
-      <img src="images/load_icon.png" alt="Loading icon" class="loading-icon" />
-      <p>Loading...</p>
-    </div>
+    <LoadIcon />
   {/if}
   <IdeaViewer idea={currentIdea} {visible} {setVisible} />
 </div>
 
 <style>
   .container {
-    margin: 50px auto;
+    margin: 80px auto;
     margin-bottom: 200px;
     max-width: 800px;
   }
@@ -226,27 +225,6 @@
     flex-wrap: wrap;
     justify-content: start;
     align-items: center;
-  }
-
-  .loading-icon {
-    margin: 0 auto;
-    margin-top: 20px;
-    margin-bottom: 20px;
-    width: 5em;
-    height: 5em;
-    /* Rotate continusously */
-    -webkit-animation: spin 1.1s ease-in-out infinite;
-  }
-
-  .loading-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
   }
 
   :global(a) {

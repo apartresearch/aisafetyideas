@@ -7,6 +7,8 @@
   import Nav from "$lib/Nav.svelte";
   import Idea from "$lib/Idea.svelte";
   const superprojectSlug = $page.params.superproject;
+  import IdeaViewer from "$lib/IdeaViewer.svelte";
+  import LoadIcon from "$lib/LoadIcon.svelte";
 
   let ideas = [],
     superprojects = [],
@@ -21,6 +23,9 @@
     selectedCategories = [],
     shownIdeas = [],
     currentSuperproject = {};
+
+  let visible = false,
+    loading = true;
 
   onMount(async () => {
     let startTime = performance.now();
@@ -87,6 +92,8 @@
         (superproject) => superproject.superproject.slug === superprojectSlug
       )
     );
+
+    loading = false;
   });
 
   const getTable = async (table_name, grabTitle = true) => {
@@ -101,25 +108,45 @@
       console.log(err);
     }
   };
+
+  const selectIdea = (idea) => {
+    if (!canClick) return;
+    currentIdea = idea;
+    setVisible(true);
+  };
+
+  const setVisible = (bowl) => {
+    if (!canClick) return;
+    visible = bowl;
+  };
 </script>
 
 <Nav />
 
-<div>
-  {@html currentSuperproject.authors
-    ? markdown(currentSuperproject.authors)
-    : ""}
-  <h1>{currentSuperproject.title}</h1>
-  {@html markdown(currentSuperproject.description)}
+{#if loading}
+  <LoadIcon />
+{:else}
+  <div>
+    {@html currentSuperproject.authors
+      ? markdown(currentSuperproject.authors)
+      : ""}
+    <h1>{currentSuperproject.title}</h1>
+    {@html markdown(currentSuperproject.description)}
 
-  {#each shownIdeas as idea}
-    <Idea {idea} />
-  {/each}
-</div>
+    {#each shownIdeas as idea}
+      <Idea {idea} {selectIdea} />
+    {/each}
+  </div>
+
+  <IdeaViewer idea={currentIdea} {visible} {setVisible} />
+{/if}
 
 <style>
+  :global(body) {
+    background-color: #f7f7f7;
+  }
   div {
-    margin: 50px auto;
+    margin: 80px auto;
     margin-bottom: 100px;
     max-width: 800px;
   }

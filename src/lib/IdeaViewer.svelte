@@ -8,9 +8,9 @@
 
 <content
   class="fullscreen-wrapper {visible ? '' : 'hidden'}"
-  on:click={setVisible(false)}
+  on:click|self={setVisible(false)}
 >
-  <div class="current-idea" on:click|stopPropagation={() => {}}>
+  <div class="current-idea" on:click={() => {}}>
     {#if idea.title}
       <p class="current-idea-author">{idea.author}</p>
       <h2 class="current-idea-title">{idea.title}</h2>
