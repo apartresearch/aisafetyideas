@@ -78,7 +78,7 @@
     min-height: 600px;
     min-width: 400px;
     cursor: default;
-    z-index: 101;
+    border-radius: 5px;
   }
 
   .current-idea-author {

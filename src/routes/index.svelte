@@ -32,7 +32,7 @@
   onMount(async () => {
     url = new URL(window.location.href);
     ideaParam = url.searchParams.get("idea");
-    categoryParam = url.searchParams.get("category");
+    categoryParam = url.searchParams.get("categories");
 
     console.log("Idea:", ideaParam);
     console.log("Category:", categoryParam);
@@ -93,12 +93,18 @@
     loaded = true;
     shownIdeas = ideas;
     if (ideaParam) {
-      currentIdea = ideas.find((idea) => idea.id == ideaParam);
+      selectIdea(ideas.find((idea) => idea.id == ideaParam));
       if (!currentIdea) {
         currentIdea = {};
       }
     }
 
+    if (categoryParam) {
+      categoryParam = categoryParam.split(",");
+      categoryParam.forEach((title) => {
+        if (categories.find((cat) => cat.title == title)) selectCategory(title);
+      });
+    }
     if (
       categoryParam &&
       categories.find((category) => category.id == categoryParam)
@@ -143,6 +149,9 @@
       } else {
         selectedCategories = [...selectedCategories, category];
       }
+
+      url.searchParams.set("categories", selectedCategories.join(","));
+      window.history.pushState(null, document, url.href);
 
       categories.forEach((elm) => {
         elm.selected = selectedCategories.includes(elm.title);
