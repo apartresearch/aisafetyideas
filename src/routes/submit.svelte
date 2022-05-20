@@ -228,7 +228,14 @@
       <input type="text" bind:value={title} />
     </div>
     <div class="input-wrapper description">
-      <label for="description">Description (supports markdown)</label>
+      <label for="description"
+        >Description (supports <a
+          target="_blank"
+          href="https://adamvleggett.github.io/drawdown/"
+        >
+          markdown</a
+        >)</label
+      >
       <textarea rows="8" bind:value={description} />
     </div>
     <div class="input-wrapper">
@@ -325,21 +332,30 @@
   }
   .input-wrapper {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     margin: 2px;
     width: 100%;
+    flex-wrap: wrap;
   }
-  .input-wrapper input {
+  .input-wrapper input,
+  .input-wrapper textarea,
+  .input-wrapper Select {
     margin-bottom: 5px;
+    width: 70%;
+    font-size: 0.7em;
+    line-height: 1em;
   }
 
   .description textarea {
-    height: 250px;
+    min-height: 100px;
   }
 
   label {
-    font-size: 18px;
+    font-size: 0.7em;
+    line-height: 1em;
+    padding-right: 0.5em;
     font-style: none;
+    width: 30%;
   }
 
   @media (max-width: 768px) {
