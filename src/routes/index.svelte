@@ -238,7 +238,7 @@
 
 <style>
   .container {
-    margin: 80px auto;
+    margin: 75px auto;
     margin-bottom: 200px;
     max-width: 800px;
     min-height: 800px;
