@@ -239,7 +239,7 @@
 <style>
   .container {
     margin: 75px auto;
-    margin-bottom: 200px;
+    margin-bottom: 150px;
     max-width: 800px;
     min-height: 800px;
   }
