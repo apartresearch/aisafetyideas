@@ -2,7 +2,6 @@
   import moment from "moment";
   import markdown from "$lib/drawdown";
   export let comment, currentComment, replyToComment;
-  console.log(comment);
 </script>
 
 <div
@@ -10,20 +9,17 @@
     ? 'current'
     : ''}"
 >
-  {#if comment.anon_author || comment.author}
+  <p class="author">
     {#if comment.anon_author_url}
       <a class="author" target="_blank" href={comment.anon_author_url}>
         <img src="/images/link.svg" alt="Link icon" />
-        {comment.anon_author != null ? comment.anon_author : "Anonymous"}
-        <span class="date">{moment(comment.created_at).fromNow()}</span>
+        {comment.anon_author ? comment.anon_author : "Anonymous"}
       </a>
     {:else}
-      <p class="author">
-        {comment.anon_author != null ? comment.anon_author : "Anonymous"}
-        <span class="date">{moment(comment.created_at).fromNow()}</span>
-      </p>
+      {comment.anon_author ? comment.anon_author : "Anonymous"}
     {/if}
-  {/if}
+    <span class="date">{moment(comment.created_at).fromNow()}</span>
+  </p>
   {@html markdown(comment.text)}
   {#if replyToComment}
     <div class="reply-to">

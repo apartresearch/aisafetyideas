@@ -18,7 +18,9 @@
     }<p><i>${
       selectCategory
         ? "Click to filter for this category"
-        : `<a href=${`/?categories=${cat.title}`} on:click={location.reload()}>Click to see all ideas with this category</a>`
+        : `<a href=${`https://aisafetyideas.com/?categories=${encodeURIComponent(
+            cat.title
+          )}`} on:click={location.reload()}>Click to see all ideas with this category</a>`
     }</i></p></div>`,
     allowHTML: true,
     interactive: selectCategory ? false : true,
@@ -43,7 +45,15 @@
     margin-bottom: 0.3em;
     font-size: 0.8em;
     line-height: 1em;
+    /* opacity: 0.75; */
+  }
+
+  .idea-category.list-item {
     opacity: 0.75;
+  }
+
+  .idea-category.list-item:hover {
+    opacity: 0.5;
   }
 
   .idea-category.filter.selected {
@@ -70,7 +80,7 @@
 
   .idea-category:hover {
     cursor: pointer;
-    opacity: 0.5;
+    opacity: 0.75;
     text-decoration: none;
   }
 

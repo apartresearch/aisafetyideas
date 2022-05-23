@@ -1,5 +1,5 @@
 <script>
-  import supabase from "$lib/db";
+  import { supabase, getTable } from "$lib/db";
   import { onMount } from "svelte";
   import Select from "svelte-select";
   import Nav from "$lib/Nav.svelte";
@@ -94,19 +94,6 @@
     console.log(ideas[9]);
 
     idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
-  };
-
-  const getTable = async (table_name) => {
-    try {
-      let { data, error } = await supabase.from(table_name).select("*");
-      return data.map((elm) => ({
-        ...elm,
-        value: elm.title,
-        label: elm.title,
-      }));
-    } catch (err) {
-      console.log(err);
-    }
   };
 
   const addNewIdea = async (

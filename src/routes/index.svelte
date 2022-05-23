@@ -1,5 +1,5 @@
 <script>
-  import supabase from "$lib/db";
+  import { supabase, getTable, setupIdeas } from "$lib/db";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
@@ -67,65 +67,22 @@
 
     console.log(`Time to load data: ${endTime - startTime}ms`);
 
-    ideas.forEach((idea) => {
-      idea.categories = categoryRelations.filter(
-        (relation) => relation.idea === idea.id
-      );
-      idea.superprojects = superprojectRelations.filter(
-        (relation) => relation.idea === idea.id
-      );
-      idea.problems = problemRelations.filter(
-        (relation) => relation.idea === idea.id
-      );
-      idea.ideas = ideaRelations.filter(
-        (relation) => relation.idea === idea.id
-      );
-      idea.comments = comments.filter(
-        (comment) =>
-          (comment.reply_to < 1 || !comment.reply_to) &&
-          comment.idea === idea.id
-      );
-      idea.comments.forEach((comment) => {
-        comment.replies = comments.filter((com) => comment.id === com.reply_to);
-      });
-      idea.categories.forEach((category) => {
-        category.category = categories.find(
-          (cat) => cat.id === category.category
-        );
-      });
-      idea.comments_n = 0;
-      idea.comments.forEach((comment) => {
-        idea.comments_n += 1;
-        idea.comments_n += comment.replies.length;
-      });
-      idea.superprojects.forEach((superproject) => {
-        superproject.superproject = superprojects.find(
-          (sp) => sp.id === superproject.superproject
-        );
-      });
-      idea.problems.forEach((problem) => {
-        problem.problem = problems.find((p) => p.title === problem.problem);
-      });
-      idea.shown = true;
-    });
+    ideas = setupIdeas(
+      ideas,
+      superprojects,
+      categories,
+      problems,
+      categoryRelations,
+      superprojectRelations,
+      problemRelations,
+      ideaRelations,
+      comments
+    );
 
     loaded = true;
     shownIdeas = ideas;
     updateFromUrl();
   });
-
-  const getTable = async (table_name, grabTitle = true) => {
-    try {
-      let { data, error } = await supabase.from(table_name).select("*");
-      return data.map((elm) => ({
-        ...elm,
-        value: grabTitle ? elm.title : "",
-        label: grabTitle ? elm.title : "",
-      }));
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const selectIdea = (idea) => {
     if (loaded) {
@@ -265,8 +222,10 @@
 
   const addComment = async (comment) => {
     if (currentIdea) {
-      currentIdea.comments_n += 1;
-      currentIdea = currentIdea;
+      shownIdeas[
+        shownIdeas.findIndex((idea) => idea.id == currentIdea.id)
+      ].comments_n += 1;
+      shownIdeas = shownIdeas;
       await supabase.from("comments").insert(comment);
     }
   };
