@@ -1,31 +1,55 @@
 <script>
   import moment from "moment";
   import markdown from "$lib/drawdown";
-  export let comment;
+  export let comment, currentComment, replyToComment;
 </script>
 
-<div class="comment {comment.reply_to ? 'reply' : ''}">
+<div
+  class="comment {comment.reply_to ? 'reply' : ''} {comment.id == currentComment
+    ? 'current'
+    : ''}"
+>
   {#if comment.anon_author || comment.author}
     {#if comment.anon_author_url}
       <a class="author" target="_blank" href={comment.anon_author_url}>
         <img src="/images/link.svg" alt="Link icon" />
-        {comment.anon_author}
+        {comment.anon_author != null ? comment.anon_author : "Anonymous"}
         <span class="date">{moment(comment.created_at).fromNow()}</span>
       </a>
     {:else}
       <p class="author">
-        {comment.anon_author}
+        {comment.anon_author != null ? comment.anon_author : "Anonymous"}
         <span class="date">{moment(comment.created_at).fromNow()}</span>
       </p>
     {/if}
   {/if}
   {@html markdown(comment.text)}
+  {#if replyToComment}
+    <div class="reply-to">
+      <!-- svelte-ignore a11y-invalid-attribute -->
+      <a href="" on:click={() => replyToComment(comment)}>
+        {comment.id == currentComment
+          ? `Replying to ${comment.anon_author} - write your comment above`
+          : "Reply"}
+      </a>
+    </div>
+  {/if}
 </div>
 
 <style>
-  div {
+  .current {
+    /* Make green background */
+    background-color: #eee;
+  }
+
+  .comment {
     border-left: 1px solid #ccc;
     padding: 0.3em 0.5em;
+  }
+
+  .reply-to {
+    font-size: 0.8em;
+    margin-top: 0em;
   }
 
   :global(.comment > h1, .comment > h2, .comment > h3, .comment > h4, .comment

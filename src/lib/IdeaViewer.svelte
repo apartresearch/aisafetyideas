@@ -2,9 +2,30 @@
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
   import CategoryTag from "$lib/CategoryTag.svelte";
+  import supabase from "$lib/db";
   import SuperprojectTag from "$lib/SuperprojectTag.svelte";
   import Comment from "$lib/Comment.svelte";
-  export let idea, visible, setVisible;
+  export let idea, visible, setVisible, addComment;
+
+  let commentText = "",
+    commentUsername = "",
+    commentUserlink = "",
+    replyTo = null;
+
+  const writeComment = () => {
+    const comment = {
+      idea: idea.id,
+      text: commentText,
+      anon_author: commentUsername,
+      anon_author_url: commentUserlink,
+      reply_to: replyTo,
+    };
+    addComment(comment);
+  };
+
+  const replyToComment = (reply_to) => {
+    replyTo = reply_to.id;
+  };
 </script>
 
 <content
@@ -36,11 +57,65 @@
           {/each}
         </div>
       {/if}
+      <h4>Comments</h4>
+      <div class="add-comment">
+        <textarea
+          class="comment-text"
+          type="text"
+          bind:value={commentText}
+          placeholder="Add a comment..."
+          use:tippy={{
+            content: `Supports markdown, e.g. *italic*, **bold**, [links](https://example.com).`,
+            allowHTML: true,
+            delay: [250, 0],
+          }}
+        />
+        <div class="col2">
+          <input
+            class="comment-user"
+            type="text"
+            bind:value={commentUsername}
+            placeholder="Your username"
+            use:tippy={{
+              content: `Your username will be displayed with your comment`,
+              allowHTML: true,
+              delay: [250, 0],
+            }}
+          />
+          <input
+            class="comment-userlink"
+            type="text"
+            bind:value={commentUserlink}
+            placeholder="Your user link"
+            use:tippy={{
+              content: `Your user link will be linked from your username`,
+              allowHTML: true,
+              delay: [250, 0],
+            }}
+          />
+          <!-- <input type="number" bind:value={replyTo} placeholder="Reply to" /> -->
+          <button
+            class="submit"
+            use:tippy={{
+              content:
+                "You cannot edit or delete your comment after it is posted.",
+              delay: [250, 0],
+            }}
+            on:click={() => {
+              writeComment();
+              commentText = "";
+              commentUsername = "";
+              commentUserlink = "";
+            }}
+          >
+            Add comment
+          </button>
+        </div>
+      </div>
       {#if idea.comments.length > 0}
-        <h4>Comments</h4>
         <div class="idea-comments-wrapper">
           {#each idea.comments as comment}
-            <Comment {comment} />
+            <Comment {comment} currentComment={replyTo} {replyToComment} />
           {/each}
         </div>
       {/if}
@@ -55,6 +130,54 @@
   Build a popup like ProductHunt. There is a parent with 
   scrolling and a relative size unit as child. 
   */
+
+  .idea-comments-wrapper {
+    margin-bottom: 2rem;
+  }
+
+  .add-comment {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 1rem;
+  }
+
+  .comment-text {
+    width: 69%;
+    height: 100px;
+    border: 1px solid #ccc;
+    border-radius: 0.3em;
+    padding: 0.5em;
+    font-size: 0.8em;
+    resize: none;
+    margin: 0;
+  }
+
+  .col2 {
+    width: 30%;
+    margin-left: 1%;
+  }
+
+  .col2 input {
+    border: 1px solid #ccc;
+    width: 100%;
+    border-radius: 0.3em;
+    padding: 0.4em;
+    font-size: 0.8em;
+    margin-bottom: 0.3em;
+  }
+
+  .submit {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 0.3em;
+    font-size: 0.8em;
+    background-color: #eee;
+    cursor: pointer;
+  }
+
+  .submit:hover {
+    background-color: #ddd;
+  }
 
   .fullscreen-wrapper {
     position: fixed;

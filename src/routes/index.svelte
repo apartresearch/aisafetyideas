@@ -250,6 +250,14 @@
       { label: "Author", value: "author" },
     ],
     currentSort = "";
+
+  const addComment = async (comment) => {
+    if (currentIdea) {
+      currentIdea.comments.push(comment);
+      currentIdea.comments = currentIdea.comments;
+      await supabase.from("comments").insert(comment);
+    }
+  };
 </script>
 
 <Nav />
@@ -313,7 +321,7 @@
   {:else}
     <LoadIcon />
   {/if}
-  <IdeaViewer idea={currentIdea} {visible} {setVisible} />
+  <IdeaViewer idea={currentIdea} {visible} {setVisible} {addComment} />
 </div>
 
 <Footer />
