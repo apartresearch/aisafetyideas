@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import Select from "svelte-select";
   import Nav from "../lib/Nav.svelte";
+  import tippy from "sveltejs-tippy";
 
   let ideas = [],
     superprojects = [],
@@ -27,7 +28,13 @@
     problem_ids = [],
     filtered = false,
     verified = false,
-    idea_id = 0;
+    idea_id = 0,
+    date_sourced = new Date(),
+    difficulty = 0,
+    funding_amount = 0,
+    funding_currency = "$",
+    funding_from = "",
+    mentorship_from = "";
 
   let editWarning = "";
 
@@ -211,6 +218,10 @@
   let password = "";
 </script>
 
+<svelte:head>
+  <title>Submit idea | AI safety ideas</title>
+</svelte:head>
+
 <Nav />
 
 <div class="cols-wrapper">
@@ -254,10 +265,7 @@
       >
       <textarea rows="8" bind:value={description} />
     </div>
-    <div class="input-wrapper">
-      <label for="sourced"> Source link (leave blank if not sourced) </label>
-      <input type="text" bind:value={sourced} />
-    </div>
+
     <div class="input-wrapper">
       <label for="tags">Category tags</label>
       <div class="select">
@@ -286,6 +294,77 @@
         <Select items={ideas} bind:value={related_ideas} isMulti={true} />
       </div>
     </div>
+    <div class="input-wrapper">
+      <label for="difficulty">Difficulty of task</label>
+      <input
+        type="range"
+        bind:value={difficulty}
+        min="0"
+        max="5"
+        use:tippy={{
+          content: "Difficulty of task (0 = easiest, 5 = hardest)",
+        }}
+      />
+    </div>
+    <h3>Source & funding</h3>
+    <div class="input-wrapper">
+      <label for="sourced"> Source link (leave blank if not sourced) </label>
+      <input type="text" bind:value={sourced} />
+    </div>
+    <div class="input-wrapper">
+      <label
+        for="date_sourced"
+        use:tippy={{ content: "When was the sourced idea written?" }}
+      >
+        Source date
+      </label>
+      <input type="date" bind:value={date_sourced} />
+    </div>
+    <div class="input-wrapper">
+      <label for="funding_amount">Funding available</label>
+      <input
+        type="number"
+        bind:value={funding_amount}
+        use:tippy={{
+          content:
+            "If funding exists, how much is available? Leave blank if funding is not available.",
+        }}
+      />
+    </div>
+    <div class="input-wrapper">
+      <label for="funding_currency">Currency</label>
+      <input
+        type="text"
+        bind:value={funding_currency}
+        use:tippy={{
+          content:
+            "If funding exists, what is the currency? Leave blank if funding is not available.",
+        }}
+      />
+    </div>
+    <div class="input-wrapper">
+      <label for="funding_from">Funding source URL</label>
+      <input
+        type="url"
+        bind:value={funding_from}
+        use:tippy={{
+          content:
+            "If funding exists, from whom is the funding available? Input as URL. Leave blank if funding is not available.",
+        }}
+      />
+    </div>
+
+    <div class="input-wrapper">
+      <label for="mentorship_from">Mentorship available URL</label>
+      <input
+        type="url"
+        bind:value={mentorship_from}
+        use:tippy={{
+          content:
+            "If mentorship is available, from whom is the mentorship available? Input as URL. Leave blank if mentorship is not available.",
+        }}
+      />
+    </div>
     {#if password == process.env.ADMIN_PASSWORD}
       <div class="input-wrapper">
         <label for="verified">Filtered</label>
@@ -305,6 +384,12 @@
             verified_by_expert: verified,
             filtered,
             sourced: sourced,
+            difficulty,
+            from_date: date_sourced,
+            funding_amount,
+            funding_currency,
+            funding_from,
+            mentorship_from,
           },
           tags ? tags.map((tag) => ({ category: tag.id, idea: idea_id })) : [],
           superprojects_ids

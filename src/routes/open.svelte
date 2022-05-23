@@ -4,6 +4,10 @@
   import { onMount } from "svelte";
 </script>
 
+<svelte:head>
+  <title>Open data | AI safety ideas</title>
+</svelte:head>
+
 <Nav />
 <div class="w-container">
   <h1>
@@ -13,10 +17,11 @@
     > of AIS&nbsp;Research Ideas
   </h1>
   <p>
-    <a href="/">The AI safety research ideas</a> platform commits to transparency
-    and sharing our metrics. Our impact evaluations are related to the amount of
-    people that use the website, interact with ideas, and how many projects are supported
-    by validated researchers.
+    <a href="/">The AI safety research ideas</a> platform commits to
+    transparency and sharing our metrics. Our impact evaluations are related to
+    the amount of people that use the website, interact with ideas, and how many
+    projects are supported by validated researchers. Check out our
+    <a href="https://manifold.markets/kran">prediction markets on Manifold</a>!
   </p>
   <h2 id="metrics">Metrics</h2>
   <p>These metrics will be updated as we launch.</p>
@@ -27,7 +32,7 @@
     </div>
     <div class="open-block">
       <div class="open-block-title">Funding secured</div>
-      <div class="open-block-number">$0</div>
+      <div class="open-block-number">$95,000</div>
     </div>
     <div class="open-block">
       <div class="open-block-title">Total profiles</div>
