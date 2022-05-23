@@ -3,6 +3,7 @@
   import tippy from "sveltejs-tippy";
   import CategoryTag from "$lib/CategoryTag.svelte";
   import SuperprojectTag from "$lib/SuperprojectTag.svelte";
+  import Comment from "./Comment.svelte";
   export let idea,
     selectIdea = undefined,
     selectCategory = undefined;
@@ -65,6 +66,19 @@
           <img src="/images/checkmark.svg" alt="Expert verified icon" />
         </div>
       {/if}
+      {#if idea.comments.length > 0}
+        <div
+          class="comment-indicator"
+          use:tippy={{
+            content: `This idea has ${idea.comments.length} comments.`,
+            allowHTML: true,
+            delay: [250, 0],
+          }}
+        >
+          <img src="/images/chatbubbles-outline (3).svg" alt="Comments icon" />
+          <p>{idea.comments.length}</p>
+        </div>
+      {/if}
     </div>
   </div>
   <h3 class="idea-title">{idea.title}</h3>
@@ -81,6 +95,18 @@
 </div>
 
 <style>
+  .comment-indicator {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .comment-indicator p {
+    text-align: center;
+    margin-left: 0.2em;
+    padding-top: 0.3em;
+  }
+
   .idea-superprojects-wrapper.list-item {
     margin: 0;
     display: flex;

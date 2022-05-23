@@ -29,14 +29,13 @@
     loaded = false,
     selectedCategories = [],
     shownIdeas = [],
-    searchIdeas = [];
+    searchIdeas = [],
+    comments = [];
 
   let visible = false,
     searchValue = "";
 
   onMount(async () => {
-    console.log("Refreshed");
-
     // Create event listener to listen for back button clicks
     window.addEventListener("popstate", () => {
       updateFromUrl();
@@ -52,6 +51,7 @@
       superprojectRelations,
       problemRelations,
       ideaRelations,
+      comments,
     ] = await Promise.all([
       getTable("ideas"),
       getTable("superprojects"),
@@ -61,6 +61,7 @@
       getTable("idea_superproject_relation"),
       getTable("idea_problem_relation"),
       getTable("idea_idea_relation"),
+      getTable("comments"),
     ]);
     let endTime = performance.now();
 
@@ -79,6 +80,7 @@
       idea.ideas = ideaRelations.filter(
         (relation) => relation.idea === idea.id
       );
+      idea.comments = comments.filter((comment) => comment.idea === idea.id);
       idea.categories.forEach((category) => {
         category.category = categories.find(
           (cat) => cat.id === category.category
