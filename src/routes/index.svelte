@@ -9,6 +9,8 @@
   import CategoryTag from "$lib/CategoryTag.svelte";
   import LoadIcon from "$lib/LoadIcon.svelte";
   import Footer from "$lib/Footer.svelte";
+  import Search from "svelte-search";
+  import Select from "svelte-select";
 
   let url = ``,
     ideaParam = "",
@@ -26,9 +28,11 @@
     currentIdea = {},
     loaded = false,
     selectedCategories = [],
-    shownIdeas = [];
+    shownIdeas = [],
+    searchIdeas = [];
 
-  let visible = false;
+  let visible = false,
+    searchValue = "";
 
   onMount(async () => {
     console.log("Refreshed");
@@ -195,6 +199,55 @@
       setVisible(false);
     }
   };
+
+  // Holds table sort state.  Initialized to reflect table sorted by id column ascending.
+  let sortBy = { col: "id", ascending: false };
+  const sort = (column) => {
+    console.log(column, column.value);
+    column = column.value;
+    if (sortBy.col == column) {
+      sortBy.ascending = !sortBy.ascending;
+    } else {
+      sortBy.col = column;
+      sortBy.ascending = true;
+    }
+
+    // Modifier to sorting function for ascending or descending
+    let sortModifier = sortBy.ascending ? 1 : -1;
+
+    // Sort shownIdeas based on sortBy col
+    shownIdeas = shownIdeas.sort((a, b) => {
+      if (a[sortBy.col] < b[sortBy.col]) return -1 * sortModifier;
+      if (a[sortBy.col] > b[sortBy.col]) return 1 * sortModifier;
+      return 0;
+    });
+  };
+
+  $: {
+    searchFilter(searchValue);
+  }
+
+  const searchFilter = (query) => {
+    // Search through the shownIdeas with the query
+    searchIdeas = shownIdeas.filter((idea) => {
+      return (
+        String(idea.title)
+          .toLowerCase()
+          .includes(String(query).toLowerCase()) ||
+        String(idea.description)
+          .toLowerCase()
+          .includes(String(query).toLowerCase()) ||
+        String(idea.author).toLowerCase().includes(String(query).toLowerCase())
+      );
+    });
+  };
+
+  let sortingColumns = [
+      { label: "ID", value: "id" },
+      { label: "Title", value: "title" },
+      { label: "Author", value: "author" },
+    ],
+    currentSort = "";
 </script>
 
 <Nav />
@@ -207,6 +260,24 @@
     shovel-ready for development and are linked to categories and superprojects
     (aka agendas).
   </p>
+  <div class="search-sort">
+    <div class="search">
+      <Search bind:value={searchValue} hideLabel />
+      {#if searchValue}
+        <button on:click={() => (searchValue = "")}
+          >Clear "{searchValue}"</button
+        >
+      {/if}
+    </div>
+    <div class="sort">
+      <Select
+        placeholder="Sort by"
+        items={sortingColumns}
+        bind:value={currentSort}
+        on:select={sort(currentSort)}
+      />
+    </div>
+  </div>
 
   {#if loaded}
     <div class="ideas-col">
@@ -222,11 +293,19 @@
       </div>
 
       {#if loaded}
-        {#each shownIdeas as idea}
-          <Idea {idea} {selectIdea} {selectCategory} />
+        {#if searchValue}
+          {#each searchIdeas as idea}
+            <Idea {idea} {selectIdea} {selectCategory} />
+          {:else}
+            <p class="not-found">No ideas found</p>
+          {/each}
         {:else}
-          <p>No ideas found</p>
-        {/each}
+          {#each shownIdeas as idea}
+            <Idea {idea} {selectIdea} {selectCategory} />
+          {:else}
+            <p class="not-found">No ideas found</p>
+          {/each}
+        {/if}
       {/if}
     </div>
   {:else}
@@ -234,9 +313,34 @@
   {/if}
   <IdeaViewer idea={currentIdea} {visible} {setVisible} />
 </div>
+
 <Footer />
 
 <style>
+  :global([data-svelte-search] input) {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.25rem;
+    height: 2.57rem;
+  }
+
+  :global([data-svelte-search] input:focus) {
+    outline: none;
+
+    border: 1px solid #02da6e;
+  }
+
+  .not-found {
+    font-size: 1.5rem;
+    text-align: center;
+    margin: auto;
+    margin-top: 2rem;
+    color: #999;
+    font-style: italic;
+  }
+
   .container {
     margin: 75px auto;
     margin-bottom: 125px;
@@ -281,6 +385,7 @@
     text-decoration: none;
     color: #44ff98;
   }
+
   :global(.tooltip a:hover) {
     text-decoration: underline;
   }
@@ -295,6 +400,38 @@
     line-height: 1.2em;
     font-weight: bold;
     margin: 5px 0;
+  }
+
+  .search-sort {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 0.5em;
+  }
+
+  .search-sort > div {
+    padding: 0;
+    flex-grow: 1;
+    font-size: 0.7em;
+    line-height: 1em;
+
+    --border: 1px solid #e0e0e0;
+    --borderRadius: 0.2rem;
+    --placeholderColor: #999;
+    --borderFocusColor: #02da6e;
+    --itemIsActiveBG: #02da6e;
+    --itemHoverBG: #02da6e13;
+    --internalPadding: 0.5em;
+  }
+
+  .search {
+    width: 68%;
+  }
+
+  .sort {
+    width: 30%;
+    margin-left: 1%;
   }
 
   /* mobile style */
