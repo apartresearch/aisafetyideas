@@ -323,7 +323,7 @@
     padding: 0.5rem;
     border: 1px solid #e0e0e0;
     border-radius: 0.25rem;
-    height: 2.57rem;
+    height: 2.65em;
   }
 
   :global([data-svelte-search] input:focus) {
@@ -407,7 +407,8 @@
     flex-direction: row;
     margin: 0;
     padding: 0;
-    margin-bottom: 0.5em;
+    margin-top: -0.2em;
+    margin-bottom: 0.2em;
   }
 
   .search-sort > div {
@@ -422,11 +423,11 @@
     --borderFocusColor: #02da6e;
     --itemIsActiveBG: #02da6e;
     --itemHoverBG: #02da6e13;
-    --internalPadding: 0.5em;
+    --internalPadding: 0.2em;
   }
 
   .search {
-    width: 68%;
+    width: 69%;
   }
 
   .sort {

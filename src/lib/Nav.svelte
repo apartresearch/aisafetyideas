@@ -1,6 +1,6 @@
 <script>
   import tippy from "sveltejs-tippy";
-  let logoText = "Aisi";
+  let logoText = "AI Safety Ideas";
 </script>
 
 <header id="nav" class="sticky-nav">
@@ -15,14 +15,7 @@
             class="nav-logo"
           />
         </a>
-        <h1
-          class="logotext"
-          use:tippy={{
-            content: "Artificial intelligence safety ideas",
-            allowHTML: true,
-            delay: [1000, 0],
-          }}
-        >
+        <h1 class="logotext">
           {logoText}
         </h1>
       </li>
