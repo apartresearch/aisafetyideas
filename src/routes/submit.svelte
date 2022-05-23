@@ -207,18 +207,34 @@
         });
     }
   };
+
+  let password = "";
 </script>
 
 <Nav />
 
 <div class="cols-wrapper">
   <!-- <div class="col-parent"> -->
+
   <div class="add-idea-wrapper">
-    <h2>Insert idea</h2>
     <div class="input-wrapper">
-      <label for="id">ID</label>
-      <input type="number" bind:value={idea_id} on:input={editIdea(idea_id)} />
+      <input
+        type="password"
+        bind:value={password}
+        placeholder="Input admin password"
+      />
     </div>
+    <h2>Insert idea</h2>
+    {#if password == process.env.ADMIN_PASSWORD}
+      <div class="input-wrapper">
+        <label for="id">ID</label>
+        <input
+          type="number"
+          bind:value={idea_id}
+          on:input={editIdea(idea_id)}
+        />
+      </div>
+    {/if}
     <div class="input-wrapper">
       <label for="author">Author</label>
       <input type="text" bind:value={author} />
@@ -244,30 +260,40 @@
     </div>
     <div class="input-wrapper">
       <label for="tags">Category tags</label>
-      <Select items={categories} bind:value={tags} isMulti={true} />
+      <div class="select">
+        <Select items={categories} bind:value={tags} isMulti={true} />
+      </div>
     </div>
     <div class="input-wrapper">
       <label for="superprojects">Superprojects</label>
-      <Select
-        items={superprojects}
-        bind:value={superprojects_ids}
-        isMulti={true}
-      />
+      <div class="select">
+        <Select
+          items={superprojects}
+          bind:value={superprojects_ids}
+          isMulti={true}
+        />
+      </div>
     </div>
     <div class="input-wrapper">
       <label for="related_ideas">Related problems</label>
-      <Select items={problems} bind:value={problem_ids} isMulti={true} />
+      <div class="select">
+        <Select items={problems} bind:value={problem_ids} isMulti={true} />
+      </div>
     </div>
     <div class="input-wrapper">
       <label for="filtered">Related ideas</label>
-      <Select items={ideas} bind:value={related_ideas} isMulti={true} />
+      <div class="select">
+        <Select items={ideas} bind:value={related_ideas} isMulti={true} />
+      </div>
     </div>
-    <div class="input-wrapper">
-      <label for="verified">Filtered</label>
-      <input type="checkbox" bind:checked={filtered} />
-      <label for="verified">Verified</label>
-      <input type="checkbox" bind:checked={verified} />
-    </div>
+    {#if password == process.env.ADMIN_PASSWORD}
+      <div class="input-wrapper">
+        <label for="verified">Filtered</label>
+        <input type="checkbox" bind:checked={filtered} />
+        <label for="verified">Verified</label>
+        <input type="checkbox" bind:checked={verified} />
+      </div>
+    {/if}
     <button
       on:click={() => {
         addNewIdea(
@@ -335,11 +361,11 @@
     flex-direction: row;
     margin: 2px;
     width: 100%;
-    flex-wrap: wrap;
   }
+
   .input-wrapper input,
   .input-wrapper textarea,
-  .input-wrapper Select {
+  .input-wrapper .select {
     margin-bottom: 5px;
     width: 70%;
     font-size: 0.7em;
@@ -361,6 +387,17 @@
   @media (max-width: 768px) {
     .cols-wrapper {
       padding: 0 10px;
+    }
+
+    .input-wrapper {
+      flex-direction: column;
+    }
+
+    .input-wrapper input,
+    .input-wrapper textarea,
+    .input-wrapper label,
+    .input-wrapper .select {
+      width: 100%;
     }
   }
 </style>

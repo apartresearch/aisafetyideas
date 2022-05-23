@@ -125,6 +125,9 @@
     <div class="open-day yes" />
     <div class="open-day yes" />
     <div class="open-day yes" />
+    <div class="open-day" />
+    <div class="open-day yes" />
+    <div class="open-day yes" />
   </div>
   <h3>Website visitors</h3>
   <div class="open-graph-wrapper">
