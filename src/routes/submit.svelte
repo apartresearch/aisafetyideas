@@ -2,8 +2,9 @@
   import supabase from "$lib/db";
   import { onMount } from "svelte";
   import Select from "svelte-select";
-  import Nav from "../lib/Nav.svelte";
+  import Nav from "$lib/Nav.svelte";
   import tippy from "sveltejs-tippy";
+  import markdown from "$lib/drawdown";
 
   let ideas = [],
     superprojects = [],
@@ -174,12 +175,17 @@
     verified = false;
     problem_ids = [];
     idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
+    date_sourced = new Date();
+    difficulty = 0;
+    funding_amount = 0;
+    funding_currency = "$";
+    funding_from = "";
+    mentorship_from = "";
   };
 
   const editIdea = (id) => {
     let idea = ideas.find((idea) => idea.id == id);
     if (idea) {
-      console.log(idea);
       author = idea.author;
       title = idea.title;
       description = idea.summary;
@@ -192,27 +198,31 @@
       filtered = idea.filtered;
       verified = idea.verified;
       problem_ids = idea.problems;
+      date_sourced = idea.date_sourced;
+      difficulty = idea.difficulty;
+      funding_amount = idea.funding_amount;
+      funding_currency = idea.funding_currency;
+      funding_from = idea.funding_from;
+      mentorship_from = idea.mentorship_from;
+      currentIdea = idea;
     } else {
       resetData();
       editWarning = "Idea not found";
     }
   };
 
-  const deleteIdea = (id) => {
+  const deleteIdea = async (id) => {
     let idea = ideas.find((idea) => idea.id == id);
-    if (idea) {
-      supabase
-        .from("ideas")
-        .delete()
-        .match({ id: idea_id })
-        .then(() => {
-          resetData();
-          editWarning = "Idea deleted";
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-    }
+
+    Promise.all([
+      supabase.from("idea_category_relation").delete().match({ idea: id }),
+      supabase.from("idea_superproject_relation").delete().match({ idea: id }),
+      supabase.from("idea_problem_relation").delete().match({ idea: id }),
+      supabase.from("idea_idea_relation").delete().match({ idea_1: id }),
+      supabase.from("idea_idea_relation").delete().match({ idea_2: id }),
+    ]);
+    await supabase.from("ideas").delete().match({ id });
+    resetData();
   };
 
   let password = "";
@@ -265,6 +275,12 @@
       >
       <textarea rows="8" bind:value={description} />
     </div>
+    {#if description != ""}
+      <div class="description-preview">
+        <p>Description preview</p>
+        {@html markdown(description)}
+      </div>
+    {/if}
 
     <div class="input-wrapper">
       <label for="tags">Category tags</label>
@@ -302,7 +318,11 @@
         min="0"
         max="5"
         use:tippy={{
-          content: "Difficulty of task (0 = easiest, 5 = hardest)",
+          content: `Difficulty of task. 
+            0: Blog post.
+            1: Undergraduate exam.
+            3: Master's thesis. 
+            5: Expert working for 5 years`,
         }}
       />
     </div>
@@ -421,6 +441,34 @@
 </div>
 
 <style>
+  .description-preview {
+    font-size: 0.7em;
+    line-height: 1em;
+    margin-bottom: 1em;
+    padding: 0.5em;
+    border: 1px solid #ccc;
+  }
+
+  .description-preview > p {
+    margin: 0;
+    margin-top: -0.9em;
+    background-color: white;
+    display: block;
+    max-width: 11em;
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 0.5em;
+  }
+
+  :global(.description-preview > h1, .description-preview
+      > h2, .description-preview > h3, .description-preview
+      > h4, .description-preview > h5, .description-preview > h6) {
+    margin-top: 5px;
+    font-size: 1.4em;
+    line-height: 1.6em;
+  }
+
   .cols-wrapper {
     display: flex;
     flex-direction: row;
