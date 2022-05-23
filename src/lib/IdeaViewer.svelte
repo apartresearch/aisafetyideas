@@ -3,6 +3,7 @@
   import markdown from "$lib/drawdown";
   import CategoryTag from "$lib/CategoryTag.svelte";
   import SuperprojectTag from "$lib/SuperprojectTag.svelte";
+  import Comment from "$lib/Comment.svelte";
   export let idea, visible, setVisible;
 </script>
 
@@ -32,6 +33,14 @@
         <div class="idea-superprojects-wrapper">
           {#each idea.superprojects as superproject}
             <SuperprojectTag superproject={superproject.superproject} />
+          {/each}
+        </div>
+      {/if}
+      {#if idea.comments.length > 0}
+        <h4>Comments</h4>
+        <div class="idea-comments-wrapper">
+          {#each idea.comments as comment}
+            <Comment {comment} />
           {/each}
         </div>
       {/if}
