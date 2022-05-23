@@ -2,6 +2,7 @@
   import moment from "moment";
   import markdown from "$lib/drawdown";
   export let comment, currentComment, replyToComment;
+  console.log(comment);
 </script>
 
 <div
@@ -27,7 +28,11 @@
   {#if replyToComment}
     <div class="reply-to">
       <!-- svelte-ignore a11y-invalid-attribute -->
-      <a href="" on:click={() => replyToComment(comment)}>
+      <a
+        href=""
+        on:click={() =>
+          replyToComment(!comment.reply_to ? comment.id : comment.reply_to)}
+      >
         {comment.id == currentComment
           ? `Replying to ${comment.anon_author} - write your comment above`
           : "Reply"}
@@ -36,6 +41,39 @@
   {/if}
 </div>
 
+{#if comment.replies.length > 0}
+  <div class="replies">
+    {#each comment.replies as reply}
+      <div class="comment reply">
+        <p class="author">
+          {#if reply.anon_author_url}
+            <a class="author" target="_blank" href={reply.anon_author_url}>
+              <img src="/images/link.svg" alt="Link icon" />
+              {reply.anon_author ? reply.anon_author : "Anonymous"}
+            </a>
+          {:else}
+            {reply.anon_author ? reply.anon_author : "Anonymous"}
+          {/if}
+          <span class="date">{moment(reply.created_at).fromNow()}</span>
+        </p>
+        {@html markdown(reply.text)}
+        <div class="reply-to">
+          <!-- svelte-ignore a11y-invalid-attribute -->
+          <a
+            href=""
+            on:click={() =>
+              replyToComment(!comment.reply_to ? comment.id : comment.reply_to)}
+          >
+            Reply
+          </a>
+        </div>
+      </div>
+    {/each}
+  </div>
+{/if}
+
+<!-- {#each comment.replies as reply}
+{/each} -->
 <style>
   .current {
     /* Make green background */
@@ -73,6 +111,13 @@
 
   .reply {
     padding-left: 2em;
+  }
+
+  .author {
+    color: #666;
+    font-size: 0.7em;
+    font-style: normal;
+    margin-bottom: 0px;
   }
 
   .author > img {

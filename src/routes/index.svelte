@@ -80,11 +80,23 @@
       idea.ideas = ideaRelations.filter(
         (relation) => relation.idea === idea.id
       );
-      idea.comments = comments.filter((comment) => comment.idea === idea.id);
+      idea.comments = comments.filter(
+        (comment) =>
+          (comment.reply_to < 1 || !comment.reply_to) &&
+          comment.idea === idea.id
+      );
+      idea.comments.forEach((comment) => {
+        comment.replies = comments.filter((com) => comment.id === com.reply_to);
+      });
       idea.categories.forEach((category) => {
         category.category = categories.find(
           (cat) => cat.id === category.category
         );
+      });
+      idea.comments_n = 0;
+      idea.comments.forEach((comment) => {
+        idea.comments_n += 1;
+        idea.comments_n += comment.replies.length;
       });
       idea.superprojects.forEach((superproject) => {
         superproject.superproject = superprojects.find(
@@ -253,8 +265,8 @@
 
   const addComment = async (comment) => {
     if (currentIdea) {
-      currentIdea.comments.push(comment);
-      currentIdea.comments = currentIdea.comments;
+      currentIdea.comments_n += 1;
+      currentIdea = currentIdea;
       await supabase.from("comments").insert(comment);
     }
   };

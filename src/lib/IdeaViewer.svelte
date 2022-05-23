@@ -2,7 +2,6 @@
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
   import CategoryTag from "$lib/CategoryTag.svelte";
-  import supabase from "$lib/db";
   import SuperprojectTag from "$lib/SuperprojectTag.svelte";
   import Comment from "$lib/Comment.svelte";
   export let idea, visible, setVisible, addComment;
@@ -21,10 +20,21 @@
       reply_to: replyTo,
     };
     addComment(comment);
+    if (replyTo > 0)
+      idea.comments[
+        idea.comments.findIndex((com) => com.id == replyTo)
+      ].replies.push(comment);
+    else idea.comments.push({ ...comment, replies: [] });
+    idea = idea;
+    replyTo = -1;
   };
 
-  const replyToComment = (reply_to) => {
-    replyTo = reply_to.id;
+  const replyToComment = (reply_to_id) => {
+    if (reply_to_id == replyTo) {
+      replyTo = -1;
+    } else {
+      replyTo = reply_to_id;
+    }
   };
 </script>
 
@@ -112,6 +122,7 @@
           </button>
         </div>
       </div>
+
       {#if idea.comments.length > 0}
         <div class="idea-comments-wrapper">
           {#each idea.comments as comment}
@@ -242,5 +253,21 @@
     flex-wrap: wrap;
     justify-content: start;
     align-items: center;
+  }
+
+  /* Mobile responsive */
+  @media screen and (max-width: 700px) {
+    .add-comment {
+      flex-direction: column;
+    }
+
+    .col2 {
+      width: 100%;
+      margin: 0;
+    }
+    .comment-text {
+      width: 100%;
+      margin-bottom: 0.3em;
+    }
   }
 </style>
