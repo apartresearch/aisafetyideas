@@ -8,25 +8,13 @@
   const ideaSlug = $page.params.idea;
 
   let idea = {},
-    url,
-    description = false,
-    minimal = false,
     loaded = false;
 
   onMount(async () => {
     loaded = false;
-    window.addEventListener("popstate", () => {
-      updateFromUrl();
-    });
     idea = await getIdea(ideaSlug);
     loaded = true;
   });
-
-  const updateFromUrl = () => {
-    url = new URL(window.location.href);
-    description = url.searchParams.get("descriptions");
-    minimal = url.searchParams.get("minimal");
-  };
 </script>
 
 <div class="idea">

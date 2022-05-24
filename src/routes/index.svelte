@@ -14,7 +14,8 @@
 
   let url = ``,
     ideaParam = "",
-    categoryParam = "";
+    categoryParam = "",
+    sortParam = "";
   // console.log($page.url.searchParams.has("meme"));
 
   let ideas = [],
@@ -145,6 +146,11 @@
     url = new URL(window.location.href);
     ideaParam = url.searchParams.get("idea");
     categoryParam = url.searchParams.get("categories");
+    currentSort = url.searchParams.get("sort");
+
+    if (currentSort) {
+      sort({ value: currentSort });
+    }
 
     if (ideaParam) {
       selectIdea(ideas.find((idea) => idea.id == ideaParam));
@@ -174,8 +180,9 @@
   // Holds table sort state.  Initialized to reflect table sorted by id column ascending.
   let sortBy = { col: "id", ascending: false };
   const sort = (column) => {
-    console.log(column, column.value);
     column = column.value;
+    url.searchParams.set("sort", column);
+    window.history.pushState(null, document, url.href);
     if (sortBy.col == column) {
       sortBy.ascending = !sortBy.ascending;
     } else {
@@ -188,6 +195,8 @@
 
     // Sort shownIdeas based on sortBy col
     shownIdeas = shownIdeas.sort((a, b) => {
+      if (!a[sortBy.col]) return 1 * sortModifier;
+      if (!b[sortBy.col]) return -1 * sortModifier;
       if (a[sortBy.col] < b[sortBy.col]) return -1 * sortModifier;
       if (a[sortBy.col] > b[sortBy.col]) return 1 * sortModifier;
       return 0;
@@ -214,9 +223,16 @@
   };
 
   let sortingColumns = [
-      { label: "ID", value: "id" },
-      { label: "Title", value: "title" },
+      { label: "Difficulty", value: "difficulty" },
+      { label: "Amount of comments", value: "comments_n" },
+      { label: "Contact available", value: "contact" },
       { label: "Author", value: "author" },
+      { label: "Title", value: "title" },
+      { label: "ID", value: "id" },
+      { label: "Created on", value: "created_at" },
+      { label: "Sourced on", value: "from_date" },
+      { label: "Mentorship available", value: "mentorship_from" },
+      { label: "Funding available", value: "funding_amount" },
     ],
     currentSort = "";
 

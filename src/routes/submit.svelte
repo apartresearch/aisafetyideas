@@ -17,7 +17,9 @@
     currentIdea = {},
     loaded = false,
     selectedCategories = [],
-    shownIdeas = [];
+    shownIdeas = [],
+    ideaSelect = [],
+    selectedIdea = {};
 
   let author = "",
     title = "",
@@ -92,9 +94,15 @@
       idea.shown = true;
     });
 
-    console.log(ideas[9]);
-
     idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
+    ideaSelect = ideas.map((idea) => {
+      return {
+        value: idea.id,
+        label: idea.title,
+      };
+    });
+    ideaSelect = [...ideaSelect, { value: idea_id, label: "New Idea" }];
+    selectedIdea = ideaSelect[ideaSelect.length - 1];
   };
 
   const addNewIdea = async (
@@ -150,8 +158,8 @@
     }
   };
 
-  const resetData = () => {
-    getTables();
+  const resetData = (reload = true) => {
+    if (reload) getTables();
     author = "";
     title = "";
     description = "";
@@ -196,10 +204,15 @@
       authorContact = idea.contact;
       date_sourced = idea.from_date;
     } else {
-      resetData();
-      editWarning = "Idea not found";
+      resetData(false);
+      editWarning = "Editing core";
     }
   };
+
+  $: {
+    idea_id = selectedIdea.value;
+    editIdea(idea_id);
+  }
 
   const deleteIdea = async (id) => {
     let idea = ideas.find((idea) => idea.id == id);
@@ -238,9 +251,20 @@
     <h2>Insert idea</h2>
     {#if password == process.env.ADMIN_PASSWORD}
       <div class="input-wrapper">
+        <label for="edit-idea">Edit idea</label>
+        <div class="select">
+          <Select
+            items={ideaSelect}
+            bind:value={selectedIdea}
+            placeholder="Select idea to edit..."
+          />
+        </div>
+      </div>
+      <div class="input-wrapper">
         <label for="id">ID</label>
         <input
           type="number"
+          disabled
           bind:value={idea_id}
           on:input={editIdea(idea_id)}
         />

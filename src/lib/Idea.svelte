@@ -4,6 +4,7 @@
   import CategoryTag from "$lib/CategoryTag.svelte";
   import SuperprojectTag from "$lib/SuperprojectTag.svelte";
   import Comment from "./Comment.svelte";
+  import moment from "moment";
   export let idea,
     selectIdea = undefined,
     selectCategory = undefined;
@@ -66,6 +67,18 @@
           <img src="/images/checkmark.svg" alt="Expert verified icon" />
         </div>
       {/if}
+      {#if idea.mentorship_from}
+        <div
+          use:tippy={{
+            content: `Mentorship for this idea is available from <a target="_blank" href="${idea.mentorship_from}">here</a>.`,
+            allowHTML: true,
+            interactive: true,
+            delay: [250, 0],
+          }}
+        >
+          <img src="/images/help-outline (1).svg" alt="Expert verified icon" />
+        </div>
+      {/if}
       {#if idea.comments_n > 0}
         <div
           class="comment-indicator"
@@ -82,19 +95,128 @@
     </div>
   </div>
   <h3 class="idea-title">{idea.title}</h3>
-  {#if idea.categories[0]}
-    <div class="idea-categories-wrapper list-item" on:click|stopPropagation>
-      {#each idea.categories as cat, i}
-        <CategoryTag cat={cat.category} small={true} {selectCategory} />
-        {#if i < idea.categories.length - 1}
-          <div class="idea-category-separator">·</div>
-        {/if}
-      {/each}
+  <div class="idea-bottom">
+    {#if idea.categories[0]}
+      <div class="idea-categories-wrapper list-item" on:click|stopPropagation>
+        {#each idea.categories as cat, i}
+          <CategoryTag cat={cat.category} small={true} {selectCategory} />
+          {#if i < idea.categories.length - 1}
+            <div class="idea-category-separator">·</div>
+          {/if}
+        {/each}
+      </div>
+    {/if}
+    <div class="bottom-right">
+      {#if idea.difficulty}
+        {#if idea.difficulty === 0}<p
+            class="difficulty easy"
+            use:tippy={{
+              content:
+                "Equivalent to the work required to write an elaborate blog post.",
+            }}
+          >
+            Very easy
+          </p>{/if}
+        {#if idea.difficulty === 1}<p
+            class="difficulty easy"
+            use:tippy={{
+              content: "Equivalent to the work required in a university exam.",
+            }}
+          >
+            Easy
+          </p>{/if}
+        {#if idea.difficulty === 2}<p
+            class="difficulty medium"
+            use:tippy={{
+              content:
+                "Equivalent to the work required for a undergrad thesis.",
+            }}
+          >
+            Medium
+          </p>{/if}
+        {#if idea.difficulty === 3}<p
+            class="difficulty medium"
+            use:tippy={{
+              content: "Equivalent to the work required for a master's thesis.",
+            }}
+          >
+            Hard
+          </p>{/if}
+        {#if idea.difficulty === 4}<p
+            class="difficulty hard"
+            use:tippy={{
+              content: "Equivalent to the work required in a PhD.",
+            }}
+          >
+            Very hard
+          </p>{/if}
+        {#if idea.difficulty === 5}<p
+            class="difficulty hard"
+            use:tippy={{
+              content:
+                "Equivalent to an expert in the field working for 5 years.",
+            }}
+          >
+            Extremely hard
+          </p>{/if}
+      {/if}
+      {#if idea.funding_amount > 0}
+        <p
+          class="funding"
+          use:tippy={{
+            content: `Apply for this funding <a href="${idea.funding_from}">here</a>.`,
+            allowHTML: true,
+            interactive: true,
+          }}
+        >
+          {idea.funding_currency}{idea.funding_amount}
+        </p>
+      {/if}
+      <p class="date">
+        {idea.from_date
+          ? `${moment(idea.from_date).fromNow()}`
+          : `${moment(idea.created_at).fromNow()}`}
+      </p>
     </div>
-  {/if}
+  </div>
 </div>
 
 <style>
+  .bottom-right {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.3em;
+  }
+
+  .date {
+    color: #999;
+  }
+
+  .idea-bottom {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .difficulty,
+  .date {
+    font-size: 0.7em;
+    line-height: 1em;
+    margin: 0;
+  }
+
+  .easy {
+    color: #00b300;
+  }
+
+  .medium {
+    color: #ffbf00;
+  }
+
+  .hard {
+    color: #ff0000;
+  }
+
   .comment-indicator {
     display: flex;
     flex-direction: row;
