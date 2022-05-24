@@ -2,6 +2,16 @@
   import Nav from "$lib/Nav.svelte";
   import Footer from "$lib/Footer.svelte";
   import { onMount } from "svelte";
+  import tippy from "sveltejs-tippy";
+  import { getTable } from "$lib/db";
+
+  let ideas = [],
+    comments = [];
+
+  onMount(async () => {
+    ideas = await getTable("ideas");
+    comments = await getTable("comments");
+  });
 </script>
 
 <svelte:head>
@@ -28,11 +38,16 @@
   <div class="hori-fles-wrapper">
     <div class="open-block">
       <div class="open-block-title">Time since launch</div>
-      <div class="open-block-number">T-1.5 weeks</div>
+      <div class="open-block-number">T-1 weeks</div>
     </div>
     <div class="open-block">
-      <div class="open-block-title">Funding secured</div>
-      <div class="open-block-number">$95,000</div>
+      <div class="open-block-title">Funding secured*</div>
+      <div
+        class="open-block-number"
+        use:tippy={{ content: "From the FTX Future Fund regrantor program." }}
+      >
+        $95,000
+      </div>
     </div>
     <div class="open-block">
       <div class="open-block-title">Total profiles</div>
@@ -43,16 +58,51 @@
       <div class="open-block-number">?</div>
     </div>
     <div class="open-block">
-      <div class="open-block-title">Total validated ideas*</div>
-      <div class="open-block-number">?</div>
+      <div class="open-block-title">Total ideas</div>
+      <div class="open-block-number">{ideas.length}</div>
+    </div>
+    <div class="open-block">
+      <div class="open-block-title">Total filtered ideas*</div>
+      <div
+        class="open-block-number"
+        use:tippy={{
+          content: "* Includes ideas that have been filtered by our team.",
+        }}
+      >
+        {ideas.filter((idea) => idea.filtered).length}
+      </div>
+    </div>
+    <div class="open-block">
+      <div class="open-block-title">Total verified ideas*</div>
+      <div
+        class="open-block-number"
+        use:tippy={{
+          content: "* Includes ideas that have been verified by an expert.",
+        }}
+      >
+        {ideas.filter((idea) => idea.verified).length}
+      </div>
     </div>
     <div class="open-block">
       <div class="open-block-title">Total comments</div>
-      <div class="open-block-number">?</div>
+      <div class="open-block-number">{comments.length}</div>
+    </div>
+    <div class="open-block">
+      <div class="open-block-title">Total replies*</div>
+      <div
+        class="open-block-number"
+        use:tippy={{
+          content: "* Comments that are replies to other comments.",
+        }}
+      >
+        {comments.filter((com) => com.reply_to).length}
+      </div>
     </div>
     <div class="open-block">
       <div class="open-block-title">Ideas with mentorship</div>
-      <div class="open-block-number">?</div>
+      <div class="open-block-number">
+        {ideas.filter((idea) => idea.mentorship_from).length}
+      </div>
     </div>
     <div class="open-block">
       <div class="open-block-title">Likes of ideas</div>
@@ -131,6 +181,7 @@
     <div class="open-day yes" />
     <div class="open-day yes" />
     <div class="open-day" />
+    <div class="open-day yes" />
     <div class="open-day yes" />
     <div class="open-day yes" />
   </div>
