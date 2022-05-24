@@ -265,14 +265,13 @@
       <input type="text" bind:value={title} />
     </div>
     <div class="input-wrapper description">
-      <label for="description"
-        >Description (supports <a
-          target="_blank"
-          href="https://adamvleggett.github.io/drawdown/"
-        >
-          markdown</a
-        >)</label
-      >
+      <label for="description">
+        Description (supports
+        <a target="_blank" href="https://adamvleggett.github.io/drawdown/">
+          markdown
+        </a>
+        )
+      </label>
       <textarea rows="8" bind:value={description} />
     </div>
     {#if description != ""}
