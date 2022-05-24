@@ -30,12 +30,13 @@
     filtered = false,
     verified = false,
     idea_id = 0,
-    date_sourced = new Date(),
+    date_sourced = "",
     difficulty = 0,
     funding_amount = 0,
     funding_currency = "$",
     funding_from = "",
-    mentorship_from = "";
+    mentorship_from = "",
+    authorContact = "";
 
   let editWarning = "";
 
@@ -162,12 +163,13 @@
     verified = false;
     problem_ids = [];
     idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
-    date_sourced = new Date();
+    date_sourced = "";
     difficulty = 0;
     funding_amount = 0;
     funding_currency = "$";
     funding_from = "";
     mentorship_from = "";
+    authorContact = "";
   };
 
   const editIdea = (id) => {
@@ -185,13 +187,14 @@
       filtered = idea.filtered;
       verified = idea.verified;
       problem_ids = idea.problems;
-      date_sourced = idea.date_sourced;
       difficulty = idea.difficulty;
       funding_amount = idea.funding_amount;
       funding_currency = idea.funding_currency;
       funding_from = idea.funding_from;
       mentorship_from = idea.mentorship_from;
       currentIdea = idea;
+      authorContact = idea.contact;
+      date_sourced = idea.from_date;
     } else {
       resetData();
       editWarning = "Idea not found";
@@ -248,6 +251,16 @@
       <input type="text" bind:value={author} />
     </div>
     <div class="input-wrapper">
+      <label
+        for="author-contact"
+        use:tippy={{
+          content:
+            "If you write your email, then remember that it will be publicly displayed.",
+        }}>Author email</label
+      >
+      <input type="email" bind:value={authorContact} />
+    </div>
+    <div class="input-wrapper">
       <label for="title">Title</label>
       <input type="text" bind:value={title} />
     </div>
@@ -298,7 +311,7 @@
       </div>
     </div>
     <div class="input-wrapper">
-      <label for="difficulty">Difficulty of task</label>
+      <label for="difficulty">Difficulty of task (0-5)</label>
       <input
         type="range"
         bind:value={difficulty}
@@ -397,6 +410,7 @@
             funding_currency,
             funding_from,
             mentorship_from,
+            contact: authorContact,
           },
           tags ? tags.map((tag) => ({ category: tag.id, idea: idea_id })) : [],
           superprojects_ids

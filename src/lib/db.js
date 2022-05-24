@@ -65,3 +65,13 @@ export const setupIdeas = (ideas,superprojects,categories,problems,categoryRelat
 
   return ideas;
 }
+
+export const getIdea = async (id) => {
+  let { data: ideas, error } = await supabase
+    .from('ideas')
+    .select('*')
+    .eq('id', id);
+
+  console.log(ideas, error);
+  return ideas[0];
+}

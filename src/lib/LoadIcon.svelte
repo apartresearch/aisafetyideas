@@ -1,9 +1,22 @@
+<script>
+  export let small = false;
+</script>
+
 <div class="loading-wrapper">
-  <img src="/images/load_icon.png" alt="Loading icon" class="loading-icon" />
+  <img
+    src="/images/load_icon.png"
+    alt="Loading icon"
+    class="loading-icon {small ? 'small' : ''}"
+  />
   <p>Loading...</p>
 </div>
 
 <style>
+  .small {
+    width: 24px;
+    height: 24px;
+  }
+
   .loading-icon {
     margin: 0 auto;
     margin-top: 20px;
