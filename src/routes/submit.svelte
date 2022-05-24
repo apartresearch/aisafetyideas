@@ -5,6 +5,7 @@
   import Nav from "$lib/Nav.svelte";
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
+  import Footer from "$lib/Footer.svelte";
 
   let ideas = [],
     superprojects = [],
@@ -465,6 +466,8 @@
   </div>
 </div>
 
+<Footer />
+
 <style>
   .description-preview {
     font-size: 0.7em;
@@ -499,7 +502,7 @@
     flex-direction: row;
     justify-content: center;
     max-width: 1100px;
-    margin: 75px auto;
+    margin: 1em auto;
   }
 
   button {

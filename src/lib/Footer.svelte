@@ -64,3 +64,9 @@
     </div>
   </div>
 </footer>
+
+<style>
+  footer {
+    margin-top: 2em;
+  }
+</style>
