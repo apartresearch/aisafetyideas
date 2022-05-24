@@ -16,7 +16,7 @@
       interactive: true,
       delay: [500, 0],
     }}
-    href={`/superprojects/${superproject.slug}`}
+    href={`/project/${superproject.slug}`}
   >
     <img src="/images/arrow-up.svg" alt="arrow" />
     {superproject.title}

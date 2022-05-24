@@ -72,7 +72,7 @@
 
   .sticky-nav {
     background: none;
-    background: linear-gradient(#44ff9899 0%, #44ff9800 100%);
+    background: linear-gradient(#9fffca99 0%, #44ff9800 100%);
     /* border-bottom: 1px solid #999; */
     padding-bottom: 0;
   }

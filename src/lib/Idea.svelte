@@ -339,4 +339,9 @@
     margin: 0.125em 0;
     border: 1px solid #dedede;
   }
+
+  .idea-card:hover {
+    border: 1px solid #44ff98;
+    background-color: #d5ffe8aa;
+  }
 </style>

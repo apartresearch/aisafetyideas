@@ -503,6 +503,7 @@
     justify-content: center;
     max-width: 1100px;
     margin: 1em auto;
+    margin-top: 3em;
   }
 
   button {
