@@ -311,7 +311,7 @@
       </div>
     </div>
     <div class="input-wrapper">
-      <label for="difficulty">Difficulty of task (0-5)</label>
+      <label for="difficulty">Difficulty of task ({difficulty})</label>
       <input
         type="range"
         bind:value={difficulty}
