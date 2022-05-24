@@ -249,7 +249,7 @@
   }
 
   .idea-card {
-    background-color: #fff;
+    background-color: #fff9;
     padding: 7px 10px;
     margin: 0;
     border-right: 2px solid #f9f9f9;
@@ -333,10 +333,10 @@
       font-size: 0.9em;
       line-height: 1.1em;
     }
+  }
 
-    .idea-card {
-      margin: 0.15em 0;
-      border: 1px solid #ccc;
-    }
+  .idea-card {
+    margin: 0.125em 0;
+    border: 1px solid #dedede;
   }
 </style>

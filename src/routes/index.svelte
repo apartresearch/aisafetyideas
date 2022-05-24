@@ -247,6 +247,14 @@
   };
 </script>
 
+<svelte:head>
+  <style>
+    body {
+      /* background-color: #000; */
+    }
+  </style>
+</svelte:head>
+
 <Nav />
 
 <div class="container w-container">
