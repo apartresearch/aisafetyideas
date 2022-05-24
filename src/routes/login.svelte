@@ -3,7 +3,7 @@
 
   import { user } from "$lib/stores";
   import { goto } from "$app/navigation";
-  import supabase from "$lib/db";
+  import { supabase } from "$lib/db";
 </script>
 
 <div class="auth_wrapper">
