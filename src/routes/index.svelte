@@ -214,7 +214,7 @@
         String(idea.title)
           .toLowerCase()
           .includes(String(query).toLowerCase()) ||
-        String(idea.description)
+        String(idea.summary)
           .toLowerCase()
           .includes(String(query).toLowerCase()) ||
         String(idea.author).toLowerCase().includes(String(query).toLowerCase())
@@ -267,12 +267,10 @@
   </p>
   <div class="search-sort">
     <div class="search">
-      <Search bind:value={searchValue} hideLabel />
       {#if searchValue}
-        <button on:click={() => (searchValue = "")}
-          >Clear "{searchValue}"</button
-        >
+        <button on:click={() => (searchValue = "")}> Clear search </button>
       {/if}
+      <Search bind:value={searchValue} hideLabel />
     </div>
     <div class="sort">
       <Select
@@ -410,6 +408,7 @@
   .search-sort {
     display: flex;
     flex-direction: row;
+    align-items: flex-end;
     margin: 0;
     padding: 0;
     margin-top: -0.2em;

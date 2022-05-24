@@ -14,10 +14,10 @@
             alt="AI safety ideas logo"
             class="nav-logo"
           />
+          <h1 class="logotext">
+            {logoText}
+          </h1>
         </a>
-        <h1 class="logotext">
-          {logoText}
-        </h1>
       </li>
 
       <li
@@ -58,6 +58,25 @@
     padding: 5px;
   }
 
+  .nav-logo-link {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    column-gap: 0.75em;
+  }
+
+  .nav-logo-link > h1 {
+    margin: 0;
+  }
+
+  .sticky-nav {
+    background: none;
+    background: linear-gradient(#44ff9899 0%, #44ff9800 100%);
+    /* border-bottom: 1px solid #999; */
+    padding-bottom: 0;
+  }
+
   .sticky-nav .nav-grid {
     display: flex;
     flex-direction: row;
@@ -82,6 +101,10 @@
     text-decoration: none;
   }
 
+  a {
+    color: #000;
+  }
+
   /* Mobile */
   @media screen and (max-width: 768px) {
     .sticky-nav {
@@ -101,10 +124,6 @@
       margin: 0;
       padding: 0;
       left: 0;
-    }
-
-    .open {
-      width: 100%;
     }
   }
 </style>
