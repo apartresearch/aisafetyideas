@@ -262,6 +262,23 @@
 
 <style>
   .w-container {
-    margin: 75px auto;
+    margin: 0 auto;
+    padding: 0.2em;
+  }
+
+  /* Mobile */
+  @media only screen and (max-width: 600px) {
+    .open-block {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+
+    .timeline-block {
+      width: 100%;
+    }
+
+    .timeline-pointer {
+      display: none;
+    }
   }
 </style>

@@ -12,20 +12,25 @@
         <h2 class="footer-heading">Sitemap</h2>
         <ul role="list" class="w-list-unstyled">
           <li>
-            <a href="/" aria-current="page" class="footer-link w--current"
-              >AI safety research ideas</a
-            >
+            <a href="/" aria-current="page" class="footer-link w--current">
+              AI safety research ideas
+            </a>
           </li>
           <li>
-            <a href="/open" target="_blank" class="footer-link"
-              >/open impact metrics</a
-            >
+            <a href="/open" target="_blank" class="footer-link">
+              /open impact metrics
+            </a>
           </li>
-          <li><a href="/open" class="footer-link">About</a></li>
           <li>
-            <a href="https://aisafetyideas.com/open#roadmap" class="footer-link"
-              >Feature roadmap</a
+            <a href="/open" class="footer-link">About</a>
+          </li>
+          <li>
+            <a
+              href="https://aisafetyideas.com/open#roadmap"
+              class="footer-link"
             >
+              Feature roadmap
+            </a>
           </li>
           <li>
             <a

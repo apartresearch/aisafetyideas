@@ -309,4 +309,34 @@
     line-height: 1em;
     margin: 5px 0 5px 0;
   }
+
+  /* mobile */
+  @media (max-width: 768px) {
+    .idea-superprojects-wrapper.list-item {
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      /* Align to left */
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+
+    .idea-bottom {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      align-items: flex-start;
+    }
+
+    .idea-title {
+      margin-top: 0.6em;
+      font-size: 0.9em;
+      line-height: 1.1em;
+    }
+
+    .idea-card {
+      margin: 0.15em 0;
+      border: 1px solid #ccc;
+    }
+  }
 </style>

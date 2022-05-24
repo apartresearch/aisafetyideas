@@ -44,7 +44,10 @@
   .right-nav-wrapper {
     display: flex;
     flex-direction: row;
-    column-gap: 1.5em;
+    column-gap: 2.5em;
+    row-gap: 1em;
+    flex-wrap: wrap;
+    justify-content: center;
   }
   .sticky-nav {
     position: fixed;
@@ -77,5 +80,31 @@
     background-color: #44ff98;
     /* color: #fff; */
     text-decoration: none;
+  }
+
+  /* Mobile */
+  @media screen and (max-width: 768px) {
+    .sticky-nav {
+      position: relative;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 10;
+      padding: 5px;
+    }
+
+    .sticky-nav .nav-grid {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      margin: 0;
+      padding: 0;
+      left: 0;
+    }
+
+    .open {
+      width: 100%;
+    }
   }
 </style>

@@ -441,6 +441,7 @@
 
     .container {
       padding: 0 10px;
+      margin: 1em 0;
     }
   }
 </style>
