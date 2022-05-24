@@ -19,7 +19,19 @@
           {logoText}
         </h1>
       </li>
-      <li id="w-node-_8db6f7ee-7804-6955-cbb7-65390522c9f3-81dce09d">
+
+      <li
+        id="w-node-_8db6f7ee-7804-6955-cbb7-65390522c9f3-81dce09d"
+        class="right-nav-wrapper"
+      >
+        <a
+          href="https://docs.google.com/forms/d/e/1FAIpQLSfjylrw3z3fRrrIg3fI8B2x7H2JQrTZcoWmFDMU-TtsxxxTGw/viewform?usp=sf_link"
+          target="_blank"
+          class="nav-link"
+        >
+          Give feedback
+        </a>
+        <a href="/open" class="nav-link"> About </a>
         <div class="html-embed w-embed">
           <a href="/submit" class="button utility w-button"> Submit an idea </a>
         </div>
@@ -29,6 +41,11 @@
 </header>
 
 <style>
+  .right-nav-wrapper {
+    display: flex;
+    flex-direction: row;
+    column-gap: 1.5em;
+  }
   .sticky-nav {
     position: fixed;
     top: 0;

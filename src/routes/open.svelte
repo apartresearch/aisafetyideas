@@ -211,7 +211,7 @@
       </p>
     </div>
     <div class="timeline-pointer">👉🏼</div>
-    <div class="timeline-block">
+    <div class="timeline-block past">
       <h3 class="list-idea-header">Version 0.2</h3>
       <p class="list-idea-summary">
         A list of ideas on a website designed for the purpose. Include links to
