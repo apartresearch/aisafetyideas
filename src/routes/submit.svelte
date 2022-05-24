@@ -156,6 +156,7 @@
     } catch (err) {
       console.log(err);
     }
+    resetData();
   };
 
   const resetData = (reload = true) => {
