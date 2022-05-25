@@ -15,7 +15,7 @@
   <div
     class="user"
     use:tippy={{
-      content: `Signed in as ${user.user_metadata.name}. <a href="" on:click={signout}>Sign out</a>.`,
+      content: `Signed in as ${user.user_metadata.name}. <a href="" on:click|stopPropagation={signout}>Sign out</a>.`,
       allowHTML: true,
       interactive: true,
       delay: [250, 0],

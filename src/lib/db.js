@@ -85,6 +85,7 @@ export const signInWithGoogle = async () => {
 
 export async function signout() {
   const { error } = await supabase.auth.signOut();
+  location.reload();
 }
 
 export async function getUserData() {
