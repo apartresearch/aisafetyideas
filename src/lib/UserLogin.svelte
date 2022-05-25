@@ -6,10 +6,10 @@
 
   onMount(async () => {
     user = await getUserData();
-    if (user) {
+    console.log(user);
+    if (user.raw_user_meta_data) {
       rawData = JSON.parse(user.raw_user_meta_data);
     }
-    console.log(user);
   });
 </script>
 
