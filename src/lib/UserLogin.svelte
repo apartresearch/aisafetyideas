@@ -15,15 +15,13 @@
   <div
     class="user"
     use:tippy={{
-      content: `Signed in as ${user.displayName}. <a on:click|stopPropagation={{signout}}>Sign out</a>`,
+      content: `Signed in as ${user.user_metadata.name}. <a href="" on:click={signout}>Sign out</a>.`,
       allowHTML: true,
       interactive: true,
       delay: [250, 0],
       appendTo: document.body,
     }}
   >
-    <img src={user.photoURL} alt="User icon" />
-    }}>
     <img src={user.user_metadata.avatar_url} />
     {user.user_metadata.name}
   </div>
