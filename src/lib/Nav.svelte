@@ -1,6 +1,7 @@
 <script>
   import tippy from "sveltejs-tippy";
   let logoText = "AI Safety Ideas";
+  import UserLogin from "$lib/UserLogin.svelte";
 </script>
 
 <header id="nav" class="sticky-nav">
@@ -31,10 +32,11 @@
         >
           Give feedback
         </a>
-        <a href="/open" class="nav-link"> About </a>
+        <a href="/open" class="nav-link">About</a>
         <div class="html-embed w-embed">
           <a href="/submit" class="button utility w-button"> Submit an idea </a>
         </div>
+        <UserLogin />
       </li>
     </ul>
   </nav>

@@ -12,6 +12,8 @@
   import Search from "svelte-search";
   import Select from "svelte-select";
 
+  import { signInWithGoogle, signout, getUserData } from "$lib/db.js";
+
   let url = ``,
     ideaParam = "",
     categoryParam = "",
@@ -248,11 +250,7 @@
 </script>
 
 <svelte:head>
-  <style>
-    body {
-      /* background-color: #000; */
-    }
-  </style>
+  <title>{visible ? currentIdea.title + " | " : ""}AI Safety Ideas</title>
 </svelte:head>
 
 <Nav />

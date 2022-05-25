@@ -44,7 +44,8 @@
   let editWarning = "",
     showSourceInput = false,
     showFundingInput = false,
-    showMentorshipInput = false;
+    showMentorshipInput = false,
+    retainInfo = false;
 
   onMount(async () => getTables());
 
@@ -165,24 +166,27 @@
 
   const resetData = (reload = true) => {
     if (reload) getTables();
-    author = "";
     title = "";
     description = "";
-    sourced = "";
     tags = [];
-    superprojects_ids = [];
     related_ideas = [];
-    filtered = false;
-    verified = false;
     problem_ids = [];
     idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
-    date_sourced = "";
     difficulty = 0;
     funding_amount = 0;
     funding_currency = "$";
-    funding_from = "";
-    mentorship_from = "";
-    authorContact = "";
+    if (!retainInfo) {
+      author = "";
+      sourced = "";
+      superprojects_ids = [];
+      filtered = false;
+      verified = false;
+
+      date_sourced = "";
+      funding_from = "";
+      mentorship_from = "";
+      authorContact = "";
+    }
   };
 
   const editIdea = (id) => {
@@ -246,13 +250,6 @@
   <!-- <div class="col-parent"> -->
 
   <div class="add-idea-wrapper">
-    <div class="input-wrapper">
-      <input
-        type="password"
-        bind:value={password}
-        placeholder="Input admin password"
-      />
-    </div>
     <h2>Insert idea</h2>
     {#if password == process.env.ADMIN_PASSWORD}
       <div class="input-wrapper">
@@ -355,123 +352,197 @@
       />
     </div>
     <h3>Source & funding</h3>
-    <div class="input-wrapper">
-      <label for="sourced"> Source link (leave blank if not sourced) </label>
-      <input type="text" bind:value={sourced} />
-    </div>
-    <div class="input-wrapper">
-      <label
-        for="date_sourced"
-        use:tippy={{ content: "When was the sourced idea written?" }}
-      >
-        Source date
-      </label>
-      <input type="date" bind:value={date_sourced} />
-    </div>
-    <div class="input-wrapper">
-      <label for="funding_amount">Funding available</label>
-      <input
-        type="number"
-        bind:value={funding_amount}
-        use:tippy={{
-          content:
-            "If funding exists, how much is available? Leave blank if funding is not available.",
-        }}
-      />
-    </div>
-    <div class="input-wrapper">
-      <label for="funding_currency">Currency</label>
-      <input
-        type="text"
-        bind:value={funding_currency}
-        use:tippy={{
-          content:
-            "If funding exists, what is the currency? Leave blank if funding is not available.",
-        }}
-      />
-    </div>
-    <div class="input-wrapper">
-      <label for="funding_from">Funding source URL</label>
-      <input
-        type="url"
-        bind:value={funding_from}
-        use:tippy={{
-          content:
-            "If funding exists, from whom is the funding available? Input as URL. Leave blank if funding is not available.",
-        }}
-      />
-    </div>
 
+    <div class="expander">
+      <div class="expander-top">
+        <input
+          type="checkbox"
+          class="checkbox"
+          bind:checked={showSourceInput}
+        />
+        <label>This idea is from somewhere else</label>
+      </div>
+      {#if showSourceInput}
+        <div class="input-wrapper">
+          <label for="sourced"> Source link </label>
+          <input type="text" bind:value={sourced} />
+        </div>
+        <div class="input-wrapper">
+          <label
+            for="date_sourced"
+            use:tippy={{ content: "When was the sourced idea written?" }}
+          >
+            Source date
+          </label>
+          <input type="date" bind:value={date_sourced} />
+        </div>
+      {/if}
+    </div>
+    <div class="expander">
+      <div class="expander-top">
+        <input
+          type="checkbox"
+          class="checkbox"
+          bind:checked={showFundingInput}
+        />
+        <label>Funding is available for this idea</label>
+      </div>
+      {#if showFundingInput}
+        <div class="input-wrapper">
+          <label for="funding_amount">Funding available</label>
+          <input
+            type="number"
+            bind:value={funding_amount}
+            use:tippy={{
+              content:
+                "If funding exists, how much is available? Leave blank if funding is not available.",
+            }}
+          />
+        </div>
+        <div class="input-wrapper">
+          <label for="funding_currency">Currency</label>
+          <input
+            type="text"
+            bind:value={funding_currency}
+            use:tippy={{
+              content:
+                "If funding exists, what is the currency? Leave blank if funding is not available.",
+            }}
+          />
+        </div>
+        <div class="input-wrapper">
+          <label for="funding_from">Funding source URL</label>
+          <input
+            type="url"
+            bind:value={funding_from}
+            use:tippy={{
+              content:
+                "If funding exists, from whom is the funding available? Input as URL. Leave blank if funding is not available.",
+            }}
+          />
+        </div>
+      {/if}
+    </div>
+    <div class="expander">
+      <div class="expander-top">
+        <input
+          type="checkbox"
+          class="checkbox"
+          bind:checked={showMentorshipInput}
+        />
+        <label>Mentorship is available for this idea</label>
+      </div>
+      {#if showMentorshipInput}
+        <div class="input-wrapper">
+          <label for="mentorship_from">Mentorship available URL</label>
+          <input
+            type="url"
+            bind:value={mentorship_from}
+            use:tippy={{
+              content:
+                "If mentorship is available, from whom is the mentorship available? Input as URL. Leave blank if mentorship is not available.",
+            }}
+          />
+        </div>
+      {/if}
+    </div>
     <div class="input-wrapper">
-      <label for="mentorship_from">Mentorship available URL</label>
+      <label for="status">Admin access</label>
       <input
-        type="url"
-        bind:value={mentorship_from}
-        use:tippy={{
-          content:
-            "If mentorship is available, from whom is the mentorship available? Input as URL. Leave blank if mentorship is not available.",
-        }}
+        type="password"
+        bind:value={password}
+        placeholder="Input admin password to edit and review ideas"
       />
     </div>
     {#if password == process.env.ADMIN_PASSWORD}
       <div class="input-wrapper">
+        <label for="verified">
+          Don't reset relevant variables when submitting
+        </label>
+        <input type="checkbox" bind:checked={retainInfo} />
+      </div>
+      <div class="input-wrapper">
         <label for="verified">Filtered</label>
         <input type="checkbox" bind:checked={filtered} />
+      </div>
+      <div class="input-wrapper">
         <label for="verified">Verified</label>
         <input type="checkbox" bind:checked={verified} />
       </div>
     {/if}
-    <button
-      on:click={() => {
-        addNewIdea(
-          {
-            id: idea_id,
-            author,
-            title,
-            summary: description,
-            verified_by_expert: verified,
-            filtered,
-            sourced: sourced,
-            difficulty,
-            from_date: date_sourced,
-            funding_amount,
-            funding_currency,
-            funding_from,
-            mentorship_from,
-            contact: authorContact,
-          },
-          tags ? tags.map((tag) => ({ category: tag.id, idea: idea_id })) : [],
-          superprojects_ids
-            ? superprojects_ids.map((elm) => ({
-                superproject: elm.id,
-                idea: idea_id,
-              }))
-            : [],
-          problem_ids
-            ? problem_ids.map((elm) => ({
-                problem: elm.id,
-                idea: idea_id,
-              }))
-            : [],
-          related_ideas
-            ? related_ideas.map((elm) => ({
-                idea_1: idea_id,
-                idea_2: elm.id,
-              }))
-            : []
-        );
-      }}
-    >
-      Submit idea
-    </button>
-    <button on:click={deleteIdea(idea_id)}> Delete selected idea </button>
-    <!-- </div> -->
+    <div class="buttons">
+      <button
+        on:click={() => {
+          addNewIdea(
+            {
+              id: idea_id,
+              author,
+              title,
+              summary: description,
+              verified_by_expert: verified,
+              filtered,
+              sourced: sourced,
+              difficulty,
+              from_date: date_sourced,
+              funding_amount,
+              funding_currency,
+              funding_from,
+              mentorship_from,
+              contact: authorContact,
+            },
+            tags
+              ? tags.map((tag) => ({ category: tag.id, idea: idea_id }))
+              : [],
+            superprojects_ids
+              ? superprojects_ids.map((elm) => ({
+                  superproject: elm.id,
+                  idea: idea_id,
+                }))
+              : [],
+            problem_ids
+              ? problem_ids.map((elm) => ({
+                  problem: elm.id,
+                  idea: idea_id,
+                }))
+              : [],
+            related_ideas
+              ? related_ideas.map((elm) => ({
+                  idea_1: idea_id,
+                  idea_2: elm.id,
+                }))
+              : []
+          );
+        }}
+      >
+        Submit idea
+      </button>
+      {#if password == process.env.ADMIN_PASSWORD}
+        <button on:click={deleteIdea(idea_id)}> Delete selected idea </button>
+      {/if}
+      <!-- </div> -->
+    </div>
   </div>
 </div>
 
 <Footer />
 
 <style>
+  .buttons {
+    display: flex;
+    justify-content: center;
+  }
+
+  button {
+    border: 1px solid #ccc;
+    border-radius: 0.5em;
+    margin: 0;
+    width: 50%;
+  }
+
+  button:hover {
+    background-color: #dedede;
+  }
+
   .description-preview {
     font-size: 0.7em;
     line-height: 1em;
@@ -490,6 +561,61 @@
     color: #666;
     font-style: italic;
     margin-bottom: 0.5em;
+  }
+
+  .expander-top {
+    display: flex;
+    align-items: center;
+    column-gap: 0.4em;
+    justify-content: space-between;
+    margin-bottom: 0.3em;
+  }
+
+  .expander {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.5em;
+    column-gap: 0.5em;
+    background-color: #eee;
+    padding: 0.5em;
+    border-radius: 0.5em;
+  }
+  .expander-top > label {
+    width: 100%;
+    margin: auto 0;
+  }
+
+  .expander .checkbox {
+    padding: 0;
+    border: 0;
+    appearance: none;
+  }
+
+  label {
+    padding-top: 0.2em;
+  }
+
+  .checkbox:after {
+    content: "";
+    display: block;
+    width: 1em;
+    height: 1em;
+    border-radius: 0.5em;
+    margin: auto;
+    background-image: url("/images/arrow-up.png");
+    background-size: 50%;
+    background-repeat: no-repeat;
+    background-position: center;
+    transform: rotate(180deg);
+    cursor: pointer;
+  }
+
+  .checkbox:checked:after {
+    transform: rotate(0deg);
+  }
+
+  .checkbox:hover:after {
+    opacity: 0.5;
   }
 
   :global(.description-preview > h1, .description-preview
@@ -519,13 +645,21 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-    max-width: 500px;
+    max-width: 600px;
   }
   .input-wrapper {
     display: flex;
     flex-direction: row;
     margin: 2px;
     width: 100%;
+  }
+
+  input,
+  textarea {
+    border: 1px solid #ccc;
+    border-radius: 0.2em;
+    margin: 0;
+    padding: 0.5em;
   }
 
   .input-wrapper input,

@@ -75,3 +75,19 @@ export const getIdea = async (id) => {
   console.log(ideas, error);
   return ideas[0];
 }
+
+export const signInWithGoogle = async () => {
+  const { user, session, error } = await supabase.auth.signIn({
+    provider: 'google',
+  });
+  return {user, session, error};
+}
+
+export async function signout() {
+  const { error } = await supabase.auth.signOut();
+}
+
+export async function getUserData() {
+  const user = supabase.auth.user()
+  return user;
+}

@@ -45,11 +45,63 @@
   on:click|self={setVisible(false)}
 >
   <div class="current-idea" on:click={() => {}}>
+    {#if idea.difficulty}
+      {#if idea.difficulty === 0}<p
+          class="difficulty easy"
+          use:tippy={{
+            content:
+              "Equivalent to the work required to write an elaborate blog post.",
+          }}
+        >
+          Very easy
+        </p>{/if}
+      {#if idea.difficulty === 1}<p
+          class="difficulty easy"
+          use:tippy={{
+            content: "Equivalent to the work required in a university exam.",
+          }}
+        >
+          Easy
+        </p>{/if}
+      {#if idea.difficulty === 2}<p
+          class="difficulty medium"
+          use:tippy={{
+            content: "Equivalent to the work required for a undergrad thesis.",
+          }}
+        >
+          Medium
+        </p>{/if}
+      {#if idea.difficulty === 3}<p
+          class="difficulty medium"
+          use:tippy={{
+            content: "Equivalent to the work required for a master's thesis.",
+          }}
+        >
+          Hard
+        </p>{/if}
+      {#if idea.difficulty === 4}<p
+          class="difficulty hard"
+          use:tippy={{
+            content: "Equivalent to the work required in a PhD.",
+          }}
+        >
+          Very hard
+        </p>{/if}
+      {#if idea.difficulty === 5}<p
+          class="difficulty hard"
+          use:tippy={{
+            content:
+              "Equivalent to an expert in the field working for 5 years.",
+          }}
+        >
+          Extremely hard
+        </p>{/if}
+    {/if}
     {#if idea.sourced}
       <p class="very-small">
         <a href={idea.sourced}>Source</a>
         {#if idea.from_date}
-          from {idea.from_date}
+          from {moment(idea.from_date).fromNow()}
         {/if}
       </p>
     {/if}
@@ -69,6 +121,7 @@
       <div class="current-idea-text">
         {@html markdown(idea.summary)}
       </div>
+
       {#if idea.contact || idea.verified_by_expert || idea.mentorship_from}
         <h4>Contact and mentorship</h4>
       {/if}
@@ -314,6 +367,30 @@
     flex-wrap: wrap;
     justify-content: start;
     align-items: center;
+  }
+
+  .difficulty {
+    font-size: 0.7em;
+    line-height: 1em;
+    margin: 0;
+    display: inline-block;
+    /* Put in the right side */
+    margin-left: auto;
+    margin-right: 0;
+    margin-bottom: -1.4em;
+    z-index: 1;
+  }
+
+  .easy {
+    color: rgb(18, 187, 18);
+  }
+
+  .medium {
+    color: #fac834;
+  }
+
+  .hard {
+    color: #ff3737;
   }
 
   /* Mobile responsive */
