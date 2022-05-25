@@ -63,8 +63,9 @@
 
   .idea-category.filter {
     background-color: #fff;
-    flex-grow: 1;
+    flex-grow: 0;
     text-align: center;
+    white-space: nowrap;
     opacity: 1;
   }
 

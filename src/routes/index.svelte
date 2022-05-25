@@ -365,7 +365,9 @@
   .idea-categories-wrapper {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;
+    /* flex-wrap: wrap; */
+    overflow: auto;
+
     justify-content: start;
     align-items: center;
   }
@@ -437,6 +439,27 @@
   .sort {
     width: 30%;
     margin-left: 1%;
+  }
+
+  /* width */
+  ::-webkit-scrollbar {
+    width: 0.35em;
+    height: 0.35em;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: #dedede;
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: #cdcdcd;
   }
 
   /* mobile style */
