@@ -80,7 +80,6 @@ export const signInWithGoogle = async () => {
   const { user, session, error } = await supabase.auth.signIn({
     provider: 'google',
   });
-  location.reload();
   return {user, session, error};
 }
 
