@@ -4,6 +4,8 @@
   import CategoryTag from "$lib/CategoryTag.svelte";
   import SuperprojectTag from "$lib/SuperprojectTag.svelte";
   import Comment from "$lib/Comment.svelte";
+  import { setupIdeas } from "./db";
+  import moment from "moment";
   export let idea, visible, setVisible, addComment;
 
   let commentText = "",
@@ -43,12 +45,66 @@
   on:click|self={setVisible(false)}
 >
   <div class="current-idea" on:click={() => {}}>
+    {#if idea.sourced}
+      <p class="very-small">
+        <a href={idea.sourced}>Source</a>
+        {#if idea.from_date}
+          from {idea.from_date}
+        {/if}
+      </p>
+    {/if}
+    {#if !idea.sourced && idea.from_date}
+      <p class="very-small">
+        {idea.from_date}
+      </p>
+    {/if}
+    {#if !idea.sourced && !idea.from_date}
+      <p class="very-small">
+        From {moment(idea.created_at).fromNow()}
+      </p>
+    {/if}
     {#if idea.title}
       <p class="current-idea-author">{idea.author}</p>
       <h2 class="current-idea-title">{idea.title}</h2>
       <div class="current-idea-text">
         {@html markdown(idea.summary)}
       </div>
+      {#if idea.contact || idea.verified_by_expert || idea.mentorship_from}
+        <h4>Contact and mentorship</h4>
+      {/if}
+      {#if idea.contact}
+        <p class="small">
+          Contact the author {idea.author} on
+          <a href="mailto:{idea.contact}">{idea.contact}</a>.
+        </p>
+      {/if}
+      {#if idea.mentorship_from}
+        <p class="small">
+          Get mentorship for this project <a href={idea.mentorship_from}>
+            here
+          </a>.
+        </p>
+      {/if}
+      {#if idea.verified_by_expert}
+        <p
+          class="small"
+          use:tippy={{
+            content:
+              "We consult with experts in the respective field that every idea is in to evaluate whether they have good research taste, are positive utility, are well formulated, and so on.",
+            delay: [250, 0],
+          }}
+        >
+          This idea has been verified by an expert.
+        </p>
+      {/if}
+      {#if idea.funding_amount > 0 && idea.funding_from}
+        <h4>Funding</h4>
+        <p>
+          Funding (up to {idea.funding_currency}{idea.funding_amount}) is
+          available from <a href={idea.funding_from}>this page</a>.
+        </p>
+      {/if}
+
       {#if idea.categories[0]}
         <h4>Categories</h4>
         <div class="idea-categories-wrapper">
@@ -141,6 +197,11 @@
   Build a popup like ProductHunt. There is a parent with 
   scrolling and a relative size unit as child. 
   */
+
+  .very-small {
+    font-size: 0.8em;
+    font-style: italic;
+  }
 
   .idea-comments-wrapper {
     margin-bottom: 2rem;

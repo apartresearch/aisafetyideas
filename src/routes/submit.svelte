@@ -41,7 +41,10 @@
     mentorship_from = "",
     authorContact = "";
 
-  let editWarning = "";
+  let editWarning = "",
+    showSourceInput = false,
+    showFundingInput = false,
+    showMentorshipInput = false;
 
   onMount(async () => getTables());
 

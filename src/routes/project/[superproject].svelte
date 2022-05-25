@@ -111,6 +111,7 @@
   <LoadIcon />
 {:else}
   <div>
+    <a class="go-to-home" href="/">Go to home page</a>
     {@html currentSuperproject.authors
       ? markdown(currentSuperproject.authors)
       : ""}
@@ -136,5 +137,17 @@
   }
   div > h1 {
     margin-top: 0;
+  }
+
+  .go-to-home {
+    font-size: 0.7em;
+    font-style: italic;
+    text-decoration: none;
+    color: #999;
+  }
+
+  .go-to-home:hover {
+    text-decoration: underline;
+    color: #bbb;
   }
 </style>
