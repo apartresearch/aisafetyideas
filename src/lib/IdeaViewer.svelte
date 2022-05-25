@@ -81,8 +81,13 @@
       </div>
       <div class="top-right">
         {#if idea.difficulty}
-          <p class="difficulty">
-            {idea.difficulty}h
+          <p
+            class="difficulty"
+            use:tippy={{
+              content: "An estimate of the amount of work required.",
+            }}
+          >
+            {idea.difficulty}h work
           </p>
         {/if}
         <img
