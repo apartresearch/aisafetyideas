@@ -14,10 +14,12 @@
 {#if user}
   <div
     class="user"
+    on:click={() => {
+      signout();
+    }}
     use:tippy={{
-      content: `Signed in as ${user.user_metadata.name}. <a href="" on:click|stopPropagation={${signout}}>Sign out</a>.`,
+      content: `Signed in as ${user.user_metadata.name}. Click here to sign out.`,
       allowHTML: true,
-      interactive: true,
       delay: [250, 0],
       appendTo: document.body,
     }}
