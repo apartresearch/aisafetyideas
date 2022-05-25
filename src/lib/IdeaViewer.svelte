@@ -4,7 +4,7 @@
   import CategoryTag from "$lib/CategoryTag.svelte";
   import SuperprojectTag from "$lib/SuperprojectTag.svelte";
   import Comment from "$lib/Comment.svelte";
-  import { setupIdeas } from "./db";
+  import { onMount } from "svelte";
   import moment from "moment";
   export let idea, visible, setVisible, addComment;
 
@@ -28,16 +28,29 @@
       ].replies.push(comment);
     else idea.comments.push({ ...comment, replies: [] });
     idea = idea;
-    replyTo = -1;
+    replyTo = null;
   };
 
   const replyToComment = (reply_to_id) => {
     if (reply_to_id == replyTo) {
-      replyTo = -1;
+      replyTo = null;
     } else {
       replyTo = reply_to_id;
     }
   };
+
+  onMount(() => {
+    document.body.addEventListener("keydown", (e) => {
+      // Register escape key
+      if (e.code == "Escape") {
+        if (replyTo) {
+          replyTo = null;
+        } else {
+          setVisible(false);
+        }
+      }
+    });
+  });
 </script>
 
 <content
@@ -45,76 +58,91 @@
   on:click|self={setVisible(false)}
 >
   <div class="current-idea" on:click={() => {}}>
-    {#if idea.difficulty}
-      {#if idea.difficulty === 0}<p
-          class="difficulty easy"
-          use:tippy={{
-            content:
-              "Equivalent to the work required to write an elaborate blog post.",
-          }}
-        >
-          Very easy
-        </p>{/if}
-      {#if idea.difficulty === 1}<p
-          class="difficulty easy"
-          use:tippy={{
-            content: "Equivalent to the work required in a university exam.",
-          }}
-        >
-          Easy
-        </p>{/if}
-      {#if idea.difficulty === 2}<p
-          class="difficulty medium"
-          use:tippy={{
-            content: "Equivalent to the work required for a undergrad thesis.",
-          }}
-        >
-          Medium
-        </p>{/if}
-      {#if idea.difficulty === 3}<p
-          class="difficulty medium"
-          use:tippy={{
-            content: "Equivalent to the work required for a master's thesis.",
-          }}
-        >
-          Hard
-        </p>{/if}
-      {#if idea.difficulty === 4}<p
-          class="difficulty hard"
-          use:tippy={{
-            content: "Equivalent to the work required in a PhD.",
-          }}
-        >
-          Very hard
-        </p>{/if}
-      {#if idea.difficulty === 5}<p
-          class="difficulty hard"
-          use:tippy={{
-            content:
-              "Equivalent to an expert in the field working for 5 years.",
-          }}
-        >
-          Extremely hard
-        </p>{/if}
-    {/if}
-    {#if idea.sourced}
-      <p class="very-small">
-        <a href={idea.sourced}>Source</a>
-        {#if idea.from_date}
-          from {moment(idea.from_date).fromNow()}
+    <div class="idea-top">
+      <div class="idea-top-left">
+        {#if idea.sourced}
+          <p class="very-small">
+            <a href={idea.sourced}>Source</a>
+            {#if idea.from_date}
+              from {moment(idea.from_date).fromNow()}
+            {/if}
+          </p>
         {/if}
-      </p>
-    {/if}
-    {#if !idea.sourced && idea.from_date}
-      <p class="very-small">
-        {idea.from_date}
-      </p>
-    {/if}
-    {#if !idea.sourced && !idea.from_date}
-      <p class="very-small">
-        From {moment(idea.created_at).fromNow()}
-      </p>
-    {/if}
+        {#if !idea.sourced && idea.from_date}
+          <p class="very-small">
+            {idea.from_date}
+          </p>
+        {/if}
+        {#if !idea.sourced && !idea.from_date}
+          <p class="very-small">
+            From {moment(idea.created_at).fromNow()}
+          </p>
+        {/if}
+      </div>
+      <div class="top-right">
+        {#if idea.difficulty}
+          {#if idea.difficulty === 0}<p
+              class="difficulty easy"
+              use:tippy={{
+                content:
+                  "Equivalent to the work required to write an elaborate blog post.",
+              }}
+            >
+              Very easy
+            </p>{/if}
+          {#if idea.difficulty === 1}<p
+              class="difficulty easy"
+              use:tippy={{
+                content:
+                  "Equivalent to the work required in a university exam.",
+              }}
+            >
+              Easy
+            </p>{/if}
+          {#if idea.difficulty === 2}<p
+              class="difficulty medium"
+              use:tippy={{
+                content:
+                  "Equivalent to the work required for a undergrad thesis.",
+              }}
+            >
+              Medium
+            </p>{/if}
+          {#if idea.difficulty === 3}<p
+              class="difficulty medium"
+              use:tippy={{
+                content:
+                  "Equivalent to the work required for a master's thesis.",
+              }}
+            >
+              Hard
+            </p>{/if}
+          {#if idea.difficulty === 4}<p
+              class="difficulty hard"
+              use:tippy={{
+                content: "Equivalent to the work required in a PhD.",
+              }}
+            >
+              Very hard
+            </p>{/if}
+          {#if idea.difficulty === 5}<p
+              class="difficulty hard"
+              use:tippy={{
+                content:
+                  "Equivalent to an expert in the field working for 5 years.",
+              }}
+            >
+              Extremely hard
+            </p>{/if}
+        {/if}
+        <img
+          on:click={setVisible(false)}
+          src="/images/close-outline.svg"
+          alt="Close idea"
+          class="cross"
+        />
+      </div>
+    </div>
     {#if idea.title}
       <p class="current-idea-author">{idea.author}</p>
       <h2 class="current-idea-title">{idea.title}</h2>
@@ -251,6 +279,17 @@
   scrolling and a relative size unit as child. 
   */
 
+  .idea-top {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .cross {
+    cursor: pointer;
+    width: 1.5em;
+  }
+
   .very-small {
     font-size: 0.8em;
     font-style: italic;
@@ -372,13 +411,8 @@
   .difficulty {
     font-size: 0.7em;
     line-height: 1em;
-    margin: 0;
     display: inline-block;
     /* Put in the right side */
-    margin-left: auto;
-    margin-right: 0;
-    margin-bottom: -1.4em;
-    z-index: 1;
   }
 
   .easy {

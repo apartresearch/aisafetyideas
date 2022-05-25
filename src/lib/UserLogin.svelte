@@ -1,6 +1,7 @@
 <script>
   import { signInWithGoogle, getUserData, signout } from "$lib/db.js";
   import { onMount } from "svelte";
+  import tippy from "sveltejs-tippy";
   let user = null,
     rawData = {};
 
@@ -11,7 +12,18 @@
 </script>
 
 {#if user}
-  <div class="user">
+  <div
+    class="user"
+    use:tippy={{
+      content: `Signed in as ${user.displayName}. <a on:click|stopPropagation={{signout}}>Sign out</a>`,
+      allowHTML: true,
+      interactive: true,
+      delay: [250, 0],
+      appendTo: document.body,
+    }}
+  >
+    <img src={user.photoURL} alt="User icon" />
+    }}>
     <img src={user.user_metadata.avatar_url} />
     {user.user_metadata.name}
   </div>
@@ -54,5 +66,9 @@
     width: 1.5em;
     margin-right: 0.5em;
     border-radius: 100em;
+  }
+
+  .user {
+    cursor: pointer;
   }
 </style>

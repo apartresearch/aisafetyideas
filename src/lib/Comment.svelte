@@ -30,7 +30,9 @@
           replyToComment(!comment.reply_to ? comment.id : comment.reply_to)}
       >
         {comment.id == currentComment
-          ? `Replying to ${comment.anon_author} - write your comment above`
+          ? `Replying to ${
+              comment.anon_author ? comment.anon_author : "Anonymous"
+            } - write your comment above`
           : "Reply"}
       </a>
     </div>
