@@ -108,57 +108,16 @@
     {/if}
     <div class="bottom-right">
       {#if idea.difficulty}
-        {#if idea.difficulty === 0}<p
-            class="difficulty easy"
+        {#if idea.difficulty}
+          <p
+            class="difficulty"
             use:tippy={{
-              content:
-                "Equivalent to the work required to write an elaborate blog post.",
+              content: "An estimate of the amount of work required.",
             }}
           >
-            Very easy
-          </p>{/if}
-        {#if idea.difficulty === 1}<p
-            class="difficulty easy"
-            use:tippy={{
-              content: "Equivalent to the work required in a university exam.",
-            }}
-          >
-            Easy
-          </p>{/if}
-        {#if idea.difficulty === 2}<p
-            class="difficulty medium"
-            use:tippy={{
-              content:
-                "Equivalent to the work required for a undergrad thesis.",
-            }}
-          >
-            Medium
-          </p>{/if}
-        {#if idea.difficulty === 3}<p
-            class="difficulty medium"
-            use:tippy={{
-              content: "Equivalent to the work required for a master's thesis.",
-            }}
-          >
-            Hard
-          </p>{/if}
-        {#if idea.difficulty === 4}<p
-            class="difficulty hard"
-            use:tippy={{
-              content: "Equivalent to the work required in a PhD.",
-            }}
-          >
-            Very hard
-          </p>{/if}
-        {#if idea.difficulty === 5}<p
-            class="difficulty hard"
-            use:tippy={{
-              content:
-                "Equivalent to an expert in the field working for 5 years.",
-            }}
-          >
-            Extremely hard
-          </p>{/if}
+            {idea.difficulty}h work
+          </p>
+        {/if}
       {/if}
       {#if idea.funding_amount > 0}
         <p
@@ -206,15 +165,15 @@
   }
 
   .easy {
-    color: #00b300;
+    color: #50f050;
   }
 
   .medium {
-    color: #ffbf00;
+    color: #fac834;
   }
 
   .hard {
-    color: #ff0000;
+    color: #ff3737;
   }
 
   .comment-indicator {

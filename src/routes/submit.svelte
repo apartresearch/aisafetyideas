@@ -336,20 +336,8 @@
       </div>
     </div>
     <div class="input-wrapper">
-      <label for="difficulty">Difficulty of task ({difficulty})</label>
-      <input
-        type="range"
-        bind:value={difficulty}
-        min="0"
-        max="5"
-        use:tippy={{
-          content: `Difficulty of task. 
-            0: Blog post.
-            1: Undergraduate exam.
-            3: Master's thesis. 
-            5: Expert working for 5 years`,
-        }}
-      />
+      <label for="difficulty">Estimated hours of work necessary</label>
+      <input type="number" bind:value={difficulty} min="0" />
     </div>
     <h3>Source & funding</h3>
 
