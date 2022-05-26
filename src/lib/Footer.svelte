@@ -39,6 +39,13 @@
               class="footer-link">Created by Apart Research</a
             >
           </li>
+          <li>
+            <a
+              href="https://aisafetyideas.com/privacy"
+              target="_blank"
+              class="footer-link">Privacy policy</a
+            >
+          </li>
         </ul>
       </div>
       <div>
