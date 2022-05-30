@@ -32,7 +32,15 @@ export const getComments = async () => {
       comment.replies = data.filter((com) => comment.id === com.reply_to);
     });
     data = data.filter((comment) => comment.reply_to === null || comment.reply_to < 1);
-    console.log(data);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const deleteComment = async (com_id) => {
+  try {
+    let { data, error } = await supabase.from("comments").delete().match({id: com_id});
     return data;
   } catch (err) {
     console.log(err);

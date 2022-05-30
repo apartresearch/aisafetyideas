@@ -2,7 +2,8 @@
   import moment from "moment";
   import markdown from "$lib/drawdown";
   export let comment, currentComment, replyToComment;
-  import { user } from "$lib/stores.js";
+  import { ideas, user } from "$lib/stores.js";
+  import { deleteComment } from "$lib/db.js";
 </script>
 
 <div
@@ -42,20 +43,26 @@
           <span class="date">{moment(comment.created_at).fromNow()}</span>
         </a>
         {@html markdown(reply.text)}
-        {#if replyToComment && $user}
+        {#if (replyToComment && $user) || $user.id == reply.author}
           <div class="reply-to">
-            <div class="reply-to">
-              <!-- svelte-ignore a11y-invalid-attribute -->
-              <a
-                href=""
-                on:click={() =>
-                  replyToComment(
-                    !comment.reply_to ? comment.id : comment.reply_to
-                  )}
-              >
-                Reply
-              </a>
-            </div>
+            <!-- svelte-ignore a11y-invalid-attribute -->
+            <a
+              href=""
+              on:click={() =>
+                replyToComment(
+                  !comment.reply_to ? comment.id : comment.reply_to
+                )}
+            >
+              Reply
+            </a>
+            <!-- svelte-ignore a11y-invalid-attribute -->
+            <a
+              href=""
+              on:click={() => deleteComment(reply.id)}
+              class="delete-comment"
+            >
+              Delete your comment
+            </a>
           </div>
         {/if}
       </div>
