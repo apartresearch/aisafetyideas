@@ -164,18 +164,6 @@
     margin: 0;
   }
 
-  .easy {
-    color: #50f050;
-  }
-
-  .medium {
-    color: #fac834;
-  }
-
-  .hard {
-    color: #ff3737;
-  }
-
   .comment-indicator {
     display: flex;
     flex-direction: row;

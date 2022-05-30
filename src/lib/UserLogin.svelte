@@ -2,33 +2,29 @@
   import { signInWithGoogle, getUserData, signout } from "$lib/db.js";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
-  let user = null,
-    rawData = {};
-
-  onMount(async () => {
-    user = await getUserData();
-    console.log(user);
-  });
+  import { user } from "$lib/stores.js";
 </script>
 
-{#if user}
+{#if $user}
   <div
     class="user"
     on:click={() => {
       signout();
     }}
     use:tippy={{
-      content: `Signed in as ${user.user_metadata.name}. Click here to sign out.`,
+      content: `Signed in as ${$user.user_metadata.name}. Click here to sign out.`,
       allowHTML: true,
       delay: [250, 0],
       appendTo: document.body,
     }}
   >
-    <img src={user.user_metadata.avatar_url} />
-    {user.user_metadata.name}
+    <!-- svelte-ignore a11y-img-redundant-alt -->
+    <img src={$user.user_metadata.avatar_url} alt="profile image" />
+    {$user.user_metadata.name}
   </div>
 {:else}
   <button on:click={signInWithGoogle}>
+    <!-- svelte-ignore a11y-img-redundant-alt -->
     <img src="/images/person-outline (2).svg" alt="profile image" /> Sign in
   </button>
 {/if}

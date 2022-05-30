@@ -6,6 +6,8 @@
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
   import Footer from "$lib/Footer.svelte";
+  import { user } from "$lib/stores";
+  import UserLogin from "$lib/UserLogin.svelte";
 
   let ideas = [],
     superprojects = [],
@@ -251,264 +253,272 @@
 
   <div class="add-idea-wrapper">
     <h2>Insert idea</h2>
-    {#if password == process.env.ADMIN_PASSWORD}
-      <div class="input-wrapper">
-        <label for="edit-idea">Edit idea</label>
-        <div class="select">
-          <Select
-            items={ideaSelect}
-            bind:value={selectedIdea}
-            placeholder="Select idea to edit..."
-          />
-        </div>
+    {#if !$user}
+      <div class="login-warning">
+        <p>Please login to submit an idea.</p>
+        <UserLogin />
       </div>
-      <div class="input-wrapper">
-        <label for="id">ID</label>
-        <input
-          type="number"
-          disabled
-          bind:value={idea_id}
-          on:input={editIdea(idea_id)}
-        />
-      </div>
-    {/if}
-    <div class="input-wrapper">
-      <label for="author">Author</label>
-      <input type="text" bind:value={author} />
-    </div>
-    <div class="input-wrapper">
-      <label
-        for="author-contact"
-        use:tippy={{
-          content:
-            "If you write your email, then remember that it will be publicly displayed.",
-        }}>Author email</label
-      >
-      <input type="email" bind:value={authorContact} />
-    </div>
-    <div class="input-wrapper">
-      <label for="title">Title</label>
-      <input type="text" bind:value={title} />
-    </div>
-    <div class="input-wrapper description">
-      <label for="description">
-        Description (supports
-        <a target="_blank" href="https://adamvleggett.github.io/drawdown/">
-          markdown
-        </a>
-        )
-      </label>
-      <textarea rows="8" bind:value={description} />
-    </div>
-    {#if description != ""}
-      <div class="description-preview">
-        <p>Description preview</p>
-        {@html markdown(description)}
-      </div>
-    {/if}
-
-    <div class="input-wrapper">
-      <label for="tags">Category tags</label>
-      <div class="select">
-        <Select items={categories} bind:value={tags} isMulti={true} />
-      </div>
-    </div>
-    <div class="input-wrapper">
-      <label for="superprojects">Superprojects</label>
-      <div class="select">
-        <Select
-          items={superprojects}
-          bind:value={superprojects_ids}
-          isMulti={true}
-        />
-      </div>
-    </div>
-    <div class="input-wrapper">
-      <label for="related_ideas">Related problems</label>
-      <div class="select">
-        <Select items={problems} bind:value={problem_ids} isMulti={true} />
-      </div>
-    </div>
-    <div class="input-wrapper">
-      <label for="filtered">Related ideas</label>
-      <div class="select">
-        <Select items={ideas} bind:value={related_ideas} isMulti={true} />
-      </div>
-    </div>
-    <div class="input-wrapper">
-      <label for="difficulty">Estimated hours of work necessary</label>
-      <input type="number" bind:value={difficulty} min="0" />
-    </div>
-    <h3>Source & funding</h3>
-
-    <div class="expander">
-      <div class="expander-top">
-        <input
-          type="checkbox"
-          class="checkbox"
-          bind:checked={showSourceInput}
-        />
-        <label>This idea is from somewhere else</label>
-      </div>
-      {#if showSourceInput}
+    {:else}
+      {#if password == process.env.ADMIN_PASSWORD}
         <div class="input-wrapper">
-          <label for="sourced"> Source link </label>
-          <input type="text" bind:value={sourced} />
+          <label for="edit-idea">Edit idea</label>
+          <div class="select">
+            <Select
+              items={ideaSelect}
+              bind:value={selectedIdea}
+              placeholder="Select idea to edit..."
+            />
+          </div>
         </div>
         <div class="input-wrapper">
-          <label
-            for="date_sourced"
-            use:tippy={{ content: "When was the sourced idea written?" }}
-          >
-            Source date
-          </label>
-          <input type="date" bind:value={date_sourced} />
-        </div>
-      {/if}
-    </div>
-    <div class="expander">
-      <div class="expander-top">
-        <input
-          type="checkbox"
-          class="checkbox"
-          bind:checked={showFundingInput}
-        />
-        <label>Funding is available for this idea</label>
-      </div>
-      {#if showFundingInput}
-        <div class="input-wrapper">
-          <label for="funding_amount">Funding available</label>
+          <label for="id">ID</label>
           <input
             type="number"
-            bind:value={funding_amount}
-            use:tippy={{
-              content:
-                "If funding exists, how much is available? Leave blank if funding is not available.",
-            }}
-          />
-        </div>
-        <div class="input-wrapper">
-          <label for="funding_currency">Currency</label>
-          <input
-            type="text"
-            bind:value={funding_currency}
-            use:tippy={{
-              content:
-                "If funding exists, what is the currency? Leave blank if funding is not available.",
-            }}
-          />
-        </div>
-        <div class="input-wrapper">
-          <label for="funding_from">Funding source URL</label>
-          <input
-            type="url"
-            bind:value={funding_from}
-            use:tippy={{
-              content:
-                "If funding exists, from whom is the funding available? Input as URL. Leave blank if funding is not available.",
-            }}
+            disabled
+            bind:value={idea_id}
+            on:input={editIdea(idea_id)}
           />
         </div>
       {/if}
-    </div>
-    <div class="expander">
-      <div class="expander-top">
-        <input
-          type="checkbox"
-          class="checkbox"
-          bind:checked={showMentorshipInput}
-        />
-        <label>Mentorship is available for this idea</label>
-      </div>
-      {#if showMentorshipInput}
-        <div class="input-wrapper">
-          <label for="mentorship_from">Mentorship available URL</label>
-          <input
-            type="url"
-            bind:value={mentorship_from}
-            use:tippy={{
-              content:
-                "If mentorship is available, from whom is the mentorship available? Input as URL. Leave blank if mentorship is not available.",
-            }}
-          />
-        </div>
-      {/if}
-    </div>
-    <div class="input-wrapper">
-      <label for="status">Admin access</label>
-      <input
-        type="password"
-        bind:value={password}
-        placeholder="Input admin password to edit and review ideas"
-      />
-    </div>
-    {#if password == process.env.ADMIN_PASSWORD}
       <div class="input-wrapper">
-        <label for="verified">
-          Don't reset relevant variables when submitting
+        <label for="author">Author</label>
+        <input type="text" bind:value={author} />
+      </div>
+      <div class="input-wrapper">
+        <label
+          for="author-contact"
+          use:tippy={{
+            content:
+              "If you write your email, then remember that it will be publicly displayed.",
+          }}>Author email</label
+        >
+        <input type="email" bind:value={authorContact} />
+      </div>
+      <div class="input-wrapper">
+        <label for="title">Title</label>
+        <input type="text" bind:value={title} />
+      </div>
+      <div class="input-wrapper description">
+        <label for="description">
+          Description (supports
+          <a target="_blank" href="https://adamvleggett.github.io/drawdown/">
+            markdown
+          </a>
+          )
         </label>
-        <input type="checkbox" bind:checked={retainInfo} />
+        <textarea rows="8" bind:value={description} />
+      </div>
+      {#if description != ""}
+        <div class="description-preview">
+          <p>Description preview</p>
+          {@html markdown(description)}
+        </div>
+      {/if}
+
+      <div class="input-wrapper">
+        <label for="tags">Category tags</label>
+        <div class="select">
+          <Select items={categories} bind:value={tags} isMulti={true} />
+        </div>
       </div>
       <div class="input-wrapper">
-        <label for="verified">Filtered</label>
-        <input type="checkbox" bind:checked={filtered} />
+        <label for="superprojects">Superprojects</label>
+        <div class="select">
+          <Select
+            items={superprojects}
+            bind:value={superprojects_ids}
+            isMulti={true}
+          />
+        </div>
       </div>
       <div class="input-wrapper">
-        <label for="verified">Verified</label>
-        <input type="checkbox" bind:checked={verified} />
+        <label for="related_ideas">Related problems</label>
+        <div class="select">
+          <Select items={problems} bind:value={problem_ids} isMulti={true} />
+        </div>
+      </div>
+      <div class="input-wrapper">
+        <label for="filtered">Related ideas</label>
+        <div class="select">
+          <Select items={ideas} bind:value={related_ideas} isMulti={true} />
+        </div>
+      </div>
+      <div class="input-wrapper">
+        <label for="difficulty">Estimated hours of work necessary</label>
+        <input type="number" bind:value={difficulty} min="0" />
+      </div>
+      <h3>Source & funding</h3>
+
+      <div class="expander">
+        <div class="expander-top">
+          <input
+            type="checkbox"
+            class="checkbox"
+            bind:checked={showSourceInput}
+          />
+          <label>This idea is from somewhere else</label>
+        </div>
+        {#if showSourceInput}
+          <div class="input-wrapper">
+            <label for="sourced"> Source link </label>
+            <input type="text" bind:value={sourced} />
+          </div>
+          <div class="input-wrapper">
+            <label
+              for="date_sourced"
+              use:tippy={{ content: "When was the sourced idea written?" }}
+            >
+              Source date
+            </label>
+            <input type="date" bind:value={date_sourced} />
+          </div>
+        {/if}
+      </div>
+      <div class="expander">
+        <div class="expander-top">
+          <input
+            type="checkbox"
+            class="checkbox"
+            bind:checked={showFundingInput}
+          />
+          <label>Funding is available for this idea</label>
+        </div>
+        {#if showFundingInput}
+          <div class="input-wrapper">
+            <label for="funding_amount">Funding available</label>
+            <input
+              type="number"
+              bind:value={funding_amount}
+              use:tippy={{
+                content:
+                  "If funding exists, how much is available? Leave blank if funding is not available.",
+              }}
+            />
+          </div>
+          <div class="input-wrapper">
+            <label for="funding_currency">Currency</label>
+            <input
+              type="text"
+              bind:value={funding_currency}
+              use:tippy={{
+                content:
+                  "If funding exists, what is the currency? Leave blank if funding is not available.",
+              }}
+            />
+          </div>
+          <div class="input-wrapper">
+            <label for="funding_from">Funding source URL</label>
+            <input
+              type="url"
+              bind:value={funding_from}
+              use:tippy={{
+                content:
+                  "If funding exists, from whom is the funding available? Input as URL. Leave blank if funding is not available.",
+              }}
+            />
+          </div>
+        {/if}
+      </div>
+      <div class="expander">
+        <div class="expander-top">
+          <input
+            type="checkbox"
+            class="checkbox"
+            bind:checked={showMentorshipInput}
+          />
+          <label>Mentorship is available for this idea</label>
+        </div>
+        {#if showMentorshipInput}
+          <div class="input-wrapper">
+            <label for="mentorship_from">Mentorship available URL</label>
+            <input
+              type="url"
+              bind:value={mentorship_from}
+              use:tippy={{
+                content:
+                  "If mentorship is available, from whom is the mentorship available? Input as URL. Leave blank if mentorship is not available.",
+              }}
+            />
+          </div>
+        {/if}
+      </div>
+      <div class="input-wrapper">
+        <label for="status">Admin access</label>
+        <input
+          type="password"
+          bind:value={password}
+          placeholder="Input admin password to edit and review ideas"
+        />
+      </div>
+      {#if password == process.env.ADMIN_PASSWORD}
+        <div class="input-wrapper">
+          <label for="verified">
+            Don't reset relevant variables when submitting
+          </label>
+          <input type="checkbox" bind:checked={retainInfo} />
+        </div>
+        <div class="input-wrapper">
+          <label for="verified">Filtered</label>
+          <input type="checkbox" bind:checked={filtered} />
+        </div>
+        <div class="input-wrapper">
+          <label for="verified">Verified</label>
+          <input type="checkbox" bind:checked={verified} />
+        </div>
+      {/if}
+      <div class="buttons">
+        <button
+          on:click={() => {
+            addNewIdea(
+              {
+                id: idea_id,
+                author,
+                title,
+                summary: description,
+                verified_by_expert: verified,
+                filtered,
+                sourced: sourced,
+                difficulty,
+                from_date: date_sourced,
+                funding_amount,
+                funding_currency,
+                funding_from,
+                mentorship_from,
+                contact: authorContact,
+                user: $user.id,
+              },
+              tags
+                ? tags.map((tag) => ({ category: tag.id, idea: idea_id }))
+                : [],
+              superprojects_ids
+                ? superprojects_ids.map((elm) => ({
+                    superproject: elm.id,
+                    idea: idea_id,
+                  }))
+                : [],
+              problem_ids
+                ? problem_ids.map((elm) => ({
+                    problem: elm.id,
+                    idea: idea_id,
+                  }))
+                : [],
+              related_ideas
+                ? related_ideas.map((elm) => ({
+                    idea_1: idea_id,
+                    idea_2: elm.id,
+                  }))
+                : []
+            );
+          }}
+        >
+          Submit idea
+        </button>
+        {#if password == process.env.ADMIN_PASSWORD}
+          <button on:click={deleteIdea(idea_id)}> Delete selected idea </button>
+        {/if}
+        <!-- </div> -->
       </div>
     {/if}
-    <div class="buttons">
-      <button
-        on:click={() => {
-          addNewIdea(
-            {
-              id: idea_id,
-              author,
-              title,
-              summary: description,
-              verified_by_expert: verified,
-              filtered,
-              sourced: sourced,
-              difficulty,
-              from_date: date_sourced,
-              funding_amount,
-              funding_currency,
-              funding_from,
-              mentorship_from,
-              contact: authorContact,
-            },
-            tags
-              ? tags.map((tag) => ({ category: tag.id, idea: idea_id }))
-              : [],
-            superprojects_ids
-              ? superprojects_ids.map((elm) => ({
-                  superproject: elm.id,
-                  idea: idea_id,
-                }))
-              : [],
-            problem_ids
-              ? problem_ids.map((elm) => ({
-                  problem: elm.id,
-                  idea: idea_id,
-                }))
-              : [],
-            related_ideas
-              ? related_ideas.map((elm) => ({
-                  idea_1: idea_id,
-                  idea_2: elm.id,
-                }))
-              : []
-          );
-        }}
-      >
-        Submit idea
-      </button>
-      {#if password == process.env.ADMIN_PASSWORD}
-        <button on:click={deleteIdea(idea_id)}> Delete selected idea </button>
-      {/if}
-      <!-- </div> -->
-    </div>
   </div>
 </div>
 

@@ -4,6 +4,8 @@
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import { getTable } from "$lib/db";
+  import SvelteHeatmap from "svelte-heatmap";
+  import moment from "moment";
 
   let ideas = [],
     comments = [];
@@ -139,51 +141,41 @@
     </div>
   </div>
   <h3 id="commits">Website updates by day</h3>
-  <div class="open-day-block">
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day yes" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day" />
-    <div class="open-day yes" />
-    <div class="open-day" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
-    <div class="open-day yes" />
+  <div class="open-day-block" id="commit-map">
+    <SvelteHeatmap
+      data={[
+        { date: "2022-04-16", value: 1 },
+        { date: "2022-04-19", value: 1 },
+        { date: "2022-04-20", value: 1 },
+        { date: "2022-04-21", value: 1 },
+        { date: "2022-04-22", value: 1 },
+        { date: "2022-04-23", value: 1 },
+        { date: "2022-04-24", value: 1 },
+        { date: "2022-04-26", value: 1 },
+        { date: "2022-04-27", value: 1 },
+        { date: "2022-04-28", value: 1 },
+        { date: "2022-04-29", value: 1 },
+        { date: "2022-04-30", value: 1 },
+        { date: "2022-05-15", value: 1 },
+        { date: "2022-05-17", value: 1 },
+        { date: "2022-05-18", value: 1 },
+        { date: "2022-05-19", value: 1 },
+        { date: "2022-05-20", value: 1 },
+        { date: "2022-05-21", value: 1 },
+        { date: "2022-05-23", value: 1 },
+        { date: "2022-05-24", value: 1 },
+        { date: "2022-05-25", value: 1 },
+        { date: "2022-05-26", value: 1 },
+        { date: "2022-05-27", value: 1 },
+        { date: "2022-05-30", value: 1 },
+        { date: "2022-05-31", value: 1 },
+      ]}
+      endDate={moment().toDate()}
+      startDate={moment("2022-04-15").toDate()}
+      view="yearly"
+      colors={["#44FF98"]}
+      emptyColor={"#DAFFEA"}
+    />
   </div>
   <h3>Website visitors</h3>
   <div class="open-graph-wrapper">

@@ -6,7 +6,9 @@
   import Comment from "$lib/Comment.svelte";
   import { onMount } from "svelte";
   import moment from "moment";
+  import { user } from "$lib/stores.js";
   export let idea, visible, setVisible, addComment;
+  import UserLogin from "$lib/UserLogin.svelte";
 
   let commentText = "",
     commentUsername = "",
@@ -17,8 +19,7 @@
     const comment = {
       idea: idea.id,
       text: commentText,
-      anon_author: commentUsername,
-      anon_author_url: commentUserlink,
+      author: $user.id,
       reply_to: replyTo,
     };
     addComment(comment);
@@ -161,58 +162,39 @@
       {/if}
       <h4>Comments</h4>
       <div class="add-comment">
-        <textarea
-          class="comment-text"
-          type="text"
-          bind:value={commentText}
-          placeholder="Add a comment..."
-          use:tippy={{
-            content: `Supports markdown, e.g. *italic*, **bold**, [links](https://example.com).`,
-            allowHTML: true,
-            delay: [250, 0],
-          }}
-        />
-        <div class="col2">
-          <input
-            class="comment-user"
+        {#if $user}
+          <textarea
+            class="comment-text"
             type="text"
-            bind:value={commentUsername}
-            placeholder="Your username"
+            bind:value={commentText}
+            placeholder="Add a comment..."
             use:tippy={{
-              content: `Your username will be displayed with your comment`,
+              content: `Supports markdown, e.g. *italic*, **bold**, [links](https://example.com).`,
               allowHTML: true,
               delay: [250, 0],
             }}
           />
-          <input
-            class="comment-userlink"
-            type="text"
-            bind:value={commentUserlink}
-            placeholder="Your user link"
-            use:tippy={{
-              content: `Your user link will be linked from your username`,
-              allowHTML: true,
-              delay: [250, 0],
-            }}
-          />
-          <!-- <input type="number" bind:value={replyTo} placeholder="Reply to" /> -->
-          <button
-            class="submit"
-            use:tippy={{
-              content:
-                "You cannot edit or delete your comment after it is posted.",
-              delay: [250, 0],
-            }}
-            on:click={() => {
-              writeComment();
-              commentText = "";
-              commentUsername = "";
-              commentUserlink = "";
-            }}
-          >
-            Add comment
-          </button>
-        </div>
+          <div class="col2">
+            <UserLogin />
+            <button
+              class="submit"
+              use:tippy={{
+                content:
+                  "You cannot edit or delete your comment after it is posted.",
+                delay: [250, 0],
+              }}
+              on:click={() => {
+                writeComment();
+                commentText = "";
+              }}
+            >
+              Add comment
+            </button>
+          </div>
+        {/if}
+        {#if !$user}
+          <p>You need to be logged in to add a comment.</p>
+        {/if}
       </div>
 
       {#if idea.comments.length > 0}
