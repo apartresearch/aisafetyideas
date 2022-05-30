@@ -139,9 +139,30 @@
       });
 
       shownIdeas = ideas.filter((idea) => idea.shown);
+      sort("Amount of comments");
     } else {
       console.log("Cannot click before it has loaded.");
     }
+  };
+
+  const shuffle = (array) => {
+    let currentIndex = array.length,
+      randomIndex;
+
+    // While there remain elements to shuffle.
+    while (currentIndex != 0) {
+      // Pick a remaining element.
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    return array;
   };
 
   const updateFromUrl = () => {
@@ -256,13 +277,6 @@
 <Nav />
 
 <div class="container w-container">
-  <a class="page-author" href="https://apartresearch.com">Apart Research</a>
-  <h1 class="page-title">The AI Safety & Governance Ideas Directory</h1>
-  <p>
-    This is a directory of AI safety and governance ideas. The ideas are
-    shovel-ready for development and are linked to categories and superprojects
-    (aka agendas).
-  </p>
   <div class="search-sort">
     <div class="search">
       {#if searchValue}
@@ -322,7 +336,7 @@
     width: 100%;
     font-size: 1rem;
     padding: 0.5rem;
-    border: 1px solid #e0e0e0;
+    border: 1px solid var(--light-accent-border);
     border-radius: 0.25rem;
     height: 2.65em;
   }
@@ -330,7 +344,7 @@
   :global([data-svelte-search] input:focus) {
     outline: none;
 
-    border: 1px solid #02da6e;
+    border: 1px solid var(--primary-color);
   }
 
   .not-found {
@@ -343,7 +357,7 @@
   }
 
   .container {
-    margin: 75px auto;
+    margin: 1em auto;
     margin-bottom: 125px;
     max-width: 800px;
     min-height: 800px;
@@ -372,7 +386,7 @@
 
   :global(a) {
     text-decoration: none;
-    color: #02da6e;
+    color: var(--link-color);
   }
 
   :global(a:hover) {
@@ -382,27 +396,15 @@
   :global(body) {
     margin: 0;
     padding: 0;
-    background-color: #f7f7f7;
+    background-color: var(--bg-color-light);
   }
   :global(.tooltip a) {
     text-decoration: none;
-    color: #44ff98;
+    color: var(--link-color);
   }
 
   :global(.tooltip a:hover) {
     text-decoration: underline;
-  }
-
-  .page-author {
-    font-size: 0.8em;
-    color: #000;
-  }
-
-  .page-title {
-    font-size: 1.5em;
-    line-height: 1.2em;
-    font-weight: bold;
-    margin: 5px 0;
   }
 
   .search-sort {
@@ -424,9 +426,9 @@
     --border: 1px solid #e0e0e0;
     --borderRadius: 0.2rem;
     --placeholderColor: #999;
-    --borderFocusColor: #02da6e;
-    --itemIsActiveBG: #02da6e;
-    --itemHoverBG: #02da6e13;
+    --borderFocusColor: var(--primary-color);
+    --itemIsActiveBG: var(--primary-color);
+    --itemHoverBG: var(--primary-color-hover);
     --internalPadding: 0.2em;
   }
 
@@ -470,6 +472,15 @@
     .container {
       padding: 0 10px;
       margin: 1em 0;
+    }
+
+    .search-sort {
+      flex-direction: column;
+    }
+
+    .search-sort > div {
+      width: 100%;
+      margin-top: 0.25em;
     }
   }
 </style>

@@ -58,11 +58,12 @@
 
   .idea-category.filter.selected {
     /* Make background green */
-    background-color: #44ff98;
+    background-color: var(--primary-color);
+    color: var(--font-color-dark);
   }
 
   .idea-category.filter {
-    background-color: #fff;
+    background-color: var(--light-accent-bg);
     flex-grow: 0;
     text-align: center;
     white-space: nowrap;
@@ -87,7 +88,7 @@
 
   :global(.tooltip a) {
     text-decoration: none;
-    color: #44ff98;
+    color: var(--link-color);
   }
   :global(.tooltip a:hover) {
     text-decoration: underline;

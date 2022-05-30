@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import { user } from "$lib/stores.js";
+  export let white;
 
   const signIn = () => {
     signInWithGoogle().then((u, s, e) => {
@@ -13,7 +14,7 @@
 
 {#if $user}
   <div
-    class="user"
+    class="user  {white ? '' : 'light-bg'}"
     on:click={() => {
       signout();
     }}
@@ -29,22 +30,26 @@
     {$user.user_metadata.name}
   </div>
 {:else}
-  <button on:click={signIn}>
+  <button on:click={signIn} class={white ? "" : "light-bg"}>
     <!-- svelte-ignore a11y-img-redundant-alt -->
-    <img src="/images/person-outline (2).svg" alt="profile image" /> Sign in
+    <img
+      src="/images/person-outline (2).svg"
+      alt="user icon"
+      class={white ? "white" : ""}
+    /> Sign in
   </button>
 {/if}
 
 <style>
   button {
     font-size: 0.9em;
-    color: black;
     background: transparent;
-    border: 2px solid #000;
+    border: 2px solid transparent;
     padding: 0.5em 2em;
     border-radius: 0.3em;
-    margin-left: -2em;
     display: flex;
+    color: inherit;
+    border-color: var(--button-bg-color-dark);
   }
 
   button img {
@@ -52,9 +57,25 @@
     margin-right: 0.5em;
   }
 
+  .white {
+    filter: invert(1);
+  }
+
+  .light-bg:hover img {
+    filter: invert(1);
+  }
+
+  .light-bg {
+    color: var(--font-color-light);
+  }
+
+  .light-bg:hover {
+    color: var(--font-color-dark);
+  }
+
   button:hover {
     cursor: pointer;
-    background-color: #44ff98;
+    background-color: var(--button-bg-color-dark);
   }
 
   div {
