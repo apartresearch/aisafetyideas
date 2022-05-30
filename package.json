@@ -15,6 +15,7 @@
   },
   "type": "module",
   "dependencies": {
+    "as-toast": "^1.1.0",
     "moment": "^2.29.3",
     "octokit": "^1.7.1",
     "supabase-ui-svelte": "^0.1.1",

@@ -4,6 +4,7 @@
   export let comment, currentComment, replyToComment;
   import { ideas, user } from "$lib/stores.js";
   import { deleteComment } from "$lib/db.js";
+  import { Toasts, addToast } from "as-toast";
 </script>
 
 <div
@@ -17,7 +18,7 @@
     <span class="date">{moment(comment.created_at).fromNow()}</span>
   </a>
   {@html markdown(comment.text)}
-  {#if replyToComment && $user}
+  {#if (replyToComment && $user) || $user.id == reply.author}
     <div class="reply-to">
       <!-- svelte-ignore a11y-invalid-attribute -->
       <a
@@ -29,6 +30,20 @@
           ? `Replying to this comment - write your comment above`
           : "Reply"}
       </a>
+      {#if $user.id == comment.author}
+        <p>{` | `}</p>
+        <!-- svelte-ignore a11y-invalid-attribute -->
+        <a
+          href=""
+          on:click={() => {
+            deleteComment(comment.id);
+            addToast("Comment deleted successfully. Refresh to update.");
+          }}
+          class="delete-comment"
+        >
+          Delete your comment
+        </a>
+      {/if}
     </div>
   {/if}
 </div>
@@ -55,14 +70,19 @@
             >
               Reply
             </a>
-            <!-- svelte-ignore a11y-invalid-attribute -->
-            <a
-              href=""
-              on:click={() => deleteComment(reply.id)}
-              class="delete-comment"
-            >
-              Delete your comment
-            </a>
+            {#if $user.id == reply.author}
+              <!-- svelte-ignore a11y-invalid-attribute -->
+              <a
+                href=""
+                on:click={() => {
+                  deleteComment(reply.id);
+                  addToast("Comment deleted successfully. Refresh to update.");
+                }}
+                class="delete-comment"
+              >
+                Delete your comment
+              </a>
+            {/if}
           </div>
         {/if}
       </div>
