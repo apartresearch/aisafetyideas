@@ -26,7 +26,12 @@
     if (replyTo > 0)
       idea.comments[
         idea.comments.findIndex((com) => com.id == replyTo)
-      ].replies.push({ ...comment, id: 1 });
+      ].replies.push({
+        ...comment,
+        id: 1,
+        author: $user.id,
+        users: { username: $user.user_metadata.name },
+      });
     else idea.comments.push({ ...comment, replies: [], id: 1 });
     idea = idea;
     replyTo = null;

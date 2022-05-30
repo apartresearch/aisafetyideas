@@ -1,5 +1,5 @@
 <script>
-  import { supabase, getTable, setupIdeas } from "$lib/db";
+  import { supabase, getTable, setupIdeas, getComments } from "$lib/db";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
@@ -11,8 +11,6 @@
   import Footer from "$lib/Footer.svelte";
   import Search from "svelte-search";
   import Select from "svelte-select";
-
-  import { signInWithGoogle, signout, getUserData } from "$lib/db.js";
 
   let url = ``,
     ideaParam = "",
@@ -64,7 +62,7 @@
       getTable("idea_superproject_relation"),
       getTable("idea_problem_relation"),
       getTable("idea_idea_relation"),
-      getTable("comments"),
+      getComments(),
     ]);
     let endTime = performance.now();
 

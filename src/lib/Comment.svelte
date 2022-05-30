@@ -10,17 +10,11 @@
     ? 'current'
     : ''}"
 >
-  <p class="author">
-    {#if comment.anon_author_url}
-      <a class="author" target="_blank" href={comment.anon_author_url}>
-        <img src="/images/link.svg" alt="Link icon" />
-        {comment.anon_author ? comment.anon_author : "Anonymous"}
-      </a>
-    {:else}
-      {comment.anon_author ? comment.anon_author : "Anonymous"}
-    {/if}
+  <a class="author" target="_blank" href={comment.anon_author_url}>
+    <!-- <img src="/images/link.svg" alt="Link icon" /> -->
+    {@html comment.users.username}
     <span class="date">{moment(comment.created_at).fromNow()}</span>
-  </p>
+  </a>
   {@html markdown(comment.text)}
   {#if replyToComment && $user}
     <div class="reply-to">
@@ -42,28 +36,28 @@
   <div class="replies">
     {#each comment.replies as reply}
       <div class="comment reply">
-        <p class="author">
-          {#if reply.anon_author_url}
-            <a class="author" target="_blank" href={reply.anon_author_url}>
-              <img src="/images/link.svg" alt="Link icon" />
-              {reply.anon_author ? reply.anon_author : "Anonymous"}
-            </a>
-          {:else}
-            {reply.anon_author ? reply.anon_author : "Anonymous"}
-          {/if}
-          <span class="date">{moment(reply.created_at).fromNow()}</span>
-        </p>
+        <a class="author" target="_blank" href={comment.anon_author_url}>
+          <!-- <img src="/images/link.svg" alt="Link icon" /> -->
+          {@html comment.users.username}
+          <span class="date">{moment(comment.created_at).fromNow()}</span>
+        </a>
         {@html markdown(reply.text)}
-        <div class="reply-to">
-          <!-- svelte-ignore a11y-invalid-attribute -->
-          <a
-            href=""
-            on:click={() =>
-              replyToComment(!comment.reply_to ? comment.id : comment.reply_to)}
-          >
-            Reply
-          </a>
-        </div>
+        {#if replyToComment && $user}
+          <div class="reply-to">
+            <div class="reply-to">
+              <!-- svelte-ignore a11y-invalid-attribute -->
+              <a
+                href=""
+                on:click={() =>
+                  replyToComment(
+                    !comment.reply_to ? comment.id : comment.reply_to
+                  )}
+              >
+                Reply
+              </a>
+            </div>
+          </div>
+        {/if}
       </div>
     {/each}
   </div>

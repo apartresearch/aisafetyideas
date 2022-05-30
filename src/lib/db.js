@@ -18,6 +18,27 @@ export const getTable = async (table_name, grabTitle = true) => {
   }
 };
 
+export const getComments = async () => {
+  try {
+    // Select all columns from the comments table and join with users table
+    let { data, error } = await supabase.from("comments").select(
+      `*,
+      users:author (
+        username
+      )`,
+    );
+    console.log(data);
+    data.forEach((comment) => {
+      comment.replies = data.filter((com) => comment.id === com.reply_to);
+    });
+    data = data.filter((comment) => comment.reply_to === null || comment.reply_to < 1);
+    console.log(data);
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 export const setupIdeas = (ideas,superprojects,categories,problems,categoryRelations,superprojectRelations,problemRelations,ideaRelations,comments) => {
   
   ideas.forEach((idea) => {
@@ -38,9 +59,6 @@ export const setupIdeas = (ideas,superprojects,categories,problems,categoryRelat
         (comment.reply_to < 1 || !comment.reply_to) &&
         comment.idea === idea.id
     );
-    idea.comments.forEach((comment) => {
-      comment.replies = comments.filter((com) => comment.id === com.reply_to);
-    });
     idea.categories.forEach((category) => {
       category.category = categories.find(
         (cat) => cat.id === category.category
