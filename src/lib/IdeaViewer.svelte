@@ -26,8 +26,8 @@
     if (replyTo > 0)
       idea.comments[
         idea.comments.findIndex((com) => com.id == replyTo)
-      ].replies.push(comment);
-    else idea.comments.push({ ...comment, replies: [] });
+      ].replies.push({ ...comment, id: 1 });
+    else idea.comments.push({ ...comment, replies: [], id: 1 });
     idea = idea;
     replyTo = null;
   };
@@ -256,18 +256,13 @@
   .col2 {
     width: 30%;
     margin-left: 1%;
-  }
-
-  .col2 input {
-    border: 1px solid #ccc;
-    width: 100%;
-    border-radius: 0.3em;
-    padding: 0.4em;
-    font-size: 0.8em;
-    margin-bottom: 0.3em;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .submit {
+    margin-top: 0.5em;
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 0.3em;

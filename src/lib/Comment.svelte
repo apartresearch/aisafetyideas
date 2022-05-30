@@ -2,6 +2,7 @@
   import moment from "moment";
   import markdown from "$lib/drawdown";
   export let comment, currentComment, replyToComment;
+  import { user } from "$lib/stores.js";
 </script>
 
 <div
@@ -21,7 +22,7 @@
     <span class="date">{moment(comment.created_at).fromNow()}</span>
   </p>
   {@html markdown(comment.text)}
-  {#if replyToComment}
+  {#if replyToComment && $user}
     <div class="reply-to">
       <!-- svelte-ignore a11y-invalid-attribute -->
       <a
@@ -30,9 +31,7 @@
           replyToComment(!comment.reply_to ? comment.id : comment.reply_to)}
       >
         {comment.id == currentComment
-          ? `Replying to ${
-              comment.anon_author ? comment.anon_author : "Anonymous"
-            } - write your comment above`
+          ? `Replying to this comment - write your comment above`
           : "Reply"}
       </a>
     </div>
