@@ -31,7 +31,6 @@
           : "Reply"}
       </a>
       {#if $user.id == comment.author}
-        <p>{` | `}</p>
         <!-- svelte-ignore a11y-invalid-attribute -->
         <a
           href=""
@@ -41,7 +40,7 @@
           }}
           class="delete-comment"
         >
-          Delete your comment
+          | Delete your comment
         </a>
       {/if}
     </div>
