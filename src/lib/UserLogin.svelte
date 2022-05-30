@@ -3,7 +3,7 @@
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import { user } from "$lib/stores.js";
-  export let white;
+  export let white = false;
 
   const signIn = () => {
     signInWithGoogle().then((u, s, e) => {
