@@ -3,6 +3,12 @@
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import { user } from "$lib/stores.js";
+
+  const signIn = () => {
+    signInWithGoogle().then((u, s, e) => {
+      $user.update(u);
+    });
+  };
 </script>
 
 {#if $user}
@@ -23,7 +29,7 @@
     {$user.user_metadata.name}
   </div>
 {:else}
-  <button on:click={signInWithGoogle}>
+  <button on:click={signIn}>
     <!-- svelte-ignore a11y-img-redundant-alt -->
     <img src="/images/person-outline (2).svg" alt="profile image" /> Sign in
   </button>

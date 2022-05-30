@@ -1,10 +1,9 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient } from '@supabase/supabase-js';
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
-
 
 export const getTable = async (table_name, grabTitle = true) => {
   try {
@@ -80,6 +79,7 @@ export const signInWithGoogle = async () => {
   const { user, session, error } = await supabase.auth.signIn({
     provider: 'google',
   });
+  $user.update(user);
   return {user, session, error};
 }
 
