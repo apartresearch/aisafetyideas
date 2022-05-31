@@ -32,7 +32,7 @@
       interactive: true,
       delay: [500, 0],
     }}
-    href={`/superprojects/${superproject.slug}`}
+    href={`/project/${superproject.slug}`}
   >
     {superproject.title}
   </a>

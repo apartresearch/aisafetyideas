@@ -18,7 +18,9 @@
   <div class="idea-top">
     <div class="idea-superprojects-wrapper list-item" on:click|stopPropagation>
       <div class="idea-author">
-        {idea.author}
+        {idea.author != "" || idea.author != undefined
+          ? idea.author
+          : idea.users.username}
       </div>
       {#if idea.superprojects[0]}
         {#each idea.superprojects as superproject}
@@ -211,8 +213,8 @@
     cursor: pointer;
     margin: 0;
     height: 1.4em;
-    filter: invert(18%) sepia(95%) saturate(2588%) hue-rotate(233deg)
-      brightness(83%) contrast(90%);
+    /* filter: invert(18%) sepia(95%) saturate(2588%) hue-rotate(233deg)
+      brightness(83%) contrast(90%); */
   }
 
   .heart:hover {

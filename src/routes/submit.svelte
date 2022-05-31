@@ -281,20 +281,6 @@
         </div>
       {/if}
       <div class="input-wrapper">
-        <label for="author">Author</label>
-        <input type="text" bind:value={author} />
-      </div>
-      <div class="input-wrapper">
-        <label
-          for="author-contact"
-          use:tippy={{
-            content:
-              "If you write your email, then remember that it will be publicly displayed.",
-          }}>Author email</label
-        >
-        <input type="email" bind:value={authorContact} />
-      </div>
-      <div class="input-wrapper">
         <label for="title">Title</label>
         <input type="text" bind:value={title} />
       </div>
@@ -356,9 +342,23 @@
             class="checkbox"
             bind:checked={showSourceInput}
           />
-          <label>This idea is from somewhere else</label>
+          <label>This idea is from someone else</label>
         </div>
         {#if showSourceInput}
+          <div class="input-wrapper">
+            <label for="author">Author</label>
+            <input type="text" bind:value={author} />
+          </div>
+          <div class="input-wrapper">
+            <label
+              for="author-contact"
+              use:tippy={{
+                content:
+                  "If you write your email, then remember that it will be publicly displayed.",
+              }}>Author email</label
+            >
+            <input type="email" bind:value={authorContact} />
+          </div>
           <div class="input-wrapper">
             <label for="sourced"> Source link </label>
             <input type="text" bind:value={sourced} />
@@ -479,7 +479,10 @@
                 filtered,
                 sourced: sourced,
                 difficulty,
-                from_date: date_sourced,
+                from_date:
+                  date_sourced != "" || date_sourced != undefined
+                    ? date_sourced
+                    : null,
                 funding_amount,
                 funding_currency,
                 funding_from,

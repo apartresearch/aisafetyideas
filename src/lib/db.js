@@ -20,7 +20,10 @@ export const getTable = async (table_name, grabTitle = true) => {
 
 export const getIdeas = async() => {
     let [{ data:ideas, error:ideaErr }, {data:likes, error: likeErr}] = await Promise.all(
-      [supabase.from("ideas").select(`*`),
+      [supabase.from("ideas").select(`*,
+        users:user (
+          username
+        )`),
       supabase.from("idea_user_likes").select(`*`)]);
     
     if (ideaErr || likeErr) {
@@ -102,6 +105,7 @@ export const setupIdeas = (ideas,superprojects,categories,problems,categoryRelat
   ideas.forEach((idea) => {
 
     idea.comments_n = comments.filter((comment) => comment.idea === idea.id).length;
+    
     idea.categories = categoryRelations.filter(
       (relation) => relation.idea === idea.id
     );
