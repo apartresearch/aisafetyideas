@@ -114,7 +114,9 @@
       </div>
     </div>
     {#if idea.title}
-      <p class="current-idea-author">{idea.author}</p>
+      <p class="current-idea-author">
+        {idea.author != "" && idea.author != null ? idea.author : idea.username}
+      </p>
 
       <h2 class="current-idea-title">{idea.title}</h2>
       <div class="current-idea-text">
