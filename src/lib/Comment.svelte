@@ -88,6 +88,7 @@
     {/each}
   </div>
 {/if}
+<Toasts />
 
 <!-- {#each comment.replies as reply}
 {/each} -->

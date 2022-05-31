@@ -6,6 +6,8 @@
   import Comment from "./Comment.svelte";
   import moment from "moment";
   import { user } from "$lib/stores.js";
+  import { addLikeToIdea } from "$lib/db.js";
+  import { Toasts, addToast } from "as-toast";
   export let idea,
     selectIdea = undefined,
     selectCategory = undefined;
@@ -136,13 +138,54 @@
           : `${moment(idea.created_at).fromNow()}`}
       </p>
       {#if $user}
-        <img on:click={addLike} src="/images/heart.svg" alt="Heart icon" />
+        <div class="comment-indicator">
+          {#if idea.user_liked}
+            <img
+              class="heart"
+              on:click={() => {
+                addLikeToIdea(idea.id, true);
+                addToast("You unliked this idea. Refresh to update.");
+              }}
+              src="/images/heart.svg"
+              alt="Heart icon"
+              use:tippy={{
+                content: "You liked this idea. Click to unlike.",
+                delay: [250, 0],
+              }}
+            />
+          {:else}
+            <img
+              class="heart"
+              on:click={() => {
+                addLikeToIdea(idea.id);
+                addToast("You liked this idea. Refresh to update.");
+              }}
+              src="/images/heart-outline.svg"
+              alt="Heart icon"
+              use:tippy={{
+                content: "Like this idea.",
+                delay: [250, 0],
+              }}
+            />
+          {/if}
+          {#if idea.likes > 0}
+            <p>{idea.likes}</p>
+          {/if}
+        </div>
       {/if}
     </div>
   </div>
 </div>
 
+<Toasts />
+
 <style>
+  .heart {
+    width: 1.5rem;
+    height: 1.5rem;
+    cursor: pointer;
+  }
+
   .bottom-right {
     display: flex;
     flex-direction: row;

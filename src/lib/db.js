@@ -19,35 +19,20 @@ export const getTable = async (table_name, grabTitle = true) => {
 };
 
 export const getIdeas = async() => {
-  try {
-    let { data, error } = await supabase.from('ideas').select(`
-    *,
-    (
-      SELECT COUNT(*)
-      FROM comments
-      WHERE idea_id = ideas.id
-    ) AS comments_n,
-    (
-      SELECT COUNT(*)
-      FROM idea_user_likes
-      WHERE idea = ideas.id
-    ) AS votes_count,
-    (
-      SELECT COUNT(*)
-      FROM idea_user_likes
-      WHERE idea = ideas.id AND user_id = ${supabase.auth.user().id} AND value > 0
-    ) AS user_upvote
-    `);
-    console.log(ideas);
-
-    return data.map((elm) => ({
-      ...elm,
-      value: elm.title,
-      label: elm.title,
+    let [{ data:ideas, error:ideaErr }, {data:likes, error: likeErr}] = await Promise.all(
+      [supabase.from("ideas").select(`*`),
+      supabase.from("idea_user_likes").select(`*`)]);
+    
+    if (ideaErr || likeErr) {
+      console.log(ideaErr, likeErr);
+      return [];
+    }
+    ideas = ideas.map((idea) => ({
+      ...idea,
+      likes: likes.filter((like) => like.idea === idea.id).length,
+      user_liked: likes.find((like) => like.idea === idea.id && like.user === supabase.auth.user().id)
     }));
-  } catch (err) {
-    console.log(err);
-  }
+    return ideas;
 }
 
 export const getComments = async () => {
@@ -95,14 +80,14 @@ export const addLikeToIdea = async (idea_id, remove=false) => {
     if (!remove) {
 
       let { data, error } = await supabase.from("idea_user_likes").upsert({
-        idea_id,
-        user_id: supabase.auth.user().id,
+        idea: idea_id,
+        user: supabase.auth.user().id,
         size: 1
       });
     } else {
       let { data, error } = await supabase.from("idea_user_likes").delete().match({
-        idea_id,
-        user_id: supabase.auth.user().id,
+        idea: idea_id,
+        user: supabase.auth.user().id,
       });
     }
     return data;
@@ -113,6 +98,7 @@ export const addLikeToIdea = async (idea_id, remove=false) => {
 
 export const setupIdeas = (ideas,superprojects,categories,problems,categoryRelations,superprojectRelations,problemRelations,ideaRelations,comments) => {
   
+  console.log(ideas);
   ideas.forEach((idea) => {
     idea.categories = categoryRelations.filter(
       (relation) => relation.idea === idea.id
