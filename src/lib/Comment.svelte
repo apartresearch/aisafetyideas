@@ -18,7 +18,7 @@
     <span class="date">{moment(comment.created_at).fromNow()}</span>
   </a>
   {@html markdown(comment.text)}
-  {#if (replyToComment && $user) || $user.id == reply.author}
+  {#if (replyToComment && $user) || $user.id == comment.author}
     <div class="reply-to">
       <!-- svelte-ignore a11y-invalid-attribute -->
       <a
