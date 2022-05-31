@@ -70,7 +70,10 @@
       getTable("idea_idea_relation"),
       getComments(),
     ]);
+
     let endTime = performance.now();
+
+    console.log(ideas);
 
     console.log(`Time to load data: ${endTime - startTime}ms`);
 
@@ -89,6 +92,7 @@
     loaded = true;
     shownIdeas = ideas;
     updateFromUrl();
+    sort({ label: "Upvotes", value: "likes" });
   });
 
   const selectIdea = (idea) => {
@@ -146,26 +150,6 @@
     } else {
       console.log("Cannot click before it has loaded.");
     }
-  };
-
-  const shuffle = (array) => {
-    let currentIndex = array.length,
-      randomIndex;
-
-    // While there remain elements to shuffle.
-    while (currentIndex != 0) {
-      // Pick a remaining element.
-      randomIndex = Math.floor(Math.random() * currentIndex);
-      currentIndex--;
-
-      // And swap it with the current element.
-      [array[currentIndex], array[randomIndex]] = [
-        array[randomIndex],
-        array[currentIndex],
-      ];
-    }
-
-    return array;
   };
 
   const updateFromUrl = () => {
@@ -249,8 +233,9 @@
   };
 
   let sortingColumns = [
-      { label: "Difficulty", value: "difficulty" },
+      { label: "Upvotes", value: "likes" },
       { label: "Amount of comments", value: "comments_n" },
+      { label: "Hours of work", value: "difficulty" },
       { label: "Contact available", value: "contact" },
       { label: "Author", value: "author" },
       { label: "Title", value: "title" },

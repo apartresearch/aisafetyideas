@@ -98,8 +98,10 @@ export const addLikeToIdea = async (idea_id, remove=false) => {
 
 export const setupIdeas = (ideas,superprojects,categories,problems,categoryRelations,superprojectRelations,problemRelations,ideaRelations,comments) => {
   
-  console.log(ideas);
+  
   ideas.forEach((idea) => {
+
+    idea.comments_n = comments.filter((comment) => comment.idea === idea.id).length;
     idea.categories = categoryRelations.filter(
       (relation) => relation.idea === idea.id
     );
