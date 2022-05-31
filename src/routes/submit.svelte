@@ -142,7 +142,13 @@
       }
 
       // Add idea and replace if id exists
-      const { data, error } = await supabase.from("ideas").upsert(idea);
+      const { data, error } = await supabase.from("ideas").insert(idea, {
+        replace: true,
+      });
+      if (error) {
+        console.log(error);
+        return;
+      }
       console.log("Uploaded idea...");
       await categories_ids.forEach(async (category_id) => {
         await supabase.from("idea_category_relation").insert(category_id);
