@@ -145,7 +145,7 @@
             addToast(
               `You 
                 ${
-                  $user && idea.user_liked ? "liked" : "unliked"
+                  $user && idea.user_liked ? "unliked" : "liked"
                 } this idea. Refresh to update.`
             );
           }}

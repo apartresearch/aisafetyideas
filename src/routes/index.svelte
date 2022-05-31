@@ -143,7 +143,6 @@
       });
 
       shownIdeas = ideas.filter((idea) => idea.shown);
-      sort("Amount of comments");
     } else {
       console.log("Cannot click before it has loaded.");
     }
