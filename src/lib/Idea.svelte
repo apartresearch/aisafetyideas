@@ -5,6 +5,7 @@
   import SuperprojectTag from "$lib/SuperprojectTag.svelte";
   import Comment from "./Comment.svelte";
   import moment from "moment";
+  import { user } from "$lib/stores.js";
   export let idea,
     selectIdea = undefined,
     selectCategory = undefined;
@@ -108,16 +109,14 @@
     {/if}
     <div class="bottom-right">
       {#if idea.difficulty}
-        {#if idea.difficulty}
-          <p
-            class="difficulty"
-            use:tippy={{
-              content: "An estimate of the amount of work required.",
-            }}
-          >
-            {idea.difficulty}h work
-          </p>
-        {/if}
+        <p
+          class="difficulty"
+          use:tippy={{
+            content: "An estimate of the amount of work required.",
+          }}
+        >
+          {idea.difficulty}h work
+        </p>
       {/if}
       {#if idea.funding_amount > 0}
         <p
@@ -136,6 +135,9 @@
           ? `${moment(idea.from_date).fromNow()}`
           : `${moment(idea.created_at).fromNow()}`}
       </p>
+      {#if $user}
+        <img on:click={addLike} src="/images/heart.svg" alt="Heart icon" />
+      {/if}
     </div>
   </div>
 </div>

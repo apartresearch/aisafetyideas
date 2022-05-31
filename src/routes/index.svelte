@@ -54,7 +54,7 @@
       ideaRelations,
       comments,
     ] = await Promise.all([
-      getTable("ideas"),
+      getIdeas(),
       getTable("superprojects"),
       getTable("categories"),
       getTable("problems"),

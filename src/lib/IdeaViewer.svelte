@@ -32,7 +32,13 @@
         author: $user.id,
         users: { username: $user.user_metadata.name },
       });
-    else idea.comments.push({ ...comment, replies: [], id: 1 });
+    else
+      idea.comments.push({
+        ...comment,
+        replies: [],
+        id: 1,
+        users: { username: $user.user_metadata.name },
+      });
     idea = idea;
     replyTo = null;
   };

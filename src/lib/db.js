@@ -18,6 +18,38 @@ export const getTable = async (table_name, grabTitle = true) => {
   }
 };
 
+export const getIdeas = async() => {
+  try {
+    let { data, error } = await supabase.from('ideas').select(`
+    *,
+    (
+      SELECT COUNT(*)
+      FROM comments
+      WHERE idea_id = ideas.id
+    ) AS comments_n,
+    (
+      SELECT COUNT(*)
+      FROM idea_user_likes
+      WHERE idea = ideas.id
+    ) AS votes_count,
+    (
+      SELECT COUNT(*)
+      FROM idea_user_likes
+      WHERE idea = ideas.id AND user_id = ${supabase.auth.user().id} AND value > 0
+    ) AS user_upvote
+    `);
+    console.log(ideas);
+
+    return data.map((elm) => ({
+      ...elm,
+      value: elm.title,
+      label: elm.title,
+    }));
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 export const getComments = async () => {
   try {
     // Select all columns from the comments table and join with users table
@@ -41,6 +73,38 @@ export const getComments = async () => {
 export const deleteComment = async (com_id) => {
   try {
     let { data, error } = await supabase.from("comments").delete().match({id: com_id});
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const addLikeToComment = async (com_id) => {
+  try {
+    let { data, error } = await supabase.from("comments").update({
+      likes: supabase.raw("upvotes + 1"),
+    }).match({id: com_id});
+    return data;
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const addLikeToIdea = async (idea_id, remove=false) => {
+  try {
+    if (!remove) {
+
+      let { data, error } = await supabase.from("idea_user_likes").upsert({
+        idea_id,
+        user_id: supabase.auth.user().id,
+        size: 1
+      });
+    } else {
+      let { data, error } = await supabase.from("idea_user_likes").delete().match({
+        idea_id,
+        user_id: supabase.auth.user().id,
+      });
+    }
     return data;
   } catch (err) {
     console.log(err);
@@ -71,11 +135,6 @@ export const setupIdeas = (ideas,superprojects,categories,problems,categoryRelat
       category.category = categories.find(
         (cat) => cat.id === category.category
       );
-    });
-    idea.comments_n = 0;
-    idea.comments.forEach((comment) => {
-      idea.comments_n += 1;
-      idea.comments_n += comment.replies.length;
     });
     idea.superprojects.forEach((superproject) => {
       superproject.superproject = superprojects.find(
