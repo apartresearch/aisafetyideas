@@ -8,6 +8,7 @@
   import { user } from "$lib/stores.js";
   import { addLikeToIdea } from "$lib/db.js";
   import { Toasts, addToast } from "as-toast";
+  import MediaQuery from "$lib/MediaQuery.svelte";
   export let idea,
     selectIdea = undefined,
     selectCategory = undefined;
@@ -95,6 +96,39 @@
           <p>{idea.comments.length}</p>
         </div>
       {/if}
+      <MediaQuery query="(max-width: 768px)" let:matches>
+        {#if matches}
+          <div class="comment-indicator">
+            <img
+              class="heart"
+              on:click={() => {
+                addLikeToIdea(idea.id, $user && idea.user_liked);
+                addToast(
+                  `You 
+                  ${
+                    $user && idea.user_liked ? "unliked" : "liked"
+                  } this idea. Refresh to update.`
+                );
+              }}
+              src="/images/heart{$user && idea.user_liked
+                ? ''
+                : '-outline'}.svg"
+              alt="Heart icon"
+              use:tippy={{
+                content: `${
+                  $user && idea.user_liked
+                    ? "You liked this idea. Click to unlike."
+                    : $user
+                    ? "Click to like this idea."
+                    : "Login to like this idea."
+                }`,
+                delay: [250, 0],
+              }}
+            />
+            <p>{idea.likes}</p>
+          </div>
+        {/if}
+      </MediaQuery>
     </div>
   </div>
   <h3 class="idea-title">{idea.title}</h3>

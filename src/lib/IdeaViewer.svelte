@@ -10,6 +10,7 @@
   import { addLikeToIdea } from "$lib/db.js";
   export let idea, visible, setVisible, addComment;
   import UserLogin from "$lib/UserLogin.svelte";
+  import { Toasts, addToast } from "as-toast";
 
   let commentText = "",
     commentUsername = "",
@@ -66,6 +67,7 @@
   });
 </script>
 
+<Toasts />
 <content
   class="fullscreen-wrapper {visible ? '' : 'hidden'}"
   on:click|self={setVisible(false)}
@@ -113,9 +115,37 @@
     </div>
     {#if idea.title}
       <p class="current-idea-author">{idea.author}</p>
+
       <h2 class="current-idea-title">{idea.title}</h2>
       <div class="current-idea-text">
         {@html markdown(idea.summary)}
+      </div>
+      <div class="heart-indicator">
+        <img
+          class="heart"
+          on:click={() => {
+            addLikeToIdea(idea.id, $user && idea.user_liked);
+            addToast(
+              `You 
+              ${
+                $user && idea.user_liked ? "unliked" : "liked"
+              } this idea. Refresh to update.`
+            );
+          }}
+          src="/images/heart{$user && idea.user_liked ? '' : '-outline'}.svg"
+          alt="Heart icon"
+          use:tippy={{
+            content: `${
+              $user && idea.user_liked
+                ? "You liked this idea. Click to unlike."
+                : $user
+                ? "Click to like this idea."
+                : "Login to like this idea."
+            }`,
+            delay: [250, 0],
+          }}
+        />
+        <p>{idea.likes}</p>
       </div>
 
       {#if idea.contact || idea.verified_by_expert || idea.mentorship_from}
@@ -227,6 +257,22 @@
   Build a popup like ProductHunt. There is a parent with 
   scrolling and a relative size unit as child. 
   */
+
+  .heart-indicator {
+    display: flex;
+  }
+
+  .heart-indicator > img {
+    height: 1.5rem;
+    margin-right: 0.5rem;
+    margin-left: 0.5rem;
+  }
+
+  .heart-indicator > p {
+    font-size: 1.2rem;
+    font-weight: 500;
+    margin: 0;
+  }
 
   .idea-top {
     display: flex;
