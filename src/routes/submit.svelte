@@ -121,22 +121,25 @@
   ) => {
     try {
       // Delete existing relations
-      await supabase
-        .from("idea_category_relation")
-        .delete()
-        .match({ idea: idea.id });
-      await supabase
-        .from("idea_superproject_relation")
-        .delete()
-        .match({ idea: idea.id });
-      await supabase
-        .from("idea_problem_relation")
-        .delete()
-        .match({ idea: idea.id });
-      await supabase
-        .from("idea_idea_relation")
-        .delete()
-        .match({ idea_1: idea.id });
+      if (ideas.find((idea) => idea.id === idea_id)) {
+        await Promise.all([
+          supabase.from("idea_category_relation").delete().match({
+            idea: idea_id,
+          }),
+          supabase.from("idea_superproject_relation").delete().match({
+            idea: idea_id,
+          }),
+          supabase.from("idea_problem_relation").delete().match({
+            idea: idea_id,
+          }),
+          supabase.from("idea_idea_relation").delete().match({
+            idea_1: idea_id,
+          }),
+          supabase.from("idea_idea_relation").delete().match({
+            idea_2: idea_id,
+          }),
+        ]);
+      }
 
       // Add idea and replace if id exists
       const { data, error } = await supabase.from("ideas").upsert(idea);
