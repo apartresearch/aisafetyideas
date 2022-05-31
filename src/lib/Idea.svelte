@@ -109,7 +109,7 @@
         {/each}
       </div>
     {/if}
-    <div class="bottom-right">
+    <div class="bottom-right" on:click|stopPropagation>
       {#if idea.difficulty}
         <p
           class="difficulty"
@@ -141,7 +141,6 @@
         <div class="comment-indicator">
           {#if idea.user_liked}
             <img
-              class="heart"
               on:click={() => {
                 addLikeToIdea(idea.id, true);
                 addToast("You unliked this idea. Refresh to update.");
@@ -155,7 +154,6 @@
             />
           {:else}
             <img
-              class="heart"
               on:click={() => {
                 addLikeToIdea(idea.id);
                 addToast("You liked this idea. Refresh to update.");
