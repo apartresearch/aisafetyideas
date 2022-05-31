@@ -489,7 +489,9 @@
                 sourced: sourced,
                 difficulty,
                 from_date:
-                  date_sourced != "" || date_sourced != undefined
+                  date_sourced != '""' &&
+                  date_sourced != "" &&
+                  date_sourced != undefined
                     ? date_sourced
                     : null,
                 funding_amount,
