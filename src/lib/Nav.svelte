@@ -232,5 +232,17 @@
     --light-accent-bg: #fff9;
     --light-accent-hover-bg: #fff0;
     --light-accent-border: #d9d9d9;
+
+    /* Glassmorphism */
+    /* inspired by Glass UI Glassmorphism generator (https://ui.glass/generator/) */
+    --as-toast-border: 1px solid rgba(209, 213, 219, 0.3);
+    --as-toast-backdrop-filter: blur(8px);
+    --as-toast-shadow: 0px 1.4px 2.2px rgba(0, 0, 0, 0.028),
+      0px 4.7px 7.4px rgba(0, 0, 0, 0.042), 0px 21px 33px rgba(0, 0, 0, 0.07);
+    --as-toast-btn-border: none;
+    --as-toast-info-border-color: rgba(209, 213, 219, 0.3);
+    --as-toast-info-background: rgba(255, 255, 255, 0.7);
+    --as-toast-warn-border-color: hsl(0, 68%, 47%, 30%);
+    --as-toast-warn-background: hsla(0, 69%, 80%, 0.7);
   }
 </style>

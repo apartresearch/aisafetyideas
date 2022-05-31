@@ -7,6 +7,7 @@
   import { onMount } from "svelte";
   import moment from "moment";
   import { user } from "$lib/stores.js";
+  import { addLikeToIdea } from "$lib/db.js";
   export let idea, visible, setVisible, addComment;
   import UserLogin from "$lib/UserLogin.svelte";
 
