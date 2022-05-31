@@ -275,6 +275,11 @@
     opacity: 0.75;
   }
 
+  .heart-indicator:hover > img {
+    filter: invert(18%) sepia(95%) saturate(2588%) hue-rotate(233deg)
+      brightness(83%) contrast(90%);
+  }
+
   .heart-indicator > img {
     height: 1.5rem;
     margin-right: 0.5rem;

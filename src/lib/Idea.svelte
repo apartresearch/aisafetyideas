@@ -211,8 +211,8 @@
     cursor: pointer;
     margin: 0;
     height: 1.4em;
-    filter: invert(32%) sepia(44%) saturate(1981%) hue-rotate(189deg)
-      brightness(98%) contrast(88%);
+    filter: invert(18%) sepia(95%) saturate(2588%) hue-rotate(233deg)
+      brightness(83%) contrast(90%);
   }
 
   .heart:hover {

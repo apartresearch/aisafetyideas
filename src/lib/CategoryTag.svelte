@@ -20,7 +20,7 @@
         ? "Click to filter for this category"
         : `<a href=${`https://aisafetyideas.com/?categories=${encodeURIComponent(
             cat.title
-          )}`} on:click={location.reload()}>Click to see all ideas with this category</a>`
+          )}`} on:click={location.reload()}>Click to link all ideas with this category</a>`
     }</i></p></div>`,
     allowHTML: true,
     interactive: selectCategory ? false : true,
