@@ -19,21 +19,20 @@ export const getTable = async (table_name, grabTitle = true) => {
 };
 
 export const getIdeas = async() => {
-    let [{ data:ideas, error:ideaErr }, {data:likes, error: likeErr}] = await Promise.all(
-      [supabase.from("ideas").select(`*,
-        users:user (
-          username
-        )`),
-      supabase.from("idea_user_likes").select(`*`)]);
+    let [{ data:ideas, error:ideaErr }, {data:likes, error: likeErr}, {data: users, error: userErr}] = await Promise.all(
+      [supabase.from("ideas").select(`*`),
+      supabase.from("idea_user_likes").select(`*`),
+      supabase.from("users").select(`*`)]);
     
-    if (ideaErr || likeErr) {
+    if (ideaErr || likeErr || userErr) {
       console.log(ideaErr, likeErr);
       return [];
     }
     ideas = ideas.map((idea) => ({
       ...idea,
       likes: likes.filter((like) => like.idea === idea.id).length,
-      user_liked: likes.find((like) => like.idea === idea.id && supabase.auth.user() && like.user === supabase.auth.user().id)
+      user_liked: likes.find((like) => like.idea === idea.id && supabase.auth.user() && like.user === supabase.auth.user().id),
+      username: (users.find((user) => user.id === idea.user) ? users.find((user) => user.id === idea.user).name : null),
     }));
     return ideas;
 }
@@ -148,7 +147,6 @@ export const getIdea = async (id) => {
     .select('*')
     .eq('id', id);
 
-  console.log(ideas, error);
   return ideas[0];
 }
 

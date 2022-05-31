@@ -73,8 +73,6 @@
 
     let endTime = performance.now();
 
-    console.log(ideas);
-
     console.log(`Time to load data: ${endTime - startTime}ms`);
 
     ideas = setupIdeas(
