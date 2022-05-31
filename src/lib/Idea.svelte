@@ -18,9 +18,7 @@
   <div class="idea-top">
     <div class="idea-superprojects-wrapper list-item" on:click|stopPropagation>
       <div class="idea-author">
-        {idea.author != "" || idea.author != undefined
-          ? idea.author
-          : idea.users.username}
+        {idea.author != "" && idea.author != null ? idea.author : idea.username}
       </div>
       {#if idea.superprojects[0]}
         {#each idea.superprojects as superproject}

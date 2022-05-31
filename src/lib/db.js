@@ -32,7 +32,7 @@ export const getIdeas = async() => {
       ...idea,
       likes: likes.filter((like) => like.idea === idea.id).length,
       user_liked: likes.find((like) => like.idea === idea.id && supabase.auth.user() && like.user === supabase.auth.user().id),
-      username: (users.find((user) => user.id === idea.user) ? users.find((user) => user.id === idea.user).name : null),
+      username: (users.find((user) => user.id === idea.user) ? users.find((user) => user.id === idea.user).username : null),
     }));
     return ideas;
 }
