@@ -1,5 +1,11 @@
 <script>
-  import { supabase, getTable, setupIdeas, getComments } from "$lib/db";
+  import {
+    supabase,
+    getTable,
+    setupIdeas,
+    getComments,
+    getIdeas,
+  } from "$lib/db";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
