@@ -137,42 +137,33 @@
           ? `${moment(idea.from_date).fromNow()}`
           : `${moment(idea.created_at).fromNow()}`}
       </p>
-      {#if $user}
-        <div class="comment-indicator">
-          {#if idea.user_liked}
-            <img
-              class="heart"
-              on:click={() => {
-                addLikeToIdea(idea.id, true);
-                addToast("You unliked this idea. Refresh to update.");
-              }}
-              src="/images/heart.svg"
-              alt="Heart icon"
-              use:tippy={{
-                content: "You liked this idea. Click to unlike.",
-                delay: [250, 0],
-              }}
-            />
-          {:else}
-            <img
-              class="heart"
-              on:click={() => {
-                addLikeToIdea(idea.id);
-                addToast("You liked this idea. Refresh to update.");
-              }}
-              src="/images/heart-outline.svg"
-              alt="Heart icon"
-              use:tippy={{
-                content: "Like this idea.",
-                delay: [250, 0],
-              }}
-            />
-          {/if}
-          {#if idea.likes > 0}
-            <p>{idea.likes}</p>
-          {/if}
-        </div>
-      {/if}
+      <div class="comment-indicator heart">
+        <img
+          class="heart"
+          on:click={() => {
+            addLikeToIdea(idea.id, $user && idea.user_liked);
+            addToast(
+              `You 
+                ${
+                  $user && idea.user_liked ? "liked" : "unliked"
+                } this idea. Refresh to update.`
+            );
+          }}
+          src="/images/heart{$user && idea.user_liked ? '' : '-outline'}.svg"
+          alt="Heart icon"
+          use:tippy={{
+            content: `${
+              $user && idea.user_liked
+                ? "You liked this idea. Click to unlike."
+                : $user
+                ? "Click to like this idea."
+                : "Login to like this idea."
+            }`,
+            delay: [250, 0],
+          }}
+        />
+        <p>{idea.likes}</p>
+      </div>
     </div>
   </div>
 </div>
@@ -211,6 +202,17 @@
     font-size: 0.7em;
     line-height: 1em;
     margin: 0;
+  }
+
+  .comment-indicator.heart {
+    font-size: 0.7em;
+    line-height: 0.8em;
+    margin-top: -0.15em;
+  }
+
+  .comment-indicator.heart > * {
+    margin: 0;
+    height: 1.4em;
   }
 
   .comment-indicator {
