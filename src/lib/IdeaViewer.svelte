@@ -122,15 +122,17 @@
       </div>
       <div class="heart-indicator">
         <img
-          class="heart"
+          class={$user && idea.user_liked ? "heart-icon" : ""}
           on:click={() => {
-            addLikeToIdea(idea.id, $user && idea.user_liked);
-            addToast(
-              `You 
-              ${
-                $user && idea.user_liked ? "unliked" : "liked"
-              } this idea. Refresh to update.`
-            );
+            if ($user) {
+              addLikeToIdea(idea.id, $user && idea.user_liked);
+              addToast(
+                `You 
+                ${
+                  $user && idea.user_liked ? "unliked" : "liked"
+                } this idea. Refresh to update.`
+              );
+            }
           }}
           src="/images/heart{$user && idea.user_liked ? '' : '-outline'}.svg"
           alt="Heart icon"
@@ -257,15 +259,27 @@
   Build a popup like ProductHunt. There is a parent with 
   scrolling and a relative size unit as child. 
   */
+  .heart-icon {
+    cursor: pointer;
+    margin: 0;
+    height: 1.4em;
+    filter: invert(32%) sepia(44%) saturate(1981%) hue-rotate(189deg)
+      brightness(98%) contrast(88%);
+  }
 
   .heart-indicator {
     display: flex;
+  }
+
+  .heart-indicator:hover {
+    opacity: 0.75;
   }
 
   .heart-indicator > img {
     height: 1.5rem;
     margin-right: 0.5rem;
     margin-left: 0.5rem;
+    cursor: pointer;
   }
 
   .heart-indicator > p {

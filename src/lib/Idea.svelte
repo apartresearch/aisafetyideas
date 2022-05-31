@@ -100,7 +100,7 @@
         {#if matches}
           <div class="comment-indicator">
             <img
-              class="heart"
+              class={$user && idea.user_liked ? "heart-icon" : ""}
               on:click={() => {
                 addLikeToIdea(idea.id, $user && idea.user_liked);
                 addToast(
@@ -175,13 +175,15 @@
         <img
           class="heart"
           on:click={() => {
-            addLikeToIdea(idea.id, $user && idea.user_liked);
-            addToast(
-              `You 
+            if ($user) {
+              addLikeToIdea(idea.id, $user && idea.user_liked);
+              addToast(
+                `You 
                 ${
                   $user && idea.user_liked ? "unliked" : "liked"
                 } this idea. Refresh to update.`
-            );
+              );
+            }
           }}
           src="/images/heart{$user && idea.user_liked ? '' : '-outline'}.svg"
           alt="Heart icon"
@@ -205,10 +207,12 @@
 <Toasts />
 
 <style>
-  .heart {
+  .heart-icon {
     cursor: pointer;
     margin: 0;
     height: 1.4em;
+    filter: invert(32%) sepia(44%) saturate(1981%) hue-rotate(189deg)
+      brightness(98%) contrast(88%);
   }
 
   .heart:hover {
