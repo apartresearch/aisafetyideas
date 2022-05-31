@@ -141,6 +141,7 @@
         <div class="comment-indicator">
           {#if idea.user_liked}
             <img
+              class="heart"
               on:click={() => {
                 addLikeToIdea(idea.id, true);
                 addToast("You unliked this idea. Refresh to update.");
@@ -154,6 +155,7 @@
             />
           {:else}
             <img
+              class="heart"
               on:click={() => {
                 addLikeToIdea(idea.id);
                 addToast("You liked this idea. Refresh to update.");
@@ -179,9 +181,13 @@
 
 <style>
   .heart {
-    width: 1.5rem;
-    height: 1.5rem;
     cursor: pointer;
+    margin: 0;
+    height: 1.4em;
+  }
+
+  .heart:hover {
+    opacity: 0.8;
   }
 
   .bottom-right {
