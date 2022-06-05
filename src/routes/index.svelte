@@ -200,6 +200,7 @@
 
     // Modifier to sorting function for ascending or descending
     let sortModifier = sortBy.ascending ? 1 : -1;
+    if (column == "likes") sortModifier = sortModifier * -1;
 
     // Sort shownIdeas based on sortBy col
     shownIdeas = shownIdeas.sort((a, b) => {
