@@ -204,6 +204,10 @@
 
     // Sort shownIdeas based on sortBy col
     shownIdeas = shownIdeas.sort((a, b) => {
+      if (column == "likes") {
+        if (a[sortBy.col] == 0) return -1;
+        if (b[sortBy.col] == 0) return 1;
+      }
       if (!a[sortBy.col]) return 1 * sortModifier;
       if (!b[sortBy.col]) return -1 * sortModifier;
       if (a[sortBy.col] < b[sortBy.col]) return -1 * sortModifier;
