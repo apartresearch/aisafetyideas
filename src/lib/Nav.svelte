@@ -12,7 +12,8 @@
       <div class="content">
         <h1>The AI Safety & Governance Ideas Community</h1>
         <p class="content-p">
-          Read, interact, and add project ideas in AI safety.
+          Find project ideas in AI safety, collaborate with other researchers,
+          and <a href="/submit">submit</a> your own or others' ideas.
         </p>
       </div>
       <div class="burger-parent">
@@ -82,9 +83,8 @@
         <div class="content">
           <h1>The AI Safety & Governance Ideas Community</h1>
           <p class="content-p">
-            Join a community of creators, researchers, and actors in fostering
-            the greatest ideas to create the biggest impact on mitigating risk
-            from artificial intelligence.
+            Find project ideas in AI safety, collaborate with other researchers,
+            and <a href="/submit">submit</a> your own or others' ideas.
           </p>
         </div>
       </nav>
