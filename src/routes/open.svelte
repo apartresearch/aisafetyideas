@@ -120,7 +120,7 @@
     </div>
     <div class="open-block">
       <div class="open-block-title">User interviews</div>
-      <div class="open-block-number">14</div>
+      <div class="open-block-number">17</div>
     </div>
     <div class="open-block">
       <div class="open-block-title">Total commits</div>
@@ -172,7 +172,8 @@
         { date: "2022-06-01", value: 1 },
         { date: "2022-06-02", value: 1 },
         { date: "2022-06-03", value: 1 },
-        { date: "2022-06-04", value: 1 },
+        { date: "2022-06-05", value: 1 },
+        { date: "2022-06-06", value: 1 },
       ]}
       endDate={moment().toDate()}
       startDate={moment("2022-04-15").toDate()}
