@@ -126,6 +126,7 @@
           supabase.from("idea_category_relation").delete().match({
             idea: idea_id,
           }),
+          supabase.from("idea_user_likes").delete().match({ idea: id }),
           supabase.from("idea_superproject_relation").delete().match({
             idea: idea_id,
           }),
