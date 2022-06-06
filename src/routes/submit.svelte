@@ -237,6 +237,7 @@
 
     Promise.all([
       supabase.from("idea_category_relation").delete().match({ idea: id }),
+      supabase.from("idea_user_likes").delete().match({ idea: id }),
       supabase.from("idea_superproject_relation").delete().match({ idea: id }),
       supabase.from("idea_problem_relation").delete().match({ idea: id }),
       supabase.from("idea_idea_relation").delete().match({ idea_1: id }),
