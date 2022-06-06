@@ -142,9 +142,7 @@
       }
 
       // Add idea and replace if id exists
-      const { data, error } = await supabase.from("ideas").insert(idea, {
-        replace: true,
-      });
+      const { data, error } = await supabase.from("ideas").upsert(idea);
       if (error) {
         console.log(error);
         return;
