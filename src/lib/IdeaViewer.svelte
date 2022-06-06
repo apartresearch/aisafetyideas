@@ -67,7 +67,9 @@
   });
 </script>
 
-<Toasts />
+<div class="above">
+  <Toasts />
+</div>
 <content
   class="fullscreen-wrapper {visible ? '' : 'hidden'}"
   on:click|self={setVisible(false)}
@@ -261,6 +263,11 @@
   Build a popup like ProductHunt. There is a parent with 
   scrolling and a relative size unit as child. 
   */
+
+  .above {
+    z-index: 100;
+  }
+
   .heart-icon {
     cursor: pointer;
     margin: 0;

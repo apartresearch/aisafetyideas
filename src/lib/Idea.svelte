@@ -223,6 +223,7 @@
     display: flex;
     flex-direction: row;
     column-gap: 0.3em;
+    margin-left: auto;
   }
 
   .date {
