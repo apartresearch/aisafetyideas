@@ -293,7 +293,7 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
-    column-gap: 1.5rem;
+    column-gap: 1rem;
   }
 
   .member {
