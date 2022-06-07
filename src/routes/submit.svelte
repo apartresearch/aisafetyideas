@@ -1,5 +1,5 @@
 <script>
-  import { supabase, getTable } from "$lib/db";
+  import { supabase, getTable, addNewIdea, deleteIdea } from "$lib/db";
   import { onMount } from "svelte";
   import Select from "svelte-select";
   import Nav from "$lib/Nav.svelte";

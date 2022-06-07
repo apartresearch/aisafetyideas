@@ -8,11 +8,17 @@
   import moment from "moment";
 
   let ideas = [],
-    comments = [];
+    comments = [],
+    users = [],
+    likes = [];
 
   onMount(async () => {
-    ideas = await getTable("ideas");
-    comments = await getTable("comments");
+    const [ideas, comments, users, likes] = await Promise.all([
+      getTable("ideas"),
+      getTable("comments"),
+      getTable("users"),
+      getTable("idea_user_likes")
+    ]);
   });
 </script>
 
@@ -22,84 +28,49 @@
 
 <Nav />
 <div class="w-container">
-  <h1>
-    <a
-      href="https://forum.effectivealtruism.org/posts/nxeL7XFvtQCx7hpxo/everyone-show-us-your-numbers"
-      target="_blank">Open impact metrics</a
-    > of AIS&nbsp;Research Ideas
-  </h1>
+  <h2>Open impact metrics of AIS&nbsp;Safety Ideas</h2>
   <p>
-    <a href="/">The AI safety research ideas</a> platform commits to
-    transparency and sharing our metrics. Our impact evaluations are related to
-    the amount of people that use the website, interact with ideas, and how many
-    projects are supported by validated researchers. Check out our
-    <a href="https://manifold.markets/kran">prediction markets on Manifold</a>!
+    The AI safety research ideas platform commits to transparency and sharing
+    our metrics. We hope this enables people to evaluate the impact of the
+    platform better. Read the <a
+      href="http://forum.effectivealtruism.org/posts/nxeL7XFvtQCx7hpxo/everyone-show-us-your-numbers"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      forum
+    </a> post for more details.
   </p>
   <h2 id="metrics">Metrics</h2>
-  <p>These metrics will be updated as we launch.</p>
-  <div class="hori-fles-wrapper">
-    <div class="open-block">
-      <div class="open-block-title">Time since launch</div>
-      <div class="open-block-number">T-1 weeks</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Funding secured*</div>
-      <div
-        class="open-block-number"
-        use:tippy={{ content: "From the FTX Future Fund regrantor program." }}
-      >
-        $95,000
-      </div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Total profiles</div>
-      <div class="open-block-number">?</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Total expert profiles*</div>
-      <div class="open-block-number">?</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Total ideas</div>
-      <div class="open-block-number">{ideas.length}</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Total filtered ideas*</div>
-      <div
-        class="open-block-number"
-        use:tippy={{
-          content: "* Includes ideas that have been filtered by our team.",
-        }}
-      >
-        {ideas.filter((idea) => idea.filtered).length}
-      </div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Total verified ideas*</div>
-      <div
-        class="open-block-number"
-        use:tippy={{
-          content: "* Includes ideas that have been verified by an expert.",
-        }}
-      >
-        {ideas.filter((idea) => idea.verified).length}
-      </div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Total comments</div>
-      <div class="open-block-number">{comments.length}</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Total replies*</div>
-      <div
-        class="open-block-number"
-        use:tippy={{
-          content: "* Comments that are replies to other comments.",
-        }}
-      >
-        {comments.filter((com) => com.reply_to).length}
-      </div>
-    </div>
+  <p class="metrics-text">
+    Apart Research has <span
+      use:tippy={{ content: "From the FTX Future Fund regrantor program." }}
+      class="inline-number">$95,000</span
+    >
+    in funding. The total number of ideas is
+    <span class="inline-number">
+      {ideas.length}
+    </span>
+    with <span class="inline-number">{comments.length}</span> total comments of
+    which
+    <span class="inline-number">
+      {comments.filter((com) => com.reply_to).length}
+    </span>
+    are replies. Of all ideas,
+    <span class="inline-number"
+      >{ideas.filter((idea) => idea.verified).length}</span
+    >
+    are verified by expert profiles and
+    <span class="inline-number"
+      >{ideas.filter((idea) => idea.filtered).length}</span
+    >
+    are filtered by the Apart Research team and they have been liked a total of <span class="inline-number">{likes.length}</span> times. The total number of users is
+    <span class="inline-number">
+      {users.length}
+    </span>
+    and the number of expert users is
+    <span class="inline-number"
+      >{users.filter((user) => user.expert).length}</span
+    >. 
     <div class="open-block">
       <div class="open-block-title">Ideas with mentorship</div>
       <div class="open-block-number">
@@ -174,6 +145,8 @@
         { date: "2022-06-03", value: 1 },
         { date: "2022-06-05", value: 1 },
         { date: "2022-06-06", value: 1 },
+        { date: "2022-06-07", value: 1 },
+        { date: "2022-06-08", value: 1 },
       ]}
       endDate={moment().toDate()}
       startDate={moment("2022-04-15").toDate()}
@@ -258,6 +231,20 @@
 <Footer />
 
 <style>
+  .metrics-text {
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .inline-number {
+    display: inline-block;
+    text-align: center;
+    padding: 0.25rem 0.5rem;
+    font-style: bold;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+  }
+
   .w-container {
     margin: 0 auto;
     padding: 0.2em;

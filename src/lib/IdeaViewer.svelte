@@ -79,7 +79,7 @@
       <div class="idea-top-left">
         {#if idea.sourced}
           <p class="very-small">
-            <a href={idea.sourced}>Source</a>
+            <a href={idea.sourced} target="_blank">Source</a>
             {#if idea.from_date}
               from {moment(idea.from_date).fromNow()}
             {/if}
