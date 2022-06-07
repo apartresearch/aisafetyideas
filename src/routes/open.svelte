@@ -207,9 +207,12 @@
   }
 
   .inline-number {
+    font-size: 0.8rem;
+    line-height: 1rem;
     display: inline-block;
     text-align: center;
-    padding: 0.1rem 0.7rem;
+    padding: 0.2rem 0.5rem;
+    margin: 0 0.2rem;
     font-style: bold;
     border: 1px solid #ccc;
     border-radius: 0.25rem;
