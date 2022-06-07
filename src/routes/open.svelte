@@ -13,7 +13,7 @@
     likes = [];
 
   onMount(async () => {
-    const [ideas, comments, users, likes] = await Promise.all([
+    [ideas, comments, users, likes] = await Promise.all([
       getTable("ideas"),
       getTable("comments"),
       getTable("users"),
@@ -31,14 +31,14 @@
   <h2>Open impact metrics of AIS&nbsp;Safety Ideas</h2>
   <p>
     The AI safety research ideas platform commits to transparency and sharing
-    our metrics. We hope this enables people to evaluate the impact of the
-    platform better. Read the <a
+    our metrics. We hope this enables easier evaluation of the platform's
+    impact. Read the <a
       href="http://forum.effectivealtruism.org/posts/nxeL7XFvtQCx7hpxo/everyone-show-us-your-numbers"
       target="_blank"
       rel="noopener noreferrer"
     >
-      forum
-    </a> post for more details.
+      forum post
+    </a> for more details.
   </p>
   <h2 id="metrics">Metrics</h2>
   <p class="metrics-text">
@@ -46,7 +46,8 @@
       use:tippy={{ content: "From the FTX Future Fund regrantor program." }}
       class="inline-number">$95,000</span
     >
-    in funding. The total number of ideas is
+    in funding. On <a href="/">aisafetyideas.com</a>, the total number of ideas
+    is
     <span class="inline-number">
       {ideas.length}
     </span>
@@ -73,7 +74,11 @@
     <span class="inline-number"
       >{users.filter((user) => user.expert).length}</span
     >. The number of user interviews has been
-    <span class="inline-number"> 17 </span>
+    <span class="inline-number"> 17 </span>. The current salary for core
+    employees is
+    <span class="inline-number" use:tippy={{ content: "Per year" }}
+      >$60,000</span
+    >.
   </p>
 
   <h3 id="commits">Website updates by day</h3>
@@ -204,10 +209,14 @@
   .inline-number {
     display: inline-block;
     text-align: center;
-    padding: 0.25rem 0.5rem;
+    padding: 0.1rem 0.7rem;
     font-style: bold;
     border: 1px solid #ccc;
     border-radius: 0.25rem;
+  }
+
+  .inline-number:hover {
+    transform: translate(0, -0.1rem);
   }
 
   .w-container {
