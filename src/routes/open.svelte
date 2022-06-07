@@ -30,8 +30,9 @@
 <div class="w-container">
   <h2>Team</h2>
   <p class="team">
-    Beyond the team shown below, we have multiple volunteers and collaborators
-    such as
+    The <a href="https://apartresearch.com">Apart Research</a> team, we have
+    multiple volunteers and collaborators that have joined on our
+    <a href="https://apartresearch.com/join">Discord</a> and in our other projects.
   </p>
   <div class="members">
     <div class="member">
@@ -292,7 +293,6 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
-    margin-top: 2rem;
     column-gap: 1.5rem;
   }
 
@@ -301,7 +301,6 @@
     flex-direction: column;
     max-width: 15rem;
     padding: 0.9rem;
-    margin-bottom: 2rem;
     border: 1px solid #ccc;
     border-radius: 0.5rem;
   }
