@@ -28,6 +28,45 @@
 
 <Nav />
 <div class="w-container">
+  <h2>Team</h2>
+  <p class="team">
+    Beyond the team shown below, we have multiple volunteers and collaborators
+    such as
+  </p>
+  <div class="members">
+    <div class="member">
+      <img
+        src="https://media-exp2.licdn.com/dms/image/C5603AQGtXh8ofQbCOA/profile-displayphoto-shrink_800_800/0/1651368132506?e=1660176000&v=beta&t=Gai4wfy_Fs8hPXf1AcEtNiQpyRVX2Pewo4fOLFPqKRI"
+        alt="Team member esben"
+      />
+      <h3>Esben Kran</h3>
+      <p>
+        Founder,
+        <a href="mailto:esben@apartresearch.com" class="contact">contact</a>
+      </p>
+    </div>
+    <div class="member">
+      <img
+        src="https://media-exp2.licdn.com/dms/image/C4D03AQHrBuBZUh-xfQ/profile-displayphoto-shrink_800_800/0/1649782705603?e=1660176000&v=beta&t=h6LohAJclafKsA8vkxTdtyNqhl_EvARl9Bezl1dbK10"
+        alt="Team member Jonathan"
+      />
+      <h3>Jonathan H. Rystrøm</h3>
+      <p>
+        Co-lead,
+        <a href="mailto:jonathan@apartresearch.com" class="contact">contact</a>
+      </p>
+    </div>
+    <div class="member">
+      <img
+        src="https://sala.ai/images/img0001-copy-p-500.png"
+        alt="Team member esben"
+      />
+      <h3>Maris Sala</h3>
+      <p>
+        Collaborator, <a href="mailto:maris@sala.ai" class="contact">contact</a>
+      </p>
+    </div>
+  </div>
   <h2>Open impact metrics of AIS&nbsp;Safety Ideas</h2>
   <p>
     The AI safety research ideas platform commits to transparency and sharing
@@ -43,40 +82,86 @@
   <h2 id="metrics">Metrics</h2>
   <p class="metrics-text">
     Apart Research has <span
-      use:tippy={{ content: "From the FTX Future Fund regrantor program." }}
+      use:tippy={{
+        content:
+          "Apart Research funding from the FTX Future Fund regrantor program.",
+      }}
       class="inline-number">$95,000</span
     >
     in funding. On <a href="/">aisafetyideas.com</a>, the total number of ideas
     is
-    <span class="inline-number">
+    <span
+      class="inline-number"
+      use:tippy={{
+        content: "The total number of ideas on the site.",
+      }}
+    >
       {ideas.length}
     </span>
-    with <span class="inline-number">{comments.length}</span> total comments of
-    which
-    <span class="inline-number">
+    with
+    <span
+      class="inline-number"
+      use:tippy={{
+        content: "Total comments on the site.",
+      }}>{comments.length}</span
+    >
+    total comments of which
+    <span
+      class="inline-number"
+      use:tippy={{
+        content: "Total replies on the site.",
+      }}
+    >
       {comments.filter((com) => com.reply_to).length}
     </span>
     are replies. Of all ideas,
-    <span class="inline-number"
-      >{ideas.filter((idea) => idea.verified).length}</span
+    <span
+      class="inline-number"
+      use:tippy={{
+        content: "Expert verified ideas.",
+      }}>{ideas.filter((idea) => idea.verified).length}</span
     >
     are verified by expert profiles and
-    <span class="inline-number"
-      >{ideas.filter((idea) => idea.filtered).length}</span
+    <span
+      class="inline-number"
+      use:tippy={{
+        content: "Ideas filtered by the Apart Research team.",
+      }}>{ideas.filter((idea) => idea.filtered).length}</span
     >
     are filtered by the Apart Research team and they have been liked a total of
-    <span class="inline-number">{likes.length}</span>
+    <span
+      class="inline-number"
+      use:tippy={{
+        content: "Total amount of likes of ideas on the site.",
+      }}>{likes.length}</span
+    >
     times. The total number of users is
-    <span class="inline-number">
+    <span
+      class="inline-number"
+      use:tippy={{
+        content: "Total amount of users on the site.",
+      }}
+    >
       {users.length}
     </span>
     and the number of expert users is
-    <span class="inline-number"
-      >{users.filter((user) => user.expert).length}</span
-    >. The number of user interviews has been
-    <span class="inline-number"> 17 </span>. The current salary for core
-    employees is
-    <span class="inline-number" use:tippy={{ content: "Per year" }}
+    <span
+      class="inline-number"
+      use:tippy={{
+        content:
+          "Total number of expert users, i.e. users who are experts within a specific category.",
+      }}>{users.filter((user) => user.expert).length}</span
+    >.
+    <span
+      class="inline-number"
+      use:tippy={{ content: "The amount of user interviews for the site." }}
+    >
+      17
+    </span>
+    user interviews have been done. The current salary for core employees is
+    <span
+      class="inline-number"
+      use:tippy={{ content: "Salary for core employees per year." }}
       >$60,000</span
     >.
   </p>
@@ -201,24 +286,62 @@
 <Footer />
 
 <style>
+  .members {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    margin-top: 2rem;
+    column-gap: 1.5rem;
+  }
+
+  .member {
+    display: flex;
+    flex-direction: column;
+    max-width: 15rem;
+    padding: 0.9rem;
+    margin-bottom: 2rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+  }
+
+  .member > img {
+    width: 100%;
+    border-radius: 0.5rem;
+    filter: grayscale(10%);
+  }
+
+  .member > h3 {
+    margin-top: 1rem;
+    margin-bottom: 0rem;
+  }
+
+  .member > p {
+    margin: 0;
+  }
+
   .metrics-text {
     font-size: 1rem;
-    line-height: 1.5rem;
+    line-height: 1.75rem;
   }
 
   .inline-number {
     display: inline-block;
+    line-height: 1rem;
     text-align: center;
     padding: 0.1rem 0.3rem;
     margin: 0 0.1rem;
     border: 1px solid #ccc;
     border-radius: 0.25rem;
     font-style: bold;
-    transition: 0.2s ease-in-out transform;
+    transition: 0.2s ease-in-out transform, 0.2s ease-in-out background-color;
+    cursor: cell;
   }
 
   .inline-number:hover {
     transform: translate(0, -0.1rem);
+    background-color: #eee;
   }
 
   .w-container {

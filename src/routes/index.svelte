@@ -375,29 +375,6 @@
     align-items: center;
   }
 
-  :global(a) {
-    text-decoration: none;
-    color: var(--link-color);
-  }
-
-  :global(a:hover) {
-    text-decoration: underline;
-  }
-
-  :global(body) {
-    margin: 0;
-    padding: 0;
-    background-color: var(--bg-color-light);
-  }
-  :global(.tooltip a) {
-    text-decoration: none;
-    color: var(--link-color);
-  }
-
-  :global(.tooltip a:hover) {
-    text-decoration: underline;
-  }
-
   .search-sort {
     display: flex;
     flex-direction: row;

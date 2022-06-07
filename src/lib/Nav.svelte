@@ -218,7 +218,7 @@
     --font-color-light: #000;
     --font-color-faded: #fff;
     --font-color-faded-hover: #fff9;
-    --link-color: #343fbb;
+    --link-color: #af69e7;
     --primary-color: #256dc0;
     --primary-color-hover: rgba(0, 170, 255, 0.082);
     --secondary-color: #fff;
@@ -241,5 +241,29 @@
     --as-toast-info-background: rgba(255, 255, 255, 0.7);
     --as-toast-warn-border-color: hsl(0, 68%, 47%, 30%);
     --as-toast-warn-background: hsla(0, 69%, 80%, 0.7);
+  }
+
+  :global(a) {
+    text-decoration: none;
+    color: var(--link-color);
+  }
+
+  :global(a:hover) {
+    text-decoration: underline;
+  }
+
+  :global(body) {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color-light);
+  }
+
+  :global(.tooltip a) {
+    text-decoration: none;
+    color: var(--link-color);
+  }
+
+  :global(.tooltip a:hover) {
+    text-decoration: underline;
   }
 </style>
