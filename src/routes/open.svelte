@@ -207,15 +207,14 @@
   }
 
   .inline-number {
-    font-size: 0.8rem;
-    line-height: 1rem;
     display: inline-block;
     text-align: center;
-    padding: 0.2rem 0.5rem;
-    margin: 0 0.2rem;
-    font-style: bold;
+    padding: 0.1rem 0.3rem;
+    margin: 0 0.1rem;
     border: 1px solid #ccc;
     border-radius: 0.25rem;
+    font-style: bold;
+    transition: 0.2s ease-in-out transform;
   }
 
   .inline-number:hover {
