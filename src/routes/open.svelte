@@ -17,7 +17,7 @@
       getTable("ideas"),
       getTable("comments"),
       getTable("users"),
-      getTable("idea_user_likes")
+      getTable("idea_user_likes"),
     ]);
   });
 </script>
@@ -63,54 +63,19 @@
     <span class="inline-number"
       >{ideas.filter((idea) => idea.filtered).length}</span
     >
-    are filtered by the Apart Research team and they have been liked a total of <span class="inline-number">{likes.length}</span> times. The total number of users is
+    are filtered by the Apart Research team and they have been liked a total of
+    <span class="inline-number">{likes.length}</span>
+    times. The total number of users is
     <span class="inline-number">
       {users.length}
     </span>
     and the number of expert users is
     <span class="inline-number"
       >{users.filter((user) => user.expert).length}</span
-    >. 
-    <div class="open-block">
-      <div class="open-block-title">Ideas with mentorship</div>
-      <div class="open-block-number">
-        {ideas.filter((idea) => idea.mentorship_from).length}
-      </div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Likes of ideas</div>
-      <div class="open-block-number">?</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">External meetings</div>
-      <div class="open-block-number">?</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Total visitors</div>
-      <div class="open-block-number">?</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">User interviews</div>
-      <div class="open-block-number">17</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Total commits</div>
-      <div class="open-block-number">?</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">
-        <a
-          href="https://www.investopedia.com/terms/m/monthly-active-user-mau.asp"
-          >MAU*</a
-        >
-      </div>
-      <div class="open-block-number">?</div>
-    </div>
-    <div class="open-block">
-      <div class="open-block-title">Employees</div>
-      <div class="open-block-number">1.5</div>
-    </div>
-  </div>
+    >. The number of user interviews has been
+    <span class="inline-number"> 17 </span>
+  </p>
+
   <h3 id="commits">Website updates by day</h3>
   <div class="open-day-block" id="commit-map">
     <SvelteHeatmap
