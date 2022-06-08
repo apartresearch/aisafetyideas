@@ -264,6 +264,10 @@
   scrolling and a relative size unit as child. 
   */
 
+  :global(current-idea-text > p) {
+    font-size: 3rem;
+  }
+
   .above {
     z-index: 100;
   }
@@ -282,11 +286,6 @@
 
   .heart-indicator:hover {
     opacity: 0.75;
-  }
-
-  .heart-indicator:hover > img {
-    /* filter: invert(18%) sepia(95%) saturate(2588%) hue-rotate(233deg)
-      brightness(83%) contrast(90%); */
   }
 
   .heart-indicator > img {
@@ -432,19 +431,6 @@
     display: inline-block;
     /* Put in the right side */
   }
-
-  .easy {
-    color: rgb(18, 187, 18);
-  }
-
-  .medium {
-    color: #fac834;
-  }
-
-  .hard {
-    color: #ff3737;
-  }
-
   /* Mobile responsive */
   @media screen and (max-width: 700px) {
     .add-comment {
