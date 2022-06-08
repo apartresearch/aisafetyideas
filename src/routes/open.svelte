@@ -291,9 +291,10 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: flex-start;
-    align-items: center;
+    justify-content: center;
+    align-items: flex-start;
     column-gap: 1rem;
+    row-gap: 1rem;
   }
 
   .member {
@@ -345,7 +346,7 @@
 
   .w-container {
     margin: 0 auto;
-    padding: 0.2em;
+    padding: 0 0.5rem;
   }
 
   /* Mobile */

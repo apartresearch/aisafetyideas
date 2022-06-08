@@ -289,8 +289,6 @@
     background-color: var(--light-accent-bg);
     padding: 7px 10px;
     margin: 0;
-    border-right: 2px solid var(--light-accent-border);
-    border-bottom: 2px solid var(--light-accent-border);
     width: 100%;
     overflow: auto;
   }
@@ -343,8 +341,9 @@
 
   .idea-title {
     font-size: 0.8em;
-    line-height: 1em;
-    margin: 5px 0 5px 0;
+    line-height: 1.2em;
+    margin: 0.2rem 0 0.1rem 0;
+    max-width: 90%;
   }
 
   .idea-card {
@@ -361,9 +360,11 @@
   @media (max-width: 768px) {
     .idea-title {
       margin-top: 0.25em;
-      font-size: 0.9em;
-      line-height: 1.1em;
+      font-size: 0.9rem;
+      line-height: 1.1rem;
+      max-width: 100%;
       font-weight: 400;
+      margin-bottom: 0.25em;
     }
 
     .idea-categories-wrapper.list-item {

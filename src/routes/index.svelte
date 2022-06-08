@@ -17,6 +17,8 @@
   import Footer from "$lib/Footer.svelte";
   import Search from "svelte-search";
   import Select from "svelte-select";
+  import SuperprojectBlock from "$lib/SuperprojectBlock.svelte";
+  import MediaQuery from "$lib/MediaQuery.svelte";
 
   let url = ``,
     ideaParam = "",
@@ -266,63 +268,139 @@
 </svelte:head>
 
 <Nav />
-
-<div class="container w-container">
-  <div class="search-sort">
-    <div class="search">
-      {#if searchValue}
-        <button on:click={() => (searchValue = "")}> Clear search </button>
-      {/if}
-      <Search bind:value={searchValue} hideLabel />
-    </div>
-    <div class="sort">
-      <Select
-        placeholder="Sort by"
-        items={sortingColumns}
-        bind:value={currentSort}
-        on:select={sort(currentSort)}
-      />
-    </div>
-  </div>
-
-  {#if loaded}
-    <div class="ideas-col">
-      <div class="idea-categories-wrapper">
-        {#each categories as cat, i}
-          <CategoryTag
-            {cat}
-            {selectCategory}
-            filter={true}
-            selected={cat.selected}
-          />
-        {/each}
-      </div>
-
-      {#if loaded}
+<div class="globwrap">
+  <div class="container">
+    <div class="search-sort">
+      <div class="search">
         {#if searchValue}
-          {#each searchIdeas as idea}
+          <button on:click={() => (searchValue = "")}> Clear search </button>
+        {/if}
+        <Search bind:value={searchValue} hideLabel />
+      </div>
+      <div class="sort">
+        <Select
+          placeholder="Sort by"
+          items={sortingColumns}
+          bind:value={currentSort}
+          on:select={sort(currentSort)}
+        />
+      </div>
+    </div>
+
+    {#if loaded}
+      <div class="ideas-col">
+        <div class="idea-categories-wrapper">
+          {#each categories.sort( (a, b) => (a.priority > b.priority ? 1 : -1) ) as cat, i}
+            <CategoryTag
+              {cat}
+              {selectCategory}
+              filter={true}
+              selected={cat.selected}
+            />
+          {/each}
+        </div>
+
+        {#if searchValue}
+          {#each searchIdeas.slice(0, 4) as idea}
             <Idea {idea} {selectIdea} {selectCategory} />
           {:else}
             <p class="not-found">No ideas found</p>
           {/each}
         {:else}
-          {#each shownIdeas as idea}
+          {#each shownIdeas.slice(0, 4) as idea}
             <Idea {idea} {selectIdea} {selectCategory} />
           {:else}
             <p class="not-found">No ideas found</p>
           {/each}
         {/if}
-      {/if}
+      </div>
+    {:else}
+      <LoadIcon />
+    {/if}
+  </div>
+  <div class="intermission">
+    <MediaQuery minWidth={768}>
+      <h2>Projects</h2>
+    </MediaQuery>
+    <p>Click on a project to see the ideas in each.</p>
+    <div class="project-contain">
+      {#each superprojects.slice(0, 5) as project}
+        <SuperprojectBlock {project} {ideas} />
+      {/each}
     </div>
-  {:else}
-    <LoadIcon />
-  {/if}
+  </div>
+  <div class="container">
+    {#if loaded}
+      <div class="ideas-col">
+        {#if loaded}
+          {#if searchValue}
+            {#each searchIdeas.slice(4, 8) as idea}
+              <Idea {idea} {selectIdea} {selectCategory} />
+            {/each}
+          {:else}
+            {#each shownIdeas.slice(4, 8) as idea}
+              <Idea {idea} {selectIdea} {selectCategory} />
+            {/each}
+          {/if}
+        {/if}
+      </div>
+    {/if}
+  </div>
+  <div class="intermission">
+    <h2>Intermission 2</h2>
+  </div>
+  <div class="container">
+    {#if loaded}
+      <div class="ideas-col">
+        {#if searchValue}
+          {#each searchIdeas.slice(8, searchIdeas.length) as idea}
+            <Idea {idea} {selectIdea} {selectCategory} />
+          {:else}
+            <p class="not-found">No ideas found</p>
+          {/each}
+        {:else}
+          {#each shownIdeas.slice(8, shownIdeas.length) as idea}
+            <Idea {idea} {selectIdea} {selectCategory} />
+          {:else}
+            <p class="not-found">No ideas found</p>
+          {/each}
+        {/if}
+      </div>
+    {/if}
+  </div>
   <IdeaViewer idea={currentIdea} {visible} {setVisible} {addComment} />
 </div>
 
 <Footer />
 
 <style>
+  .project-contain {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: stretch;
+    max-width: 1200px;
+    column-gap: 0.5rem;
+    row-gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+  .intermission {
+    margin: 1rem 0;
+  }
+
+  .intermission > h2 {
+    text-align: center;
+  }
+
+  .globwrap {
+    padding-top: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    align-items: center;
+    min-height: 100vh;
+  }
+
   :global([data-svelte-search] input) {
     width: 100%;
     font-size: 1rem;
@@ -348,10 +426,9 @@
   }
 
   .container {
-    margin: 1em auto;
-    margin-bottom: 125px;
+    margin: 0 auto;
     max-width: 800px;
-    min-height: 800px;
+    width: 100%;
   }
 
   .ideas-col {
@@ -361,7 +438,6 @@
     justify-content: space-between;
     margin: 0;
     padding: 0;
-    margin-bottom: 20px;
     left: 0;
   }
 
@@ -438,8 +514,7 @@
     }
 
     .container {
-      padding: 0 10px;
-      margin: 1em 0;
+      padding: 0 0.5rem;
     }
 
     .search-sort {
@@ -449,6 +524,15 @@
     .search-sort > div {
       width: 100%;
       margin-top: 0.25em;
+    }
+
+    .project-contain {
+      flex-direction: column;
+    }
+
+    .intermission {
+      padding: 0 0.5rem;
+      text-align: center;
     }
   }
 </style>

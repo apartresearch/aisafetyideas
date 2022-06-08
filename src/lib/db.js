@@ -167,12 +167,3 @@ export async function getUserData() {
   const user = supabase.auth.user()
   return user;
 }
-
-export const replaceCats = () => {
-  const keepCats = [1, 12, 13];
-  const killCats = [2,3,4,5,6,7,8,9,10,11,14];
-
-  // Upsert all killCats with Alignment instead
-
-
-}

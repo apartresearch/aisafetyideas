@@ -1,16 +1,24 @@
 <script>
   import markdown from "$lib/drawdown.js";
+  import tippy from "sveltejs-tippy";
   export let project, ideas;
   //   Ensure that this does not become weirdo spaghetto as result of markdown content, i.e. stop at ][ or whatever regex shit works
-  const p_text = project.summary.substring(0, 150);
-  +"...";
 </script>
 
-<div class="wrapper">
-  <h3 class="header">{project.title}</h3>
-  <p class="text">
-    {@html markdown(p_text)}
-  </p>
+<a
+  class="wrapper"
+  href={"/project/" + project.slug}
+  use:tippy={{
+    content: `See all ideas in the project <i>${project.title}</i>`,
+    allowHTML: true,
+    delay: [250, 0],
+    appendTo: document.body,
+  }}
+>
+  <div>
+    <h3 class="header">{project.title}</h3>
+    {@html markdown(project.summary)}
+  </div>
   <div class="bottom">
     <p class="idea_n">
       {ideas.filter((idea) =>
@@ -18,23 +26,70 @@
       ).length} ideas
     </p>
   </div>
-</div>
+</a>
 
 <style>
   .header {
-    font-size: 2em;
+    font-size: 0.8rem;
+    line-height: 1rem;
+    margin: 0;
+    margin-bottom: 0.15rem;
   }
 
-  .text {
-    font-size: 0.7em;
-    line-height: 0.8em;
+  :global(p) {
+    font-size: 0.8rem;
+    line-height: 1rem;
+    margin: 0;
+  }
+
+  .wrapper div:first-child {
+    margin-bottom: 0.4rem;
+  }
+
+  .bottom {
+    margin: 0;
+    padding: 0;
+  }
+
+  .idea_n {
+    color: #999;
+    margin: 0;
   }
 
   .wrapper {
-    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    min-height: 4em;
+    min-height: 4rem;
+    width: 12rem;
+    padding: 0.75rem;
+    background-color: var(--light-accent-bg);
+    border: 1px solid var(--light-accent-border);
+    color: var(--light-accent-text);
+    text-decoration: none;
+  }
+
+  .wrapper:hover {
+    border: 1px solid var(--primary-color);
+    background-color: var(--primary-color-hover);
+    cursor: pointer;
+  }
+
+  .wrapper:hover .idea_n {
+    color: var(--primary-color);
+  }
+
+  @media (max-width: 768px) {
+    .wrapper {
+      width: 100%;
+      padding: 0.5rem;
+      text-align: left;
+    }
+
+    :global(p),
+    :global(h3) {
+      font-size: 0.9rem;
+      line-height: 1.1rem;
+    }
   }
 </style>
