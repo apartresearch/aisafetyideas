@@ -19,6 +19,7 @@
   import Select from "svelte-select";
   import SuperprojectBlock from "$lib/SuperprojectBlock.svelte";
   import MediaQuery from "$lib/MediaQuery.svelte";
+  import SubmitBlock from "$lib/SubmitBlock.svelte";
 
   let url = ``,
     ideaParam = "",
@@ -319,12 +320,16 @@
     {/if}
   </div>
   <div class="intermission">
-    <MediaQuery minWidth={768}>
-      <h2>Projects</h2>
+    <MediaQuery query="(max-width: 768px)" let:matches>
+      {#if matches}
+        <h2>Projects</h2>
+      {/if}
     </MediaQuery>
     <p>Click on a project to see the ideas in each.</p>
     <div class="project-contain">
-      {#each superprojects.slice(0, 5) as project}
+      {#each superprojects
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 5) as project}
         <SuperprojectBlock {project} {ideas} />
       {/each}
     </div>
@@ -347,7 +352,7 @@
     {/if}
   </div>
   <div class="intermission">
-    <h2>Intermission 2</h2>
+    <SubmitBlock />
   </div>
   <div class="container">
     {#if loaded}

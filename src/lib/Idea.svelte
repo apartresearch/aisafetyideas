@@ -290,7 +290,6 @@
     padding: 7px 10px;
     margin: 0;
     width: 100%;
-    overflow: auto;
   }
 
   .idea-card:hover {
@@ -347,11 +346,16 @@
   }
 
   .idea-card {
-    margin: 0.125em 0;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin: 0.175rem 0;
     border: 1px solid var(--light-accent-border);
+    transition: all 0.1s ease-in-out;
   }
 
   .idea-card:hover {
+    box-shadow: var(--box-shadow-hover);
+    transform: translate(0, -0.1rem);
     border: 1px solid var(--primary-color);
     background-color: var(--primary-color-hover);
   }

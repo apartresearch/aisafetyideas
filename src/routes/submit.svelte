@@ -261,7 +261,7 @@
   <!-- <div class="col-parent"> -->
 
   <div class="add-idea-wrapper">
-    <h2>Insert idea</h2>
+    <h2>Send in an idea</h2>
     {#if !$user}
       <div class="login-warning">
         <p>Please login to submit an idea.</p>

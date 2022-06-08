@@ -211,7 +211,12 @@
     --font-family: "Sora", sans-serif;
     --font-family-lg: "Lora", sans-serif;
     --bg-color-dark: #121f2b;
-    --bg-color-light: #f7f7f7;
+    --bg-color-light: linear-gradient(
+      80deg,
+      rgb(241, 240, 240) 0%,
+      rgb(235, 239, 243) 30%,
+      rgb(232, 243, 242) 100%
+    );
     --bg-color-dark-hover: #fafafa;
     --bg-color-light-hover: #fafafa;
     --font-color-dark: #f5fff9;
@@ -220,16 +225,19 @@
     --font-color-faded-hover: #fff9;
     --link-color: #af69e7;
     --primary-color: #256dc0;
-    --primary-color-hover: rgba(0, 170, 255, 0.082);
+    --primary-color-hover: rgba(240, 250, 255, 1);
     --secondary-color: #fff;
     --secondary-color-hover: #fff;
     --tertiary-color: #fff;
     --tertiary-color-hover: #fff;
     --button-bg-color-dark: #333854;
     --button-bg-color-dark-hover: #333854;
-    --light-accent-bg: #fff9;
+    --light-accent-bg: #fff;
     --light-accent-hover-bg: #fff0;
-    --light-accent-border: #d9d9d9;
+    --light-accent-border: transparent;
+    --border-radius: 0.5rem;
+    --box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.15);
+    --box-shadow-hover: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.03);
 
     /* Glassmorphism */
     /* inspired by Glass UI Glassmorphism generator (https://ui.glass/generator/) */
@@ -255,7 +263,11 @@
   :global(body) {
     margin: 0;
     padding: 0;
-    background-color: var(--bg-color-light);
+    background: var(--bg-color-light);
+  }
+
+  :global(.tooltip) {
+    z-index: 501;
   }
 
   :global(.tooltip a) {

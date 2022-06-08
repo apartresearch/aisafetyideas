@@ -63,13 +63,18 @@
     min-height: 4rem;
     width: 12rem;
     padding: 0.75rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
     background-color: var(--light-accent-bg);
     border: 1px solid var(--light-accent-border);
     color: var(--light-accent-text);
     text-decoration: none;
+    transition: all 0.1s ease-in-out;
   }
 
   .wrapper:hover {
+    transform: translate(0, -0.1rem);
+    box-shadow: var(--box-shadow-hover);
     border: 1px solid var(--primary-color);
     background-color: var(--primary-color-hover);
     cursor: pointer;
