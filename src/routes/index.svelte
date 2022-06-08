@@ -287,8 +287,9 @@
         />
       </div>
     </div>
-
-    {#if loaded}
+  </div>
+  {#if loaded}
+    <div class="container">
       <div class="ideas-col">
         <div class="idea-categories-wrapper">
           {#each categories.sort( (a, b) => (a.priority > b.priority ? 1 : -1) ) as cat, i}
@@ -315,47 +316,39 @@
           {/each}
         {/if}
       </div>
-    {:else}
-      <LoadIcon />
-    {/if}
-  </div>
-  <div class="intermission">
-    <MediaQuery query="(max-width: 768px)" let:matches>
-      {#if matches}
-        <h2>Projects</h2>
-      {/if}
-    </MediaQuery>
-    <p>Click on a project to see the ideas in each.</p>
-    <div class="project-contain">
-      {#each superprojects
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 5) as project}
-        <SuperprojectBlock {project} {ideas} />
-      {/each}
     </div>
-  </div>
-  <div class="container">
-    {#if loaded}
+    <div class="intermission">
+      <MediaQuery query="(max-width: 768px)" let:matches>
+        {#if matches}
+          <h2>Projects</h2>
+        {/if}
+      </MediaQuery>
+      <p>Click on a project to see the ideas in each.</p>
+      <div class="project-contain">
+        {#each superprojects
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 5) as project}
+          <SuperprojectBlock {project} {ideas} />
+        {/each}
+      </div>
+    </div>
+    <div class="container">
       <div class="ideas-col">
-        {#if loaded}
-          {#if searchValue}
-            {#each searchIdeas.slice(4, 8) as idea}
-              <Idea {idea} {selectIdea} {selectCategory} />
-            {/each}
-          {:else}
-            {#each shownIdeas.slice(4, 8) as idea}
-              <Idea {idea} {selectIdea} {selectCategory} />
-            {/each}
-          {/if}
+        {#if searchValue}
+          {#each searchIdeas.slice(4, 8) as idea}
+            <Idea {idea} {selectIdea} {selectCategory} />
+          {/each}
+        {:else}
+          {#each shownIdeas.slice(4, 8) as idea}
+            <Idea {idea} {selectIdea} {selectCategory} />
+          {/each}
         {/if}
       </div>
-    {/if}
-  </div>
-  <div class="intermission">
-    <SubmitBlock />
-  </div>
-  <div class="container">
-    {#if loaded}
+    </div>
+    <div class="intermission">
+      <SubmitBlock />
+    </div>
+    <div class="container">
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(8, searchIdeas.length) as idea}
@@ -371,8 +364,10 @@
           {/each}
         {/if}
       </div>
-    {/if}
-  </div>
+    </div>
+  {:else}
+    <LoadIcon />
+  {/if}
   <IdeaViewer idea={currentIdea} {visible} {setVisible} {addComment} />
 </div>
 

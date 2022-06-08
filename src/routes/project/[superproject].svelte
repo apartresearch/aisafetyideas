@@ -1,5 +1,5 @@
 <script>
-  import { supabase, getTable, setupIdeas } from "$lib/db";
+  import { supabase, getTable, setupIdeas, getIdeas } from "$lib/db";
   import { page } from "$app/stores";
   console.log(page);
   import { onMount } from "svelte";
@@ -41,7 +41,7 @@
       ideaRelations,
       comments,
     ] = await Promise.all([
-      getTable("ideas"),
+      getIdeas("ideas"),
       getTable("superprojects"),
       getTable("categories"),
       getTable("problems"),
@@ -131,7 +131,7 @@
     background-color: #f7f7f7;
   }
   div {
-    margin: 80px auto;
+    margin: 1rem auto;
     margin-bottom: 100px;
     max-width: 800px;
   }
