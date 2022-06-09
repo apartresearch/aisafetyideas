@@ -157,10 +157,10 @@
     url = new URL(window.location.href);
     ideaParam = url.searchParams.get("idea");
     categoryParam = url.searchParams.get("categories");
-    currentSort = url.searchParams.get("sort");
+    let sortParam = url.searchParams.get("sort");
 
-    if (currentSort) {
-      sort({ value: currentSort });
+    if (sortParam) {
+      currentSort = sortingColumns.find((elm) => elm.value === sortParam);
     }
 
     if (ideaParam) {
@@ -271,7 +271,7 @@
 
 <Nav />
 <div class="globwrap">
-  <div class="container">
+  <div class="container first">
     <div class="search-sort">
       <div class="search">
         {#if searchValue}
@@ -431,6 +431,15 @@
     width: 100%;
   }
 
+  .container.first {
+    z-index: 101;
+    margin-top: -3rem;
+    border-radius: var(--border-radius);
+    padding: 10px 10px 0px 10px;
+    max-width: 820px;
+    background: var(--bg-color-light);
+  }
+
   .ideas-col {
     display: flex;
     flex-direction: row;
@@ -446,9 +455,9 @@
     flex-direction: row;
     /* flex-wrap: wrap; */
     overflow: auto;
-
     justify-content: start;
     align-items: center;
+    padding-bottom: 0.2rem;
   }
 
   .search-sort {
@@ -459,6 +468,7 @@
     padding: 0;
     margin-top: -0.2em;
     margin-bottom: 0.2em;
+    width: 100%;
   }
 
   .search-sort > div {
@@ -477,7 +487,7 @@
   }
 
   .search {
-    width: 69%;
+    width: 69.5%;
   }
 
   .sort {
@@ -489,15 +499,18 @@
   ::-webkit-scrollbar {
     width: 0.35em;
     height: 0.35em;
+    border-radius: var(--border-radius);
   }
 
   /* Track */
   ::-webkit-scrollbar-track {
+    border-radius: var(--border-radius);
     background: #f1f1f1;
   }
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
+    border-radius: var(--border-radius);
     background: #dedede;
   }
 
