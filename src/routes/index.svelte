@@ -339,9 +339,9 @@
         {/if}
       </div>
     </div>
-    <div class="intermission">
+    <!-- <div class="intermission">
       <SubmitBlock />
-    </div>
+    </div> -->
     <div class="container">
       <div class="ideas-col">
         {#if searchValue}
