@@ -11,7 +11,8 @@
   if (userData) setUserData(userData, userData.id);
   supabase.auth.onAuthStateChange((_, session) => {
     console.log("auth state changed", session);
-    setUserData(session.user, session.user.id);
+    if (session) setUserData(session.user, session.user.id);
+    else $user = null;
   });
 
   const handleLogin = async () => {
