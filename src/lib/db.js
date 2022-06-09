@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { user, users } from '$lib/stores.js';
+import { get } from 'svelte/store';
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -161,23 +162,23 @@ export const getIdea = async (id) => {
   return ideas[0];
 }
 
-export const signInWithGoogle = async (redirect = '/') => {
-  const { user: userData, session, error } = await supabase.auth.signIn({
-    provider: 'google', redirect_to: redirect,
-  });
-  userTemp = {};
-  if (!users.find((user) => user.user_metadata === userData.user_metadata)) {
-    userTemp = {...userData, username: userData.user_metadata.name, email: userData.user_metadata.email, expert: false};
-    users.update(val => {
-      val.push(userTemp);
-      return val;
-    });
-  } else {
-    userTemp = users.find((user) => user.user_metadata === userData.user_metadata);
-  }
-  user.set(userTemp);
-  return {user, session, error};
-}
+// export const signInWithGoogle = async (redirect = '/') => {
+//   const { user: userData, session, error } = await supabase.auth.signIn({
+//     provider: 'google', redirect_to: redirect,
+//   });
+//   userTemp = {};
+//   if (!users.find((user) => user.user_metadata === userData.user_metadata)) {
+//     userTemp = {...userData, username: userData.user_metadata.name, email: userData.user_metadata.email, expert: false};
+//     users.update(val => {
+//       val.push(userTemp);
+//       return val;
+//     });
+//   } else {
+//     userTemp = users.find((user) => user.user_metadata === userData.user_metadata);
+//   }
+//   user.set(userTemp);
+//   return {user, session, error};
+// }
 
 export async function signout() {
   const { error } = await supabase.auth.signOut();
@@ -186,14 +187,14 @@ export async function signout() {
 
 export async function getUserData(userData, id) {
   let userTemp = {};
-  if (!users.find((user) => user.id === id)) {
+  if (!get(users).find((user) => user.id === id)) {
     userTemp = {...userData, username: userData.user_metadata.name, email: userData.user_metadata.email, expert: false};
     users.update(val => {
       val.push(userTemp);
       return val;
     });
   } else {
-    userTemp = users.find((user) => user.id === id);
+    userTemp = get(users).find((user) => user.id === id);
   }
   return userTemp;
 }

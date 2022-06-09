@@ -1,5 +1,5 @@
 <script>
-  import { signInWithGoogle, supabase, signout, getUserData } from "$lib/db.js";
+  import { supabase, signout, getUserData } from "$lib/db.js";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import { user } from "$lib/stores.js";
@@ -9,7 +9,7 @@
   let userData = supabase.auth.user();
 
   if (userData) user.set(getUserData(userData, userData.id));
-  else user.set(null);
+  else user.set(userData);
   supabase.auth.onAuthStateChange((_, session) => {
     user.set(getUserData(session.user, session.user.id));
   });
@@ -42,7 +42,12 @@
     }}
   >
     <!-- svelte-ignore a11y-img-redundant-alt -->
-    <img src={$user.user_metadata.avatar_url} alt="profile image" />
+    {#if $user.image}
+      <img src={$user.image} alt="Avatar" />
+    {/if}
+    {#if !$user.avatar}
+      <img src="/images/person-outline (2).svg" alt="Avatar" />
+    {/if}
     {$user.username}
   </div>
 {:else}

@@ -20,6 +20,7 @@
   import SuperprojectBlock from "$lib/SuperprojectBlock.svelte";
   import MediaQuery from "$lib/MediaQuery.svelte";
   import SubmitBlock from "$lib/SubmitBlock.svelte";
+  import { users } from "$lib/stores.js";
 
   let url = ``,
     ideaParam = "",
@@ -40,7 +41,8 @@
     selectedCategories = [],
     shownIdeas = [],
     searchIdeas = [],
-    comments = [];
+    comments = [],
+    userList = [];
 
   let visible = false,
     searchValue = "";
@@ -62,6 +64,7 @@
       problemRelations,
       ideaRelations,
       comments,
+      userList,
     ] = await Promise.all([
       getIdeas(),
       getTable("superprojects"),
@@ -72,9 +75,12 @@
       getTable("idea_problem_relation"),
       getTable("idea_idea_relation"),
       getComments(),
+      getTable("users"),
     ]);
 
     let endTime = performance.now();
+
+    $users = userList;
 
     console.log(`Time to load data: ${endTime - startTime}ms`);
 

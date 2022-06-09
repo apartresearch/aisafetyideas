@@ -4,18 +4,12 @@ import { getIdeas, getTable } from "$lib/db.js";
 
 export const user = writable(false);
 
-export const ideas = asyncable(async () => {
-    const ideas = await getIdeas();
-    return ideas;
-});
+export const ideas = writable([]);
 
-export const categories = asyncable();
+export const categories = writable([]);
 export const problems = writable([]);
 
-export const superprojects = asyncable(async() => {
-    const res = getTable("superprojects");
-    return res;
-});
+export const superprojects = writable([]);
 
 export const comments = asyncable();
 export const users = writable([]);
