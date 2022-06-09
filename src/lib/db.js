@@ -1,9 +1,23 @@
 import { createClient } from '@supabase/supabase-js';
+import { user, users } from '$lib/stores.js';
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
+
+export const getUser = async () => {
+  const user = await supabase.auth.user();
+  if (user) {
+    supabase.from('users').where({ id: user.id }).first().then(user => {
+      users.set(user);
+    });
+  } 
+  return user;
+  
+}
+
+getUser();
 
 export const getTable = async (table_name, grabTitle = true) => {
   try {
@@ -151,10 +165,20 @@ export const getIdea = async (id) => {
 }
 
 export const signInWithGoogle = async () => {
-  const { user, session, error } = await supabase.auth.signIn({
+  const { user: userData, session, error } = await supabase.auth.signIn({
     provider: 'google',
   });
-  $user.update(user);
+  userTemp = {};
+  if (!users.find((user) => user.user_metadata === userData.user_metadata)) {
+    userTemp = {...userData, username: userData.user_metadata.name, email: userData.user_metadata.email, expert: false};
+    users.update(val => {
+      val.push(userTemp);
+      return val;
+    });
+  } else {
+    userTemp = users.find((user) => user.user_metadata === userData.user_metadata);
+  }
+  user.set(userTemp);
   return {user, session, error};
 }
 

@@ -7,7 +7,7 @@
 
   const signIn = () => {
     signInWithGoogle().then((u, s, e) => {
-      $user.update(u);
+      console.log(u);
     });
   };
 </script>
@@ -19,7 +19,7 @@
       signout();
     }}
     use:tippy={{
-      content: `Signed in as ${$user.user_metadata.name}. Click here to sign out.`,
+      content: `Signed in as ${$user.username}. Click here to sign out.`,
       allowHTML: true,
       delay: [250, 0],
       appendTo: document.body,
@@ -27,7 +27,7 @@
   >
     <!-- svelte-ignore a11y-img-redundant-alt -->
     <img src={$user.user_metadata.avatar_url} alt="profile image" />
-    {$user.user_metadata.name}
+    {$user.username}
   </div>
 {:else}
   <button on:click={signIn} class={white ? "" : "light-bg"}>

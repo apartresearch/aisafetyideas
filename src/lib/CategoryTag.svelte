@@ -68,6 +68,8 @@
     text-align: center;
     white-space: nowrap;
     opacity: 1;
+    border-radius: var(--border-radius);
+    margin: 0 1px;
   }
 
   .idea-category.list-item {
@@ -84,14 +86,6 @@
     cursor: pointer;
     opacity: 0.75;
     text-decoration: none;
-  }
-
-  :global(.tooltip a) {
-    text-decoration: none;
-    color: var(--link-color);
-  }
-  :global(.tooltip a:hover) {
-    text-decoration: underline;
   }
 
   /* mobile style */

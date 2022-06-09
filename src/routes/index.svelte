@@ -189,7 +189,7 @@
   };
 
   // Holds table sort state.  Initialized to reflect table sorted by id column ascending.
-  let sortBy = { col: "id", ascending: false };
+  let sortBy = { col: "likes", ascending: false };
   const sort = (column) => {
     column = column.value;
     url.searchParams.set("sort", column);
@@ -203,14 +203,9 @@
 
     // Modifier to sorting function for ascending or descending
     let sortModifier = sortBy.ascending ? 1 : -1;
-    if (column == "likes") sortModifier = sortModifier * -1;
 
     // Sort shownIdeas based on sortBy col
     shownIdeas = shownIdeas.sort((a, b) => {
-      if (column == "likes") {
-        if (a[sortBy.col] == 0) return -1;
-        if (b[sortBy.col] == 0) return 1;
-      }
       if (!a[sortBy.col]) return 1 * sortModifier;
       if (!b[sortBy.col]) return -1 * sortModifier;
       if (a[sortBy.col] < b[sortBy.col]) return -1 * sortModifier;
@@ -245,8 +240,7 @@
       { label: "Contact available", value: "contact" },
       { label: "Author", value: "author" },
       { label: "Title", value: "title" },
-      { label: "ID", value: "id" },
-      { label: "Created on", value: "created_at" },
+      { label: "Submitted on", value: "created_at" },
       { label: "Sourced on", value: "from_date" },
       { label: "Mentorship available", value: "mentorship_from" },
       { label: "Funding available", value: "funding_amount" },
@@ -406,7 +400,7 @@
     font-size: 1rem;
     padding: 0.5rem;
     border: 1px solid var(--light-accent-border);
-    border-radius: 0.25rem;
+    border-radius: var(--border-radius);
     height: 2.65em;
   }
 
@@ -468,7 +462,7 @@
     line-height: 1em;
 
     --border: 1px solid #e0e0e0;
-    --borderRadius: 0.2rem;
+    --borderRadius: var(--border-radius);
     --placeholderColor: #999;
     --borderFocusColor: var(--primary-color);
     --itemIsActiveBG: var(--primary-color);
