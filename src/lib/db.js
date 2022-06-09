@@ -184,7 +184,16 @@ export async function signout() {
   location.reload();
 }
 
-export async function getUserData() {
-  const user = supabase.auth.user()
-  return user;
+export async function getUserData(userData, id) {
+  userTemp = {};
+  if (!users.find((user) => user.id === id)) {
+    userTemp = {...userData, username: userData.user_metadata.name, email: userData.user_metadata.email, expert: false};
+    users.update(val => {
+      val.push(userTemp);
+      return val;
+    });
+  } else {
+    userTemp = users.find((user) => user.id === id);
+  }
+  return userTemp;
 }

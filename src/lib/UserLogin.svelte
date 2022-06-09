@@ -1,21 +1,17 @@
 <script>
-  import { signInWithGoogle, supabase, signout } from "$lib/db.js";
+  import { signInWithGoogle, supabase, signout, getUserData } from "$lib/db.js";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import { user } from "$lib/stores.js";
   export let white = false;
 
   let loading = false;
+  let userData = supabase.auth.user();
 
-  const signIn = () => {
-    signInWithGoogle().then((u, s, e) => {
-      console.log(u);
-    });
-  };
-
-  user.set(supabase.auth.user());
+  if (userData) user.set(getUserData(userData, userData.id));
+  else user.set(null);
   supabase.auth.onAuthStateChange((_, session) => {
-    user.set(session.user);
+    user.set(getUserData(session.user, session.user.id));
   });
 
   const handleLogin = async () => {
@@ -31,9 +27,6 @@
   };
 </script>
 
-<div class="container">
-  {#if $user}{:else}{/if}
-</div>
 {#if $user}
   <div
     class="user  {white ? '' : 'light-bg'}"
