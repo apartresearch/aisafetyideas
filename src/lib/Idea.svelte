@@ -103,12 +103,14 @@
               class={$user && idea.user_liked ? "heart-icon" : ""}
               on:click={() => {
                 addLikeToIdea(idea.id, $user && idea.user_liked);
-                addToast(
-                  `You 
-                  ${
-                    $user && idea.user_liked ? "unliked" : "liked"
-                  } this idea. Refresh to update.`
-                );
+                idea.user_liked = !idea.user_liked;
+                addToast({
+                  title: "Liked!",
+                  message: "You liked this idea.",
+                  type: "success",
+                });
+                idea.likes += idea.user_liked ? 1 : -1;
+                idea = idea;
               }}
               src="/images/heart{$user && idea.user_liked
                 ? ''
@@ -177,12 +179,14 @@
           on:click={() => {
             if ($user) {
               addLikeToIdea(idea.id, $user && idea.user_liked);
-              addToast(
-                `You 
-                ${
-                  $user && idea.user_liked ? "unliked" : "liked"
-                } this idea. Refresh to update.`
-              );
+              idea.user_liked = !idea.user_liked;
+              addToast({
+                title: "Liked!",
+                message: "You liked this idea.",
+                type: "success",
+              });
+              idea.likes += idea.user_liked ? 1 : -1;
+              idea = idea;
             }
           }}
           src="/images/heart{$user && idea.user_liked ? '' : '-outline'}.svg"

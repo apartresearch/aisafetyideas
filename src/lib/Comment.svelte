@@ -1,7 +1,7 @@
 <script>
   import moment from "moment";
   import markdown from "$lib/drawdown";
-  export let comment, currentComment, replyToComment;
+  export let comment, currentComment, replyToComment, removeComment;
   import { ideas, user } from "$lib/stores.js";
   import { deleteComment } from "$lib/db.js";
   import { Toasts, addToast } from "as-toast";
@@ -36,7 +36,8 @@
           href=""
           on:click={() => {
             deleteComment(comment.id);
-            addToast("Comment deleted successfully. Refresh to update.");
+            removeComment(comment.id);
+            addToast("Comment deleted successfully!", "success");
           }}
           class="delete-comment"
         >
@@ -49,7 +50,7 @@
 
 {#if comment.replies.length > 0}
   <div class="replies">
-    {#each comment.replies as reply}
+    {#each comment.replies as reply, i}
       <div class="comment reply">
         <a class="author" target="_blank" href={comment.anon_author_url}>
           <!-- <img src="/images/link.svg" alt="Link icon" /> -->
@@ -75,7 +76,9 @@
                 href=""
                 on:click={() => {
                   deleteComment(reply.id);
-                  addToast("Comment deleted successfully. Refresh to update.");
+                  comment.replies.splice(i, 1);
+                  comment = comment;
+                  addToast("Comment deleted successfully!", "success");
                 }}
                 class="delete-comment"
               >

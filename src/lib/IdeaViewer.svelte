@@ -65,6 +65,11 @@
       }
     });
   });
+
+  const removeComment = (id) => {
+    idea.comments = idea.comments.filter((comment) => comment.id != id);
+    idea = idea;
+  };
 </script>
 
 <div class="above">
@@ -130,11 +135,18 @@
           on:click={() => {
             if ($user) {
               addLikeToIdea(idea.id, $user && idea.user_liked);
+              idea.user_liked = !idea.user_liked;
+              idea.likes += idea.user_liked ? 1 : -1;
+              idea = idea;
               addToast(
                 `You 
                 ${
                   $user && idea.user_liked ? "unliked" : "liked"
-                } this idea. Refresh to update.`
+                } this idea successfully!`,
+                {
+                  type: "success",
+                  timeout: 2000,
+                }
               );
             }
           }}
@@ -248,7 +260,12 @@
       {#if idea.comments.length > 0}
         <div class="idea-comments-wrapper">
           {#each idea.comments as comment}
-            <Comment {comment} currentComment={replyTo} {replyToComment} />
+            <Comment
+              {comment}
+              currentComment={replyTo}
+              {replyToComment}
+              {removeComment}
+            />
           {/each}
         </div>
       {/if}
