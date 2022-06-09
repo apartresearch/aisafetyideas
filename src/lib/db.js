@@ -185,7 +185,7 @@ export async function signout() {
 }
 
 export async function getUserData(userData, id) {
-  userTemp = {};
+  let userTemp = {};
   if (!users.find((user) => user.id === id)) {
     userTemp = {...userData, username: userData.user_metadata.name, email: userData.user_metadata.email, expert: false};
     users.update(val => {
