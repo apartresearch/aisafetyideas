@@ -185,7 +185,7 @@ export async function signout() {
   location.reload();
 }
 
-export async function getUserData(userData, id) {
+export async function setUserData(userData, id) {
   let userTemp = {};
   if (!get(users).find((user) => user.id === id)) {
     userTemp = {...userData, username: userData.user_metadata.name, email: userData.user_metadata.email, expert: false, image: userData.user_metadata.picture};
@@ -200,5 +200,7 @@ export async function getUserData(userData, id) {
     userTemp = get(users).find((user) => user.id === id);
     user.set(userTemp);
   }
+
+  console.log(userTemp, get(user), get(users));
   return userTemp;
 }

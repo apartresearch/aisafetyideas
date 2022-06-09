@@ -1,5 +1,5 @@
 <script>
-  import { supabase, signout, getUserData } from "$lib/db.js";
+  import { supabase, signout, setUserData } from "$lib/db.js";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import { user } from "$lib/stores.js";
@@ -8,11 +8,10 @@
   let loading = false;
   let userData = supabase.auth.user();
 
-  if (userData) user.set(getUserData(userData, userData.id));
-  else user.set(userData);
+  if (userData) setUserData(userData, userData.id);
   supabase.auth.onAuthStateChange((_, session) => {
     console.log("auth state changed", session);
-    user.set(getUserData(session.user, session.user.id));
+    setUserData(session.user, session.user.id);
   });
 
   const handleLogin = async () => {
