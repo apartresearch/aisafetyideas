@@ -188,15 +188,17 @@ export async function signout() {
 export async function getUserData(userData, id) {
   let userTemp = {};
   if (!get(users).find((user) => user.id === id)) {
-    userTemp = {...userData, username: userData.user_metadata.name, email: userData.user_metadata.email, expert: false};
+    userTemp = {...userData, username: userData.user_metadata.name, email: userData.user_metadata.email, expert: false, image: userData.user_metadata.picture};
     users.update(val => {
       val.push(userTemp);
       return val;
     });
-    console.log('user is being created', get(users));
+    user.set(userTemp);
+    console.log('user doesn\'t exist in store', get(users));
   } else {
     console.log('user already exists', get(users));
     userTemp = get(users).find((user) => user.id === id);
+    user.set(userTemp);
   }
   return userTemp;
 }
