@@ -195,7 +195,7 @@
   };
 
   // Holds table sort state.  Initialized to reflect table sorted by id column ascending.
-  let sortBy = { col: "likes", ascending: false };
+  let sortBy = { col: "", ascending: false };
   const sort = (column) => {
     column = column.value;
     if (url) {
