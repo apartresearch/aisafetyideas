@@ -193,7 +193,9 @@ export async function getUserData(userData, id) {
       val.push(userTemp);
       return val;
     });
+    console.log('user is being created', get(users));
   } else {
+    console.log('user already exists', get(users));
     userTemp = get(users).find((user) => user.id === id);
   }
   return userTemp;

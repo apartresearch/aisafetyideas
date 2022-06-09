@@ -11,6 +11,7 @@
   if (userData) user.set(getUserData(userData, userData.id));
   else user.set(userData);
   supabase.auth.onAuthStateChange((_, session) => {
+    console.log("auth state changed", session);
     user.set(getUserData(session.user, session.user.id));
   });
 
