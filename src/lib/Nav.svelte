@@ -235,7 +235,7 @@
     --light-accent-bg: #fff;
     --light-accent-hover-bg: #fff0;
     --light-accent-border: transparent;
-    --border-radius: 0.5rem;
+    --border-radius: 0.25rem;
     --box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.15);
     --box-shadow-hover: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.03);
 

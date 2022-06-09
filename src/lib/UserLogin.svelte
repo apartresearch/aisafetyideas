@@ -1,17 +1,40 @@
 <script>
-  import { signInWithGoogle, getUserData, signout } from "$lib/db.js";
+  import { signInWithGoogle, supabase, signout } from "$lib/db.js";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import { user } from "$lib/stores.js";
   export let white = false;
+
+  let loading = false;
 
   const signIn = () => {
     signInWithGoogle().then((u, s, e) => {
       console.log(u);
     });
   };
+
+  user.set(supabase.auth.user());
+  supabase.auth.onAuthStateChange((_, session) => {
+    user.set(session.user);
+  });
+
+  const handleLogin = async () => {
+    try {
+      loading = true;
+      const { error } = await supabase.auth.signIn({ provider: "google" });
+      if (error) throw error;
+      alert("Check your email for the login link!");
+    } catch (error) {
+      alert(error.error_description || error.message);
+    } finally {
+      loading = false;
+    }
+  };
 </script>
 
+<div class="container">
+  {#if $user}{:else}{/if}
+</div>
 {#if $user}
   <div
     class="user  {white ? '' : 'light-bg'}"
@@ -19,8 +42,9 @@
       signout();
     }}
     use:tippy={{
-      content: `Signed in as ${$user.username}. Click here to sign out.`,
+      content: `Signed in as ${$user.username}. <a on:click={${signout}}>Sign out</a>.`,
       allowHTML: true,
+      interactive: true,
       delay: [250, 0],
       appendTo: document.body,
     }}

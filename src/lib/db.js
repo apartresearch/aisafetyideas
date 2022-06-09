@@ -14,10 +14,7 @@ export const getUser = async () => {
     });
   } 
   return user;
-  
 }
-
-getUser();
 
 export const getTable = async (table_name, grabTitle = true) => {
   try {
@@ -164,9 +161,9 @@ export const getIdea = async (id) => {
   return ideas[0];
 }
 
-export const signInWithGoogle = async () => {
+export const signInWithGoogle = async (redirect = '/') => {
   const { user: userData, session, error } = await supabase.auth.signIn({
-    provider: 'google',
+    provider: 'google', redirect_to: redirect,
   });
   userTemp = {};
   if (!users.find((user) => user.user_metadata === userData.user_metadata)) {

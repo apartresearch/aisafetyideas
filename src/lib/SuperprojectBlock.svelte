@@ -15,7 +15,7 @@
     appendTo: document.body,
   }}
 >
-  <div>
+  <div class="global-wrapper">
     <h3 class="header">{project.title}</h3>
     {@html markdown(project.summary)}
   </div>
@@ -36,7 +36,7 @@
     margin-bottom: 0.15rem;
   }
 
-  :global(p) {
+  :global(.global-wrapper > p) {
     font-size: 0.8rem;
     line-height: 1rem;
     margin: 0;
@@ -53,6 +53,8 @@
 
   .idea_n {
     color: #999;
+    font-size: 0.8rem;
+    line-height: 1rem;
     margin: 0;
   }
 

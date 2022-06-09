@@ -259,6 +259,10 @@
 </content>
 
 <style>
+  content {
+    z-index: 202;
+  }
+
   /* 
   Build a popup like ProductHunt. There is a parent with 
   scrolling and a relative size unit as child. 
@@ -368,7 +372,6 @@
     height: 100%;
     overflow: auto;
     background-color: #0009;
-    z-index: 100;
     display: flex;
     flex-direction: column;
     justify-content: start;

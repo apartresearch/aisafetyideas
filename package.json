@@ -19,6 +19,7 @@
     "moment": "^2.29.3",
     "octokit": "^1.7.1",
     "supabase-ui-svelte": "^0.1.1",
+    "svelte-asyncable": "^2.1.0",
     "svelte-burger-menu": "^1.0.5",
     "svelte-heatmap": "^1.0.2",
     "svelte-loading-animation": "^0.0.1",
