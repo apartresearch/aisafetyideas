@@ -192,13 +192,16 @@
   let sortBy = { col: "likes", ascending: false };
   const sort = (column) => {
     column = column.value;
-    url.searchParams.set("sort", column);
-    window.history.pushState(null, document, url.href);
+    if (url) {
+      url.searchParams.set("sort", column);
+      window.history.pushState(null, document, url.href);
+    }
+
     if (sortBy.col == column) {
       sortBy.ascending = !sortBy.ascending;
     } else {
       sortBy.col = column;
-      sortBy.ascending = true;
+      sortBy.ascending = false;
     }
 
     // Modifier to sorting function for ascending or descending
@@ -206,10 +209,10 @@
 
     // Sort shownIdeas based on sortBy col
     shownIdeas = shownIdeas.sort((a, b) => {
-      if (!a[sortBy.col]) return 1 * sortModifier;
-      if (!b[sortBy.col]) return -1 * sortModifier;
       if (a[sortBy.col] < b[sortBy.col]) return -1 * sortModifier;
       if (a[sortBy.col] > b[sortBy.col]) return 1 * sortModifier;
+      if (!a[sortBy.col]) return 1 * sortModifier;
+      if (!b[sortBy.col]) return -1 * sortModifier;
       return 0;
     });
   };
@@ -245,7 +248,11 @@
       { label: "Mentorship available", value: "mentorship_from" },
       { label: "Funding available", value: "funding_amount" },
     ],
-    currentSort = "";
+    currentSort = { label: "Upvotes", value: "likes" };
+
+  $: {
+    sort(currentSort);
+  }
 
   const addComment = async (comment) => {
     if (currentIdea) {
@@ -277,7 +284,6 @@
           placeholder="Sort by"
           items={sortingColumns}
           bind:value={currentSort}
-          on:select={sort(currentSort)}
         />
       </div>
     </div>
