@@ -180,11 +180,6 @@
             if ($user) {
               addLikeToIdea(idea.id, $user && idea.user_liked);
               idea.user_liked = !idea.user_liked;
-              addToast({
-                title: "Liked!",
-                message: "You liked this idea.",
-                type: "success",
-              });
               idea.likes += idea.user_liked ? 1 : -1;
               idea = idea;
             }

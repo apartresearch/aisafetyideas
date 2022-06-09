@@ -138,16 +138,6 @@
               idea.user_liked = !idea.user_liked;
               idea.likes += idea.user_liked ? 1 : -1;
               idea = idea;
-              addToast(
-                `You 
-                ${
-                  $user && idea.user_liked ? "unliked" : "liked"
-                } this idea successfully!`,
-                {
-                  type: "success",
-                  timeout: 2000,
-                }
-              );
             }
           }}
           src="/images/heart{$user && idea.user_liked ? '' : '-outline'}.svg"
