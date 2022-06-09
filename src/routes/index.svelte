@@ -166,7 +166,8 @@
     let sortParam = url.searchParams.get("sort");
 
     if (sortParam) {
-      currentSort = sortingColumns.find((elm) => elm.value === sortParam);
+      if (sortParam != "likes")
+        currentSort = sortingColumns.find((elm) => elm.value === sortParam);
     }
 
     if (ideaParam) {
