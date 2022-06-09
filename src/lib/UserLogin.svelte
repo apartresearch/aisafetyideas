@@ -23,7 +23,6 @@
       loading = true;
       const { error } = await supabase.auth.signIn({ provider: "google" });
       if (error) throw error;
-      alert("Check your email for the login link!");
     } catch (error) {
       alert(error.error_description || error.message);
     } finally {
@@ -54,7 +53,7 @@
     {$user.username}
   </div>
 {:else}
-  <button on:click={signIn} class={white ? "" : "light-bg"}>
+  <button on:click={handleLogin} class={white ? "" : "light-bg"}>
     <!-- svelte-ignore a11y-img-redundant-alt -->
     <img
       src="/images/person-outline (2).svg"
