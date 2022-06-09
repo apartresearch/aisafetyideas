@@ -44,8 +44,7 @@
     <!-- svelte-ignore a11y-img-redundant-alt -->
     {#if $user.image}
       <img src={$user.image} alt="Avatar" />
-    {/if}
-    {#if !$user.avatar}
+    {:else}
       <img src="/images/person-outline (2).svg" alt="Avatar" />
     {/if}
     {$user.username}

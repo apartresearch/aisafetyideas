@@ -182,6 +182,8 @@ export const getIdea = async (id) => {
 
 export async function signout() {
   const { error } = await supabase.auth.signOut();
+  if(error) console.error(error);
+  user.set(supabase.auth.user());
   location.reload();
 }
 
