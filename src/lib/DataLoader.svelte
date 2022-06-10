@@ -65,7 +65,6 @@
       let endTime = performance.now();
 
       $shownIdeas = [];
-      $user = $users.find((u) => u.id == user.id);
 
       console.log(`Time to load all data: ${endTime - startTime}ms`);
 
