@@ -73,6 +73,9 @@
         .map((c) => ({
           ...c,
           username: $users.find((u) => u.id == c.author).username,
+        }))
+        .map((c) => ({
+          ...c,
           replies: $comments.filter((r) => r.reply_to == c.id),
         }))
         .filter((c) => c.reply_to == null || c.reply_to < 1);
@@ -117,7 +120,6 @@
       $shownIdeas = $ideas;
 
       console.log(
-        `Time to load all data: ${performance.now() - startTime}ms`,
         "Ideas",
         $ideas,
         "Users",

@@ -658,6 +658,7 @@
     width: 100%;
     max-width: 600px;
   }
+
   .input-wrapper {
     display: flex;
     flex-direction: row;
