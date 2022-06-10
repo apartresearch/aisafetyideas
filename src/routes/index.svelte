@@ -24,6 +24,7 @@
     shownIdeas,
     categories,
   } from "$lib/stores.js";
+  import { init } from "svelte/internal";
 
   let url = ``,
     ideaParam = "",
@@ -48,9 +49,17 @@
     window.addEventListener("popstate", () => {
       updateFromUrl();
     });
-    updateFromUrl();
-    sort({ label: "Upvotes", value: "likes" });
+    initState();
   });
+
+  const initState = () => {
+    if ($loading) {
+      window.setTimeout(initState, 100);
+    } else {
+      sort({ label: "Upvotes", value: "likes" });
+      updateFromUrl();
+    }
+  };
 
   const selectCategory = (category) => {
     if (!$loading) {
@@ -448,6 +457,9 @@
 
   /* mobile style */
   @media (max-width: 768px) {
+    .container.first {
+      margin-top: 0;
+    }
     .idea-categories-wrapper {
       flex-wrap: nowrap;
       overflow: auto;

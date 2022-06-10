@@ -89,6 +89,7 @@
     border-radius: var(--border-radius);
     max-width: 830px;
   }
+
   div > h1 {
     margin-top: 0;
     text-align: center;
@@ -105,7 +106,6 @@
   .go-to-home {
     display: flex;
     justify-content: flex-start;
-    width: fit-content;
     column-gap: 0.4rem;
     font-size: 0.8em;
     line-height: 0.8em;
@@ -113,5 +113,29 @@
     font-style: italic;
     text-decoration: none;
     color: var(--text-color-light);
+  }
+
+  @media (max-width: 768px) {
+    .go-to-home {
+      font-size: 1em;
+      line-height: 1em;
+      flex-direction: column-reverse;
+      row-gap: 0.2rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .header-wrapper {
+      align-items: flex-start;
+    }
+
+    div > h1 {
+      text-align: left;
+      font-size: 1.8rem;
+      line-height: 2rem;
+    }
+
+    .wrapper {
+      margin-top: 0;
+    }
   }
 </style>

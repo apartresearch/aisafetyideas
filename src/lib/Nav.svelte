@@ -176,6 +176,7 @@
     header {
       background: none;
       background-color: var(--bg-color-dark);
+      z-index: 102;
     }
 
     .burger-parent {
