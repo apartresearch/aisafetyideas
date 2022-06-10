@@ -6,44 +6,62 @@
   import Comment from "$lib/Comment.svelte";
   import { onMount } from "svelte";
   import moment from "moment";
-  import { user } from "$lib/stores.js";
+  import {
+    user,
+    ideaCurrent,
+    ideaViewVisible,
+    ideas,
+    shownIdeas,
+  } from "$lib/stores.js";
+  import { supabase } from "$lib/db.js";
   import { addLikeToIdea } from "$lib/db.js";
-  export let idea, visible, setVisible, addComment;
   import UserLogin from "$lib/UserLogin.svelte";
-  import { Toasts, addToast } from "as-toast";
+
+  const setVisible = (val) => {
+    $ideaViewVisible = val;
+  };
+
+  const addComment = async () => {
+    const comment = {
+      idea: $ideaCurrent.id,
+      text: commentText,
+      author: $user.id,
+      reply_to: replyTo,
+    };
+    if ($ideaCurrent) {
+      replyTo > 0
+        ? $ideaCurrent.comments.find((c) => c.id == replyTo).push(comment)
+        : $ideaCurrent.comments.push(comment);
+      $ideaCurrent.comments_n++;
+      $shownIdeas.forEach((idea) => {
+        if (idea.id == $ideaCurrent.id) {
+          replyTo > 0
+            ? idea.comments.find((c) => c.id == replyTo).push(comment)
+            : idea.comments.push(comment);
+          idea.comments_n++;
+        }
+      });
+      $ideas.forEach((idea) => {
+        if (idea.id == $ideaCurrent.id) {
+          replyTo > 0
+            ? idea.comments.find((c) => c.id == replyTo).push(comment)
+            : idea.comments.push(comment);
+          idea.comments_n++;
+        }
+      });
+      $ideaCurrent = $ideaCurrent;
+      $shownIdeas = $shownIdeas;
+      $ideas = $ideas;
+      await supabase.from("comments").insert(comment);
+      replyTo = null;
+      commentText = "";
+    }
+  };
 
   let commentText = "",
     commentUsername = "",
     commentUserlink = "",
     replyTo = null;
-
-  const writeComment = () => {
-    const comment = {
-      idea: idea.id,
-      text: commentText,
-      author: $user.id,
-      reply_to: replyTo,
-    };
-    addComment(comment);
-    if (replyTo > 0)
-      idea.comments[
-        idea.comments.findIndex((com) => com.id == replyTo)
-      ].replies.push({
-        ...comment,
-        id: 1,
-        author: $user.id,
-        users: { username: $user.user_metadata.name },
-      });
-    else
-      idea.comments.push({
-        ...comment,
-        replies: [],
-        id: 1,
-        users: { username: $user.user_metadata.name },
-      });
-    idea = idea;
-    replyTo = null;
-  };
 
   const replyToComment = (reply_to_id) => {
     if (reply_to_id == replyTo) {
@@ -66,85 +84,101 @@
     });
   });
 
-  const removeComment = (id) => {
-    idea.comments = idea.comments.filter((comment) => comment.id != id);
-    idea = idea;
+  const removeComment = async (id) => {
+    $ideaCurrent.comments = $ideaCurrent.comments.filter(
+      (comment) => comment.id != id
+    );
+    $shownIdeas.forEach((idea) => {
+      if (idea.id == $ideaCurrent.id) {
+        idea.comments = idea.comments.filter((comment) => comment.id != id);
+      }
+    });
+    $ideas.forEach((idea) => {
+      if (idea.id == $ideaCurrent.id) {
+        idea.comments = idea.comments.filter((comment) => comment.id != id);
+      }
+    });
+    $ideaCurrent = $ideaCurrent;
+    $shownIdeas = $shownIdeas;
+    $ideas = $ideas;
+    await supabase.from("comments").delete().match({ id: id });
   };
 </script>
 
-<div class="above">
-  <Toasts />
-</div>
 <content
-  class="fullscreen-wrapper {visible ? '' : 'hidden'}"
-  on:click|self={setVisible(false)}
+  class="fullscreen-wrapper {$ideaViewVisible ? '' : 'hidden'}"
+  on:click|self={() => setVisible(false)}
 >
   <div class="current-idea" on:click={() => {}}>
-    <div class="idea-top">
-      <div class="idea-top-left">
-        {#if idea.sourced}
-          <p class="very-small">
-            <a href={idea.sourced} target="_blank">Source</a>
-            {#if idea.from_date}
-              from {moment(idea.from_date).fromNow()}
-            {/if}
-          </p>
-        {/if}
-        {#if !idea.sourced && idea.from_date}
-          <p class="very-small">
-            {idea.from_date}
-          </p>
-        {/if}
-        {#if !idea.sourced && !idea.from_date}
-          <p class="very-small">
-            From {moment(idea.created_at).fromNow()}
-          </p>
-        {/if}
+    {#if $ideaCurrent}
+      <div class="idea-top">
+        <div class="idea-top-left">
+          {#if $ideaCurrent.sourced}
+            <p class="very-small">
+              <a href={$ideaCurrent.sourced} target="_blank">Source</a>
+              {#if $ideaCurrent.from_date}
+                from {moment($ideaCurrent.from_date).fromNow()}
+              {/if}
+            </p>
+          {/if}
+          {#if !$ideaCurrent.sourced && $ideaCurrent.from_date}
+            <p class="very-small">
+              {$ideaCurrent.from_date}
+            </p>
+          {/if}
+          {#if !$ideaCurrent.sourced && !$ideaCurrent.from_date}
+            <p class="very-small">
+              From {moment($ideaCurrent.created_at).fromNow()}
+            </p>
+          {/if}
+        </div>
+        <div class="top-right">
+          {#if $ideaCurrent.difficulty}
+            <p
+              class="difficulty"
+              use:tippy={{
+                content: "An estimate of the amount of work required.",
+              }}
+            >
+              {$ideaCurrent.difficulty}h work
+            </p>
+          {/if}
+          <img
+            on:click={() => setVisible(false)}
+            src="/images/close-outline.svg"
+            alt="Close idea"
+            class="cross"
+          />
+        </div>
       </div>
-      <div class="top-right">
-        {#if idea.difficulty}
-          <p
-            class="difficulty"
-            use:tippy={{
-              content: "An estimate of the amount of work required.",
-            }}
-          >
-            {idea.difficulty}h work
-          </p>
-        {/if}
-        <img
-          on:click={setVisible(false)}
-          src="/images/close-outline.svg"
-          alt="Close idea"
-          class="cross"
-        />
-      </div>
-    </div>
-    {#if idea.title}
       <p class="current-idea-author">
-        {idea.author != "" && idea.author != null ? idea.author : idea.username}
+        {!$ideaCurrent.author ? $ideaCurrent.author : $ideaCurrent.username}
       </p>
 
-      <h2 class="current-idea-title">{idea.title}</h2>
+      <h2 class="current-idea-title">{$ideaCurrent.title}</h2>
       <div class="current-idea-text">
-        {@html markdown(idea.summary)}
+        {@html markdown($ideaCurrent.summary)}
       </div>
       <div class="heart-indicator">
         <img
-          class={$user && idea.user_liked ? "heart-icon" : ""}
+          class={$user && $ideaCurrent.user_liked ? "heart-icon" : ""}
           on:click={() => {
             if ($user) {
-              addLikeToIdea(idea.id, $user && idea.user_liked);
-              idea.user_liked = !idea.user_liked;
-              idea.likes += idea.user_liked ? 1 : -1;
-              idea = idea;
+              addLikeToIdea($ideaCurrent.id, $user && $ideaCurrent.user_liked);
+              $ideaCurrent = {
+                ...$ideaCurrent,
+                user_liked: !$ideaCurrent.user_liked,
+                likes: $ideaCurrent.user_liked ? 1 : -1,
+              };
             }
           }}
-          src="/images/heart{$user && idea.user_liked ? '' : '-outline'}.svg"
+          src="/images/heart{$user && $ideaCurrent.user_liked
+            ? ''
+            : '-outline'}.svg"
           alt="Heart icon"
           use:tippy={{
             content: `${
-              $user && idea.user_liked
+              $user && $ideaCurrent.user_liked
                 ? "You liked this idea. Click to unlike."
                 : $user
                 ? "Click to like this idea."
@@ -153,26 +187,28 @@
             delay: [250, 0],
           }}
         />
-        <p>{idea.likes}</p>
+        <p>{$ideaCurrent.likes}</p>
       </div>
 
-      {#if idea.contact || idea.verified_by_expert || idea.mentorship_from}
+      {#if $ideaCurrent.contact || $ideaCurrent.verified_by_expert || $ideaCurrent.mentorship_from}
         <h4>Contact and mentorship</h4>
       {/if}
-      {#if idea.contact}
+      {#if $ideaCurrent.contact}
         <p class="small">
-          Contact the author {idea.author} on
-          <a href="mailto:{idea.contact}">{idea.contact}</a>.
+          Contact the author {$ideaCurrent.author} on
+          <a href="mailto:{$ideaCurrent.contact}">{$ideaCurrent.contact}</a>.
         </p>
       {/if}
-      {#if idea.mentorship_from}
+      {#if $ideaCurrent.mentorship_from}
         <p class="small">
-          Get mentorship for this project <a href={idea.mentorship_from}>
+          Get mentorship for this project <a
+            href={$ideaCurrent.mentorship_from}
+          >
             here
           </a>.
         </p>
       {/if}
-      {#if idea.verified_by_expert}
+      {#if $ideaCurrent.verified_by_expert}
         <p
           class="small"
           use:tippy={{
@@ -184,28 +220,28 @@
           This idea has been verified by an expert.
         </p>
       {/if}
-      {#if idea.funding_amount > 0 && idea.funding_from}
+      {#if $ideaCurrent.funding_amount > 0 && $ideaCurrent.funding_from}
         <h4>Funding</h4>
         <p>
-          Funding (up to {idea.funding_currency}{idea.funding_amount}) is
-          available from <a href={idea.funding_from}>this page</a>.
+          Funding (up to {$ideaCurrent.funding_currency}{$ideaCurrent.funding_amount})
+          is available from <a href={$ideaCurrent.funding_from}>this page</a>.
         </p>
       {/if}
 
-      {#if idea.categories[0]}
+      {#if $ideaCurrent.categories[0]}
         <h4>Categories</h4>
         <div class="idea-categories-wrapper">
-          {#each idea.categories as cat}
+          {#each $ideaCurrent.categories as cat}
             <CategoryTag cat={cat.category} />
           {/each}
         </div>
       {/if}
-      {#if idea.superprojects[0]}
+      {#if $ideaCurrent.superprojects[0]}
         <h4>
-          Superproject{idea.superprojects.length > 1 ? "s" : ""}
+          Superproject{$ideaCurrent.superprojects.length > 1 ? "s" : ""}
         </h4>
         <div class="idea-superprojects-wrapper">
-          {#each idea.superprojects as superproject}
+          {#each $ideaCurrent.superprojects as superproject}
             <SuperprojectTag superproject={superproject.superproject} />
           {/each}
         </div>
@@ -234,8 +270,7 @@
                 delay: [250, 0],
               }}
               on:click={() => {
-                writeComment();
-                commentText = "";
+                addComment();
               }}
             >
               Add comment
@@ -247,9 +282,9 @@
         {/if}
       </div>
 
-      {#if idea.comments.length > 0}
+      {#if $ideaCurrent.comments.length > 0}
         <div class="idea-comments-wrapper">
-          {#each idea.comments as comment}
+          {#each $ideaCurrent.comments as comment}
             <Comment
               {comment}
               currentComment={replyTo}

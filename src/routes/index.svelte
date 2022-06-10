@@ -1,11 +1,5 @@
 <script>
-  import {
-    supabase,
-    getTable,
-    setupIdeas,
-    getComments,
-    getIdeas,
-  } from "$lib/db";
+  import { supabase } from "$lib/db";
   import { onMount } from "svelte";
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
@@ -20,7 +14,16 @@
   import SuperprojectBlock from "$lib/SuperprojectBlock.svelte";
   import MediaQuery from "$lib/MediaQuery.svelte";
   import SubmitBlock from "$lib/SubmitBlock.svelte";
-  import { users } from "$lib/stores.js";
+  import DataLoader from "$lib/DataLoader.svelte";
+  import {
+    ideas,
+    superprojects,
+    loading,
+    ideaViewVisible,
+    ideaCurrent,
+    shownIdeas,
+    categories,
+  } from "$lib/stores.js";
 
   let url = ``,
     ideaParam = "",
@@ -28,99 +31,29 @@
     sortParam = "";
   // console.log($page.url.searchParams.has("meme"));
 
-  let ideas = [],
-    superprojects = [],
-    categories = [],
-    problems = [],
+  let problems = [],
     categoryRelations = [],
     superprojectRelations = [],
     problemRelations = [],
     ideaRelations = [],
     currentIdea = {},
-    loaded = false,
     selectedCategories = [],
-    shownIdeas = [],
     searchIdeas = [],
-    comments = [],
     userList = [];
 
-  let visible = false,
-    searchValue = "";
+  let searchValue = "";
 
   onMount(async () => {
     // Create event listener to listen for back button clicks
     window.addEventListener("popstate", () => {
       updateFromUrl();
     });
-
-    let startTime = performance.now();
-    [
-      ideas,
-      superprojects,
-      categories,
-      problems,
-      categoryRelations,
-      superprojectRelations,
-      problemRelations,
-      ideaRelations,
-      comments,
-      userList,
-    ] = await Promise.all([
-      getIdeas(),
-      getTable("superprojects"),
-      getTable("categories"),
-      getTable("problems"),
-      getTable("idea_category_relation"),
-      getTable("idea_superproject_relation"),
-      getTable("idea_problem_relation"),
-      getTable("idea_idea_relation"),
-      getComments(),
-      getTable("users"),
-    ]);
-
-    let endTime = performance.now();
-
-    $users = userList;
-
-    console.log(`Time to load data: ${endTime - startTime}ms`);
-
-    ideas = setupIdeas(
-      ideas,
-      superprojects,
-      categories,
-      problems,
-      categoryRelations,
-      superprojectRelations,
-      problemRelations,
-      ideaRelations,
-      comments
-    );
-
-    loaded = true;
-    shownIdeas = ideas;
     updateFromUrl();
     sort({ label: "Upvotes", value: "likes" });
   });
 
-  const selectIdea = (idea) => {
-    if (loaded) {
-      currentIdea = idea;
-      setVisible(true);
-      url.searchParams.set("idea", idea.id);
-      window.history.pushState(null, document, url.href);
-    } else {
-      console.log("Cannot click before it has loaded.");
-    }
-  };
-
-  const setVisible = (bowl) => {
-    visible = bowl;
-    url.searchParams.delete("idea");
-    window.history.pushState(null, document, url.href);
-  };
-
   const selectCategory = (category) => {
-    if (loaded) {
+    if (!$loading) {
       if (selectedCategories.includes(category)) {
         selectedCategories.splice(selectedCategories.indexOf(category), 1);
         selectedCategories = selectedCategories;
@@ -134,13 +67,13 @@
       }
       window.history.pushState(null, document, url.href);
 
-      categories.forEach((elm) => {
+      $categories.forEach((elm) => {
         elm.selected = selectedCategories.includes(elm.title);
       });
-      categories = categories;
+      $categories = $categories;
 
       // Filter which ideas are shown based on selectedCategories
-      ideas.forEach((idea) => {
+      $ideas.forEach((idea) => {
         if (
           idea.categories.find((category) => {
             return selectedCategories.includes(category.category.title);
@@ -153,7 +86,7 @@
         }
       });
 
-      shownIdeas = ideas.filter((idea) => idea.shown);
+      $shownIdeas = $ideas.filter((idea) => idea.shown);
     } else {
       console.log("Cannot click before it has loaded.");
     }
@@ -171,27 +104,21 @@
     }
 
     if (ideaParam) {
-      selectIdea(ideas.find((idea) => idea.id == ideaParam));
-      if (!currentIdea) {
-        currentIdea = {};
-      }
+      $ideaCurrent = $ideas.find((idea) => idea.id == ideaParam);
     }
 
     if (categoryParam) {
       categoryParam = categoryParam.split(",");
       categoryParam.forEach((title) => {
-        if (categories.find((cat) => cat.title == title)) selectCategory(title);
+        if ($categories.find((cat) => cat.title == title))
+          selectCategory(title);
       });
     }
     if (
       categoryParam &&
-      categories.find((category) => category.id == categoryParam)
+      $categories.find((category) => category.id == categoryParam)
     ) {
-      selectCategory(categories.find((cat) => cat.id == categoryParam).title);
-    }
-
-    if (!ideaParam && !categoryParam) {
-      setVisible(false);
+      selectCategory($categories.find((cat) => cat.id == categoryParam).title);
     }
   };
 
@@ -215,7 +142,7 @@
     let sortModifier = sortBy.ascending ? 1 : -1;
 
     // Sort shownIdeas based on sortBy col
-    shownIdeas = shownIdeas.sort((a, b) => {
+    $shownIdeas = $shownIdeas.sort((a, b) => {
       if (a[sortBy.col] < b[sortBy.col]) return -1 * sortModifier;
       if (a[sortBy.col] > b[sortBy.col]) return 1 * sortModifier;
       if (!a[sortBy.col]) return 1 * sortModifier;
@@ -230,7 +157,7 @@
 
   const searchFilter = (query) => {
     // Search through the shownIdeas with the query
-    searchIdeas = shownIdeas.filter((idea) => {
+    searchIdeas = $shownIdeas.filter((idea) => {
       return (
         String(idea.title)
           .toLowerCase()
@@ -260,22 +187,15 @@
   $: {
     sort(currentSort);
   }
-
-  const addComment = async (comment) => {
-    if (currentIdea) {
-      shownIdeas[
-        shownIdeas.findIndex((idea) => idea.id == currentIdea.id)
-      ].comments_n += 1;
-      shownIdeas = shownIdeas;
-      await supabase.from("comments").insert(comment);
-    }
-  };
 </script>
 
 <svelte:head>
-  <title>{visible ? currentIdea.title + " | " : ""}AI Safety Ideas</title>
+  <title
+    >{$ideaViewVisible ? currentIdea.title + " | " : ""}AI Safety Ideas</title
+  >
 </svelte:head>
 
+<DataLoader />
 <Nav />
 <div class="globwrap">
   <div class="container first">
@@ -295,11 +215,11 @@
       </div>
     </div>
   </div>
-  {#if loaded}
+  {#if !$loading}
     <div class="container">
       <div class="ideas-col">
         <div class="idea-categories-wrapper">
-          {#each categories.sort( (a, b) => (a.priority > b.priority ? 1 : -1) ) as cat, i}
+          {#each $categories.sort( (a, b) => (a.priority > b.priority ? 1 : -1) ) as cat, i}
             <CategoryTag
               {cat}
               {selectCategory}
@@ -311,13 +231,13 @@
 
         {#if searchValue}
           {#each searchIdeas.slice(0, 4) as idea}
-            <Idea {idea} {selectIdea} {selectCategory} />
+            <Idea {idea} {selectCategory} />
           {:else}
             <p class="not-found">No ideas found</p>
           {/each}
         {:else}
-          {#each shownIdeas.slice(0, 4) as idea}
-            <Idea {idea} {selectIdea} {selectCategory} />
+          {#each $shownIdeas.slice(0, 4) as idea}
+            <Idea {idea} {selectCategory} />
           {:else}
             <p class="not-found">No ideas found</p>
           {/each}
@@ -332,10 +252,10 @@
       </MediaQuery>
       <p>Click on a project to see the ideas in each.</p>
       <div class="project-contain">
-        {#each superprojects
+        {#each $superprojects
           .sort(() => Math.random() - 0.5)
           .slice(0, 5) as project}
-          <SuperprojectBlock {project} {ideas} />
+          <SuperprojectBlock {project} />
         {/each}
       </div>
     </div>
@@ -343,11 +263,11 @@
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(4, 8) as idea}
-            <Idea {idea} {selectIdea} {selectCategory} />
+            <Idea {idea} {selectCategory} />
           {/each}
         {:else}
-          {#each shownIdeas.slice(4, 8) as idea}
-            <Idea {idea} {selectIdea} {selectCategory} />
+          {#each $shownIdeas.slice(4, 8) as idea}
+            <Idea {idea} {selectCategory} />
           {/each}
         {/if}
       </div>
@@ -359,13 +279,13 @@
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(8, searchIdeas.length) as idea}
-            <Idea {idea} {selectIdea} {selectCategory} />
+            <Idea {idea} {selectCategory} />
           {:else}
             <p class="not-found">No ideas found</p>
           {/each}
         {:else}
-          {#each shownIdeas.slice(8, shownIdeas.length) as idea}
-            <Idea {idea} {selectIdea} {selectCategory} />
+          {#each $shownIdeas.slice(8, $shownIdeas.length) as idea}
+            <Idea {idea} {selectCategory} />
           {:else}
             <p class="not-found">No ideas found</p>
           {/each}
@@ -375,7 +295,7 @@
   {:else}
     <LoadIcon />
   {/if}
-  <IdeaViewer idea={currentIdea} {visible} {setVisible} {addComment} />
+  <IdeaViewer />
 </div>
 
 <Footer />

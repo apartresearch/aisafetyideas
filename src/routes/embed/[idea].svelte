@@ -1,24 +1,20 @@
 <script>
-  import { getIdea } from "$lib/db";
   import { page } from "$app/stores";
   import { onMount } from "svelte";
   import markdown from "$lib/drawdown";
   import tippy from "sveltejs-tippy";
   import LoadIcon from "$lib/LoadIcon.svelte";
   const ideaSlug = $page.params.idea;
+  import DataLoader from "$lib/DataLoader.svelte";
+  import { ideas, loading } from "$lib/stores";
 
-  let idea = {},
-    loaded = false;
-
-  onMount(async () => {
-    loaded = false;
-    idea = await getIdea(ideaSlug);
-    loaded = true;
-  });
+  let idea = {};
 </script>
 
+<DataLoader />
+
 <div class="idea">
-  {#if loaded}
+  {#if !$loading}
     <div class="idea-top">
       <div
         class="idea-superprojects-wrapper list-item"

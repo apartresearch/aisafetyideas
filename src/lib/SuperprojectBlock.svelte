@@ -1,7 +1,8 @@
 <script>
   import markdown from "$lib/drawdown.js";
   import tippy from "sveltejs-tippy";
-  export let project, ideas;
+  export let project;
+  import { ideas, user } from "$lib/stores.js";
   //   Ensure that this does not become weirdo spaghetto as result of markdown content, i.e. stop at ][ or whatever regex shit works
 </script>
 
@@ -21,7 +22,7 @@
   </div>
   <div class="bottom">
     <p class="idea_n">
-      {ideas.filter((idea) =>
+      {$ideas.filter((idea) =>
         idea.superprojects.find((p) => p.superproject.id == project.id)
       ).length} ideas
     </p>

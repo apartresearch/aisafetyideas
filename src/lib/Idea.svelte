@@ -5,16 +5,27 @@
   import SuperprojectTag from "$lib/SuperprojectTag.svelte";
   import Comment from "./Comment.svelte";
   import moment from "moment";
-  import { user } from "$lib/stores.js";
+  import { user, ideaViewVisible, ideaCurrent } from "$lib/stores.js";
   import { addLikeToIdea } from "$lib/db.js";
   import { Toasts, addToast } from "as-toast";
   import MediaQuery from "$lib/MediaQuery.svelte";
+
   export let idea,
-    selectIdea = undefined,
-    selectCategory = undefined;
+    selectCategory = undefined,
+    url;
+
+  const selectIdea = () => {
+    $ideaViewVisible = true;
+    $ideaCurrent = idea;
+    if (!url) {
+      url = new URL(window.location.href);
+    }
+    url.searchParams.set("idea", idea.id);
+    window.history.pushState(null, document, url.href);
+  };
 </script>
 
-<div class="idea-card" on:click={() => selectIdea(idea)}>
+<div class="idea-card" on:click={() => selectIdea()}>
   <div class="idea-top">
     <div class="idea-superprojects-wrapper list-item" on:click|stopPropagation>
       <div class="idea-author">
@@ -104,11 +115,6 @@
               on:click={() => {
                 addLikeToIdea(idea.id, $user && idea.user_liked);
                 idea.user_liked = !idea.user_liked;
-                addToast({
-                  title: "Liked!",
-                  message: "You liked this idea.",
-                  type: "success",
-                });
                 idea.likes += idea.user_liked ? 1 : -1;
                 idea = idea;
               }}

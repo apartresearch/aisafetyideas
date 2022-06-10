@@ -1,5 +1,5 @@
 <script>
-  import { supabase, getTable, setupIdeas } from "$lib/db";
+  import { supabase } from "$lib/db";
   import { page } from "$app/stores";
   console.log(page);
   import { onMount } from "svelte";
