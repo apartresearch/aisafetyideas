@@ -114,6 +114,7 @@
 
     if (ideaParam) {
       $ideaCurrent = $ideas.find((idea) => idea.id == ideaParam);
+      $ideaViewVisible = true;
     }
 
     if (categoryParam) {
