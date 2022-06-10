@@ -52,7 +52,7 @@
       <div class="comment reply">
         <a class="author" target="_blank" href={comment.anon_author_url}>
           <!-- <img src="/images/link.svg" alt="Link icon" /> -->
-          {@html comment.username}
+          {@html reply.username}
           <span class="date">{moment(comment.created_at).fromNow()}</span>
         </a>
         {@html markdown(reply.text)}

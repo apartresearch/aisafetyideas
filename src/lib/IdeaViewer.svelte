@@ -29,20 +29,20 @@
       reply_to: replyTo,
     };
     if ($ideaCurrent) {
-      replyTo > 0
-        ? $ideaCurrent.comments
-            .find((c) => c.id == replyTo)
-            .replies.push(comment)
-        : $ideaCurrent.comments.push(comment);
-      $ideaCurrent.comments_n++;
-      $shownIdeas.forEach((idea) => {
-        if (idea.id == $ideaCurrent.id) {
-          replyTo > 0
-            ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
-            : idea.comments.push(comment);
-          idea.comments_n++;
-        }
-      });
+      //   replyTo > 0
+      //     ? $ideaCurrent.comments
+      //         .find((c) => c.id == replyTo)
+      //         .replies.push(comment)
+      //     : $ideaCurrent.comments.push(comment);
+      //   $ideaCurrent.comments_n++;
+      //   $shownIdeas.forEach((idea) => {
+      //     if (idea.id == $ideaCurrent.id) {
+      //       replyTo > 0
+      //         ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
+      //         : idea.comments.push(comment);
+      //       idea.comments_n++;
+      //     }
+      //   });
       $ideas.forEach((idea) => {
         if (idea.id == $ideaCurrent.id) {
           replyTo > 0
@@ -51,8 +51,8 @@
           idea.comments_n++;
         }
       });
-      $ideaCurrent = $ideaCurrent;
-      $shownIdeas = $shownIdeas;
+      // $ideaCurrent = $ideaCurrent;
+      // $shownIdeas = $shownIdeas;
       $ideas = $ideas;
       await supabase.from("comments").insert(comment);
       replyTo = null;
@@ -87,21 +87,21 @@
   });
 
   const removeComment = async (id) => {
-    $ideaCurrent.comments = $ideaCurrent.comments.filter(
-      (comment) => comment.id != id
-    );
-    $shownIdeas.forEach((idea) => {
-      if (idea.id == $ideaCurrent.id) {
-        idea.comments = idea.comments.filter((comment) => comment.id != id);
-      }
-    });
+    // $ideaCurrent.comments = $ideaCurrent.comments.filter(
+    //   (comment) => comment.id != id
+    // );
+    // $shownIdeas.forEach((idea) => {
+    //   if (idea.id == $ideaCurrent.id) {
+    //     idea.comments = idea.comments.filter((comment) => comment.id != id);
+    //   }
+    // });
     $ideas.forEach((idea) => {
       if (idea.id == $ideaCurrent.id) {
         idea.comments = idea.comments.filter((comment) => comment.id != id);
       }
     });
-    $ideaCurrent = $ideaCurrent;
-    $shownIdeas = $shownIdeas;
+    // $ideaCurrent = $ideaCurrent;
+    // $shownIdeas = $shownIdeas;
     $ideas = $ideas;
     await supabase.from("comments").delete().match({ id: id });
   };
@@ -355,13 +355,17 @@
     justify-content: space-between;
   }
 
+  .idea-top-left {
+  }
+
   .cross {
     cursor: pointer;
     width: 1.5em;
   }
 
   .very-small {
-    font-size: 0.8em;
+    font-size: 1rem;
+    line-height: 1.2rem;
     font-style: italic;
   }
 

@@ -200,9 +200,9 @@
 </script>
 
 <svelte:head>
-  <title
-    >{$ideaViewVisible ? currentIdea.title + " | " : ""}AI Safety Ideas</title
-  >
+  <title>
+    {$ideaViewVisible ? $ideaCurrent.title + " | " : ""}AI Safety Ideas
+  </title>
 </svelte:head>
 
 <DataLoader />
