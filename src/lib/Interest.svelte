@@ -14,6 +14,7 @@
         ),
         1
       );
+      $ideaCurrent.interests_n--;
       await supabase.from("idea_user_interest_relation").delete().match({
         user: $user.id,
         idea: $ideaCurrent.id,
@@ -23,8 +24,10 @@
       $ideaCurrent.interests.push({
         user: $user.id,
         idea: $ideaCurrent.id,
+        username: $user.username,
         how,
       });
+      $ideaCurrent.interests_n++;
       await supabase.from("idea_user_interest_relation").insert({
         idea: $ideaCurrent.id,
         user: $user.id,
