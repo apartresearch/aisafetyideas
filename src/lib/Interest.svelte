@@ -25,6 +25,7 @@
         user: $user.id,
         idea: $ideaCurrent.id,
         username: $user.username,
+        image: $user.image,
         how,
       });
       $ideaCurrent.interests_n++;
