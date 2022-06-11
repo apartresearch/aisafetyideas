@@ -85,6 +85,9 @@
         username: $users.find((u) => u.id == i.user)
           ? $users.find((u) => u.id == i.user).username
           : "",
+        image: $users.find((u) => u.id == i.user)
+          ? $users.find((u) => u.id == i.user).image
+          : "/images/person-outline (2).svg",
       }));
 
       //   Setup the ideas

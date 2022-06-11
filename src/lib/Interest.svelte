@@ -79,8 +79,8 @@
         appendTo: document.body,
       }}
     >
-      <img src="/images/person-outline (2).svg" alt="Help" />
-      <p>{interest.username ? interests.username : "Test user"}</p>
+      <img src={interest.image} alt="Help" class="pb" />
+      <p>{interest.username}</p>
     </div>
   {/each}
 </div>
@@ -104,6 +104,11 @@
 
   .interest > p {
     margin: 0 0 0 0.1rem;
+  }
+
+  .pb {
+    border-radius: 100%;
+    filter: none;
   }
 
   label {
