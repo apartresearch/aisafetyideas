@@ -69,16 +69,23 @@
       console.log(`Time to load all data: ${endTime - startTime}ms`);
 
       // Setup the comments
+      $comments = $comments.map((c) => ({
+        ...c,
+        username: $users.find((u) => u.id == c.author).username,
+      }));
       $comments = $comments
-        .map((c) => ({
-          ...c,
-          username: $users.find((u) => u.id == c.author).username,
-        }))
         .map((c) => ({
           ...c,
           replies: $comments.filter((r) => r.reply_to == c.id),
         }))
         .filter((c) => c.reply_to == null || c.reply_to < 1);
+
+      $interests = $interests.map((i) => ({
+        ...i,
+        username: $users.find((u) => u.id == i.user)
+          ? $users.find((u) => u.id == i.user).username
+          : "",
+      }));
 
       //   Setup the ideas
       $ideas = $ideas.map((idea) => ({
@@ -115,6 +122,8 @@
         comments: $comments.filter(
           (c) => (c.reply_to < 1 || !c.reply_to) && c.idea === idea.id
         ),
+        interests: $interests.filter((i) => i.idea === idea.id),
+        interests_n: $interests.filter((i) => i.idea === idea.id).length,
       }));
 
       $shownIdeas = $ideas;

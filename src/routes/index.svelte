@@ -243,7 +243,7 @@
           {#each searchIdeas.slice(0, 4) as idea}
             <Idea {idea} {selectCategory} />
           {:else}
-            <p class="not-found">No ideas found</p>
+            <p class="not-foun d">No ideas found</p>
           {/each}
         {:else}
           {#each $shownIdeas.slice(0, 4) as idea}
@@ -260,7 +260,10 @@
           <h2>Projects</h2>
         {/if}
       </MediaQuery>
-      <p>Click on a project to see the ideas in each.</p>
+      <p>
+        See all projects <a href="/projects">here</a>. Click on a project to see
+        the ideas in each.
+      </p>
       <div class="project-contain">
         {#each $superprojects
           .sort(() => Math.random() - 0.5)

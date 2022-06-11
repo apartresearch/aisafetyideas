@@ -16,6 +16,7 @@
   import { supabase } from "$lib/db.js";
   import { addLikeToIdea } from "$lib/db.js";
   import UserLogin from "$lib/UserLogin.svelte";
+  import Interest from "$lib/Interest.svelte";
 
   const setVisible = (val) => {
     $ideaViewVisible = val;
@@ -161,36 +162,58 @@
       <div class="current-idea-text">
         {@html markdown($ideaCurrent.summary)}
       </div>
-      <div class="heart-indicator">
-        <img
-          class={$user && $ideaCurrent.user_liked ? "heart-icon" : ""}
-          on:click={() => {
-            if ($user) {
-              addLikeToIdea($ideaCurrent.id, $user && $ideaCurrent.user_liked);
-              $ideaCurrent = {
-                ...$ideaCurrent,
-                user_liked: !$ideaCurrent.user_liked,
-                likes: $ideaCurrent.user_liked ? 1 : -1,
-              };
-            }
-          }}
-          src="/images/heart{$user && $ideaCurrent.user_liked
-            ? ''
-            : '-outline'}.svg"
-          alt="Heart icon"
-          use:tippy={{
-            content: `${
-              $user && $ideaCurrent.user_liked
-                ? "You liked this idea. Click to unlike."
-                : $user
-                ? "Click to like this idea."
-                : "Login to like this idea."
-            }`,
-            delay: [250, 0],
-          }}
-        />
-        <p>{$ideaCurrent.likes}</p>
+      <h4>Show your interest</h4>
+      <div class="flex-hori">
+        <div class="heart-indicator">
+          <img
+            class={$user && $ideaCurrent.user_liked ? "heart-icon" : ""}
+            on:click={() => {
+              if ($user) {
+                addLikeToIdea(
+                  $ideaCurrent.id,
+                  $user && $ideaCurrent.user_liked
+                );
+                $ideaCurrent = {
+                  ...$ideaCurrent,
+                  user_liked: !$ideaCurrent.user_liked,
+                  likes: $ideaCurrent.user_liked ? 1 : -1,
+                };
+              }
+            }}
+            src="/images/heart{$user && $ideaCurrent.user_liked
+              ? ''
+              : '-outline'}.svg"
+            alt="Heart icon"
+            use:tippy={{
+              content: `${
+                $user && $ideaCurrent.user_liked
+                  ? "You liked this idea. Click to unlike."
+                  : $user
+                  ? "Click to like this idea."
+                  : "Login to like this idea."
+              }`,
+              delay: [250, 0],
+            }}
+          />
+          <p>{$ideaCurrent.likes}</p>
+        </div>
+        <div class="heart-indicator">
+          <img
+            src="/images/person-outline (2).svg"
+            alt="Person icon"
+            use:tippy={{
+              content: `${
+                $user
+                  ? "Click below if you might be interested in helping out on this idea."
+                  : `Login to show your interest in this idea.`
+              }`,
+              delay: [250, 0],
+            }}
+          />
+          <p>{$ideaCurrent.interests_n}</p>
+        </div>
       </div>
+      <Interest />
 
       {#if $ideaCurrent.contact || $ideaCurrent.verified_by_expert || $ideaCurrent.mentorship_from}
         <h4>Contact and mentorship</h4>
@@ -201,13 +224,11 @@
           <a href="mailto:{$ideaCurrent.contact}">{$ideaCurrent.contact}</a>.
         </p>
       {/if}
-      {#if $ideaCurrent.mentorship_from}
+      {#if $ideaCurrent.mentorship_from && !$ideaCurrent.mentorship_from.includes("@")}
         <p class="small">
           Get mentorship for this project <a
-            href={$ideaCurrent.mentorship_from}
-          >
-            here
-          </a>.
+            href="${$ideaCurrent.mentorship_from}">here</a
+          >.
         </p>
       {/if}
       {#if $ideaCurrent.verified_by_expert}
@@ -316,6 +337,10 @@
     font-size: 3rem;
   }
 
+  .flex-hori {
+    display: flex;
+    flex-direction: row;
+  }
   .above {
     z-index: 100;
   }

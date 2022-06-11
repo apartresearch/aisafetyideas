@@ -7,6 +7,7 @@ export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
 
+
 export const getTable = async (table_name, grabTitle = true) => {
   try {
     let { data, error } = await supabase.from(table_name).select("*");
@@ -82,6 +83,5 @@ export async function setUserData(userData, id) {
     user.set(userTemp);
   }
 
-  console.log(userTemp, get(user), get(users));
   return userTemp;
 }
