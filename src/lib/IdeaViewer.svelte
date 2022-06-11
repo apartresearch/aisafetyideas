@@ -176,7 +176,9 @@
                 $ideaCurrent = {
                   ...$ideaCurrent,
                   user_liked: !$ideaCurrent.user_liked,
-                  likes: $ideaCurrent.user_liked ? 1 : -1,
+                  likes: ($ideaCurrent.likes += $ideaCurrent.user_liked
+                    ? 1
+                    : -1),
                 };
               }
             }}
