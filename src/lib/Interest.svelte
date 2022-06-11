@@ -12,23 +12,25 @@
         user: $user.id,
         idea: $ideaCurrent.id,
       });
-      $ideaCurrent = $ideaCurrent.interests.push({
+      $ideaCurrent.interests.push({
         user: $user.id,
         idea: $ideaCurrent.id,
         how,
       });
+      $ideaCurrent = $ideaCurrent;
     } else {
       await supabase.from("idea_user_interest_relation").insert({
         idea: $ideaCurrent.id,
         user: $user.id,
         how,
       });
-      $ideaCurrent = $ideaCurrent.interests.splice(
+      $ideaCurrent.interests.splice(
         $ideaCurrent.interests.findIndex(
           (i) => i.user == $user.id && i.idea == $ideaCurrent.id
         ),
         1
       );
+      $ideaCurrent = $ideaCurrent;
     }
   };
 </script>
