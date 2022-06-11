@@ -8,30 +8,32 @@
 
   const sendInterest = async () => {
     if ($ideaCurrent.interests.find((i) => i.user == $user.id)) {
-      await supabase.from("idea_user_interest_relation").delete().match({
-        user: $user.id,
-        idea: $ideaCurrent.id,
-      });
-      $ideaCurrent.interests.push({
-        user: $user.id,
-        idea: $ideaCurrent.id,
-        how,
-      });
-      $ideaCurrent = $ideaCurrent;
-    } else {
-      await supabase.from("idea_user_interest_relation").insert({
-        idea: $ideaCurrent.id,
-        user: $user.id,
-        how,
-      });
       $ideaCurrent.interests.splice(
         $ideaCurrent.interests.findIndex(
           (i) => i.user == $user.id && i.idea == $ideaCurrent.id
         ),
         1
       );
+      await supabase.from("idea_user_interest_relation").delete().match({
+        user: $user.id,
+        idea: $ideaCurrent.id,
+      });
+      $ideaCurrent = $ideaCurrent;
+    } else {
+      $ideaCurrent.interests.push({
+        user: $user.id,
+        idea: $ideaCurrent.id,
+        how,
+      });
+      await supabase.from("idea_user_interest_relation").insert({
+        idea: $ideaCurrent.id,
+        user: $user.id,
+        how,
+      });
       $ideaCurrent = $ideaCurrent;
     }
+    how = "";
+    notifyMe = false;
   };
 </script>
 
