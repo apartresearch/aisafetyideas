@@ -31,7 +31,7 @@
   };
 </script>
 
-{#if $user}
+{#if !!$user}
   <a
     class="user  {white ? '' : 'light-bg'}"
     href={"/user/" + $user.username}
@@ -43,7 +43,6 @@
       appendTo: document.body,
     }}
   >
-    <!-- svelte-ignore a11y-img-redundant-alt -->
     {#if $user.image}
       <img src={$user.image} alt="Avatar" />
     {:else}
@@ -53,7 +52,6 @@
   </a>
 {:else}
   <button on:click={handleLogin} class={white ? "" : "light-bg"}>
-    <!-- svelte-ignore a11y-img-redundant-alt -->
     <img
       src="/images/person-outline (2).svg"
       alt="user icon"
