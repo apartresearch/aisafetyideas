@@ -173,7 +173,7 @@
         return;
       }
 
-      console.log("Uploaded idea...");
+      console.log("Uploaded idea...", idea);
       await categories_ids.forEach(async (category_id) => {
         await supabase.from("idea_category_relation").insert(category_id);
       });
