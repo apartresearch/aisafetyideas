@@ -142,9 +142,7 @@
   ) => {
     try {
       // Delete existing relations
-      console.log("Maybe this would have been better");
       if (ideas.find((idea) => idea.id === idea_id)) {
-        console.log("I'm inside the for loop");
         await Promise.all([
           supabase.from("idea_category_relation").delete().match({
             idea: idea_id,
