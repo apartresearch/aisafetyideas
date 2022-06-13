@@ -239,8 +239,6 @@
   }
 
   const deleteIdea = async (id) => {
-    let idea = ideas.find((idea) => idea.id == id);
-
     Promise.all([
       supabase.from("idea_category_relation").delete().match({ idea: id }),
       supabase.from("idea_user_likes").delete().match({ idea: id }),
@@ -248,6 +246,9 @@
       supabase.from("idea_problem_relation").delete().match({ idea: id }),
       supabase.from("idea_idea_relation").delete().match({ idea_1: id }),
       supabase.from("idea_idea_relation").delete().match({ idea_2: id }),
+      supabase.from("idea_user_interest_relation").delete().match({
+        idea: id,
+      }),
     ]);
     await supabase.from("ideas").delete().match({ id });
     resetData();
