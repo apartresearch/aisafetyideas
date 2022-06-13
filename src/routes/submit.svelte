@@ -142,7 +142,9 @@
   ) => {
     try {
       // Delete existing relations
+      console.log("Maybe this would have been better");
       if (ideas.find((idea) => idea.id === idea_id)) {
+        console.log("I'm inside the for loop");
         await Promise.all([
           supabase.from("idea_category_relation").delete().match({
             idea: idea_id,
@@ -163,6 +165,7 @@
         ]);
       }
 
+      console.log("We got here after all");
       // Add idea and replace if id exists
       const { data, error } = await supabase.from("ideas").upsert(idea);
       if (error) {
@@ -306,12 +309,7 @@
         </div>
         <div class="input-wrapper">
           <label for="id">ID</label>
-          <input
-            type="number"
-            disabled
-            bind:value={idea_id}
-            on:input={editIdea(idea_id)}
-          />
+          <input type="number" disabled bind:value={idea_id} />
         </div>
       {/if}
       <div class="input-wrapper">
