@@ -28,9 +28,15 @@
 <div class="idea-card" on:click={() => selectIdea()}>
   <div class="idea-top">
     <div class="idea-superprojects-wrapper list-item" on:click|stopPropagation>
-      <div class="idea-author">
-        {idea.author != "" && idea.author != null ? idea.author : idea.username}
-      </div>
+      {#if idea.author}
+        <div class="idea-author">
+          {idea.author}
+        </div>
+      {:else}
+        <a class="idea-author" href={"/user/" + idea.username}>
+          {idea.username}
+        </a>
+      {/if}
       {#if idea.superprojects[0]}
         {#each idea.superprojects as superproject}
           <SuperprojectTag

@@ -12,6 +12,7 @@
   import Comment from "$lib/Comment.svelte";
   import Select from "svelte-select";
   import tippy from "sveltejs-tippy";
+  import { signout } from "$lib/db.js";
   import {
     ideas,
     superprojects,
@@ -110,6 +111,7 @@
     {/if}
 
     {#if $user.username == user_slug}
+      <button class="signout" on:click={() => signout()}> Sign out </button>
       <h3><i>Edit your information</i></h3>
       <div class="input">
         <div class="select">

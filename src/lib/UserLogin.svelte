@@ -29,11 +29,9 @@
 </script>
 
 {#if $user}
-  <div
+  <a
     class="user  {white ? '' : 'light-bg'}"
-    on:click={() => {
-      signout();
-    }}
+    href={"/user/" + $user.username}
     use:tippy={{
       content: `Signed in as ${$user.username}. <a on:click={${signout}}>Sign out</a>.`,
       allowHTML: true,
@@ -49,7 +47,7 @@
       <img src="/images/person-outline (2).svg" alt="Avatar" />
     {/if}
     {$user.username}
-  </div>
+  </a>
 {:else}
   <button on:click={handleLogin} class={white ? "" : "light-bg"}>
     <!-- svelte-ignore a11y-img-redundant-alt -->
@@ -114,5 +112,6 @@
 
   .user {
     cursor: pointer;
+    text-decoration: none;
   }
 </style>

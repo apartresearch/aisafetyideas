@@ -10,7 +10,7 @@
     ? 'current'
     : ''}"
 >
-  <a class="author" target="_blank" href={comment.anon_author_url}>
+  <a class="author" target="_blank" href={"/user/" + comment.username}>
     <!-- <img src="/images/link.svg" alt="Link icon" /> -->
     {@html comment.anon_author ? comment.anon_author : comment.username}
   </a>
@@ -50,7 +50,7 @@
   <div class="replies">
     {#each comment.replies as reply, i}
       <div class="comment reply">
-        <a class="author" target="_blank" href={comment.anon_author_url}>
+        <a class="author" target="_blank" href={"/user/" + reply.username}>
           <!-- <img src="/images/link.svg" alt="Link icon" /> -->
           {@html reply.username}
           <span class="date">{moment(comment.created_at).fromNow()}</span>

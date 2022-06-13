@@ -110,27 +110,6 @@
     });
     ideaSelect = [...ideaSelect, { value: idea_id, label: "New Idea" }];
     selectedIdea = ideaSelect[ideaSelect.length - 1];
-
-    console.log(
-      "ideas",
-      ideas,
-      "superprojects",
-      superprojects,
-      "categories",
-      categories,
-      "problems",
-      problems,
-      "categoryRelations",
-      categoryRelations,
-      "superprojectRelations",
-      superprojectRelations,
-      "problemRelations",
-      problemRelations,
-      "ideaRelations",
-      ideaRelations,
-      "idea_id",
-      idea_id
-    );
   };
 
   const addNewIdea = async (
@@ -163,7 +142,6 @@
         ]);
       }
 
-      console.log("We got here after all");
       // Add idea and replace if id exists
       const { data, error } = await supabase.from("ideas").upsert(idea);
       if (error) {
@@ -190,9 +168,7 @@
         await supabase.from("idea_idea_relation").insert(idea_id);
       });
       console.log("Uploaded idea relations...");
-      console.log(
-        "Idea uploaded! Resetting data. Description was: " + description
-      );
+
       resetData();
     } catch (err) {
       console.error(err);

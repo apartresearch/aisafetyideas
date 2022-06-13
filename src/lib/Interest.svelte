@@ -81,7 +81,7 @@
       }}
     >
       <img src={interest.image} alt="Help" class="pb" />
-      <p>{interest.username}</p>
+      <p>{interest.username} is interested 🡬</p>
     </div>
   {/each}
 </div>

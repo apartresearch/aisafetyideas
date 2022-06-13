@@ -154,9 +154,15 @@
           />
         </div>
       </div>
-      <p class="current-idea-author">
-        {$ideaCurrent.author ? $ideaCurrent.author : $ideaCurrent.username}
-      </p>
+      {#if $ideaCurrent.author}
+        <p class="current-idea-author">
+          {$ideaCurrent.author}
+        </p>
+      {:else}
+        <a class="current-idea-author" href={"/user/" + $ideaCurrent.username}>
+          {$ideaCurrent.username}
+        </a>
+      {/if}
 
       <h2 class="current-idea-title">{$ideaCurrent.title}</h2>
       <div class="current-idea-text">
