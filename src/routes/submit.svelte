@@ -127,7 +127,9 @@
       "problemRelations",
       problemRelations,
       "ideaRelations",
-      ideaRelations
+      ideaRelations,
+      "idea_id",
+      idea_id
     );
   };
 
