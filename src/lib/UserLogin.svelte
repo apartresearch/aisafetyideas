@@ -33,7 +33,7 @@
     class="user  {white ? '' : 'light-bg'}"
     href={"/user/" + $user.username}
     use:tippy={{
-      content: `Signed in as ${$user.username}. <a on:click={${signout}}>Sign out</a>.`,
+      content: `Signed in as ${$user.username}. Click to edit information and sign out.`,
       allowHTML: true,
       interactive: true,
       delay: [250, 0],
@@ -104,6 +104,11 @@
     justify-content: flex-start;
   }
 
+  a:hover {
+    cursor: pointer;
+    opacity: 0.8;
+  }
+
   a img {
     width: 1.5em;
     margin-right: 0.5em;
@@ -113,5 +118,6 @@
   .user {
     cursor: pointer;
     text-decoration: none;
+    color: var(--font-color-dark);
   }
 </style>

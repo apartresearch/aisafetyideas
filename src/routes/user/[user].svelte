@@ -29,6 +29,7 @@
     bio = "",
     career = "",
     doesnotexist = false,
+    expert = false,
     saved = false;
 
   onMount(async () => {
@@ -46,6 +47,7 @@
           username = userTemp.username;
           bio = userTemp.bio;
           career = userTemp.career_stage;
+          expert = userTemp.expert;
         } else {
           doesnotexist = true;
         }
@@ -101,8 +103,37 @@
   {:else if doesnotexist}
     This user does not exist.
   {:else}
-    <p class={"career " + career}>{career} career</p>
-    <h2>{username}</h2>
+    <div class="flex-hori">
+      <h2>{username}</h2>
+      <div>
+        <p
+          class={"career " + career}
+          use:tippy={{
+            content: "Career stage",
+            arrow: true,
+            duration: [200, 200],
+            delay: [0, 0],
+            hideOnClick: true,
+          }}
+        >
+          {career}
+        </p>
+        {#if expert}
+          <p
+            class="career expert"
+            use:tippy={{
+              content: "Accepted as an expert user who can verify ideas.",
+              arrow: true,
+              duration: [200, 200],
+              delay: [0, 0],
+              hideOnClick: true,
+            }}
+          >
+            ⭐ Expert user
+          </p>
+        {/if}
+      </div>
+    </div>
 
     {#if bio}
       <div class="user-bio">
@@ -112,6 +143,7 @@
 
     {#if $user.username == user_slug}
       <button class="signout" on:click={() => signout()}> Sign out </button>
+      <br />
       <h3><i>Edit your information</i></h3>
       <div class="input">
         <div class="select">
@@ -160,6 +192,28 @@
 <Footer />
 
 <style>
+  .flex-hori {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    row-gap: 1rem;
+  }
+  .flex-hori > div {
+    display: flex;
+    flex-direction: row;
+    column-gap: 0.5rem;
+  }
+
+  .expert,
+  .career {
+    color: white;
+    background-color: var(--expert);
+    padding: 0.5rem 0.7rem;
+    text-align: center;
+    vertical-align: middle;
+    border-radius: var(--border-radius);
+  }
+
   h2,
   h3,
   .career {
@@ -210,23 +264,28 @@
 
   .career {
     font-size: 0.75rem;
+    line-height: 1rem;
     font-weight: bold;
   }
 
   .Early {
-    color: var(--early);
+    background-color: var(--early);
   }
 
   .Mid {
-    color: var(--mid);
+    background-color: var(--mid);
   }
 
   .Late {
-    color: var(--late);
+    background-color: var(--late);
   }
 
   .Student {
-    color: var(--student);
+    background-color: var(--student);
+  }
+
+  .signout {
+    margin: 0.5rem 0;
   }
 
   .comment-indicator {
@@ -251,5 +310,32 @@
 
   .user-comments {
     margin-top: 20px;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      margin-top: 0;
+    }
+    .flex-hori {
+      flex-direction: column-reverse;
+    }
+    .input {
+      flex-direction: column;
+    }
+    .select {
+      flex-direction: column;
+    }
+    .select > input {
+      width: 100%;
+    }
+    .select > select {
+      width: 100%;
+    }
+    .user-ideas {
+      margin-top: 20px;
+    }
+    .user-comments {
+      margin-top: 20px;
+    }
   }
 </style>

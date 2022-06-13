@@ -221,7 +221,7 @@
     --bg-color-dark-hover: #fafafa;
     --bg-color-light-hover: #fafafa;
     --font-color-dark: #f5fff9;
-    --font-color-light: #000;
+    --font-color-light: #333;
     --font-color-faded: #fff;
     --font-color-faded-hover: #fff9;
     --link-color: #af69e7;
@@ -251,6 +251,7 @@
     --as-toast-warn-border-color: hsl(0, 68%, 47%, 30%);
     --as-toast-warn-background: hsla(0, 69%, 80%, 0.7);
 
+    --expert: #ff9307;
     --early: #e41a1a;
     --mid: #79c236;
     --late: #364ab9;

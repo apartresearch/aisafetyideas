@@ -234,8 +234,8 @@
       {/if}
       {#if $ideaCurrent.mentorship_from && !$ideaCurrent.mentorship_from.includes("@")}
         <p class="small">
-          Get mentorship for this project <a
-            href="${$ideaCurrent.mentorship_from}">here</a
+          Get mentorship for this project <a href={$ideaCurrent.mentorship_from}
+            >here</a
           >.
         </p>
       {/if}
@@ -348,9 +348,6 @@
   .flex-hori {
     display: flex;
     flex-direction: row;
-  }
-  .above {
-    z-index: 100;
   }
 
   .heart-icon {
@@ -469,6 +466,7 @@
     align-items: top;
     position: absolute;
     margin: 50px auto;
+    width: 100%;
     max-width: 700px;
     padding: 20px;
     background-color: #fff;
@@ -525,6 +523,7 @@
       width: 100%;
       margin: 0;
     }
+
     .comment-text {
       width: 100%;
       margin-bottom: 0.3em;

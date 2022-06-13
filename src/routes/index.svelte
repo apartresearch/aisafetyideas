@@ -326,6 +326,12 @@
   }
   .intermission {
     margin: 1rem 0;
+    background-color: var(--light-accent-bg);
+    border: 1px solid var(--light-accent-border);
+    box-shadow: var(--box-shadow);
+    border-radius: var(--border-radius);
+    margin: 1rem 0.5rem;
+    padding: 1rem;
   }
 
   .intermission > h2 {
@@ -487,7 +493,7 @@
     }
 
     .intermission {
-      padding: 0 0.5rem;
+      padding: 0 0.5rem 0.5rem 0.5rem;
       text-align: center;
     }
   }

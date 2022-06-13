@@ -143,6 +143,17 @@
             />
             <p>{idea.likes}</p>
           </div>
+          <div class="comment-indicator">
+            <img
+              use:tippy={{
+                content: `Login to show your interest in this idea.`,
+              }}
+              class="heart"
+              src="/images/person-outline (2).svg"
+              alt="Human icon"
+            />
+            <p>{idea.interests_n}</p>
+          </div>
         {/if}
       </MediaQuery>
     </div>
