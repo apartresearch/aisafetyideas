@@ -295,7 +295,7 @@
   }
   .container {
     max-width: 820px;
-    padding: 5px 10px;
+    padding: 1rem 2rem;
     margin: -3rem auto 0 auto;
     position: relative;
     z-index: 102;

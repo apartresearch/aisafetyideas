@@ -313,17 +313,19 @@
         {/if}
       </div>
 
-      {#if $ideaCurrent.comments.length > 0}
-        <div class="idea-comments-wrapper">
-          {#each $ideaCurrent.comments as comment}
-            <Comment
-              {comment}
-              currentComment={replyTo}
-              {replyToComment}
-              {removeComment}
-            />
-          {/each}
-        </div>
+      {#if $ideaCurrent.comments}
+        {#if $ideaCurrent.comments.length > 0}
+          <div class="idea-comments-wrapper">
+            {#each $ideaCurrent.comments as comment}
+              <Comment
+                {comment}
+                currentComment={replyTo}
+                {replyToComment}
+                {removeComment}
+              />
+            {/each}
+          </div>
+        {/if}
       {/if}
     {:else}
       <h3>Select an idea</h3>

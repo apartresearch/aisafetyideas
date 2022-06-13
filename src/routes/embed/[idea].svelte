@@ -6,7 +6,7 @@
   import LoadIcon from "$lib/LoadIcon.svelte";
   const ideaSlug = $page.params.idea;
   import DataLoader from "$lib/DataLoader.svelte";
-  import { ideas, loading } from "$lib/stores";
+  import { loading } from "$lib/stores";
 
   let idea = {};
 </script>

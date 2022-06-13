@@ -70,8 +70,9 @@
 
 <div class="interest-wrapper">
   {#each $ideaCurrent.interests as interest}
-    <div
+    <a
       class="interest"
+      href={"/user/" + interest.username}
       use:tippy={{
         content: `<h4 style="font-weight:400;margin:0.2rem 0;">How I might be able to help</h4><p>${interest.how}</p>`,
         allowHTML: true,
@@ -82,7 +83,7 @@
     >
       <img src={interest.image} alt="Help" class="pb" />
       <p>{interest.username} is interested 🡬</p>
-    </div>
+    </a>
   {/each}
 </div>
 

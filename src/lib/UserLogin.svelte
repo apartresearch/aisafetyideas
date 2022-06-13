@@ -18,7 +18,10 @@
   const handleLogin = async () => {
     try {
       loading = true;
-      const { error } = await supabase.auth.signIn({ provider: "google" });
+      const { error } = await supabase.auth.signIn({
+        provider: "google",
+        redirectTo: window.location.href,
+      });
       if (error) throw error;
     } catch (error) {
       alert(error.error_description || error.message);

@@ -139,6 +139,9 @@
           supabase.from("idea_idea_relation").delete().match({
             idea_2: idea_id,
           }),
+          supabase.from("idea_user_interest_relation").delete().match({
+            idea: idea_id,
+          }),
         ]);
       }
 
