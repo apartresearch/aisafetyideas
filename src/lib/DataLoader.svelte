@@ -91,6 +91,9 @@
         image: $users.find((u) => u.id == i.user)
           ? $users.find((u) => u.id == i.user).image
           : "/images/person-outline (2).svg",
+        career_stage: $users.find((u) => u.id == i.user)
+          ? $users.find((u) => u.id == i.user).career_stage
+          : "",
       }));
 
       //   Setup the ideas

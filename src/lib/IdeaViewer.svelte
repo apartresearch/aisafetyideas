@@ -495,7 +495,7 @@
     min-height: 600px;
     min-width: 320px;
     cursor: default;
-    border-radius: 5px;
+    border-radius: var(--border-radius);
   }
 
   .current-idea-author {
@@ -505,7 +505,7 @@
 
   .current-idea-title {
     margin-top: 0;
-    margin-bottom: 0.14em;
+    margin-bottom: 0.5rem;
   }
 
   .idea-superprojects-wrapper {
@@ -536,9 +536,23 @@
     /* Put in the right side */
   }
   /* Mobile responsive */
-  @media screen and (max-width: 700px) {
+  @media screen and (max-width: 768px) {
     .add-comment {
       flex-direction: column;
+    }
+
+    .top-right {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+    }
+
+    .idea-top {
+      flex-direction: column-reverse;
+    }
+    .current-idea {
+      width: 100%;
+      margin: 0;
     }
 
     .col2 {

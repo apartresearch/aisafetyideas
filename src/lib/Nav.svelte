@@ -254,10 +254,10 @@
     --as-toast-warn-background: hsla(0, 69%, 80%, 0.7);
 
     --expert: #ff9307;
-    --early: #e41a1a;
-    --mid: #79c236;
-    --late: #364ab9;
-    --student: #ff3eef;
+    --early: #0a84ff;
+    --mid: #ff375e;
+    --late: #af52de;
+    --student: #34c85a;
   }
 
   :global(a) {

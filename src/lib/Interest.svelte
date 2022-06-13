@@ -74,14 +74,22 @@
       class="interest"
       href={"/user/" + interest.username}
       use:tippy={{
-        content: `<h4 style="font-weight:400;margin:0.2rem 0;">How I might be able to help</h4><p>${interest.how}</p>`,
+        content: `<p style="margin:0;">${
+          interest.username
+        }'s career stage: <b style="color: var(--${interest.career_stage.toLowerCase()})">${
+          interest.career_stage
+        }</b></p><h4 style="font-weight:400;margin:0.2rem 0;">How I might be able to help</h4><p>${
+          interest.how
+        }</p>`,
         allowHTML: true,
         interactive: true,
         delay: [0, 0],
         appendTo: document.body,
       }}
     >
-      <img src={interest.image} alt="Help" class="pb" />
+      <div class={"pb " + interest.career_stage}>
+        <img src={interest.image} alt="Help" />
+      </div>
       <p>{interest.username} is interested 🡬</p>
     </a>
   {/each}
@@ -101,6 +109,43 @@
     color: var(--primary-color);
   }
 
+  .pb {
+    border-radius: 100%;
+    background-color: var(--primary-color);
+    overflow: hidden;
+    margin-right: 0.2rem;
+    padding: 0.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .pb img {
+    margin: 0;
+    padding: 0;
+    filter: none;
+  }
+
+  .Early {
+    background-color: var(--early);
+    color: var(--early);
+  }
+
+  .Mid {
+    background-color: var(--mid);
+    color: var(--mid);
+  }
+
+  .Late {
+    background-color: var(--late);
+    color: var(--late);
+  }
+
+  .Student {
+    background-color: var(--student);
+    color: var(--student);
+  }
+
   .interest:hover {
     background-color: var(--primary-color-hover);
     text-decoration: none;
@@ -109,11 +154,6 @@
 
   .interest > p {
     margin: 0 0 0 0.1rem;
-  }
-
-  .pb {
-    border-radius: 100%;
-    filter: none;
   }
 
   label {
@@ -173,10 +213,10 @@
   }
 
   img {
-    width: 1.2rem;
+    border-radius: 50%;
+    width: 1.5rem;
     filter: invert(32%) sepia(86%) saturate(975%) hue-rotate(185deg)
       brightness(93%) contrast(88%);
-    margin-right: 0.2rem;
   }
 
   textarea {
