@@ -97,14 +97,14 @@
     background-color: var(--button-bg-color-dark);
   }
 
-  div {
+  a {
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
   }
 
-  div img {
+  a img {
     width: 1.5em;
     margin-right: 0.5em;
     border-radius: 100em;
