@@ -37,6 +37,14 @@
           {idea.username}
         </a>
       {/if}
+      {#if idea.verifications_n > 0}
+        <div class="idea-author">
+          ⭐
+          <span class="idea-verifications-n">
+            {idea.verifications_n}
+          </span>
+        </div>
+      {/if}
       {#if idea.superprojects[0]}
         {#each idea.superprojects as superproject}
           <SuperprojectTag
@@ -159,6 +167,14 @@
             />
             <p>{idea.interests_n}</p>
           </div>
+          {#if idea.verifications_n > 0}
+            <div class="comment-indicator">
+              ⭐
+              <p class="idea-verifications-n">
+                {idea.verifications_n}
+              </p>
+            </div>
+          {/if}
         {/if}
       </MediaQuery>
     </div>
