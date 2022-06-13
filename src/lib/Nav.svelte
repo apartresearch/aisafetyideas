@@ -250,6 +250,11 @@
     --as-toast-info-background: rgba(255, 255, 255, 0.7);
     --as-toast-warn-border-color: hsl(0, 68%, 47%, 30%);
     --as-toast-warn-background: hsla(0, 69%, 80%, 0.7);
+
+    --early: #e41a1a;
+    --mid: #79c236;
+    --late: #364ab9;
+    --student: #ff3eef;
   }
 
   :global(a) {
@@ -267,8 +272,11 @@
     background: var(--bg-color-light);
   }
 
-  :global(.tooltip) {
-    z-index: 501;
+  :global(.tippy-content) {
+    z-index: 502;
+    background-color: var(--bg-color-light);
+    border: none;
+    position: relative;
   }
 
   :global(.tooltip a) {

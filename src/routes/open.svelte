@@ -157,7 +157,7 @@
       class="inline-number"
       use:tippy={{ content: "The amount of user interviews for the site." }}
     >
-      17
+      18
     </span>
     user interviews have been done. The current salary for core employees is
     <span
@@ -206,6 +206,9 @@
         { date: "2022-06-09", value: 1 },
         { date: "2022-06-10", value: 1 },
         { date: "2022-06-11", value: 1 },
+        { date: "2022-06-12", value: 1 },
+        { date: "2022-06-13", value: 1 },
+        { date: "2022-06-14", value: 1 },
       ]}
       endDate={moment().toDate()}
       startDate={moment("2022-04-15").toDate()}
