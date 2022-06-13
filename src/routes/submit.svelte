@@ -148,6 +148,7 @@
         console.log(error);
         return;
       }
+
       console.log("Uploaded idea...");
       await categories_ids.forEach(async (category_id) => {
         await supabase.from("idea_category_relation").insert(category_id);
@@ -167,9 +168,12 @@
         await supabase.from("idea_idea_relation").insert(idea_id);
       });
       console.log("Uploaded idea relations...");
+      console.log(
+        "Idea uploaded! Resetting data. Description was: " + description
+      );
       resetData();
     } catch (err) {
-      console.log(err);
+      console.error(err);
     }
     resetData();
   };
