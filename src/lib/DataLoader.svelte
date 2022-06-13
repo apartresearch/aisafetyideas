@@ -17,6 +17,7 @@
     problemRelations,
     ideaRelations,
     loading,
+    verifications,
   } from "$lib/stores.js";
   import { onMount } from "svelte";
   import { get } from "svelte/store";
@@ -46,6 +47,7 @@
         $superprojectRelations,
         $problemRelations,
         $ideaRelations,
+        $verifications,
       ] = await Promise.all([
         getTable("users"),
         getTable("superprojects"),
@@ -61,6 +63,7 @@
         getTable("idea_superproject_relation"),
         getTable("idea_problem_relation"),
         getTable("idea_idea_relation"),
+        getTable("idea_user_verification_relation"),
       ]);
       let endTime = performance.now();
 
@@ -127,6 +130,9 @@
         ),
         interests: $interests.filter((i) => i.idea === idea.id),
         interests_n: $interests.filter((i) => i.idea === idea.id).length,
+        verifications: $verifications.filter((v) => v.idea === idea.id),
+        verifications_n: $verifications.filter((v) => v.idea === idea.id)
+          .length,
       }));
 
       $shownIdeas = $ideas;
@@ -163,7 +169,9 @@
         "User",
         $user,
         "Loading",
-        $loading
+        $loading,
+        "Verifications",
+        $verifications
       );
 
       // Set global load state

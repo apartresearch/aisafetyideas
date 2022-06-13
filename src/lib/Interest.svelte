@@ -98,10 +98,13 @@
     padding: 0.5rem 0.75rem;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
+    color: var(--primary-color);
   }
 
   .interest:hover {
     background-color: var(--primary-color-hover);
+    text-decoration: none;
+    transform: translate(0, -1px);
   }
 
   .interest > p {

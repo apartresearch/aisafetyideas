@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { user, users } from '$lib/stores.js';
+import { ideaCurrent, user, users } from '$lib/stores.js';
 import { get } from 'svelte/store';
 
 export const supabase = createClient(
@@ -38,6 +38,31 @@ export const addLikeToComment = async (com_id) => {
     return data;
   } catch (err) {
     console.log(err);
+  }
+};
+
+export const certifyIdea = async (idea_id, remove = false) => {
+  try {
+    if(remove) {
+      let { data, error } = await supabase.from("idea_user_verification_relation").delete().match({
+          idea: idea_id,
+          user: get(user).id
+        });
+        ideaCurrent.set({...ideaCurrent, verifications_n : ideaCurrent.verifications_n - 1,
+        verifications: ideaCurrent.verifications.filter(elm => elm.idea !== idea_id && elm.user !== get(user).id)});
+      return data;
+    } else {
+      
+    let { data, error } = await supabase.from("idea_user_verification_relation").upsert({
+      idea: idea_id,
+      user: get(user).id,
+    });
+    ideaCurrent.set({...ideaCurrent, verifications_n : ideaCurrent.verifications_n + 1,
+      verifications: ideaCurrent.verifications.push({idea: idea_id, user: get(user).id})});
+    return data;
+  }
+  } catch (err) {
+    console.error(err);
   }
 };
 

@@ -14,9 +14,10 @@
     shownIdeas,
   } from "$lib/stores.js";
   import { supabase } from "$lib/db.js";
-  import { addLikeToIdea } from "$lib/db.js";
+  import { addLikeToIdea, certifyIdea } from "$lib/db.js";
   import UserLogin from "$lib/UserLogin.svelte";
   import Interest from "$lib/Interest.svelte";
+  import BurgerButton from "./BurgerButton.svelte";
 
   const setVisible = (val) => {
     $ideaViewVisible = val;
@@ -169,6 +170,25 @@
         {@html markdown($ideaCurrent.summary)}
       </div>
       <h4>Show your interest</h4>
+      {#if $ideaCurrent.verifications_n > 0}
+        <p
+          class="small"
+          use:tippy={{
+            content:
+              "We consult with experts in the respective field that every idea is in to evaluate whether they have good research taste, are positive utility, are well formulated, and so on.",
+            delay: [250, 0],
+          }}
+        >
+          This idea has been verified by {$ideaCurrent.verifications_n}
+          <a
+            href="/users"
+            on:click={() => {
+              $ideaViewVisible = false;
+            }}
+            target="_blank">expert(s)</a
+          >.
+        </p>
+      {/if}
       <div class="flex-hori">
         <div class="heart-indicator">
           <img
@@ -223,7 +243,7 @@
       </div>
       <Interest />
 
-      {#if $ideaCurrent.contact || $ideaCurrent.verified_by_expert || $ideaCurrent.mentorship_from}
+      {#if $ideaCurrent.contact || $ideaCurrent.verifications_n > 0 || $ideaCurrent.mentorship_from}
         <h4>Contact and mentorship</h4>
       {/if}
       {#if $ideaCurrent.contact}
@@ -239,24 +259,24 @@
           >.
         </p>
       {/if}
-      {#if $ideaCurrent.verified_by_expert}
-        <p
-          class="small"
-          use:tippy={{
-            content:
-              "We consult with experts in the respective field that every idea is in to evaluate whether they have good research taste, are positive utility, are well formulated, and so on.",
-            delay: [250, 0],
-          }}
-        >
-          This idea has been verified by an expert.
-        </p>
-      {/if}
       {#if $ideaCurrent.funding_amount > 0 && $ideaCurrent.funding_from}
         <h4>Funding</h4>
         <p>
           Funding (up to {$ideaCurrent.funding_currency}{$ideaCurrent.funding_amount})
           is available from <a href={$ideaCurrent.funding_from}>this page</a>.
         </p>
+      {/if}
+      {#if $user.expert && $ideaCurrent.verifications.find((verification) => verification.user === $user.id)}
+        <button
+          class="verify"
+          on:click={() => certifyIdea($ideaCurrent.id, true)}
+        >
+          Remove verification
+        </button>
+      {:else if $user.expert}
+        <button class="verify" on:click={() => certifyIdea($ideaCurrent.id)}>
+          Verify idea
+        </button>
       {/if}
 
       {#if $ideaCurrent.categories[0]}

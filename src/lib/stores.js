@@ -22,3 +22,4 @@ export const ideaRelations = writable([]);
 export const loading = writable(true);
 export const ideaViewVisible = writable(false);
 export const ideaCurrent = writable(undefined);
+export const verifications = writable([]);

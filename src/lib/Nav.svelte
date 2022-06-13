@@ -188,7 +188,7 @@
     }
 
     .content {
-      padding: 2rem 1rem;
+      padding: 0.75rem 1rem;
     }
 
     .content-p {

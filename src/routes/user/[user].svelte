@@ -315,6 +315,8 @@
   @media (max-width: 768px) {
     .container {
       margin-top: 0;
+      z-index: 0;
+      padding: 1rem 1rem;
     }
     .flex-hori {
       flex-direction: column-reverse;
