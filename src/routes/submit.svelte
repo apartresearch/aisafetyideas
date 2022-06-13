@@ -110,6 +110,25 @@
     });
     ideaSelect = [...ideaSelect, { value: idea_id, label: "New Idea" }];
     selectedIdea = ideaSelect[ideaSelect.length - 1];
+
+    console.log(
+      "ideas",
+      ideas,
+      "superprojects",
+      superprojects,
+      "categories",
+      categories,
+      "problems",
+      problems,
+      "categoryRelations",
+      categoryRelations,
+      "superprojectRelations",
+      superprojectRelations,
+      "problemRelations",
+      problemRelations,
+      "ideaRelations",
+      ideaRelations
+    );
   };
 
   const addNewIdea = async (
