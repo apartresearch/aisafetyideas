@@ -75,13 +75,12 @@
           <img src="/images/link.svg" alt="Source link icon" />
         </a>
       {/if}
-      {#if idea.verified_by_expert}
+      {#if idea.verifications_n > 0}
         <div
           use:tippy={{
-            content: `This idea has been verified by ${
-              !idea.verifier ? "an expert" : idea.verifier
-            }`,
+            content: `This idea has been verified by ${idea.verifications_n} <a href='/users'>experts</a>.`,
             allowHTML: true,
+            interactive: true,
             delay: [250, 0],
           }}
         >
@@ -91,7 +90,13 @@
       {#if idea.mentorship_from}
         <div
           use:tippy={{
-            content: `Mentorship for this idea is available from <a target="_blank" href="${idea.mentorship_from}">here</a>.`,
+            content: `Mentorship for this idea is available from <a target="_blank" href="${
+              idea.mentorship_from.includes("@")
+                ? "mailto:" + idea.mentorship_from
+                : idea.mentorship_from
+            }">${
+              idea.mentorship_from.includes("@") ? idea.mentorship_from : "here"
+            }</a>.`,
             allowHTML: true,
             interactive: true,
             delay: [250, 0],
