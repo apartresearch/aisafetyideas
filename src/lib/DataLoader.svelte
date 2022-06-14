@@ -107,8 +107,15 @@
           ? $users.find((user) => user.id === idea.user).username
           : "",
         comments_n:
-          $comments.filter((c) => c.idea === idea.id).length +
-          $comments.map((c) => c.replies).flat().length,
+          $comments.filter(
+            (c) => (c.reply_to < 1 || !c.reply_to) && c.idea === idea.id
+          ).length +
+          $comments
+            .filter(
+              (c) => (c.reply_to < 1 || !c.reply_to) && c.idea === idea.id
+            )
+            .map((c) => c.replies.length)
+            .reduce((a, b) => a + b, 0),
         categories: $categoryRelations
           .filter((r) => r.idea === idea.id)
           .map((c) => ({

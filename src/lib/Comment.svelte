@@ -53,7 +53,7 @@
         <a class="author" target="_blank" href={"/user/" + reply.username}>
           <!-- <img src="/images/link.svg" alt="Link icon" /> -->
           {@html reply.username}
-          <span class="date">{moment(comment.created_at).fromNow()}</span>
+          <span class="date">{moment(reply.created_at).fromNow()}</span>
         </a>
         {@html markdown(reply.text)}
         {#if $user && (replyToComment || $user.id == reply.author)}

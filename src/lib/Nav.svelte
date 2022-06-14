@@ -133,7 +133,7 @@
   }
 
   h1 {
-    font-family: Lora;
+    font-family: Lora, sans-serif;
   }
 
   .content-p {

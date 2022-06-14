@@ -113,17 +113,17 @@
           <img src="/images/help-outline (1).svg" alt="Expert verified icon" />
         </div>
       {/if}
-      {#if idea.comments.length > 0}
+      {#if idea.comments_n > 0}
         <div
           class="comment-indicator"
           use:tippy={{
-            content: `This idea has ${idea.comments.length} comments.`,
+            content: `This idea has ${idea.comments_n} comments.`,
             allowHTML: true,
             delay: [250, 0],
           }}
         >
           <img src="/images/chatbubbles-outline (3).svg" alt="Comments icon" />
-          <p>{idea.comments.length}</p>
+          <p>{idea.comments_n}</p>
         </div>
       {/if}
       <MediaQuery query="(max-width: 768px)" let:matches>

@@ -14,6 +14,7 @@
   import SuperprojectBlock from "$lib/SuperprojectBlock.svelte";
   import MediaQuery from "$lib/MediaQuery.svelte";
   import SubmitBlock from "$lib/SubmitBlock.svelte";
+  import moment from "moment";
   import DataLoader from "$lib/DataLoader.svelte";
   import {
     ideas,
@@ -141,23 +142,43 @@
       window.history.pushState(null, document, url.href);
     }
 
-    if (sortBy.col == column) {
-      sortBy.ascending = !sortBy.ascending;
-    } else {
-      sortBy.col = column;
-      sortBy.ascending = false;
+    sortBy.col = column;
+    sortBy.ascending = false;
+    let dates = false,
+      binary = false,
+      strings = false;
+
+    if (column == "difficulty" || column == "title") {
+      sortBy.ascending = true;
     }
+    if (column == "created_at" || column == "from_date") {
+      dates = true;
+    }
+    if (column == "mentorship_from") binary = true;
+    if (column == "title" || column == "description") strings = true;
 
     // Modifier to sorting function for ascending or descending
     let sortModifier = sortBy.ascending ? 1 : -1;
 
     // Sort shownIdeas based on sortBy col
     $shownIdeas = $shownIdeas.sort((a, b) => {
-      if (a[sortBy.col] < b[sortBy.col]) return -1 * sortModifier;
-      if (a[sortBy.col] > b[sortBy.col]) return 1 * sortModifier;
-      if (!a[sortBy.col]) return 1 * sortModifier;
-      if (!b[sortBy.col]) return -1 * sortModifier;
-      return 0;
+      if (binary) {
+        // if (a[column] == null) return 1;
+        // if (b[column] == null) return -1;
+        return (!!a[column] - !!b[column]) * sortModifier;
+      } else if (dates) {
+        if (a[column] == null) return 1;
+        if (b[column] == null) return -1;
+        return moment(a[column]).diff(moment(b[column])) * sortModifier;
+      } else if (strings) {
+        if (a[column] == null) return 1;
+        if (b[column] == null) return -1;
+        return a[column].localeCompare(b[column]) * sortModifier;
+      } else {
+        if (a[column] == null || a[column] == 0) return 1;
+        if (b[column] == null || b[column] == 0) return -1;
+        return (a[column] - b[column]) * sortModifier;
+      }
     });
   };
 
