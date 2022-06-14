@@ -271,7 +271,7 @@
           class="verify"
           on:click={() => certifyIdea($ideaCurrent.id, true)}
         >
-          Remove verification
+          Undo verifying this idea
         </button>
       {:else if $user.expert}
         <button class="verify" on:click={() => certifyIdea($ideaCurrent.id)}>
@@ -407,7 +407,23 @@
     justify-content: space-between;
   }
 
-  .idea-top-left {
+  .verify {
+    background-color: #f5f5f5;
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: #333;
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-top: 1rem;
+    padding: 0.5rem 1rem;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+  }
+
+  .verify:hover {
+    background-color: #333;
+    color: #f5f5f5;
   }
 
   .cross {
