@@ -240,23 +240,23 @@
           items={sortingColumns}
           bind:value={currentSort}
         />
+        <button
+          on:click={() => {
+            switchSort = switchSort == 1 ? -1 : 1;
+            sort({ value: sortBy.col });
+          }}
+          class="switchSortDaddy"
+        >
+          <img
+            src={"/images/" +
+              (switchSort * -(sortBy.ascending ? 1 : -1) == 1
+                ? "arrow-down-outline.svg"
+                : "arrow-up-outline.svg")}
+            alt=""
+            class="switchSort"
+          />
+        </button>
       </div>
-      <button
-        on:click={() => {
-          switchSort = switchSort == 1 ? -1 : 1;
-          sort({ value: sortBy.col });
-        }}
-        class="switchSortDaddy"
-      >
-        <img
-          src={"/images/" +
-            (switchSort * -(sortBy.ascending ? 1 : -1) == 1
-              ? "arrow-down-outline.svg"
-              : "arrow-up-outline.svg")}
-          alt=""
-          class="switchSort"
-        />
-      </button>
     </div>
   </div>
   {#if !$loading}
@@ -430,6 +430,10 @@
     left: 0;
   }
 
+  :global(.selectContainer) {
+    flex-grow: 1;
+  }
+
   .idea-categories-wrapper {
     display: flex;
     flex-direction: row;
@@ -493,6 +497,9 @@
 
   .sort {
     width: 30%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
     margin-left: 1%;
   }
 
