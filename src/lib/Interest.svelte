@@ -76,7 +76,11 @@
       use:tippy={{
         content: `<p style="margin:0;">${
           interest.username
-        }'s career stage: <b style="color: var(--${interest.career_stage.toLowerCase()})">${
+        }'s career stage: <b ${
+          interest.career_stage
+            ? `style="color: var(--${interest.career_stage.toLowerCase()})"`
+            : ""
+        }>${
           interest.career_stage
         }</b></p><h4 style="font-weight:400;margin:0.2rem 0;">How I might be able to help</h4><p>${
           interest.how
@@ -231,6 +235,6 @@
   }
 
   input:focus {
-    bakground-color: var(--primary-color-hover);
+    background-color: var(--primary-color-hover);
   }
 </style>

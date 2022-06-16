@@ -33,15 +33,9 @@
     sortParam = "";
   // console.log($page.url.searchParams.has("meme"));
 
-  let problems = [],
-    categoryRelations = [],
-    superprojectRelations = [],
-    problemRelations = [],
-    ideaRelations = [],
-    currentIdea = {},
-    selectedCategories = [],
+  let selectedCategories = [],
     searchIdeas = [],
-    userList = [];
+    switchSort = 1;
 
   let searchValue = "";
 
@@ -136,6 +130,8 @@
   // Holds table sort state.  Initialized to reflect table sorted by id column ascending.
   let sortBy = { col: "", ascending: false };
   const sort = (column) => {
+    if (!column.value) return null;
+
     column = column.value;
     if (url) {
       url.searchParams.set("sort", column);
@@ -144,6 +140,7 @@
 
     sortBy.col = column;
     sortBy.ascending = false;
+
     let dates = false,
       binary = false,
       strings = false;
@@ -158,7 +155,7 @@
     if (column == "title" || column == "description") strings = true;
 
     // Modifier to sorting function for ascending or descending
-    let sortModifier = sortBy.ascending ? 1 : -1;
+    let sortModifier = (sortBy.ascending ? 1 : -1) * switchSort;
 
     // Sort shownIdeas based on sortBy col
     $shownIdeas = $shownIdeas.sort((a, b) => {
@@ -244,6 +241,22 @@
           bind:value={currentSort}
         />
       </div>
+      <button
+        on:click={() => {
+          switchSort = switchSort == 1 ? -1 : 1;
+          sort({ value: sortBy.col });
+        }}
+        class="switchSortDaddy"
+      >
+        <img
+          src={"/images/" +
+            (switchSort == 1
+              ? "arrow-down-outline.svg"
+              : "arrow-up-outline.svg")}
+          alt=""
+          class="switchSort"
+        />
+      </button>
     </div>
   </div>
   {#if !$loading}
@@ -329,7 +342,7 @@
   {:else}
     <LoadIcon />
   {/if}
-  <IdeaViewer />
+  <IdeaViewer {url} />
 </div>
 
 <Footer />
@@ -455,6 +468,27 @@
 
   .search {
     width: 69.5%;
+  }
+
+  .switchSortDaddy {
+    padding: 0.2rem 0.1rem;
+    height: 2.6rem;
+    background-color: var(--light-accent-bg);
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    margin: 0;
+    margin-left: 0.3rem;
+    transition: 0.2s ease-in-out all;
+  }
+
+  .switchSortDaddy:hover {
+    border: 1px solid var(--primary-color);
+    background-color: var(--primary-color-hover);
+  }
+
+  .switchSort {
+    height: 1.5rem;
+    filter: invert(0.5);
   }
 
   .sort {

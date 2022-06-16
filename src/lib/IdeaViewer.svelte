@@ -18,9 +18,14 @@
   import UserLogin from "$lib/UserLogin.svelte";
   import Interest from "$lib/Interest.svelte";
   import BurgerButton from "./BurgerButton.svelte";
+  export let url;
 
   const setVisible = (val) => {
     $ideaViewVisible = val;
+    if (val == false && url) {
+      url.searchParams.delete("idea");
+      window.history.pushState(null, document, url.href);
+    }
   };
 
   const addComment = async () => {
@@ -109,249 +114,248 @@
   };
 </script>
 
-<content
-  class="fullscreen-wrapper {$ideaViewVisible ? '' : 'hidden'}"
-  on:click|self={() => setVisible(false)}
->
-  <div class="current-idea" on:click={() => {}}>
-    {#if $ideaCurrent}
-      <div class="idea-top">
-        <div class="idea-top-left">
-          {#if $ideaCurrent.sourced}
-            <p class="very-small">
-              <a href={$ideaCurrent.sourced} target="_blank">Source</a>
-              {#if $ideaCurrent.from_date}
-                from {moment($ideaCurrent.from_date).fromNow()}
-              {/if}
-            </p>
-          {/if}
-          {#if !$ideaCurrent.sourced && $ideaCurrent.from_date}
-            <p class="very-small">
-              {$ideaCurrent.from_date}
-            </p>
-          {/if}
-          {#if !$ideaCurrent.sourced && !$ideaCurrent.from_date}
-            <p class="very-small">
-              From {moment($ideaCurrent.created_at).fromNow()}
-            </p>
-          {/if}
+{#if $ideaViewVisible}
+  <content class="fullscreen-wrapper" on:click|self={() => setVisible(false)}>
+    <div class="current-idea" on:click={() => {}}>
+      {#if $ideaCurrent}
+        <div class="idea-top">
+          <div class="idea-top-left">
+            {#if $ideaCurrent.from_date}
+              <p class="very-small">
+                {$ideaCurrent.from_date}
+              </p>
+            {/if}
+            {#if !$ideaCurrent.from_date}
+              <p class="very-small">
+                From {moment($ideaCurrent.created_at).fromNow()}
+              </p>
+            {/if}
+          </div>
+          <div class="top-right">
+            {#if $ideaCurrent.difficulty}
+              <p
+                class="difficulty"
+                use:tippy={{
+                  content: "An estimate of the amount of work required.",
+                }}
+              >
+                {$ideaCurrent.difficulty}h work
+              </p>
+            {/if}
+            <img
+              on:click={() => setVisible(false)}
+              src="/images/close-outline.svg"
+              alt="Close idea"
+              class="cross"
+            />
+          </div>
         </div>
-        <div class="top-right">
-          {#if $ideaCurrent.difficulty}
-            <p
-              class="difficulty"
-              use:tippy={{
-                content: "An estimate of the amount of work required.",
-              }}
-            >
-              {$ideaCurrent.difficulty}h work
-            </p>
-          {/if}
-          <img
-            on:click={() => setVisible(false)}
-            src="/images/close-outline.svg"
-            alt="Close idea"
-            class="cross"
-          />
-        </div>
-      </div>
-      {#if $ideaCurrent.author}
-        <p class="current-idea-author">
-          {$ideaCurrent.author}
-        </p>
-      {:else}
-        <a class="current-idea-author" href={"/user/" + $ideaCurrent.username}>
-          {$ideaCurrent.username}
-        </a>
-      {/if}
-
-      <h2 class="current-idea-title">{$ideaCurrent.title}</h2>
-      <div class="current-idea-text">
-        {@html markdown($ideaCurrent.summary)}
-      </div>
-      <h4>Show your interest</h4>
-      {#if $ideaCurrent.verifications_n > 0}
-        <p
-          class="small"
-          use:tippy={{
-            content:
-              "We consult with experts in the respective field that every idea is in to evaluate whether they have good research taste, are positive utility, are well formulated, and so on.",
-            delay: [250, 0],
-          }}
-        >
-          This idea has been verified by {$ideaCurrent.verifications_n}
+        {#if $ideaCurrent.author}
+          <p class="current-idea-author">
+            {$ideaCurrent.author}
+          </p>
+        {:else}
           <a
-            href="/users"
-            on:click={() => {
-              $ideaViewVisible = false;
-            }}
-            target="_blank">expert(s)</a
-          >.
-        </p>
-      {/if}
-      <div class="flex-hori">
-        <div class="heart-indicator">
-          <img
-            class={$user && $ideaCurrent.user_liked ? "heart-icon" : ""}
-            on:click={() => {
-              if ($user) {
-                addLikeToIdea(
-                  $ideaCurrent.id,
-                  $user && $ideaCurrent.user_liked
-                );
-                $ideaCurrent = {
-                  ...$ideaCurrent,
-                  user_liked: !$ideaCurrent.user_liked,
-                  likes: ($ideaCurrent.likes += $ideaCurrent.user_liked
-                    ? 1
-                    : -1),
-                };
-              }
-            }}
-            src="/images/heart{$user && $ideaCurrent.user_liked
-              ? ''
-              : '-outline'}.svg"
-            alt="Heart icon"
-            use:tippy={{
-              content: `${
-                $user && $ideaCurrent.user_liked
-                  ? "You liked this idea. Click to unlike."
-                  : $user
-                  ? "Click to like this idea."
-                  : "Login to like this idea."
-              }`,
-              delay: [250, 0],
-            }}
-          />
-          <p>{$ideaCurrent.likes}</p>
-        </div>
-        <div class="heart-indicator">
-          <img
-            src="/images/person-outline (2).svg"
-            alt="Person icon"
-            use:tippy={{
-              content: `${
-                $user
-                  ? "Click below if you might be interested in helping out on this idea."
-                  : `Login to show your interest in this idea.`
-              }`,
-              delay: [250, 0],
-            }}
-          />
-          <p>{$ideaCurrent.interests_n}</p>
-        </div>
-      </div>
-      <Interest />
+            class="current-idea-author"
+            href={"/user/" + $ideaCurrent.username}
+          >
+            {$ideaCurrent.username}
+          </a>
+        {/if}
 
-      {#if $ideaCurrent.contact || $ideaCurrent.verifications_n > 0 || $ideaCurrent.mentorship_from}
-        <h4>Contact and mentorship</h4>
-      {/if}
-      {#if $ideaCurrent.contact}
-        <p class="small">
-          Contact the author {$ideaCurrent.author} on
-          <a href="mailto:{$ideaCurrent.contact}">{$ideaCurrent.contact}</a>.
-        </p>
-      {/if}
-      {#if $ideaCurrent.mentorship_from && !$ideaCurrent.mentorship_from.includes("@")}
-        <p class="small">
-          Get mentorship for this project <a href={$ideaCurrent.mentorship_from}
-            >here</a
-          >.
-        </p>
-      {/if}
-      {#if $ideaCurrent.funding_amount > 0 && $ideaCurrent.funding_from}
-        <h4>Funding</h4>
-        <p>
-          Funding (up to {$ideaCurrent.funding_currency}{$ideaCurrent.funding_amount})
-          is available from <a href={$ideaCurrent.funding_from}>this page</a>.
-        </p>
-      {/if}
-      {#if $user.expert && $ideaCurrent.verifications.find((verification) => verification.user === $user.id)}
-        <button
-          class="verify"
-          on:click={() => certifyIdea($ideaCurrent.id, true)}
-        >
-          Undo verifying this idea
-        </button>
-      {:else if $user.expert}
-        <button class="verify" on:click={() => certifyIdea($ideaCurrent.id)}>
-          Verify idea
-        </button>
-      {/if}
-
-      {#if $ideaCurrent.categories[0]}
-        <h4>Categories</h4>
-        <div class="idea-categories-wrapper">
-          {#each $ideaCurrent.categories as cat}
-            <CategoryTag cat={cat.category} />
-          {/each}
+        <h2 class="current-idea-title">
+          {$ideaCurrent.title}
+          {#if $ideaCurrent.sourced}
+            (<a href={$ideaCurrent.sourced} target="_blank">source</a>)
+          {/if}
+        </h2>
+        <div class="current-idea-text">
+          {@html markdown($ideaCurrent.summary)}
         </div>
-      {/if}
-      {#if $ideaCurrent.superprojects[0]}
-        <h4>
-          Superproject{$ideaCurrent.superprojects.length > 1 ? "s" : ""}
-        </h4>
-        <div class="idea-superprojects-wrapper">
-          {#each $ideaCurrent.superprojects as superproject}
-            <SuperprojectTag superproject={superproject.superproject} />
-          {/each}
-        </div>
-      {/if}
-      <h4>Comments</h4>
-      <div class="add-comment">
-        {#if $user}
-          <textarea
-            class="comment-text"
-            type="text"
-            bind:value={commentText}
-            placeholder="Add a comment..."
+        <h4>Show your interest</h4>
+        {#if $ideaCurrent.verifications_n > 0}
+          <p
+            class="small"
             use:tippy={{
-              content: `Supports markdown, e.g. *italic*, **bold**, [links](https://example.com).`,
-              allowHTML: true,
+              content:
+                "We consult with experts in the respective field that every idea is in to evaluate whether they have good research taste, are positive utility, are well formulated, and so on.",
               delay: [250, 0],
             }}
-          />
-          <div class="col2">
-            <UserLogin />
-            <button
-              class="submit"
+          >
+            This idea has been verified by {$ideaCurrent.verifications_n}
+            <a
+              href="/users"
+              on:click={() => {
+                $ideaViewVisible = false;
+              }}
+              target="_blank">expert(s)</a
+            >.
+          </p>
+        {/if}
+        <div class="flex-hori">
+          <div class="heart-indicator">
+            <img
+              class={$user && $ideaCurrent.user_liked ? "heart-icon" : ""}
+              on:click={() => {
+                if ($user) {
+                  addLikeToIdea(
+                    $ideaCurrent.id,
+                    $user && $ideaCurrent.user_liked
+                  );
+                  $ideaCurrent = {
+                    ...$ideaCurrent,
+                    user_liked: !$ideaCurrent.user_liked,
+                    likes: ($ideaCurrent.likes += $ideaCurrent.user_liked
+                      ? 1
+                      : -1),
+                  };
+                }
+              }}
+              src="/images/heart{$user && $ideaCurrent.user_liked
+                ? ''
+                : '-outline'}.svg"
+              alt="Heart icon"
               use:tippy={{
-                content:
-                  "You cannot edit or delete your comment after it is posted.",
+                content: `${
+                  $user && $ideaCurrent.user_liked
+                    ? "You liked this idea. Click to unlike."
+                    : $user
+                    ? "Click to like this idea."
+                    : "Login to like this idea."
+                }`,
                 delay: [250, 0],
               }}
-              on:click={() => {
-                addComment();
-              }}
-            >
-              Add comment
-            </button>
+            />
+            <p>{$ideaCurrent.likes}</p>
           </div>
-        {/if}
-        {#if !$user}
-          <p>You need to be logged in to add a comment.</p>
-        {/if}
-      </div>
+          <div class="heart-indicator">
+            <img
+              src="/images/person-outline (2).svg"
+              alt="Person icon"
+              use:tippy={{
+                content: `${
+                  $user
+                    ? "Click below if you might be interested in helping out on this idea."
+                    : `Login to show your interest in this idea.`
+                }`,
+                delay: [250, 0],
+              }}
+            />
+            <p>{$ideaCurrent.interests_n}</p>
+          </div>
+        </div>
+        <Interest />
 
-      {#if $ideaCurrent.comments}
-        {#if $ideaCurrent.comments.length > 0}
-          <div class="idea-comments-wrapper">
-            {#each $ideaCurrent.comments as comment}
-              <Comment
-                {comment}
-                currentComment={replyTo}
-                {replyToComment}
-                {removeComment}
-              />
+        {#if $ideaCurrent.contact || $ideaCurrent.verifications_n > 0 || $ideaCurrent.mentorship_from}
+          <h4>Contact and mentorship</h4>
+        {/if}
+        {#if $ideaCurrent.contact}
+          <p class="small">
+            Contact the author {$ideaCurrent.author} on
+            <a href="mailto:{$ideaCurrent.contact}">{$ideaCurrent.contact}</a>.
+          </p>
+        {/if}
+        {#if $ideaCurrent.mentorship_from && !$ideaCurrent.mentorship_from.includes("@")}
+          <p class="small">
+            Get mentorship for this project <a
+              href={$ideaCurrent.mentorship_from}>here</a
+            >.
+          </p>
+        {/if}
+        {#if $ideaCurrent.funding_amount > 0 && $ideaCurrent.funding_from}
+          <h4>Funding</h4>
+          <p>
+            Funding (up to {$ideaCurrent.funding_currency}{$ideaCurrent.funding_amount})
+            is available from <a href={$ideaCurrent.funding_from}>this page</a>.
+          </p>
+        {/if}
+        {#if $user.expert && $ideaCurrent.verifications.find((verification) => verification.user === $user.id)}
+          <button
+            class="verify"
+            on:click={() => certifyIdea($ideaCurrent.id, true)}
+          >
+            Undo verifying this idea
+          </button>
+        {:else if $user.expert}
+          <button class="verify" on:click={() => certifyIdea($ideaCurrent.id)}>
+            Verify idea
+          </button>
+        {/if}
+
+        {#if $ideaCurrent.categories[0]}
+          <h4>Categories</h4>
+          <div class="idea-categories-wrapper">
+            {#each $ideaCurrent.categories as cat}
+              <CategoryTag cat={cat.category} />
             {/each}
           </div>
         {/if}
+        {#if $ideaCurrent.superprojects[0]}
+          <h4>
+            Superproject{$ideaCurrent.superprojects.length > 1 ? "s" : ""}
+          </h4>
+          <div class="idea-superprojects-wrapper">
+            {#each $ideaCurrent.superprojects as superproject}
+              <SuperprojectTag superproject={superproject.superproject} />
+            {/each}
+          </div>
+        {/if}
+        <h4>Comments</h4>
+        <div class="add-comment">
+          {#if $user}
+            <textarea
+              class="comment-text"
+              type="text"
+              bind:value={commentText}
+              placeholder="Add a comment..."
+              use:tippy={{
+                content: `Supports markdown, e.g. *italic*, **bold**, [links](https://example.com).`,
+                allowHTML: true,
+                delay: [250, 0],
+              }}
+            />
+            <div class="col2">
+              <UserLogin />
+              <button
+                class="submit"
+                use:tippy={{
+                  content:
+                    "You cannot edit or delete your comment after it is posted.",
+                  delay: [250, 0],
+                }}
+                on:click={() => {
+                  addComment();
+                }}
+              >
+                Add comment
+              </button>
+            </div>
+          {/if}
+          {#if !$user}
+            <p>You need to be logged in to add a comment.</p>
+          {/if}
+        </div>
+
+        {#if $ideaCurrent.comments}
+          {#if $ideaCurrent.comments.length > 0}
+            <div class="idea-comments-wrapper">
+              {#each $ideaCurrent.comments as comment}
+                <Comment
+                  {comment}
+                  currentComment={replyTo}
+                  {replyToComment}
+                  {removeComment}
+                />
+              {/each}
+            </div>
+          {/if}
+        {/if}
+      {:else}
+        <h3>Select an idea</h3>
       {/if}
-    {:else}
-      <h3>Select an idea</h3>
-    {/if}
-  </div>
-</content>
+    </div>
+  </content>
+{/if}
 
 <style>
   content {

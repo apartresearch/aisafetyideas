@@ -1,7 +1,6 @@
 <script>
   import { supabase } from "$lib/db";
   import { page } from "$app/stores";
-  console.log(page);
   import { onMount } from "svelte";
   import markdown from "$lib/drawdown";
   import Nav from "$lib/Nav.svelte";
@@ -56,8 +55,9 @@
   <div class="wrapper">
     <div class="header-wrapper">
       <div class="go-to-home">
-        {@html $superprojects.find((s) => s.slug === superprojectSlug)
-          .authors || ""}
+        {@html markdown(
+          $superprojects.find((s) => s.slug === superprojectSlug).authors || ""
+        )}
         <a href="/">Go to home page</a>
       </div>
       <h1>{$superprojects.find((s) => s.slug === superprojectSlug).title}</h1>
