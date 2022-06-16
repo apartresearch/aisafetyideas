@@ -250,7 +250,7 @@
       >
         <img
           src={"/images/" +
-            (switchSort == 1
+            (switchSort * -(sortBy.ascending ? 1 : -1) == 1
               ? "arrow-down-outline.svg"
               : "arrow-up-outline.svg")}
           alt=""
