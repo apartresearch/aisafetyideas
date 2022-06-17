@@ -277,7 +277,7 @@
           {#each searchIdeas.slice(0, 4) as idea}
             <Idea {idea} {selectCategory} />
           {:else}
-            <p class="not-foun d">No ideas found</p>
+            <p class="not-found">No ideas found</p>
           {/each}
         {:else}
           {#each $shownIdeas.slice(0, 4) as idea}
@@ -327,14 +327,10 @@
         {#if searchValue}
           {#each searchIdeas.slice(8, searchIdeas.length) as idea}
             <Idea {idea} {selectCategory} />
-          {:else}
-            <p class="not-found">No ideas found</p>
           {/each}
         {:else}
           {#each $shownIdeas.slice(8, $shownIdeas.length) as idea}
             <Idea {idea} {selectCategory} />
-          {:else}
-            <p class="not-found">No ideas found</p>
           {/each}
         {/if}
       </div>
