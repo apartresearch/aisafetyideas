@@ -100,7 +100,8 @@
     url = new URL(window.location.href);
     ideaParam = url.searchParams.get("idea");
     categoryParam = url.searchParams.get("categories");
-    searchValue = url.searchParam.get("search");
+    if (url.searchParams.get("search"))
+      searchValue = url.searchParams.get("search");
     let sortParam = url.searchParams.get("sort");
 
     if (sortParam) {
@@ -202,7 +203,12 @@
         String(idea.author).toLowerCase().includes(String(query).toLowerCase())
       );
     });
-    if (url != "") url.searchParam.set("search", searchValue);
+    if (url) {
+      console.log("WTF", url, query);
+      // if (searchValue == "") url.searchParams.delete("search");
+      url.searchParams.set("search", query);
+      if (!query) url.searchParams.delete("search");
+    }
   };
 
   let sortingColumns = [
