@@ -27,7 +27,7 @@
   } from "$lib/stores.js";
   import { init } from "svelte/internal";
 
-  let url = ``,
+  let url = "",
     ideaParam = "",
     categoryParam = "",
     sortParam = "";
@@ -202,7 +202,7 @@
         String(idea.author).toLowerCase().includes(String(query).toLowerCase())
       );
     });
-    url.searchParam.set("search", searchValue);
+    if (url != "") url.searchParam.set("search", searchValue);
   };
 
   let sortingColumns = [
