@@ -100,6 +100,7 @@
     url = new URL(window.location.href);
     ideaParam = url.searchParams.get("idea");
     categoryParam = url.searchParams.get("categories");
+    searchValue = url.searchParam.get("search");
     let sortParam = url.searchParams.get("sort");
 
     if (sortParam) {
@@ -119,6 +120,11 @@
           selectCategory(title);
       });
     }
+
+    if (searchValue) {
+      searchFilter(searchValue);
+    }
+
     if (
       categoryParam &&
       $categories.find((category) => category.id == categoryParam)
@@ -196,6 +202,7 @@
         String(idea.author).toLowerCase().includes(String(query).toLowerCase())
       );
     });
+    url.searchParam.set("search", searchValue);
   };
 
   let sortingColumns = [
