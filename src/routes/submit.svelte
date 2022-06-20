@@ -670,7 +670,7 @@
     display: flex;
     flex-direction: row;
     justify-content: center;
-    max-width: 1100px;
+    max-width: 800px;
     background: var(--light-accent-bg);
     padding: 1rem;
     border-radius: var(--border-radius);
@@ -689,7 +689,7 @@
     flex-direction: column;
     height: 100%;
     width: 100%;
-    max-width: 600px;
+    max-width: 700px;
   }
 
   .input-wrapper {
