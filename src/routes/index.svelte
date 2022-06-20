@@ -204,7 +204,7 @@
       );
     });
     if (url) {
-      console.log("WTF", url, query);
+      // console.log("WTF", url, query);
       // if (searchValue == "") url.searchParams.delete("search");
       url.searchParams.set("search", query);
       if (!query) url.searchParams.delete("search");

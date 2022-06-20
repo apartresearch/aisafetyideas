@@ -22,7 +22,27 @@
     selectedCategories = [],
     shownIdeas = [],
     ideaSelect = [],
-    selectedIdea = {};
+    selectedIdea = {},
+    career_difficulty = "Student";
+
+  const careerDiffStages = [
+    {
+      value: "Student",
+      label: "Student",
+    },
+    {
+      value: "Early",
+      label: "Early career",
+    },
+    {
+      value: "Mid",
+      label: "Mid career",
+    },
+    {
+      value: "Late",
+      label: "Late career",
+    },
+  ];
 
   let author = "",
     title = "",
@@ -340,6 +360,12 @@
         </div>
       </div>
       <div class="input-wrapper">
+        <label for="2" />
+        <div class="select">
+          <Select items={careerDiffStages} bind:value={career_difficulty} />
+        </div>
+      </div>
+      <div class="input-wrapper">
         <label for="difficulty">Estimated hours of work necessary</label>
         <input type="number" bind:value={difficulty} min="0" />
       </div>
@@ -501,6 +527,7 @@
                 mentorship_from,
                 contact: authorContact,
                 user: $user.id,
+                career_difficulty,
               },
               tags
                 ? tags.map((tag) => ({ category: tag.id, idea: idea_id }))
