@@ -34,17 +34,34 @@
   .wrapper {
     padding: 0 1rem;
     text-align: center;
+
+    background-color: var(--light-accent-bg);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    max-width: 1200px;
+    margin: -2.5rem auto 0 auto;
+
+    z-index: 103;
+    position: relative;
   }
+
   .project-contain {
     text-align: left;
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: left;
     align-items: stretch;
-    max-width: 1200px;
+    max-width: 1000px;
     column-gap: 0.5rem;
     row-gap: 0.5rem;
     margin-top: 0.25rem;
     margin: 0 auto;
+  }
+
+  @media (max-width: 768px) {
+    .wrapper {
+      margin: 0;
+      padding: 0.2rem;
+    }
   }
 </style>

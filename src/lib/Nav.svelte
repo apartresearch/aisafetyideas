@@ -42,7 +42,7 @@
                 Give feedback
               </a>
               <a href="/open" class="nav-link">About</a>
-              <a href="/users" class="nav-link">Users</a>
+              <a href="/projects" class="nav-link">Projects</a>
               <div class="html-embed w-embed">
                 <a href="/submit" class="button utility w-button">
                   Submit an idea
@@ -80,7 +80,7 @@
             Give feedback
           </a>
           <a href="/open" class="nav-link">About</a>
-          <a href="/users" class="nav-link">Users</a>
+          <a href="/projects" class="nav-link">Projects</a>
         </div>
         <div class="content">
           <h1>The AI Safety & Governance Ideas Community</h1>
