@@ -367,6 +367,7 @@
     row-gap: 0.5rem;
     margin-top: 0.25rem;
   }
+
   .intermission {
     margin: 1rem 0;
     background-color: var(--light-accent-bg);

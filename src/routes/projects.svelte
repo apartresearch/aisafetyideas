@@ -62,6 +62,7 @@
     .wrapper {
       margin: 0;
       padding: 0.2rem;
+      z-index: 0;
     }
   }
 </style>

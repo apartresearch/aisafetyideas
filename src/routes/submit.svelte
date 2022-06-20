@@ -671,7 +671,11 @@
     flex-direction: row;
     justify-content: center;
     max-width: 1100px;
-    margin: 1em auto;
+    background: var(--light-accent-bg);
+    padding: 1rem;
+    border-radius: var(--border-radius);
+    margin: -2.5rem auto 0 auto;
+    z-index: 103;
   }
 
   button {
@@ -725,7 +729,9 @@
 
   @media (max-width: 768px) {
     .cols-wrapper {
-      padding: 0 10px;
+      padding: 1rem;
+      margin: 0;
+      z-index: 0;
     }
 
     .input-wrapper {

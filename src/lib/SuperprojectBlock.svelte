@@ -77,7 +77,7 @@
 
   .wrapper:hover {
     transform: translate(0, -0.1rem);
-    box-shadow: var(--box-shadow-hover);
+    box-shadow: none;
     border: 1px solid var(--light-accent-bg);
     background-color: var(--light-accent-bg);
     cursor: pointer;
