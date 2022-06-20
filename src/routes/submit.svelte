@@ -674,8 +674,9 @@
     background: var(--light-accent-bg);
     padding: 1rem;
     border-radius: var(--border-radius);
-    margin: -2.5rem auto 0 auto;
     z-index: 103;
+    position: relative;
+    margin: -2.5rem auto 0 auto;
   }
 
   button {
