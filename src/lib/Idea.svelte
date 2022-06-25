@@ -204,7 +204,7 @@
       {/if}
       {#if idea.funding_amount > 0}
         <p
-          class="funding"
+          class="difficulty"
           use:tippy={{
             content: `Apply for this funding <a href="${idea.funding_from}">here</a>.`,
             allowHTML: true,
