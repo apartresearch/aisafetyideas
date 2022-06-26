@@ -81,9 +81,6 @@
     filter: invert(1);
   }
 
-  .light-bg:hover img {
-    filter: invert(1);
-  }
 
   .light-bg {
     color: var(--font-color-light);

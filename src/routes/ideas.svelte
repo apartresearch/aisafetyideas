@@ -1,19 +1,11 @@
 <script>
-  import { supabase } from "$lib/db";
   import { onMount } from "svelte";
-  import tippy from "sveltejs-tippy";
-  import markdown from "$lib/drawdown";
-  import Nav from "$lib//Nav.svelte";
   import Idea from "$lib/Idea.svelte";
   import IdeaViewer from "$lib/IdeaViewer.svelte";
   import CategoryTag from "$lib/CategoryTag.svelte";
   import LoadIcon from "$lib/LoadIcon.svelte";
-  import Footer from "$lib/Footer.svelte";
   import Search from "svelte-search";
   import Select from "svelte-select";
-  import SuperprojectBlock from "$lib/SuperprojectBlock.svelte";
-  import MediaQuery from "$lib/MediaQuery.svelte";
-  import SubmitBlock from "$lib/SubmitBlock.svelte";
   import moment from "moment";
   import DataLoader from "$lib/DataLoader.svelte";
   import UserLogin from "$lib/UserLogin.svelte";
@@ -320,6 +312,7 @@
     justify-content: left;
     align-items: center;
     min-height: 100vh;
+    background-color: transparent;
   }
 
   :global([data-svelte-search] input) {
