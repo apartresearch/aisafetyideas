@@ -243,7 +243,7 @@
     <h3>
       <a href="/projects" style="color:#333;">All superprojects</a>
     </h3>
-    <UserLogin />
+    <UserLogin white={true} />
     <br />
     <div class="search-sort">
       <div class="search">
