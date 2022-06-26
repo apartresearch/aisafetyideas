@@ -235,7 +235,7 @@
     <h3>
       <a href="/projects" style="color:#333;">All superprojects</a>
     </h3>
-    <UserLogin white={true} />
+    <UserLogin />
     <br />
     <div class="search-sort">
       <div class="search">
@@ -432,6 +432,29 @@
     margin-left: 1%;
   }
 
+  :global(::-webkit-scrollbar) {
+    width: 0.35em;
+    height: 0.35em;
+    border-radius: var(--border-radius);
+  }
+
+  /* Track */
+  :global(::-webkit-scrollbar-track) {
+    border-radius: var(--border-radius);
+    background: transparent;
+  }
+
+  /* Handle */
+  :global(::-webkit-scrollbar-thumb) {
+    border-radius: 1rem;
+    background: #dedede;
+  }
+
+  /* Handle on hover */
+  :global(::-webkit-scrollbar-thumb:hover) {
+    background: #cdcdcd;
+  }
+
   /* width */
   ::-webkit-scrollbar {
     width: 0.35em;
@@ -442,12 +465,12 @@
   /* Track */
   ::-webkit-scrollbar-track {
     border-radius: var(--border-radius);
-    background: #f1f1f1;
+    background: transparent;
   }
 
   /* Handle */
   ::-webkit-scrollbar-thumb {
-    border-radius: var(--border-radius);
+    border-radius: 1rem;
     background: #dedede;
   }
 

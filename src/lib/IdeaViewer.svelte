@@ -315,7 +315,7 @@
               }}
             />
             <div class="col2">
-              <UserLogin white={true} />
+              <UserLogin />
               <button
                 class="submit"
                 use:tippy={{
