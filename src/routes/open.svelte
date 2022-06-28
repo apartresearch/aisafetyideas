@@ -60,11 +60,24 @@
     <div class="member">
       <img
         src="https://sala.ai/images/img0001-copy-p-500.png"
-        alt="Team member esben"
+        alt="Team member Maris"
       />
       <h3>Maris Sala</h3>
       <p>
-        Collaborator, <a href="mailto:maris@sala.ai" class="contact">contact</a>
+        Collaborator, <a href="https://sala.ai" class="contact">contact</a>
+      </p>
+    </div>
+    <div class="member">
+      <img
+        src="https://fbarez.github.io/images/fb2017.jpg"
+        alt="team member Fazl"
+      />
+      <h3>Fazl Barez</h3>
+      <p>
+        Collaborator & Advisor, <a
+          href="https://fbarez.github.io/"
+          class="contact">contact</a
+        >
       </p>
     </div>
   </div>
@@ -218,7 +231,8 @@
         { date: "2022-06-24", value: 1 },
         { date: "2022-06-25", value: 1 },
         { date: "2022-06-26", value: 1 },
-        { date: "2022-06-27", value: 1 },
+        { date: "2022-06-28", value: 1 },
+        { date: "2022-06-29", value: 1 },
       ]}
       endDate={moment().toDate()}
       startDate={moment("2022-04-15").toDate()}
@@ -241,7 +255,7 @@
       />
     </div>
   </div>
-  <h2 id="roadmap">Feature roadmap</h2>
+  <!-- <h2 id="roadmap">Feature roadmap</h2>
   <div class="timeline-wrapper">
     <div class="timeline-block past">
       <h3 class="list-idea-header">Version 0.1</h3>
@@ -298,7 +312,7 @@
         appreciated.
       </p>
     </div>
-  </div>
+  </div> -->
 </div>
 <Footer />
 
