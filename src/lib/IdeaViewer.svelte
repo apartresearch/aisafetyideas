@@ -281,20 +281,16 @@
           </button>
         {/if}
 
-        {#if $ideaCurrent.categories[0]}
-          <div class="idea-categories-wrapper">
-            {#each $ideaCurrent.categories as cat}
-              <CategoryTag cat={cat.category} />
-            {/each}
-          </div>
-        {/if}
-          <div class="idea-superprojects-wrapper">
-            {#each $ideaCurrent.superprojects as superproject}
-              <SuperprojectTag superproject={superproject.superproject} />
-            {/each}
-          </div>
-        {/if}
-        <h4>Comments</h4>
+        <div class="idea-categories-wrapper">
+          {#each $ideaCurrent.categories as cat}
+            <CategoryTag cat={cat.category} />
+          {/each}
+        </div>
+        <div class="idea-superprojects-wrapper">
+          {#each $ideaCurrent.superprojects as superproject}
+            <SuperprojectTag superproject={superproject.superproject} />
+          {/each}
+        </div>
         <div class="add-comment">
           {#if $user}
             <textarea
