@@ -10,11 +10,8 @@
   <MediaQuery query="(max-width: 768px)" let:matches>
     {#if matches}
       <div class="content">
-        <h1>The AI Safety & Governance Ideas Community</h1>
-        <p class="content-p">
-          Find project ideas in AI safety, collaborate with other researchers,
-          and <a href="/submit">submit</a> your own or others' ideas.
-        </p>
+        <h1>AI Safety Ideas for Apart Research Collabs</h1>
+        <p class="content-p">Expect it to be quite buggy</p>
       </div>
       <div class="burger-parent">
         <BurgerMenu
@@ -130,10 +127,6 @@
   .header .nav-link {
     margin-left: 1.5em;
     color: inherit;
-  }
-
-  h1 {
-    font-family: Lora, sans-serif;
   }
 
   .content-p {
