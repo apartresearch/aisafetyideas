@@ -234,6 +234,8 @@
     --border-radius: 0.25rem;
     --box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.15);
     --box-shadow-hover: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.03);
+    --superproject: #ffc0e0;
+    --category: #c0ffda;
 
     /* Glassmorphism */
     /* inspired by Glass UI Glassmorphism generator (https://ui.glass/generator/) */

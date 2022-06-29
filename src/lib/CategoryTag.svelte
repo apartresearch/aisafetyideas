@@ -38,8 +38,8 @@
 <style>
   .idea-category {
     /* Styling for a tag */
-    background-color: #f5f5f5;
-    border: 1px solid #e3e3e3;
+    background-color: var(--category);
+    border: 1px solid var(--light-accent-border);
     padding: 0.2em 0.5em;
     margin-right: 0.4em;
     margin-bottom: 0.3em;

@@ -41,8 +41,8 @@
 <style>
   .idea-superproject {
     /* Styling for a tag */
-    background-color: #f5f5f5;
-    border: 1px solid #e3e3e3;
+    background-color: var(--superproject);
+    border: 1px solid var(--light-accent-border);
     vertical-align: bottom;
 
     padding: 0.2em 0.5em;

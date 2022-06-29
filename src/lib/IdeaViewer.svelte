@@ -172,7 +172,6 @@
         <div class="current-idea-text">
           {@html markdown($ideaCurrent.summary)}
         </div>
-        <h4>Show your interest</h4>
         {#if $ideaCurrent.verifications_n > 0}
           <p
             class="small"
@@ -206,8 +205,8 @@
                     ...$ideaCurrent,
                     user_liked: !$ideaCurrent.user_liked,
                     likes: ($ideaCurrent.likes += $ideaCurrent.user_liked
-                      ? 1
-                      : -1),
+                      ? -1
+                      : 1),
                   };
                 }
               }}
@@ -283,17 +282,12 @@
         {/if}
 
         {#if $ideaCurrent.categories[0]}
-          <h4>Categories</h4>
           <div class="idea-categories-wrapper">
             {#each $ideaCurrent.categories as cat}
               <CategoryTag cat={cat.category} />
             {/each}
           </div>
         {/if}
-        {#if $ideaCurrent.superprojects[0]}
-          <h4>
-            Superproject{$ideaCurrent.superprojects.length > 1 ? "s" : ""}
-          </h4>
           <div class="idea-superprojects-wrapper">
             {#each $ideaCurrent.superprojects as superproject}
               <SuperprojectTag superproject={superproject.superproject} />
