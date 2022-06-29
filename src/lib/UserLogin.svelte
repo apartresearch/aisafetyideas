@@ -77,21 +77,12 @@
     margin-right: 0.5em;
   }
 
-  .white {
-    /* filter: invert(1); */
-  }
-
   .light-bg {
     color: var(--font-color-light);
   }
 
-  .light-bg:hover {
-    color: var(--font-color-dark);
-  }
-
   button:hover {
     cursor: pointer;
-    background-color: var(--button-bg-color-dark);
   }
 
   a {
@@ -115,6 +106,6 @@
   .user {
     cursor: pointer;
     text-decoration: none;
-    color: var(--font-color-dark);
+    color: var(--font-color-light);
   }
 </style>
