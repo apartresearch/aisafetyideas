@@ -296,11 +296,11 @@
   .container {
     max-width: 820px;
     padding: 1rem 2rem;
-    margin: -3rem auto 0 auto;
+    margin: 0 auto 0 auto;
     position: relative;
     z-index: 102;
-    background: var(--bg-color-light);
-    border-radius: var(--border-radius);
+    /* background: var(--bg-color-light); */
+    /* border-radius: var(--border-radius); */
     min-height: 500px;
   }
 

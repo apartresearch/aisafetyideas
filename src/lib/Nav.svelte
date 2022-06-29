@@ -11,7 +11,6 @@
     {#if matches}
       <div class="content">
         <h1>AI Safety Ideas for Apart Research Collabs</h1>
-        <p class="content-p">Expect it to be quite buggy</p>
       </div>
       <div class="burger-parent">
         <BurgerMenu
@@ -31,13 +30,6 @@
                   class="home-icon"
                 /></a
               >
-              <a
-                href="https://docs.google.com/forms/d/e/1FAIpQLSfjylrw3z3fRrrIg3fI8B2x7H2JQrTZcoWmFDMU-TtsxxxTGw/viewform?usp=sf_link"
-                target="_blank"
-                class="nav-link"
-              >
-                Give feedback
-              </a>
               <a href="/open" class="nav-link">About</a>
               <a href="/projects" class="nav-link">Projects</a>
               <div class="html-embed w-embed">
@@ -69,19 +61,12 @@
               Submit an idea
             </a>
           </div>
-          <a
-            href="https://docs.google.com/forms/d/e/1FAIpQLSfjylrw3z3fRrrIg3fI8B2x7H2JQrTZcoWmFDMU-TtsxxxTGw/viewform?usp=sf_link"
-            target="_blank"
-            class="nav-link"
-          >
-            Give feedback
-          </a>
           <a href="/open" class="nav-link">About</a>
           <a href="/projects" class="nav-link">Projects</a>
+          <a href="/users" class="nav-link">Users</a>
         </div>
         <div class="content">
           <h1>AI Safety Ideas for Apart Research Collabs</h1>
-          <p class="content-p">Expect it to be quite buggy</p>
         </div>
       </nav>
     {/if}
@@ -96,7 +81,7 @@
 
   .home-icon {
     opacity: 0.9;
-    filter: invert(1);
+    /* filter: invert(1); */
     width: 2rem;
   }
 
@@ -115,6 +100,8 @@
     display: flex;
     align-items: center;
     column-gap: 1.5em;
+
+    justify-content: center;
   }
 
   .header > * {
@@ -134,12 +121,13 @@
   }
 
   header {
-    background-color: var(--bg-color-dark);
-    background-image: url("https://uploads-ssl.webflow.com/622160bba1d5c0dcf96f8bdf/628f97da187df855c39bd88b_hero-bottom.png");
-    background-position: 100% 100%;
-    background-size: contain;
-    background-repeat: no-repeat;
-    color: var(--font-color-dark);
+    /* background-color: var(--bg-color-dark); */
+    /* background-image: url("https://uploads-ssl.webflow.com/622160bba1d5c0dcf96f8bdf/628f97da187df855c39bd88b_hero-bottom.png"); */
+    /* background-position: 100% 100%; */
+    /* background-size: contain; */
+    /* background-repeat: no-repeat; */
+    /* color: var(--font-color-light); */
+    padding-bottom: 0;
     position: relative;
   }
 
@@ -157,6 +145,12 @@
     text-decoration: none;
   }
 
+  h1 {
+    display: block;
+    text-align: center;
+    margin: 1rem auto 0 auto;
+  }
+
   /* Mobile */
   @media screen and (max-width: 768px) {
     h1 {
@@ -165,11 +159,11 @@
       margin-top: 0;
     }
 
-    header {
+    /* header {
       background: none;
       background-color: var(--bg-color-dark);
       z-index: 102;
-    }
+    } */
 
     .burger-parent {
       float: right;
@@ -179,6 +173,9 @@
 
     .content {
       padding: 0.75rem 1rem;
+      max-width: 820px;
+      text-align: center;
+      margin: 0 auto;
     }
 
     .content-p {
@@ -204,12 +201,7 @@
     --font-family: "Sora", sans-serif;
     --font-family-lg: "Lora", sans-serif;
     --bg-color-dark: #121f2b;
-    --bg-color-light: linear-gradient(
-      80deg,
-      rgb(241, 240, 240) 0%,
-      rgb(235, 239, 243) 30%,
-      rgb(232, 243, 242) 100%
-    );
+    --bg-color-light: rgb(241, 240, 240);
     --bg-color-dark-hover: #fafafa;
     --bg-color-light-hover: #fafafa;
     --font-color-dark: #f5fff9;

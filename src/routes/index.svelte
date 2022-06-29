@@ -422,8 +422,6 @@
   }
 
   .container.first {
-    z-index: 101;
-    margin-top: -3rem;
     border-radius: var(--border-radius);
     padding: 10px 10px 0px 10px;
     max-width: 820px;

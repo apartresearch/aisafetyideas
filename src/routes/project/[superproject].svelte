@@ -77,16 +77,10 @@
 <Footer />
 
 <style>
-  :global(body) {
-    background-color: #f7f7f7;
-  }
   .wrapper {
-    margin: -2.5rem auto 1rem auto;
+    margin: 0 auto 1rem auto;
     padding: 12px 15px;
-    background: var(--bg-color-light);
     position: relative;
-    z-index: 30;
-    border-radius: var(--border-radius);
     max-width: 830px;
   }
 

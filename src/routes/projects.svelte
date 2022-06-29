@@ -35,11 +35,8 @@
     padding: 0 1rem;
     text-align: center;
 
-    background-color: var(--light-accent-bg);
-    padding: 1rem;
-    border-radius: var(--border-radius);
     max-width: 1200px;
-    margin: -2.5rem auto 0 auto;
+    margin: 0 auto 0 auto;
 
     z-index: 103;
     position: relative;

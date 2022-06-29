@@ -78,9 +78,8 @@
   }
 
   .white {
-    filter: invert(1);
+    /* filter: invert(1); */
   }
-
 
   .light-bg {
     color: var(--font-color-light);

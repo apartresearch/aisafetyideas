@@ -48,11 +48,7 @@
     max-width: 820px;
     margin: 0 auto;
     padding: 10px 10px;
-    margin-top: -3rem;
     position: relative;
-    z-index: 11;
-    border-radius: var(--border-radius);
-    background: var(--bg-color-light);
     min-height: 500px;
   }
 

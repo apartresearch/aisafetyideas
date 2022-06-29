@@ -690,12 +690,9 @@
     flex-direction: row;
     justify-content: center;
     max-width: 800px;
-    background: var(--light-accent-bg);
     padding: 1rem;
-    border-radius: var(--border-radius);
-    z-index: 103;
     position: relative;
-    margin: -2.5rem auto 0 auto;
+    margin: 0 auto 0 auto;
   }
 
   button {
