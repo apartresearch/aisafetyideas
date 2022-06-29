@@ -45,19 +45,17 @@
 {#if !$loading && $user}
   <div class="flex-hori meme">
     <button on:click={() => sendInterest()}>
-      <img src="/images/person-outline (2).svg" alt="Help" />
-
+      <!-- <img src="/images/person-outline (2).svg" alt="Help" /> -->
       {$ideaCurrent.interests.find((i) => i.user == $user.id)
-        ? "Retract my interest in this project"
-        : "I might be interested in helping to realise this project."}
+        ? "Retract my collab"
+        : "I want to collab"}
     </button>
-    {#if !$ideaCurrent.interests.find((i) => i.user == $user.id)}
+    <!-- {#if !$ideaCurrent.interests.find((i) => i.user == $user.id)}
       <div class="check">
         <input type="checkbox" bind:value={notifyMe} />
-        <!-- svelte-ignore a11y-label-has-associated-control -->
         <label>Notify me when the project starts</label>
       </div>
-    {/if}
+    {/if} -->
   </div>
   {#if !$ideaCurrent.interests.find((i) => i.user == $user.id)}
     <textarea

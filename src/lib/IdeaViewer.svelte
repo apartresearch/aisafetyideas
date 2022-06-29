@@ -261,7 +261,7 @@
         {/if}
         <Interest />
 
-        {#if $ideaCurrent.contact || $ideaCurrent.verifications_n > 0 || $ideaCurrent.mentorship_from}
+        <!-- {#if $ideaCurrent.contact || $ideaCurrent.verifications_n > 0 || $ideaCurrent.mentorship_from}
           <h4>Contact and mentorship</h4>
         {/if}
         {#if $ideaCurrent.contact}
@@ -283,7 +283,7 @@
             Funding (up to {$ideaCurrent.funding_currency}{$ideaCurrent.funding_amount})
             is available from <a href={$ideaCurrent.funding_from}>this page</a>.
           </p>
-        {/if}
+        {/if} -->
         {#if $user.expert && $ideaCurrent.verifications.find((verification) => verification.user === $user.id)}
           <button
             class="verify"
