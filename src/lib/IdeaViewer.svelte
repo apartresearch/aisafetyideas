@@ -59,8 +59,8 @@
         }
       });
       $ideaCurrent = $ideaCurrent;
-      // $shownIdeas = $shownIdeas;
-      // $ideas = $ideas;
+      $shownIdeas = $shownIdeas;
+      $ideas = $ideas;
       await supabase.from("comments").insert(comment);
       replyTo = null;
       commentText = "";
