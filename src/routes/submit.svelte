@@ -506,52 +506,52 @@
         <button
           on:click={() => {
             addNewIdea(
-              (idea_id < Math.max(...ideas.map((idea) => idea.id)) + 1 ?
-              {
-                id: idea_id,
-                author,
-                title,
-                summary: description,
-                verified_by_expert: verified,
-                filtered,
-                sourced: sourced,
-                difficulty,
-                from_date:
-                  date_sourced != '""' &&
-                  date_sourced != "" &&
-                  date_sourced != undefined
-                    ? date_sourced
-                    : null,
-                funding_amount,
-                funding_currency,
-                funding_from,
-                mentorship_from,
-                contact: authorContact,
-                user: $user.id,
-                career_difficulty,
-              } :
-              {
-                author,
-                title,
-                summary: description,
-                verified_by_expert: verified,
-                filtered,
-                sourced: sourced,
-                difficulty,
-                from_date:
-                  date_sourced != '""' &&
-                  date_sourced != "" &&
-                  date_sourced != undefined
-                    ? date_sourced
-                    : null,
-                funding_amount,
-                funding_currency,
-                funding_from,
-                mentorship_from,
-                contact: authorContact,
-                user: $user.id,
-                career_difficulty,
-              },
+              idea_id < Math.max(...ideas.map((idea) => idea.id)) + 1
+                ? {
+                    id: idea_id,
+                    author,
+                    title,
+                    summary: description,
+                    verified_by_expert: verified,
+                    filtered,
+                    sourced: sourced,
+                    difficulty,
+                    from_date:
+                      date_sourced != '""' &&
+                      date_sourced != "" &&
+                      date_sourced != undefined
+                        ? date_sourced
+                        : null,
+                    funding_amount,
+                    funding_currency,
+                    funding_from,
+                    mentorship_from,
+                    contact: authorContact,
+                    user: $user.id,
+                    career_difficulty,
+                  }
+                : {
+                    author,
+                    title,
+                    summary: description,
+                    verified_by_expert: verified,
+                    filtered,
+                    sourced: sourced,
+                    difficulty,
+                    from_date:
+                      date_sourced != '""' &&
+                      date_sourced != "" &&
+                      date_sourced != undefined
+                        ? date_sourced
+                        : null,
+                    funding_amount,
+                    funding_currency,
+                    funding_from,
+                    mentorship_from,
+                    contact: authorContact,
+                    user: $user.id,
+                    career_difficulty,
+                  },
               tags
                 ? tags.map((tag) => ({ category: tag.id, idea: idea_id }))
                 : [],
