@@ -223,7 +223,7 @@
       { label: "Mentorship available", value: "mentorship_from" },
       { label: "Funding available", value: "funding_amount" },
     ],
-    currentSort = { label: "Upvotes", value: "likes" };
+    currentSort = { label: "Amount of comments", value: "comments_n" };
 
   $: {
     sort(currentSort);
