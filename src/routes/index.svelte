@@ -51,7 +51,7 @@
     if ($loading) {
       window.setTimeout(initState, 100);
     } else {
-      sort({ label: "Upvotes", value: "likes" });
+      sort({ label: "Amount of comments", value: "comments_n" });
       updateFromUrl();
     }
   };

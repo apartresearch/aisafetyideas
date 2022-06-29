@@ -2,6 +2,7 @@
   import { supabase } from "$lib/db";
   import { loading, user, ideaCurrent, interests } from "$lib/stores";
   import tippy from "sveltejs-tippy";
+  import markdown from "$lib/drawdown";
 
   let how = "",
     notifyMe = false;
@@ -70,47 +71,52 @@
 
 <div class="interest-wrapper">
   {#each $ideaCurrent.interests as interest}
-    <a
-      class="interest"
-      href={"/user/" + interest.username}
-      use:tippy={{
-        content: `<p style="margin:0;">${
-          interest.username
-        }'s career stage: <b ${
-          interest.career_stage
-            ? `style="color: var(--${interest.career_stage.toLowerCase()})"`
-            : ""
-        }>${
-          interest.career_stage
-        }</b></p><h4 style="font-weight:400;margin:0.2rem 0;">How I might be able to help</h4><p>${
-          interest.how
-        }</p>`,
-        allowHTML: true,
-        interactive: true,
-        delay: [0, 0],
-        appendTo: document.body,
-      }}
-    >
-      <div class={"pb " + interest.career_stage}>
-        <img src={interest.image} alt="Help" />
+    <div class="interest">
+      <div class="interest-header">
+        <a
+          class={"pb " + interest.career_stage}
+          href={"/user/" + interest.username}
+        >
+          <img src={interest.image} alt="Help" />
+        </a>
+        <p>
+          {interest.username} (<span class={interest.career_stage}
+            >{interest.career_stage}</span
+          >) wants to collaborate
+        </p>
       </div>
-      <p>{interest.username} is interested 🡬</p>
-    </a>
+      {@html markdown(interest.how)}
+    </div>
   {/each}
 </div>
 
 <style>
-  .interest {
+  .interest-header {
     display: flex;
     align-items: center;
-    justify-content: center;
-    background-color: var(--bg-color-light);
-    border-radius: var(--border-radius);
-    border: 1px solid var(--primary-color);
-    padding: 0.5rem 0.75rem;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
     color: var(--primary-color);
+  }
+
+  :global(.interest > p) {
+    margin-left: 2.2rem;
+    margin-top: -0.5rem;
+    margin-bottom: 0;
+  }
+
+  .interest-header > p {
+    margin: 0;
+  }
+
+  .interest {
+    display: flex;
+    align-items: flex-start;
+    justify-content: left;
+    flex-direction: column;
+    border-radius: var(--border-radius);
+    width: 100%;
+    row-gap: 0.2rem;
+    transition: all 0.2s ease-in-out;
+    font-size: 1rem;
   }
 
   .pb {
@@ -131,22 +137,18 @@
   }
 
   .Early {
-    background-color: var(--early);
     color: var(--early);
   }
 
   .Mid {
-    background-color: var(--mid);
     color: var(--mid);
   }
 
   .Late {
-    background-color: var(--late);
     color: var(--late);
   }
 
   .Student {
-    background-color: var(--student);
     color: var(--student);
   }
 
@@ -154,10 +156,6 @@
     background-color: var(--primary-color-hover);
     text-decoration: none;
     transform: translate(0, -1px);
-  }
-
-  .interest > p {
-    margin: 0 0 0 0.1rem;
   }
 
   label {
@@ -173,7 +171,7 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
-    margin: 0.3rem 0;
+    margin: 1rem 0;
     column-gap: 0.75rem;
     row-gap: 0.5rem;
   }

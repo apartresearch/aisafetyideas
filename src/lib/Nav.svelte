@@ -80,11 +80,8 @@
           <a href="/projects" class="nav-link">Projects</a>
         </div>
         <div class="content">
-          <h1>The AI Safety & Governance Ideas Community</h1>
-          <p class="content-p">
-            Find project ideas in AI safety, collaborate with other researchers,
-            and <a href="/submit">submit</a> your own or others' ideas.
-          </p>
+          <h1>AI Safety Ideas for Apart Research Collabs</h1>
+          <p class="content-p">Expect it to be quite buggy</p>
         </div>
       </nav>
     {/if}
@@ -230,7 +227,7 @@
     --button-bg-color-dark-hover: #333854;
     --light-accent-bg: #fff;
     --light-accent-hover-bg: #fff0;
-    --light-accent-border: transparent;
+    --light-accent-border: #ddd;
     --border-radius: 0.25rem;
     --box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.15);
     --box-shadow-hover: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.03);

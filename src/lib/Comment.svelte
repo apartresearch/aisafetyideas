@@ -53,8 +53,8 @@
         <a class="author" target="_blank" href={"/user/" + reply.username}>
           <!-- <img src="/images/link.svg" alt="Link icon" /> -->
           {@html reply.username}
-          <span class="date">{moment(reply.created_at).fromNow()}</span>
         </a>
+        <span class="date">{moment(reply.created_at).fromNow()}</span>
         {@html markdown(reply.text)}
         {#if $user && (replyToComment || $user.id == reply.author)}
           <div class="reply-to">
@@ -103,25 +103,23 @@
   }
 
   .reply-to {
-    font-size: 0.8em;
     margin-top: 0em;
   }
 
   :global(.comment > h1, .comment > h2, .comment > h3, .comment > h4, .comment
       > h5, .comment > h6, .comment > p, .comment > a) {
     margin: 0;
-    font-size: 0.7em;
-    line-height: 1.3em;
+    font-size: 1rem;
+    line-height: 1.3rem;
   }
 
   .date {
-    font-size: 0.7rem;
-    margin-left: 0.4em;
+    font-size: 0.8rem;
+    margin-left: 0.2rem;
   }
 
   a {
-    color: #666;
-    font-size: 0.8em;
+    font-size: 0.8rem;
     font-style: normal;
     margin-bottom: 0px;
   }
@@ -131,16 +129,9 @@
   }
 
   .author {
-    color: #666;
-    font-size: 0.7em;
+    font-size: 0.8em;
     font-style: normal;
     margin-bottom: 0px;
-  }
-
-  .author > img {
-    height: 1em;
-    opacity: 0.5;
-    transform: rotate(45deg);
-    margin-bottom: 0.2em;
+    color: var(--font-color-light);
   }
 </style>

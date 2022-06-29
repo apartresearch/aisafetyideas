@@ -43,6 +43,8 @@
     /* Styling for a tag */
     background-color: var(--superproject);
     border: 1px solid var(--light-accent-border);
+    border-radius: var(--border-radius);
+
     vertical-align: bottom;
 
     padding: 0.2em 0.5em;

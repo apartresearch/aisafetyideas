@@ -40,6 +40,7 @@
     /* Styling for a tag */
     background-color: var(--category);
     border: 1px solid var(--light-accent-border);
+    border-radius: var(--border-radius);
     padding: 0.2em 0.5em;
     margin-right: 0.4em;
     margin-bottom: 0.3em;

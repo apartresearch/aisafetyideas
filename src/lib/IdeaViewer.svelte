@@ -242,6 +242,15 @@
             />
             <p>{$ideaCurrent.interests_n}</p>
           </div>
+          <div class="heart-indicator">
+            <img src="/images/trello.webp" alt="Trello logo" />
+            <a
+              href="https://trello.com/b/TFNJmgfC/apart-research"
+              target="_blank"
+            >
+              Collab on Trello
+            </a>
+          </div>
         </div>
         <Interest />
 
