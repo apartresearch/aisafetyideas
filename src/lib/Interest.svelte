@@ -94,11 +94,11 @@
   .interest-header {
     display: flex;
     align-items: center;
-    color: var(--primary-color);
+    column-gap: 0.4rem;
   }
 
   :global(.interest > p) {
-    margin-left: 2.2rem;
+    margin-left: 2.6rem;
     margin-top: -0.5rem;
     margin-bottom: 0;
   }
@@ -171,7 +171,7 @@
     flex-wrap: wrap;
     justify-content: flex-start;
     align-items: center;
-    margin: 1rem 0;
+    margin: 0 0 1rem 0;
     column-gap: 0.75rem;
     row-gap: 0.5rem;
   }

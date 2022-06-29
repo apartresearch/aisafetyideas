@@ -252,6 +252,13 @@
             </a>
           </div>
         </div>
+        {#if !$user}
+          <p class="no-user">
+            <i>
+              You need to be logged in to express interest and add comments.
+            </i>
+          </p>
+        {/if}
         <Interest />
 
         {#if $ideaCurrent.contact || $ideaCurrent.verifications_n > 0 || $ideaCurrent.mentorship_from}
@@ -329,9 +336,6 @@
                 Add comment
               </button>
             </div>
-          {/if}
-          {#if !$user}
-            <p>You need to be logged in to add a comment.</p>
           {/if}
         </div>
 
@@ -427,6 +431,12 @@
   .verify:hover {
     background-color: #333;
     color: #f5f5f5;
+  }
+
+  .no-user {
+    color: #0006;
+    margin-top: 0.3rem;
+    font-size: 1rem;
   }
 
   .cross {
