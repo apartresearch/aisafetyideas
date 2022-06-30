@@ -145,6 +145,16 @@
     text-decoration: none;
   }
 
+  :global(.tippy-content) {
+    border-radius: var(--border-radius);
+    color: var(--font-color-light);
+    background-color: white;
+    border: 1px solid var(--primary-color);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+    z-index: 9999;
+  }
+
   h1 {
     display: block;
     text-align: center;
@@ -257,13 +267,6 @@
     margin: 0;
     padding: 0;
     background: var(--bg-color-light);
-  }
-
-  :global(.tippy-content) {
-    z-index: 502;
-    background-color: var(--bg-color-light);
-    border: none;
-    position: relative;
   }
 
   :global(.tooltip a) {

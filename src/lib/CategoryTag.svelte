@@ -13,15 +13,13 @@
     ? 'list-item'
     : ''} {selected ? 'selected' : ''}"
   use:tippy={{
-    content: `<div class='tooltip'><h5>${cat.title}</h5>${
-      cat.tooltip !== null ? `<p>${markdown(cat.tooltip)}</p>` : ""
-    }<p><i>${
+    content: `<h5>${cat.title}</h5>${
+      cat.tooltip !== null ? `${markdown(cat.tooltip)}` : ""
+    }<p>${
       selectCategory
-        ? "Click to filter for this category"
-        : `<a href=${`https://aisafetyideas.com/?categories=${encodeURIComponent(
-            cat.title
-          )}`} on:click={location.reload()}>Click to link all ideas with this category</a>`
-    }</i></p></div>`,
+        ? ""
+        : `<a href="https://aisafetyideas.com/?categories=${cat.title}">Click</a> to see all ideas in this category`
+    }</p>`,
     allowHTML: true,
     interactive: selectCategory ? false : true,
     delay: [1000, 0],

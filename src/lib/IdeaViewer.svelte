@@ -259,6 +259,7 @@
             </i>
           </p>
         {/if}
+        
         <Interest />
 
         <!-- {#if $ideaCurrent.contact || $ideaCurrent.verifications_n > 0 || $ideaCurrent.mentorship_from}

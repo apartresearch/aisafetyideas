@@ -21,7 +21,7 @@
         >
           ⭐ Expert
         </p>
-      {/if}
+      {/if} 
       {#if user.career_stage}
         <p class={"indicator " + user.career_stage}>{user.career_stage}</p>
       {/if}

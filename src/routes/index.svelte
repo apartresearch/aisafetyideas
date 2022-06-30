@@ -212,8 +212,9 @@
   };
 
   let sortingColumns = [
-      { label: "Upvotes", value: "likes" },
+      { label: "Collab interest", value: "interests_n" },
       { label: "Amount of comments", value: "comments_n" },
+      { label: "Upvotes", value: "likes" },
       { label: "Hours of work", value: "difficulty" },
       // { label: "Contact available", value: "contact" },
       // { label: "Author", value: "author" },

@@ -38,8 +38,17 @@
         </a>
       {/if}
       {#if idea.verifications_n > 0}
-        <div class="idea-author">
-          ⭐
+        <div
+          class="idea-author"
+          use:tippy={{
+            content: `This idea is currently being worked on`,
+            allowHTML: true,
+            interactive: true,
+            delay: [250, 0],
+            appendTo: document.body,
+          }}
+        >
+          ✅
           <span class="idea-verifications-n">
             {idea.verifications_n}
           </span>
@@ -169,7 +178,7 @@
           </div>
           {#if idea.verifications_n > 0}
             <div class="comment-indicator">
-              ⭐
+              ✅
               <p class="idea-verifications-n">
                 {idea.verifications_n}
               </p>
@@ -182,9 +191,9 @@
   <h3 class="idea-title">{idea.title}</h3>
   <div class="idea-bottom">
     {#if idea.categories[0]}
-      <div class="idea-categories-wrapper list-item" on:click|stopPropagation>
+      <div class="idea-categories-wrapper list-item">
         {#each idea.categories as cat, i}
-          <CategoryTag cat={cat.category} small={true} {selectCategory} />
+          <CategoryTag cat={cat.category} small={true} />
           {#if i < idea.categories.length - 1}
             <div class="idea-category-separator">·</div>
           {/if}
