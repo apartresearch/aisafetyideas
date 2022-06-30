@@ -52,6 +52,7 @@
       window.setTimeout(initState, 100);
     } else {
       sort({ label: "Amount of comments", value: "comments_n" });
+      sort({ label: "Work in progress", value: "verifications_n" });
       updateFromUrl();
     }
   };
@@ -212,6 +213,7 @@
   };
 
   let sortingColumns = [
+      { label: "Work in progress", value: "verifications_n" },
       { label: "Collab interest", value: "interests_n" },
       { label: "Amount of comments", value: "comments_n" },
       { label: "Upvotes", value: "likes" },
