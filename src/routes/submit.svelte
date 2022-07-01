@@ -23,7 +23,10 @@
     shownIdeas = [],
     ideaSelect = [],
     selectedIdea = {},
-    career_difficulty = "Student";
+    career_difficulty = {
+      value: "Signal",
+      label: "Hard project with a medium failure rate",
+    };
 
   const careerDiffStages = [
     {
@@ -32,7 +35,7 @@
     },
     {
       value: "Signal",
-      label: "Hard project with a high failure rate",
+      label: "Hard project with a medium failure rate",
     },
     {
       value: "Frontier",
@@ -524,7 +527,7 @@
                     mentorship_from,
                     contact: authorContact,
                     user: $user.id,
-                    career_difficulty,
+                    career_difficulty: career_difficulty.value,
                   }
                 : {
                     author,
