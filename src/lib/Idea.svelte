@@ -92,18 +92,6 @@
           <img src="/images/link.svg" alt="Source link icon" />
         </a>
       {/if}
-      {#if idea.verifications_n > 0}
-        <div
-          use:tippy={{
-            content: `This idea has been verified by ${idea.verifications_n} <a href='/users'>experts</a>.`,
-            allowHTML: true,
-            interactive: true,
-            delay: [250, 0],
-          }}
-        >
-          <img src="/images/checkmark.svg" alt="Expert verified icon" />
-        </div>
-      {/if}
       {#if idea.mentorship_from}
         <div
           use:tippy={{

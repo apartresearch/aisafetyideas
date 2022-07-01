@@ -201,7 +201,8 @@
         String(idea.summary)
           .toLowerCase()
           .includes(String(query).toLowerCase()) ||
-        String(idea.author).toLowerCase().includes(String(query).toLowerCase())
+        String(idea.author).toLowerCase().includes(String(query).toLowerCase()) ||
+        String(idea.source).toLowerCase().includes(String(query).toLowerCase())
       );
     });
     if (url) {

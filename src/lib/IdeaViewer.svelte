@@ -172,7 +172,7 @@
         <div class="current-idea-text">
           {@html markdown($ideaCurrent.summary)}
         </div>
-        {#if $ideaCurrent.verifications_n > 0}
+        <!-- {#if $ideaCurrent.verifications_n > 0}
           <p
             class="small"
             use:tippy={{
@@ -190,7 +190,7 @@
               target="_blank">expert(s)</a
             >.
           </p>
-        {/if}
+        {/if} -->
         <div class="flex-hori">
           <div class="heart-indicator">
             <img
@@ -259,7 +259,7 @@
             </i>
           </p>
         {/if}
-        
+
         <Interest />
 
         <!-- {#if $ideaCurrent.contact || $ideaCurrent.verifications_n > 0 || $ideaCurrent.mentorship_from}
