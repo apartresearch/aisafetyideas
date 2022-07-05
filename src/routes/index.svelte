@@ -305,7 +305,7 @@ user,
         {/if}
       </div>
 
-      {#if !$loading && typeof $user !== "undefined"}
+      {#if !$loading}
       <div class="intermission">
         <SubmitBlock />
       </div>
