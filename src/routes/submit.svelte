@@ -524,7 +524,6 @@
                     mentorship_from,
                     contact: authorContact,
                     user: $user.id,
-                    career_difficulty: career_difficulty.value,
                   }
                 : {
                     id: null,

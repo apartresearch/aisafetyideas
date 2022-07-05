@@ -27,6 +27,8 @@ import MediaQuery from "./MediaQuery.svelte";
       uploadIdea({
         title,
         summary: description,
+        user: $user.id,
+        career_difficulty: "Signal"
       });
       title = "";
       description = "";
