@@ -17,7 +17,7 @@
   }}
 >
   <div class="global-wrapper">
-    <h3 class="header">{project.title} <span class="idea_n">{$ideas.filter((idea) =>
+    <h3 class="header">{project.title} | <span class="idea_n">{$ideas.filter((idea) =>
       idea.superprojects.find((p) => p.superproject.id == project.id)
     ).length} ideas</span></h3>
     {@html markdown(project.summary)}
@@ -57,7 +57,7 @@
 
   .wrapper {
     width: 49.5%;
-    padding: 0.75rem;
+    padding: 0.35rem;
     border-radius: var(--border-radius);
     border: 1px solid var(--primary-color);
     color: var(--light-accent-text);

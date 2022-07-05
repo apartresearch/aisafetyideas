@@ -327,9 +327,9 @@
           {/each}
         {/if}
       </div>
-      <!-- <div class="intermission">
+      <div class="intermission">
         <SubmitBlock />
-      </div> -->
+      </div>
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(8, searchIdeas.length) as idea}
