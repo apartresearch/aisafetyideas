@@ -1,4 +1,5 @@
 <script>
+  import {uploadIdea} from "$lib/db.js";
   let title = "";
   let description = "";
 </script>

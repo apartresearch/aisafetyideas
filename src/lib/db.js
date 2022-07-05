@@ -1,11 +1,18 @@
 import { createClient } from '@supabase/supabase-js';
-import { ideaCurrent, user, users } from '$lib/stores.js';
+import { ideaCurrent, user, users, ideaViewVisible } from '$lib/stores.js';
 import { get } from 'svelte/store';
 
 export const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 )
+
+export const uploadIdea = async (idea) => {
+  const { data, error } = await supabase.from("ideas").insert(idea);
+  ideaCurrent.set(data)
+  ideaViewVisible.set(true)
+  return data
+}
 
 
 export const getTable = async (table_name, grabTitle = true) => {

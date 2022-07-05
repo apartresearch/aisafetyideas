@@ -1,5 +1,5 @@
 <script>
-  import { supabase, getTable } from "$lib/db";
+  import { supabase, getTable, uploadIdea } from "$lib/db";
   import { onMount } from "svelte";
   import Select from "svelte-select";
   import Nav from "$lib/Nav.svelte";
@@ -158,13 +158,10 @@
           supabase.from("idea_idea_relation").delete().match({
             idea_2: idea_id,
           }),
-          // supabase.from("idea_user_interest_relation").delete().match({
-          // idea: idea_id,
-          // }),
         ]);
       }
 
-      // Add idea and replace if id exists
+      // Add idea and replace if it exists
       const { data, error } = await supabase.from("ideas").upsert(idea);
       if (error) {
         console.log(error);
@@ -530,6 +527,7 @@
                     career_difficulty: career_difficulty.value,
                   }
                 : {
+                    id: null,
                     author,
                     title,
                     summary: description,

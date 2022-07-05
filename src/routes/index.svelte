@@ -304,14 +304,10 @@
         {/if}
       </div>
       <div class="intermission">
-        <h2 class="project-title">Projects</h2>
-        <p>
-          See all projects <a href="/projects">here</a>. Click on a project to see
-          the ideas in each.
-        </p>
+        <h2 class="project-title">Projects (<a href="/projects">see all</a>)</h2>
         <div class="project-contain">
           {#each $superprojects
-            .sort(() => Math.random() - 0.5) as project}
+            .sort((a, b) => a.ideas_n - b.ideas_n).splice(0, 10) as project}
             <SuperprojectBlock {project} />
           {/each}
         </div>
@@ -364,9 +360,11 @@
     column-gap: 1%;
     row-gap: 0.5rem;
     margin-top: 0.25rem;
+    text-align: left;
   }
 
   .intermission {
+    text-align: center;
     margin: 1rem 0;
     background-color: var(--light-accent-bg);
     border: 1px solid var(--light-accent-border);
