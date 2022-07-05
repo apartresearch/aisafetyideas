@@ -1,5 +1,6 @@
 <script>
   import {uploadIdea} from "$lib/db.js";
+  
   let title = "";
   let description = "";
 </script>
@@ -20,13 +21,20 @@
     </label>
     <textarea rows="8" bind:value={description} />
   </div>
+  <div class="bottom">
+    <button class="btn" on:click={() => {
+      uploadIdea({
+        title,
+        summary: description,
+      });
+      title = "";
+      description = "";
+    }}>
+      Submit
+    </button>
 </div>
 
 <style>
-  .head {
-
-  }
-
   label {
     font-size: 0.7em;
     line-height: 1em;

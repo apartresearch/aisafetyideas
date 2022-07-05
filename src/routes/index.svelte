@@ -24,6 +24,7 @@
     ideaCurrent,
     shownIdeas,
     categories,
+user,
   } from "$lib/stores.js";
   import { init } from "svelte/internal";
 
@@ -323,9 +324,11 @@
           {/each}
         {/if}
       </div>
+      {#if $user}
       <div class="intermission">
         <SubmitBlock />
       </div>
+      {/if}
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(8, searchIdeas.length) as idea}
