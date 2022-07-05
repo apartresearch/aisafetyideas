@@ -1,5 +1,6 @@
 <script>
   import {uploadIdea} from "$lib/db.js";
+import MediaQuery from "./MediaQuery.svelte";
   
   let title = "";
   let description = "";
@@ -35,12 +36,15 @@
 </div>
 
 <style>
+  .head {
+    margin: 0;
+  }
+
   label {
-    font-size: 0.7em;
-    line-height: 1em;
-    padding-right: 0.5em;
+    padding-right: 0.5rem;
     font-style: none;
-    width: 30%;
+    width: 15%;
+    text-align: right;
   }
 
   .input-wrapper input,
@@ -61,5 +65,15 @@
     flex-direction: row;
     margin: 2px;
     width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .input-wrapper input, .input-wrapper textarea, .input-wrapper .select, label {
+      width: 100%;
+    }
+
+    .input-wrapper {
+      flex-direction: column;
+    }
   }
 </style>
