@@ -16,7 +16,7 @@
         <button class="btn" on:click={() => {
           uploadIdea({
             // Take the largest value of idea.id and +1
-            id: Math.max(...ideas.map(idea => idea.id)) + Math.floor(Math.random() * 10),
+            id: Math.max(...$ideas.map(idea => idea.id)) + Math.floor(Math.random() * 10),
             title,
             summary: description,
             user: $user.id,
