@@ -33,6 +33,7 @@ import MediaQuery from "./MediaQuery.svelte";
     }}>
       Submit
     </button>
+    </div>
 </div>
 
 <style>
