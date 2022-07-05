@@ -304,7 +304,7 @@
         {/if}
       </div>
       <div class="intermission">
-        <h2 class="project-title">Projects (<a href="/projects">see all</a>)</h2>
+        <h3 class="project-title">Projects (<a href="/projects">see all</a>)</h3>
         <div class="project-contain">
           {#each $superprojects
             .sort((a, b) => a.ideas_n - b.ideas_n).splice(0, 10) as project}
