@@ -331,7 +331,7 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: left;
     align-items: flex-start;
     column-gap: 1rem;
     row-gap: 1rem;
