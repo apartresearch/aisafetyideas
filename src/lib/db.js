@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
-import { ideaCurrent, user, users, ideaViewVisible } from '$lib/stores.js';
+import { ideaCurrent, user, users } from '$lib/stores.js';
 import { get } from 'svelte/store';
 
 export const supabase = createClient(
@@ -9,8 +9,6 @@ export const supabase = createClient(
 
 export const uploadIdea = async (idea) => {
   const { data, error } = await supabase.from("ideas").insert(idea);
-  ideaCurrent.set(data)
-  ideaViewVisible.set(true)
   return data
 }
 

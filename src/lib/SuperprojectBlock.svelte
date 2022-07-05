@@ -43,11 +43,6 @@
     margin-bottom: 0.4rem;
   }
 
-  .bottom {
-    margin: 0;
-    padding: 0;
-  }
-
   .idea_n {
     color: #999;
     font-size: 0.8rem;

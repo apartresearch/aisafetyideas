@@ -20,7 +20,6 @@
     verifications,
   } from "$lib/stores.js";
   import { onMount } from "svelte";
-  import { get } from "svelte/store";
   import { getTable } from "$lib/db.js";
 
   onMount(async () => {
@@ -97,7 +96,9 @@
       }));
 
       //   Setup the ideas
-      $ideas = $ideas.map((idea) => ({
+      $ideas = $ideas
+      .filter((i) => i.filtered == true)
+      .map((idea) => ({
         ...idea,
         likes: $idea_likes.filter((like) => like.idea === idea.id).length,
         user_liked: $idea_likes.find(
@@ -143,6 +144,11 @@
         verifications: $verifications.filter((v) => v.idea === idea.id),
         verifications_n: $verifications.filter((v) => v.idea === idea.id)
           .length,
+      }));
+
+      $superprojects = $superprojects.map((sp) => ({
+        ...sp,
+        ideas_n: $superprojectRelations.filter((r) => r.superproject == sp.id).length,
       }));
 
       $shownIdeas = $ideas;

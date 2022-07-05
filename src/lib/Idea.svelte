@@ -11,7 +11,6 @@
   import MediaQuery from "$lib/MediaQuery.svelte";
 
   export let idea,
-    selectCategory = undefined,
     url;
 
   const selectIdea = () => {
@@ -260,14 +259,6 @@
 <Toasts />
 
 <style>
-  .heart-icon {
-    cursor: pointer;
-    margin: 0;
-    height: 1.4em;
-    /* filter: invert(18%) sepia(95%) saturate(2588%) hue-rotate(233deg)
-      brightness(83%) contrast(90%); */
-  }
-
   .heart:hover {
     opacity: 0.8;
   }

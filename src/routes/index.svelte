@@ -24,7 +24,7 @@
     ideaCurrent,
     shownIdeas,
     categories,
-user,
+    user,
   } from "$lib/stores.js";
   import { init } from "svelte/internal";
 
@@ -292,32 +292,29 @@ user,
 
         {#if searchValue}
           {#each searchIdeas.slice(0, 4) as idea}
-            <Idea {idea} {selectCategory} />
+            <Idea {idea} />
           {:else}
             <p class="not-found">No ideas found</p>
           {/each}
         {:else}
           {#each $shownIdeas.slice(0, 4) as idea}
-            <Idea {idea} {selectCategory} />
+            <Idea {idea} />
           {:else}
             <p class="not-found">No ideas found</p>
           {/each}
         {/if}
       </div>
-
-      {#if !$loading}
       <div class="intermission">
         <SubmitBlock />
       </div>
-      {/if}
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(4, 8) as idea}
-            <Idea {idea} {selectCategory} />
+            <Idea {idea}/>
           {/each}
         {:else}
           {#each $shownIdeas.slice(4, 8) as idea}
-            <Idea {idea} {selectCategory} />
+            <Idea {idea}/>
           {/each}
         {/if}
       </div>
@@ -325,7 +322,7 @@ user,
         <h3 class="project-title">Projects (<a href="/projects">see all</a>)</h3>
         <div class="project-contain">
           {#each $superprojects
-            .sort((a, b) => a.ideas_n - b.ideas_n).splice(0, 10) as project}
+            .sort((a, b) => b.ideas_n - a.ideas_n).splice(0, 10) as project}
             <SuperprojectBlock {project} />
           {/each}
         </div>
@@ -333,11 +330,11 @@ user,
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(8, searchIdeas.length) as idea}
-            <Idea {idea} {selectCategory} />
+            <Idea {idea} />
           {/each}
         {:else}
           {#each $shownIdeas.slice(8, $shownIdeas.length) as idea}
-            <Idea {idea} {selectCategory} />
+            <Idea {idea}/>
           {/each}
         {/if}
       </div>
@@ -369,17 +366,13 @@ user,
 
   .intermission {
     text-align: center;
-    margin: 1rem 0;
+    margin: 0;
     background-color: var(--light-accent-bg);
     border: 1px solid var(--light-accent-border);
     box-shadow: var(--box-shadow);
     border-radius: var(--border-radius);
-    margin: 1rem 0.5rem;
-    padding: 1rem;
-  }
 
-  .intermission > h2 {
-    text-align: center;
+    padding: 1rem 1rem;
   }
 
   .globwrap {
@@ -540,6 +533,11 @@ user,
     .container.first {
       margin-top: 0;
     }
+
+    .project-title {
+      margin-top: 0.5rem;
+    }
+
     .idea-categories-wrapper {
       flex-wrap: nowrap;
       overflow: auto;

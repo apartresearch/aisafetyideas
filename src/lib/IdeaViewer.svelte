@@ -547,10 +547,6 @@
     margin-bottom: 10px;
   }
 
-  .hidden {
-    display: none;
-  }
-
   .idea-categories-wrapper {
     display: flex;
     flex-direction: row;

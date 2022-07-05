@@ -1,7 +1,7 @@
 <footer id="footer" class="footer-2 wf-section">
   <div class="w-container">
     <div class="footer-flex-container">
-      <a href="#" class="footer-logo-link-2"
+      <a href="/" class="footer-logo-link-2"
         ><img
           src="https://uploads-ssl.webflow.com/622160bba1d5c0dcf96f8bdf/62431292c50af756943fd210_ideas_icon.png"
           alt="AI safety ideas logo"

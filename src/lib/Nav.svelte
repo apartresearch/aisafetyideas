@@ -113,13 +113,6 @@
     color: inherit;
   }
 
-  .content-p {
-    font-size: 1rem;
-    line-height: 1.3;
-    margin-bottom: 2rem;
-    max-width: 40em;
-  }
-
   header {
     /* background-color: var(--bg-color-dark); */
     /* background-image: url("https://uploads-ssl.webflow.com/622160bba1d5c0dcf96f8bdf/628f97da187df855c39bd88b_hero-bottom.png"); */
@@ -186,12 +179,6 @@
       max-width: 820px;
       text-align: center;
       margin: 0 auto;
-    }
-
-    .content-p {
-      font-size: 1rem;
-      line-height: 1.3;
-      margin-bottom: 0;
     }
 
     .header {

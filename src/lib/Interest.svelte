@@ -156,14 +156,6 @@
     transform: translate(0, -1px);
   }
 
-  label {
-    display: block;
-    margin: 0;
-    font-size: 0.8rem;
-    line-height: 1rem;
-    font-weight: 400;
-  }
-
   .interest-wrapper {
     display: flex;
     flex-wrap: wrap;
@@ -207,11 +199,6 @@
     color: white;
   }
 
-  button:hover > img,
-  button:focus > img {
-    filter: invert(1);
-  }
-
   img {
     border-radius: 50%;
     width: 1.5rem;
@@ -228,9 +215,5 @@
     border-radius: var(--border-radius);
     font-size: 0.8rem;
     line-height: 1.2rem;
-  }
-
-  input:focus {
-    background-color: var(--primary-color-hover);
   }
 </style>
