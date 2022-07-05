@@ -88,7 +88,6 @@
     font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: var(--border-radius);
-    float: left;
   }
 
   button:hover {

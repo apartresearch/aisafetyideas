@@ -311,10 +311,14 @@
         {#if searchValue}
           {#each searchIdeas.slice(4, 8) as idea}
             <Idea {idea}/>
+          {:else}
+          <div class="not-found"></div>
           {/each}
         {:else}
           {#each $shownIdeas.slice(4, 8) as idea}
             <Idea {idea}/>
+            {:else}
+            <div class="not-found"></div>
           {/each}
         {/if}
       </div>
@@ -402,8 +406,7 @@
   .not-found {
     font-size: 1.5rem;
     text-align: center;
-    margin: auto;
-    margin-top: 2rem;
+    margin: 3rem auto;
     color: #999;
     font-style: italic;
   }
