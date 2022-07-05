@@ -396,6 +396,10 @@
       margin-bottom: 20px;
     }
 
+    .members {
+      justify-content: center;
+    }
+
     .timeline-block {
       width: 100%;
     }
