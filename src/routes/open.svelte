@@ -28,6 +28,10 @@
 
 <Nav />
 <div class="w-container">
+  <h2>About</h2>
+  <p class="team">
+    The AI Safety Ideas platform is a public Apart tool used for collecting research in AI safety, collaborate on projects, and facilitate mentorship.
+  </p>
   <h2>Team</h2>
   <p class="team">
     The <a href="https://apartresearch.com">Apart Research</a> team, we have
