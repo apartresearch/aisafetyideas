@@ -303,22 +303,19 @@
           {/each}
         {/if}
       </div>
-    </div>
-    <div class="intermission">
-      <h2>Projects</h2>
-      <p>
-        See all projects <a href="/projects">here</a>. Click on a project to see
-        the ideas in each.
-      </p>
-      <div class="project-contain">
-        {#each $superprojects
-          .sort(() => Math.random() - 0.5)
-          .slice(0, 5) as project}
-          <SuperprojectBlock {project} />
-        {/each}
+      <div class="intermission">
+        <h2 class="project-title">Projects</h2>
+        <p>
+          See all projects <a href="/projects">here</a>. Click on a project to see
+          the ideas in each.
+        </p>
+        <div class="project-contain">
+          {#each $superprojects
+            .sort(() => Math.random() - 0.5) as project}
+            <SuperprojectBlock {project} />
+          {/each}
+        </div>
       </div>
-    </div>
-    <div class="container">
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(4, 8) as idea}
@@ -330,11 +327,9 @@
           {/each}
         {/if}
       </div>
-    </div>
-    <!-- <div class="intermission">
-      <SubmitBlock />
-    </div> -->
-    <div class="container">
+      <!-- <div class="intermission">
+        <SubmitBlock />
+      </div> -->
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(8, searchIdeas.length) as idea}
@@ -356,6 +351,10 @@
 <Footer />
 
 <style>
+  .project-title {
+    margin: 0;
+  }
+  
   .project-contain {
     display: flex;
     flex-wrap: wrap;
