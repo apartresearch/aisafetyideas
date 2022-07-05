@@ -17,15 +17,10 @@
   }}
 >
   <div class="global-wrapper">
-    <h3 class="header">📃 {project.title}</h3>
+    <h3 class="header">{project.title} <span class="idea_n">{$ideas.filter((idea) =>
+      idea.superprojects.find((p) => p.superproject.id == project.id)
+    ).length} ideas</span></h3>
     {@html markdown(project.summary)}
-  </div>
-  <div class="bottom">
-    <p class="idea_n">
-      {$ideas.filter((idea) =>
-        idea.superprojects.find((p) => p.superproject.id == project.id)
-      ).length} ideas
-    </p>
   </div>
 </a>
 
@@ -35,6 +30,7 @@
     line-height: 1rem;
     margin: 0;
     margin-bottom: 0.15rem;
+    font-weight: bold;
   }
 
   :global(.global-wrapper > p) {
@@ -60,15 +56,9 @@
   }
 
   .wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 4rem;
-    width: 12rem;
+    width: 49.5%;
     padding: 0.75rem;
     border-radius: var(--border-radius);
-    box-shadow: var(--box-shadow);
-    background-color: var(--primary-color-hover);
     border: 1px solid var(--primary-color);
     color: var(--light-accent-text);
     text-decoration: none;
@@ -76,10 +66,7 @@
   }
 
   .wrapper:hover {
-    transform: translate(0, -0.1rem);
-    box-shadow: none;
-    border: 1px solid var(--light-accent-bg);
-    background-color: var(--light-accent-bg);
+    transform: translate(0, -2px);
     cursor: pointer;
   }
 
@@ -95,7 +82,6 @@
     .wrapper {
       width: 100%;
       padding: 0.5rem;
-      text-align: left;
     }
 
     :global(p),

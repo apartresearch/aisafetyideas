@@ -305,11 +305,7 @@
       </div>
     </div>
     <div class="intermission">
-      <MediaQuery query="(max-width: 768px)" let:matches>
-        {#if matches}
-          <h2>Projects</h2>
-        {/if}
-      </MediaQuery>
+      <h2>Projects</h2>
       <p>
         See all projects <a href="/projects">here</a>. Click on a project to see
         the ideas in each.
@@ -366,7 +362,7 @@
     justify-content: space-between;
     align-items: stretch;
     max-width: 1200px;
-    column-gap: 0.5rem;
+    column-gap: 1%;
     row-gap: 0.5rem;
     margin-top: 0.25rem;
   }
