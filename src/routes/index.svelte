@@ -304,15 +304,12 @@ user,
           {/each}
         {/if}
       </div>
+
+      {#if $user}
       <div class="intermission">
-        <h3 class="project-title">Projects (<a href="/projects">see all</a>)</h3>
-        <div class="project-contain">
-          {#each $superprojects
-            .sort((a, b) => a.ideas_n - b.ideas_n).splice(0, 10) as project}
-            <SuperprojectBlock {project} />
-          {/each}
-        </div>
+        <SubmitBlock />
       </div>
+      {/if}
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(4, 8) as idea}
@@ -324,11 +321,15 @@ user,
           {/each}
         {/if}
       </div>
-      {#if $user}
       <div class="intermission">
-        <SubmitBlock />
+        <h3 class="project-title">Projects (<a href="/projects">see all</a>)</h3>
+        <div class="project-contain">
+          {#each $superprojects
+            .sort((a, b) => a.ideas_n - b.ideas_n).splice(0, 10) as project}
+            <SuperprojectBlock {project} />
+          {/each}
+        </div>
       </div>
-      {/if}
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(8, searchIdeas.length) as idea}
