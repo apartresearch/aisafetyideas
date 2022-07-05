@@ -305,7 +305,7 @@ user,
         {/if}
       </div>
 
-      {#if $user}
+      {#if !$loading && $user}
       <div class="intermission">
         <SubmitBlock />
       </div>
