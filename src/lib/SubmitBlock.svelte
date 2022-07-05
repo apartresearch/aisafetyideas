@@ -56,6 +56,14 @@ import MediaQuery from "./MediaQuery.svelte";
     line-height: 1em;
   }
 
+  input,
+  textarea {
+    border: 1px solid #ccc;
+    border-radius: 0.2em;
+    margin: 0;
+    padding: 0.5em;
+  }
+
   .description textarea {
     min-height: 100px;
   }
