@@ -41,7 +41,18 @@ import MediaQuery from "./MediaQuery.svelte";
     margin: 0;
   }
 
+  
+  button {
+    margin: 1rem;
+    padding: 1.5rem 3rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5em;
+  }
+
   label {
+    font-size: 0.8rem;
+    line-height: 1rem;
+    font-weight: normal;
     padding-right: 0.5rem;
     font-style: none;
     width: 15%;
@@ -52,7 +63,7 @@ import MediaQuery from "./MediaQuery.svelte";
   .input-wrapper textarea,
   .input-wrapper .select {
     margin-bottom: 5px;
-    width: 70%;
+    width: 85%;
     font-size: 0.7em;
     line-height: 1em;
   }
