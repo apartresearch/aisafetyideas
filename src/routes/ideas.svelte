@@ -9,6 +9,7 @@
   import moment from "moment";
   import DataLoader from "$lib/DataLoader.svelte";
   import UserLogin from "$lib/UserLogin.svelte";
+  
   import {
     ideas,
     superprojects,
@@ -19,6 +20,7 @@
     categories,
   } from "$lib/stores.js";
   import { init } from "svelte/internal";
+import HeaderManager from "$lib/HeaderManager.svelte";
 
   let url = "",
     ideaParam = "",
@@ -223,11 +225,7 @@
   }
 </script>
 
-<svelte:head>
-  <title>
-    {$ideaViewVisible ? $ideaCurrent.title + " | " : ""}AI Safety Ideas
-  </title>
-</svelte:head>
+<HeaderManager />
 
 <DataLoader />
 <div class="globwrap">

@@ -12,6 +12,7 @@
   import DataLoader from "$lib/DataLoader.svelte";
 
   const superprojectSlug = $page.params.superproject;
+  console.log(superprojectSlug, $superprojects)
 
   let currentIdea = {},
     canClick = true,
@@ -49,8 +50,10 @@
 
 <Nav />
 
+
 {#if $loading}
-  <LoadIcon />
+<LoadIcon />
+<div class="filler"></div>
 {:else if $superprojects.length > 0}
   <div class="wrapper">
     <div class="header-wrapper">
@@ -77,6 +80,10 @@
 <Footer />
 
 <style>
+  .filler {
+    height: 100vh;
+  }
+
   .wrapper {
     margin: 0 auto 1rem auto;
     padding: 12px 15px;

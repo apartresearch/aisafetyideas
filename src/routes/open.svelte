@@ -243,6 +243,8 @@
         { date: "2022-07-2", value: 1 },
         { date: "2022-07-3", value: 1 },
         { date: "2022-07-5", value: 1 },
+        { date: "2022-07-7", value: 1 },
+        { date: "2022-07-8", value: 1 },
       ]}
       endDate={moment().toDate()}
       startDate={moment("2022-04-15").toDate()}

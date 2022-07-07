@@ -16,6 +16,7 @@
   import SubmitBlock from "$lib/SubmitBlock.svelte";
   import moment from "moment";
   import DataLoader from "$lib/DataLoader.svelte";
+  import HeaderManager from "$lib/HeaderManager.svelte";
   import {
     ideas,
     superprojects,
@@ -234,15 +235,12 @@
   }
 </script>
 
-<svelte:head>
-  <title>
-    {$ideaViewVisible ? $ideaCurrent.title + " | " : ""}AI Safety Ideas
-  </title>
-</svelte:head>
+<HeaderManager />
 
 <DataLoader />
 <Nav />
 <div class="globwrap">
+  <IdeaViewer {url} />
   <div class="container first">
     <div class="search-sort">
       <div class="search">
@@ -346,7 +344,6 @@
   {:else}
     <LoadIcon />
   {/if}
-  <IdeaViewer {url} />
 </div>
 
 <Footer />
