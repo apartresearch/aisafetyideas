@@ -15,13 +15,19 @@ export const uploadIdea = async (idea) => {
 export const getTable = async (
   table_name,
   grabTitle = true,
-  project_factory = false
+  project_factory = null
 ) => {
   try {
-    let { data, error } = await supabase
-      .from(table_name)
-      .select("*")
-      .match({ project_factory: project_factory });
+    let data = null,
+      error = null;
+    if (project_factory != null) {
+      ({ data, error } = await supabase
+        .from(table_name)
+        .select("*")
+        .match({ project_factory: project_factory }));
+    } else {
+      ({ data, error } = await supabase.from(table_name).select("*"));
+    }
     return data.map((elm) => ({
       ...elm,
       value: grabTitle ? elm.title : "",
