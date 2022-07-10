@@ -50,7 +50,11 @@
       ] = await Promise.all([
         getTable("users"),
         getTable("superprojects"),
-        getTable("ideas"),
+        getTable(
+          "ideas",
+          true,
+          process.env.PROJECT_FACTORY == "TRUE" ? true : false
+        ),
         getTable("comments"),
         getTable("categories"),
         getTable("problems"),
@@ -97,58 +101,61 @@
 
       //   Setup the ideas
       $ideas = $ideas
-      .filter((i) => i.filtered == true)
-      .map((idea) => ({
-        ...idea,
-        likes: $idea_likes.filter((like) => like.idea === idea.id).length,
-        user_liked: $idea_likes.find(
-          (like) => like.idea === idea.id && $user && like.user === $user.id
-        ),
-        username: $users.find((user) => user.id === idea.user)
-          ? $users.find((user) => user.id === idea.user).username
-          : "",
-        comments_n:
-          $comments.filter(
-            (c) => (c.reply_to < 1 || !c.reply_to) && c.idea === idea.id
-          ).length +
-          $comments
-            .filter(
+        .filter((i) => i.filtered == true)
+        .map((idea) => ({
+          ...idea,
+          likes: $idea_likes.filter((like) => like.idea === idea.id).length,
+          user_liked: $idea_likes.find(
+            (like) => like.idea === idea.id && $user && like.user === $user.id
+          ),
+          username: $users.find((user) => user.id === idea.user)
+            ? $users.find((user) => user.id === idea.user).username
+            : "",
+          comments_n:
+            $comments.filter(
               (c) => (c.reply_to < 1 || !c.reply_to) && c.idea === idea.id
-            )
-            .map((c) => c.replies.length)
-            .reduce((a, b) => a + b, 0),
-        categories: $categoryRelations
-          .filter((r) => r.idea === idea.id)
-          .map((c) => ({
-            ...c,
-            category: $categories.find((cat) => cat.id === c.category),
-          })),
-        superprojects: $superprojectRelations
-          .filter((r) => r.idea === idea.id)
-          .map((s) => ({
-            ...s,
-            superproject: $superprojects.find((sp) => sp.id === s.superproject),
-          })),
-        problems: $problemRelations
-          .filter((r) => r.idea === idea.id)
-          .map((p) => ({
-            ...p,
-            problem: $problems.find((pr) => pr.id === p.problem),
-          })),
-        ideas: $ideaRelations.filter((r) => r.idea === idea.id),
-        comments: $comments.filter(
-          (c) => (c.reply_to < 1 || !c.reply_to) && c.idea === idea.id
-        ),
-        interests: $interests.filter((i) => i.idea === idea.id),
-        interests_n: $interests.filter((i) => i.idea === idea.id).length,
-        verifications: $verifications.filter((v) => v.idea === idea.id),
-        verifications_n: $verifications.filter((v) => v.idea === idea.id)
-          .length,
-      }));
+            ).length +
+            $comments
+              .filter(
+                (c) => (c.reply_to < 1 || !c.reply_to) && c.idea === idea.id
+              )
+              .map((c) => c.replies.length)
+              .reduce((a, b) => a + b, 0),
+          categories: $categoryRelations
+            .filter((r) => r.idea === idea.id)
+            .map((c) => ({
+              ...c,
+              category: $categories.find((cat) => cat.id === c.category),
+            })),
+          superprojects: $superprojectRelations
+            .filter((r) => r.idea === idea.id)
+            .map((s) => ({
+              ...s,
+              superproject: $superprojects.find(
+                (sp) => sp.id === s.superproject
+              ),
+            })),
+          problems: $problemRelations
+            .filter((r) => r.idea === idea.id)
+            .map((p) => ({
+              ...p,
+              problem: $problems.find((pr) => pr.id === p.problem),
+            })),
+          ideas: $ideaRelations.filter((r) => r.idea === idea.id),
+          comments: $comments.filter(
+            (c) => (c.reply_to < 1 || !c.reply_to) && c.idea === idea.id
+          ),
+          interests: $interests.filter((i) => i.idea === idea.id),
+          interests_n: $interests.filter((i) => i.idea === idea.id).length,
+          verifications: $verifications.filter((v) => v.idea === idea.id),
+          verifications_n: $verifications.filter((v) => v.idea === idea.id)
+            .length,
+        }));
 
       $superprojects = $superprojects.map((sp) => ({
         ...sp,
-        ideas_n: $superprojectRelations.filter((r) => r.superproject == sp.id).length,
+        ideas_n: $superprojectRelations.filter((r) => r.superproject == sp.id)
+          .length,
       }));
 
       $shownIdeas = $ideas;
