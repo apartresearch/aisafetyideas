@@ -11,6 +11,8 @@
     "@supabase/supabase-js": "^1.8.0",
     "@sveltejs/adapter-auto": "next",
     "@sveltejs/kit": "next",
+    "prettier": "^2.7.1",
+    "prettier-plugin-svelte": "^2.7.0",
     "svelte": "^3.44.0"
   },
   "type": "module",

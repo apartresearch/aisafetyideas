@@ -20,7 +20,8 @@
             title,
             summary: description,
             user: $user.id,
-            career_difficulty: "Signal"
+            career_difficulty: "Signal",
+            project_factory: process.env.PROJECT_FACTORY
           });
           title = "";
           description = "";

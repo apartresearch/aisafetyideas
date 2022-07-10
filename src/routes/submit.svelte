@@ -501,28 +501,30 @@
       <div class="buttons">
         <button
           on:click={() => {
-            addNewIdea( {
-                    id: idea_id,
-                    author,
-                    title,
-                    summary: description,
-                    verified_by_expert: verified,
-                    filtered,
-                    sourced: sourced,
-                    difficulty,
-                    from_date:
-                      date_sourced != '""' &&
-                      date_sourced != "" &&
-                      date_sourced != undefined
-                        ? date_sourced
-                        : null,
-                    funding_amount,
-                    funding_currency,
-                    funding_from,
-                    mentorship_from,
-                    contact: authorContact,
-                    user: $user.id,
-                  },
+            addNewIdea(
+              {
+                id: idea_id,
+                author,
+                title,
+                summary: description,
+                verified_by_expert: verified,
+                filtered,
+                sourced: sourced,
+                difficulty,
+                from_date:
+                  date_sourced != '""' &&
+                  date_sourced != "" &&
+                  date_sourced != undefined
+                    ? date_sourced
+                    : null,
+                funding_amount,
+                funding_currency,
+                funding_from,
+                mentorship_from,
+                contact: authorContact,
+                user: $user.id,
+                project_factory: process.env.PROJECT_FACTORY,
+              },
               tags
                 ? tags.map((tag) => ({ category: tag.id, idea: idea_id }))
                 : [],
