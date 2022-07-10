@@ -49,14 +49,22 @@
         $verifications,
       ] = await Promise.all([
         getTable("users"),
-        getTable("superprojects"),
+        getTable(
+          "superprojects",
+          true,
+          process.env.PROJECT_FACTORY == "TRUE" ? true : false
+        ),
         getTable(
           "ideas",
           true,
           process.env.PROJECT_FACTORY == "TRUE" ? true : false
         ),
         getTable("comments"),
-        getTable("categories"),
+        getTable(
+          "categories",
+          true,
+          process.env.PROJECT_FACTORY == "TRUE" ? true : false
+        ),
         getTable("problems"),
         getTable("idea_user_likes"),
         getTable("idea_user_funding_relation"),
