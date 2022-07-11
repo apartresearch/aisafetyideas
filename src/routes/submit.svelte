@@ -529,7 +529,7 @@
                 mentorship_from,
                 contact: authorContact,
                 user: $user.id,
-                project_factory,
+                project_factory: project_factory ? "TRUE" : "FALSE",
               },
               tags
                 ? tags.map((tag) => ({ category: tag.id, idea: idea_id }))
