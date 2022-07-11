@@ -499,7 +499,7 @@
           <input type="checkbox" bind:checked={verified} />
         </div>
         <div class="input-wrapper">
-          <label for="verified">Verified</label>
+          <label for="verified">Project factory idea?</label>
           <input type="checkbox" bind:checked={project_factory} />
         </div>
       {/if}
