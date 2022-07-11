@@ -26,7 +26,8 @@
     career_difficulty = {
       value: "Signal",
       label: "Hard project with a medium failure rate",
-    };
+    },
+    project_factory = process.env.PROJECT_FACTORY == "TRUE";
 
   const careerDiffStages = [
     {
@@ -497,6 +498,10 @@
           <label for="verified">Verified</label>
           <input type="checkbox" bind:checked={verified} />
         </div>
+        <div class="input-wrapper">
+          <label for="verified">Verified</label>
+          <input type="checkbox" bind:checked={project_factory} />
+        </div>
       {/if}
       <div class="buttons">
         <button
@@ -523,7 +528,7 @@
                 mentorship_from,
                 contact: authorContact,
                 user: $user.id,
-                project_factory: process.env.PROJECT_FACTORY,
+                project_factory,
               },
               tags
                 ? tags.map((tag) => ({ category: tag.id, idea: idea_id }))

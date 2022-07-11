@@ -10,7 +10,11 @@
   <MediaQuery query="(max-width: 768px)" let:matches>
     {#if matches}
       <div class="content">
-        <h1>AI Safety Ideas for Apart Research Collabs</h1>
+        {#if process.env.PROJECT_FACTORY == "TRUE"}
+          <h1>The Alignment Project Factory</h1>
+        {:else}
+          <h1>AI Safety Ideas for Apart Research Collabs</h1>
+        {/if}
       </div>
       <div class="burger-parent">
         <BurgerMenu
