@@ -10,7 +10,7 @@
   <MediaQuery query="(max-width: 768px)" let:matches>
     {#if matches}
       <div class="content">
-        {#if process.env.PROJECT_FACTORY == "TRUE"}
+        {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
           <h1>The Alignment Project Factory</h1>
         {:else}
           <h1>AI Safety Ideas for Apart Research Collabs</h1>

@@ -344,7 +344,7 @@
           />
         </div>
       </div>
-      <div class="input-wrapper">
+      <!-- <div class="input-wrapper">
         <label for="related_ideas">Related problems</label>
         <div class="select">
           <Select items={problems} bind:value={problem_ids} isMulti={true} />
@@ -355,7 +355,7 @@
         <div class="select">
           <Select items={ideas} bind:value={related_ideas} isMulti={true} />
         </div>
-      </div>
+      </div> -->
       <div class="input-wrapper">
         <label for="2" />
         <div class="select">
@@ -375,6 +375,7 @@
             class="checkbox"
             bind:checked={showSourceInput}
           />
+          <!-- svelte-ignore a11y-label-has-associated-control -->
           <label>This idea is from someone else</label>
         </div>
         {#if showSourceInput}
