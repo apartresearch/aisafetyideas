@@ -30,7 +30,8 @@
 <div class="w-container">
   <h2>About</h2>
   <p class="team">
-    The AI Safety Ideas platform is a public Apart tool used for collecting research in AI safety, collaborate on projects, and facilitate mentorship.
+    The AI Safety Ideas platform is a public Apart tool used for collecting
+    research in AI safety, collaborate on projects, and facilitate mentorship.
   </p>
   <h2>Team</h2>
   <p class="team">
@@ -245,6 +246,10 @@
         { date: "2022-07-5", value: 1 },
         { date: "2022-07-7", value: 1 },
         { date: "2022-07-8", value: 1 },
+        { date: "2022-07-10", value: 1 },
+        { date: "2022-07-11", value: 1 },
+        { date: "2022-07-12", value: 1 },
+        { date: "2022-07-13", value: 1 },
       ]}
       endDate={moment().toDate()}
       startDate={moment("2022-04-15").toDate()}

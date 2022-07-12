@@ -240,7 +240,7 @@
 <DataLoader />
 <Nav />
 <div class="globwrap">
-  <IdeaViewer {url} />
+  {#if $ideaCurrent}<IdeaViewer {url} />{/if}
   <div class="container first">
     <div class="search-sort">
       <div class="search">
@@ -308,23 +308,26 @@
       <div class="ideas-col">
         {#if searchValue}
           {#each searchIdeas.slice(4, 8) as idea}
-            <Idea {idea}/>
+            <Idea {idea} />
           {:else}
-          <div class="not-found"></div>
+            <div class="not-found" />
           {/each}
         {:else}
           {#each $shownIdeas.slice(4, 8) as idea}
-            <Idea {idea}/>
-            {:else}
-            <div class="not-found"></div>
+            <Idea {idea} />
+          {:else}
+            <div class="not-found" />
           {/each}
         {/if}
       </div>
       <div class="intermission">
-        <h3 class="project-title">Projects (<a href="/projects">see all</a>)</h3>
+        <h3 class="project-title">
+          Projects (<a href="/projects">see all</a>)
+        </h3>
         <div class="project-contain">
           {#each $superprojects
-            .sort((a, b) => b.ideas_n - a.ideas_n).splice(0, 10) as project}
+            .sort((a, b) => b.ideas_n - a.ideas_n)
+            .splice(0, 10) as project}
             <SuperprojectBlock {project} />
           {/each}
         </div>
@@ -336,7 +339,7 @@
           {/each}
         {:else}
           {#each $shownIdeas.slice(8, $shownIdeas.length) as idea}
-            <Idea {idea}/>
+            <Idea {idea} />
           {/each}
         {/if}
       </div>
@@ -352,7 +355,7 @@
   .project-title {
     margin: 0;
   }
-  
+
   .project-contain {
     display: flex;
     flex-wrap: wrap;
