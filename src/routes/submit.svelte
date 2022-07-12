@@ -140,6 +140,8 @@
     ideas_ids
   ) => {
     try {
+      alert(`Your idea is now under review - thank you! It will be live on the website soon.
+      "${idea.title}".`);
       // Delete existing relations
       if (ideas.find((idea) => idea.id === idea_id)) {
         await Promise.all([
