@@ -136,7 +136,11 @@
               category: $categories.find((cat) => cat.id === c.category),
             })),
           superprojects: $superprojectRelations
-            .filter((r) => r.idea === idea.id)
+            .filter(
+              (r) =>
+                r.idea === idea.id &&
+                $superprojects.some((p) => p.id == r.superproject)
+            )
             .map((s) => ({
               ...s,
               superproject: $superprojects.find(
