@@ -130,7 +130,11 @@
               .map((c) => c.replies.length)
               .reduce((a, b) => a + b, 0),
           categories: $categoryRelations
-            .filter((r) => r.idea === idea.id)
+            .filter(
+              (r) =>
+                r.idea === idea.id &&
+                $categories.some((c) => c.id == r.category)
+            )
             .map((c) => ({
               ...c,
               category: $categories.find((cat) => cat.id === c.category),
