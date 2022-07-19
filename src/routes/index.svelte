@@ -325,7 +325,7 @@
           Projects (<a href="/projects">see all</a>)
         </h3>
         <div class="project-contain">
-          {#each $superprojects
+          {#each [...$superprojects]
             .sort((a, b) => b.ideas_n - a.ideas_n)
             .splice(0, 10) as project}
             <SuperprojectBlock {project} />
