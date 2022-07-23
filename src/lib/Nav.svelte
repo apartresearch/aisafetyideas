@@ -46,10 +46,7 @@
           </nav>
         </BurgerMenu>
       </div>
-    {/if}
-  </MediaQuery>
-  <MediaQuery query="(min-width: 768px)" let:matches>
-    {#if matches}
+    {:else}
       <nav class="container w-container">
         <div class="header">
           <a href="/" class="home"
@@ -70,7 +67,19 @@
           <a href="/users" class="nav-link">Users</a>
         </div>
         <div class="content">
-          <h1>AI Safety Ideas for Apart Research Collabs</h1>
+          {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
+            <h1>The Alignment Project Factory</h1>
+            <p>
+              Alignment is one of the most exciting problems to help with today.
+              Here are many projects outside the technical domain!
+            </p>
+          {:else}
+            <h1>AI Safety Ideas for Apart Research Collabs</h1>
+            <p>
+              Alignment is one of the coolest machine learning and theoretical
+              problems today. Let's solve it!
+            </p>
+          {/if}
         </div>
       </nav>
     {/if}
