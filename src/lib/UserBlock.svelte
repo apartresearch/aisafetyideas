@@ -19,7 +19,7 @@
             hideOnClick: true,
           }}
         >
-          ⭐ Expert
+          ⭐ Admin
         </p>
       {/if} 
       {#if user.career_stage}

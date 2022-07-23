@@ -122,14 +122,14 @@
           <p
             class="career expert"
             use:tippy={{
-              content: "Accepted as an expert user who can verify ideas.",
+              content: "Accepted as an admin user who can mark ideas as active.",
               arrow: true,
               duration: [200, 200],
               delay: [0, 0],
               hideOnClick: true,
             }}
           >
-            ⭐ Expert user
+            ⭐ Admin user
           </p>
         {/if}
       </div>
