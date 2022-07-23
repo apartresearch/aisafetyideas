@@ -14,7 +14,7 @@
   <LoadIcon />
 {:else}
   <div class="container">
-    <h2>Expert users</h2>
+    <h2>Admin users</h2>
     <div class="users">
       {#each $users as u}
         {#if u.expert}
