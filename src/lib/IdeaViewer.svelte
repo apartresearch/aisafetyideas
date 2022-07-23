@@ -290,11 +290,11 @@
             class="verify"
             on:click={() => certifyIdea($ideaCurrent.id, true)}
           >
-            Undo verifying this idea
+            Mark idea as inactive
           </button>
         {:else if $user.expert}
           <button class="verify" on:click={() => certifyIdea($ideaCurrent.id)}>
-            Verify idea
+            Mark idea as active
           </button>
         {/if}
 
