@@ -69,15 +69,12 @@
         <div class="content">
           {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
             <h1>The Alignment Project Factory</h1>
-            <p>
-              Alignment is one of the most exciting problems to help with today.
-              Here are many projects outside the technical domain!
-            </p>
+            <p>Find non-technical project ideas to work on in AI safety!</p>
           {:else}
             <h1>AI Safety Ideas for Apart Research Collabs</h1>
             <p>
-              Alignment is one of the coolest machine learning and theoretical
-              problems today. Let's solve it!
+              Alignment is one of the most interesting ML & theoretical problems
+              today. Let us solve it together!
             </p>
           {/if}
         </div>
@@ -87,8 +84,12 @@
 </header>
 
 <style>
+  p {
+    text-align: center;
+  }
+
   .container {
-    max-width: 1200px;
+    max-width: 900px;
     margin: 0 auto;
   }
 
