@@ -153,7 +153,7 @@
       </div>
     </div>
   {/if}
-  <h2>Open impact metrics of AIS&nbsp;Safety Ideas</h2>
+  <h2>Open impact metrics of AI Safety Ideas</h2>
   <p>
     The AI safety research ideas platform commits to transparency and sharing
     our metrics. We hope this enables easier evaluation of the platform's
