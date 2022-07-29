@@ -28,64 +28,124 @@
 
 <Nav />
 <div class="w-container">
-  <h2>About</h2>
-  <p class="team">
-    The AI Safety Ideas platform is a public Apart tool used for collecting
-    research in AI safety, collaborate on projects, and facilitate mentorship.
-  </p>
-  <h2>Team</h2>
-  <p class="team">
-    The <a href="https://apartresearch.com">Apart Research</a> team, we have
-    multiple volunteers and collaborators that have joined on our
-    <a href="https://apartresearch.com/join">Discord</a> and in our other projects.
-  </p>
-  <div class="members">
-    <div class="member">
-      <img
-        src="https://media-exp2.licdn.com/dms/image/C5603AQGtXh8ofQbCOA/profile-displayphoto-shrink_800_800/0/1651368132506?e=1660176000&v=beta&t=Gai4wfy_Fs8hPXf1AcEtNiQpyRVX2Pewo4fOLFPqKRI"
-        alt="Team member esben"
-      />
-      <h3>Esben Kran</h3>
-      <p>
-        Founder,
-        <a href="mailto:esben@apartresearch.com" class="contact">contact</a>
-      </p>
+  {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
+    <h2>About</h2>
+    <p class="team">
+      The AI Safety Ideas platform is a public Apart tool used for collecting
+      research in AI safety, collaborate on projects, and facilitate mentorship.
+    </p>
+    <h2>Team</h2>
+    <p class="team">
+      The <a href="https://apartresearch.com">Apart Research</a> team, we have
+      multiple volunteers and collaborators that have joined on our
+      <a href="https://apartresearch.com/join">Discord</a> and in our other projects.
+    </p>
+    <div class="members">
+      <div class="member">
+        <img
+          src="https://media-exp1.licdn.com/dms/image/C4E03AQGW_mA4o9GQFQ/profile-displayphoto-shrink_800_800/0/1650470198388?e=1664409600&v=beta&t=bLgDMQVPG5O6DY7-fDyrgxDB7vfH5-ShT3BOpi4Hu9w"
+          alt="Team member nicole"
+        />
+        <h3>Nicole Nohemi</h3>
+        <p>
+          Alignment Projects Founder,
+          <a href="mailto:nnmauthe@apartresearch.com" class="contact">contact</a
+          >
+        </p>
+      </div>
+      <div class="member">
+        <img
+          src="https://media-exp2.licdn.com/dms/image/C5603AQGtXh8ofQbCOA/profile-displayphoto-shrink_800_800/0/1651368132506?e=1660176000&v=beta&t=Gai4wfy_Fs8hPXf1AcEtNiQpyRVX2Pewo4fOLFPqKRI"
+          alt="Team member esben"
+        />
+        <h3>Esben Kran</h3>
+        <p>
+          Technical Lead,
+          <a href="mailto:esben@apartresearch.com" class="contact">contact</a>
+        </p>
+      </div>
+      <div class="member">
+        <img
+          src="https://media-exp1.licdn.com/dms/image/C4D03AQEDLia0L51EYQ/profile-displayphoto-shrink_800_800/0/1559148358144?e=1664409600&v=beta&t=J0MdDBLVVk_XSW7AiidtaNDIl4JelTc58szf8gmQSBI"
+          alt="Team member Yonatan"
+        />
+        <h3>Yonatan Cale</h3>
+        <p>Collaborator</p>
+      </div>
+      <div class="member">
+        <img
+          src="https://cdn.discordapp.com/avatars/756254556811165756/463983d257751e248f3c48f7916ae28d.webp?size=240"
+          alt="Team member plex"
+        />
+        <h3>Plex</h3>
+        <p>
+          Collaborator, <a href="mailto:hello@plex.ventures" class="contact"
+            >contact</a
+          >
+        </p>
+      </div>
     </div>
-    <div class="member">
-      <img
-        src="https://media-exp2.licdn.com/dms/image/C4D03AQHrBuBZUh-xfQ/profile-displayphoto-shrink_800_800/0/1649782705603?e=1660176000&v=beta&t=h6LohAJclafKsA8vkxTdtyNqhl_EvARl9Bezl1dbK10"
-        alt="Team member Jonathan"
-      />
-      <h3>Jonathan H. Rystrøm</h3>
-      <p>
-        Co-lead,
-        <a href="mailto:jonathan@apartresearch.com" class="contact">contact</a>
-      </p>
+  {:else}
+    <h2>About</h2>
+    <p class="team">
+      The AI Safety Ideas platform is a public Apart tool used for collecting
+      research in AI safety, collaborate on projects, and facilitate mentorship.
+    </p>
+    <h2>Team</h2>
+    <p class="team">
+      The <a href="https://apartresearch.com">Apart Research</a> team, we have
+      multiple volunteers and collaborators that have joined on our
+      <a href="https://apartresearch.com/join">Discord</a> and in our other projects.
+    </p>
+    <div class="members">
+      <div class="member">
+        <img
+          src="https://media-exp2.licdn.com/dms/image/C5603AQGtXh8ofQbCOA/profile-displayphoto-shrink_800_800/0/1651368132506?e=1660176000&v=beta&t=Gai4wfy_Fs8hPXf1AcEtNiQpyRVX2Pewo4fOLFPqKRI"
+          alt="Team member esben"
+        />
+        <h3>Esben Kran</h3>
+        <p>
+          Founder,
+          <a href="mailto:esben@apartresearch.com" class="contact">contact</a>
+        </p>
+      </div>
+      <div class="member">
+        <img
+          src="https://media-exp2.licdn.com/dms/image/C4D03AQHrBuBZUh-xfQ/profile-displayphoto-shrink_800_800/0/1649782705603?e=1660176000&v=beta&t=h6LohAJclafKsA8vkxTdtyNqhl_EvARl9Bezl1dbK10"
+          alt="Team member Jonathan"
+        />
+        <h3>Jonathan H. Rystrøm</h3>
+        <p>
+          Co-lead,
+          <a href="mailto:jonathan@apartresearch.com" class="contact">contact</a
+          >
+        </p>
+      </div>
+      <div class="member">
+        <img
+          src="https://sala.ai/images/img0001-copy-p-500.png"
+          alt="Team member Maris"
+        />
+        <h3>Maris Sala</h3>
+        <p>
+          Collaborator, <a href="https://sala.ai" class="contact">contact</a>
+        </p>
+      </div>
+      <div class="member">
+        <img
+          src="https://fbarez.github.io/images/fb2017.jpg"
+          alt="team member Fazl"
+        />
+        <h3>Fazl Barez</h3>
+        <p>
+          Collaborator & Advisor, <a
+            href="https://fbarez.github.io/"
+            class="contact">contact</a
+          >
+        </p>
+      </div>
     </div>
-    <div class="member">
-      <img
-        src="https://sala.ai/images/img0001-copy-p-500.png"
-        alt="Team member Maris"
-      />
-      <h3>Maris Sala</h3>
-      <p>
-        Collaborator, <a href="https://sala.ai" class="contact">contact</a>
-      </p>
-    </div>
-    <div class="member">
-      <img
-        src="https://fbarez.github.io/images/fb2017.jpg"
-        alt="team member Fazl"
-      />
-      <h3>Fazl Barez</h3>
-      <p>
-        Collaborator & Advisor, <a
-          href="https://fbarez.github.io/"
-          class="contact">contact</a
-        >
-      </p>
-    </div>
-  </div>
+  {/if}
   <h2>Open impact metrics of AIS&nbsp;Safety Ideas</h2>
   <p>
     The AI safety research ideas platform commits to transparency and sharing
@@ -250,6 +310,13 @@
         { date: "2022-07-11", value: 1 },
         { date: "2022-07-12", value: 1 },
         { date: "2022-07-13", value: 1 },
+        { date: "2022-07-14", value: 1 },
+        { date: "2022-07-15", value: 1 },
+        { date: "2022-07-21", value: 1 },
+        { date: "2022-07-22", value: 1 },
+        { date: "2022-07-23", value: 1 },
+        { date: "2022-07-28", value: 1 },
+        { date: "2022-07-29", value: 1 },
       ]}
       endDate={moment().toDate()}
       startDate={moment("2022-04-15").toDate()}
