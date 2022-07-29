@@ -31,14 +31,17 @@
   {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
     <h2>About</h2>
     <p class="team">
-      The AI Safety Ideas platform is a public Apart tool used for collecting
-      research in AI safety, collaborate on projects, and facilitate mentorship.
+      The Alignment Project Factory is a place for non-technical AI safety ideas
+      to be shared and worked on.
     </p>
     <h2>Team</h2>
     <p class="team">
-      The <a href="https://apartresearch.com">Apart Research</a> team, we have
-      multiple volunteers and collaborators that have joined on our
-      <a href="https://apartresearch.com/join">Discord</a> and in our other projects.
+      You can help build this website on our <a
+        href="https://github.com/apartresearch/aisafetyideas">GitHub</a
+      >
+      by submitting a pull request. We are always looking for new ideas to add
+      to the project, so you're welcome to also visit the
+      <a href="/submit">Submit an idea</a> page to submit your own ideas.
     </p>
     <div class="members">
       <div class="member">
