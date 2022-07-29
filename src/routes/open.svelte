@@ -39,8 +39,8 @@
       You can help build this website on our <a
         href="https://github.com/apartresearch/aisafetyideas">GitHub</a
       >
-      by submitting a pull request. We are always looking for new ideas to add
-      to the project, so you're welcome to also visit the
+      by submitting a pull request. We are always looking for new ideas to add to
+      the project, so you're welcome to also visit the
       <a href="/submit">Submit an idea</a> page to submit your own ideas.
     </p>
     <div class="members">
@@ -73,7 +73,11 @@
           alt="Team member Yonatan"
         />
         <h3>Yonatan Cale</h3>
-        <p>Collaborator</p>
+        <p>
+          Collaborator, <a href="mailto:yonatan.cale@gmail.com" class="contact"
+            >contact</a
+          >
+        </p>
       </div>
       <div class="member">
         <img
