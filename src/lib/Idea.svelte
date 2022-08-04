@@ -10,8 +10,7 @@
   import { Toasts, addToast } from "as-toast";
   import MediaQuery from "$lib/MediaQuery.svelte";
 
-  export let idea,
-    url;
+  export let idea, url;
 
   const selectIdea = () => {
     $ideaViewVisible = true;
@@ -47,7 +46,7 @@
             appendTo: document.body,
           }}
         >
-          ✅
+          ✏️
           <span class="idea-verifications-n">
             {idea.verifications_n}
           </span>
@@ -165,7 +164,7 @@
           </div>
           {#if idea.verifications_n > 0}
             <div class="comment-indicator">
-              ✅
+              ✏️
               <p class="idea-verifications-n">
                 {idea.verifications_n}
               </p>
