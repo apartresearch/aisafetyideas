@@ -47,9 +47,6 @@
           }}
         >
           ✏️
-          <span class="idea-verifications-n">
-            {idea.verifications_n}
-          </span>
         </div>
       {/if}
       {#if idea.superprojects[0]}
@@ -163,12 +160,7 @@
             <p>{idea.interests_n}</p>
           </div>
           {#if idea.verifications_n > 0}
-            <div class="comment-indicator">
-              ✏️
-              <p class="idea-verifications-n">
-                {idea.verifications_n}
-              </p>
-            </div>
+            <div class="comment-indicator">✏️</div>
           {/if}
         {/if}
       </MediaQuery>
