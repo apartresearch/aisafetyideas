@@ -104,54 +104,7 @@
       multiple volunteers and collaborators that have joined on our
       <a href="https://apartresearch.com/join">Discord</a> and in our other projects.
     </p>
-    <div class="members">
-      <div class="member">
-        <img
-          src="https://media-exp2.licdn.com/dms/image/C5603AQGtXh8ofQbCOA/profile-displayphoto-shrink_800_800/0/1651368132506?e=1660176000&v=beta&t=Gai4wfy_Fs8hPXf1AcEtNiQpyRVX2Pewo4fOLFPqKRI"
-          alt="Team member esben"
-        />
-        <h3>Esben Kran</h3>
-        <p>
-          Founder,
-          <a href="mailto:esben@apartresearch.com" class="contact">contact</a>
-        </p>
-      </div>
-      <div class="member">
-        <img
-          src="https://media-exp2.licdn.com/dms/image/C4D03AQHrBuBZUh-xfQ/profile-displayphoto-shrink_800_800/0/1649782705603?e=1660176000&v=beta&t=h6LohAJclafKsA8vkxTdtyNqhl_EvARl9Bezl1dbK10"
-          alt="Team member Jonathan"
-        />
-        <h3>Jonathan H. Rystrøm</h3>
-        <p>
-          Co-lead,
-          <a href="mailto:jonathan@apartresearch.com" class="contact">contact</a
-          >
-        </p>
-      </div>
-      <div class="member">
-        <img
-          src="https://sala.ai/images/img0001-copy-p-500.png"
-          alt="Team member Maris"
-        />
-        <h3>Maris Sala</h3>
-        <p>
-          Collaborator, <a href="https://sala.ai" class="contact">contact</a>
-        </p>
-      </div>
-      <div class="member">
-        <img
-          src="https://fbarez.github.io/images/fb2017.jpg"
-          alt="team member Fazl"
-        />
-        <h3>Fazl Barez</h3>
-        <p>
-          Collaborator & Advisor, <a
-            href="https://fbarez.github.io/"
-            class="contact">contact</a
-          >
-        </p>
-      </div>
-    </div>
+    <iframe src="https://apartresearch.com/about-embed" class="team-embed" />
   {/if}
   <h2>Open impact metrics of AI Safety Ideas</h2>
   <p>
@@ -488,5 +441,14 @@
     .timeline-pointer {
       display: none;
     }
+    .team-embed {
+      height: 800px;
+    }
+  }
+
+  .team-embed {
+    width: 100%;
+    min-height: 650px;
+    border: none;
   }
 </style>
