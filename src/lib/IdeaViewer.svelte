@@ -343,7 +343,9 @@
         {#if $ideaCurrent.comments}
           {#if $ideaCurrent.comments.length > 0}
             <div class="idea-comments-wrapper">
-              {#each $ideaCurrent.comments as comment}
+              {#each $ideaCurrent.comments.sort((a, b) => {
+                return new Date(b.date) - new Date(a.date);
+              }) as comment}
                 <Comment
                   {comment}
                   currentComment={replyTo}
