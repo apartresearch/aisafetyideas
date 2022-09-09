@@ -207,7 +207,7 @@
 
   <h3 id="commits">Website updates by day</h3>
   <div class="open-day-block" id="commit-map">
-    <SvelteHeatmap
+    <!-- <SvelteHeatmap
       data={[
         { date: "2022-04-16", value: 1 },
         { date: "2022-04-19", value: 1 },
@@ -283,7 +283,7 @@
       view="yearly"
       colors={["#44FF98"]}
       emptyColor={"#DAFFEA"}
-    />
+    /> -->
   </div>
   <h3>Website visitors</h3>
   <div class="open-graph-wrapper">
