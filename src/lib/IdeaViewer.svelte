@@ -242,7 +242,7 @@
             />
             <p>{$ideaCurrent.interests_n}</p>
           </div>
-          <div class="heart-indicator">
+          <!-- <div class="heart-indicator">
             <img src="/images/trello.webp" alt="Trello logo" />
             <a
               href="https://trello.com/b/TFNJmgfC/apart-research"
@@ -250,7 +250,7 @@
             >
               Collab on Trello
             </a>
-          </div>
+          </div> -->
         </div>
         {#if !$user}
           <p class="no-user">
