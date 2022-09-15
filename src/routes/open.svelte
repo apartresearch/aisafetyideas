@@ -288,15 +288,13 @@
   <h3>Website visitors</h3>
   <div class="open-graph-wrapper">
     <div class="w-embed w-iframe">
-      <iframe
-        width="100%"
-        height="475px"
-        src="https://datastudio.google.com/embed/reporting/70009ccf-f7f2-457f-bc8f-ef9dbbd6ed65/page/DbGrC"
-        frameborder="0"
-        style="border:0"
-        allowfullscreen=""
-        title="Website visitors"
-      />
+      <div id="chart" data-hostname="example.com" style="aspect-ratio: 2/1">
+        <p style="margin: 0">Loading chart...</p>
+      </div>
+      <script
+        async
+        data-chart-selectors="#chart"
+        src="https://scripts.simpleanalyticscdn.com/embed.js"></script>
     </div>
   </div>
   <!-- <h2 id="roadmap">Feature roadmap</h2>
