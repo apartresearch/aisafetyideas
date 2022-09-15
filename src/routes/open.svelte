@@ -204,7 +204,6 @@
       >$60,000</span
     >.
   </p>
-
   <h3>Website visitors</h3>
   <div class="open-graph-wrapper">
     <div class="w-embed w-iframe">
