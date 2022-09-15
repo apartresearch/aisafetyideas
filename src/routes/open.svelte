@@ -288,7 +288,11 @@
   <h3>Website visitors</h3>
   <div class="open-graph-wrapper">
     <div class="w-embed w-iframe">
-      <div id="chart" data-hostname="example.com" style="aspect-ratio: 2/1">
+      <div
+        id="chart"
+        data-hostname="aisafetyideas.com"
+        style="aspect-ratio: 2/1"
+      >
         <p style="margin: 0">Loading chart...</p>
       </div>
       <script
