@@ -35,36 +35,33 @@
       author: $user.id,
       reply_to: replyTo,
     };
-    if ($ideaCurrent) {
-      replyTo > 0
-        ? $ideaCurrent.comments
-            .find((c) => c.id == replyTo)
-            .replies.push(comment)
-        : $ideaCurrent.comments.push(comment);
-      $ideaCurrent.comments_n++;
-      $shownIdeas.forEach((idea) => {
-        if (idea.id == $ideaCurrent.id) {
-          replyTo > 0
-            ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
-            : idea.comments.push(comment);
-          idea.comments_n++;
-        }
-      });
-      $ideas.forEach((idea) => {
-        if (idea.id == $ideaCurrent.id) {
-          replyTo > 0
-            ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
-            : idea.comments.push(comment);
-          idea.comments_n++;
-        }
-      });
-      $ideaCurrent = $ideaCurrent;
-      $shownIdeas = $shownIdeas;
-      $ideas = $ideas;
-      await supabase.from("comments").insert(comment);
-      replyTo = null;
-      commentText = "";
-    }
+
+    replyTo > 0
+      ? $ideaCurrent.comments.find((c) => c.id == replyTo).replies.push(comment)
+      : $ideaCurrent.comments.push(comment);
+    $ideaCurrent.comments_n++;
+    $shownIdeas.forEach((idea) => {
+      if (idea.id == $ideaCurrent.id) {
+        replyTo > 0
+          ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
+          : idea.comments.push(comment);
+        idea.comments_n++;
+      }
+    });
+    $ideas.forEach((idea) => {
+      if (idea.id == $ideaCurrent.id) {
+        replyTo > 0
+          ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
+          : idea.comments.push(comment);
+        idea.comments_n++;
+      }
+    });
+    $ideaCurrent = $ideaCurrent;
+    $shownIdeas = $shownIdeas;
+    $ideas = $ideas;
+    await supabase.from("comments").insert(comment);
+    replyTo = null;
+    commentText = "";
   };
 
   let commentText = "",
@@ -285,7 +282,7 @@
             is available from <a href={$ideaCurrent.funding_from}>this page</a>.
           </p>
         {/if} -->
-        {#if $user.expert && $ideaCurrent.verifications.find((verification) => verification.user === $user.id)}
+        <!-- {#if $user.expert && $ideaCurrent.verifications.find((verification) => verification.user === $user.id)}
           <button
             class="verify"
             on:click={() => certifyIdea($ideaCurrent.id, true)}
@@ -296,7 +293,7 @@
           <button class="verify" on:click={() => certifyIdea($ideaCurrent.id)}>
             Mark idea as active
           </button>
-        {/if}
+        {/if} -->
 
         <div class="idea-categories-wrapper">
           {#each $ideaCurrent.categories as cat}
@@ -341,10 +338,10 @@
         </div>
 
         {#if $ideaCurrent.comments}
-          {#if $ideaCurrent.comments.length > 0}
+          {#if $ideaCurrent.comments.length && $ideaCurrent.comments.length > 0}
             <div class="idea-comments-wrapper">
               {#each $ideaCurrent.comments.sort((a, b) => {
-                return new Date(b.date) - new Date(a.date);
+                return new Date(a.date) - new Date(b.date);
               }) as comment}
                 <Comment
                   {comment}
