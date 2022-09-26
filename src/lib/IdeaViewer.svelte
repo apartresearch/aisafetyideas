@@ -32,35 +32,42 @@
     const comment = {
       idea: $ideaCurrent.id,
       text: commentText,
-      author: $user.id,
+      //author: $user.id,
+      author: "0ab224d1-75b6-44e5-b868-26018ca607fe",
       reply_to: replyTo,
     };
     if ($ideaCurrent) {
       replyTo > 0
         ? $ideaCurrent.comments
             .find((c) => c.id == replyTo)
-            .replies.push(comment)
-        : $ideaCurrent.comments.push(comment);
+            .replies.push({
+              ...comment,
+              author: $user.id,
+              username: $user.username,
+            })
+        : $ideaCurrent.comments.push({
+            ...comment,
+            author: $user.id,
+            username: $user.username,
+          });
       $ideaCurrent.comments_n++;
-      $shownIdeas.forEach((idea) => {
-        if (idea.id == $ideaCurrent.id) {
-          replyTo > 0
-            ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
-            : idea.comments.push(comment);
-          idea.comments_n++;
-        }
-      });
-      $ideas.forEach((idea) => {
-        if (idea.id == $ideaCurrent.id) {
-          replyTo > 0
-            ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
-            : idea.comments.push(comment);
-          idea.comments_n++;
-        }
-      });
+      // $shownIdeas.forEach((idea) => {
+      //   if (idea.id == $ideaCurrent.id) {
+      //     replyTo > 0
+      //       ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
+      //       : idea.comments.push(comment);
+      //     idea.comments_n++;
+      //   }
+      // });
+      // $ideas.forEach((idea) => {
+      //   if (idea.id == $ideaCurrent.id) {
+      //     replyTo > 0
+      //       ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
+      //       : idea.comments.push(comment);
+      //     idea.comments_n++;
+      //   }
+      // });
       $ideaCurrent = $ideaCurrent;
-      $shownIdeas = $shownIdeas;
-      $ideas = $ideas;
       await supabase.from("comments").insert(comment);
       replyTo = null;
       commentText = "";
@@ -309,42 +316,42 @@
           {/each}
         </div>
         <div class="add-comment">
-          {#if $user}
-            <textarea
-              class="comment-text"
-              type="text"
-              bind:value={commentText}
-              placeholder="Add a comment..."
+          <!-- {#if $user} -->
+          <textarea
+            class="comment-text"
+            type="text"
+            bind:value={commentText}
+            placeholder="Add a comment..."
+            use:tippy={{
+              content: `Supports markdown, e.g. *italic*, **bold**, [links](https://example.com).`,
+              allowHTML: true,
+              delay: [250, 0],
+            }}
+          />
+          <div class="col2">
+            <UserLogin />
+            <button
+              class="submit"
               use:tippy={{
-                content: `Supports markdown, e.g. *italic*, **bold**, [links](https://example.com).`,
-                allowHTML: true,
+                content:
+                  "You cannot edit or delete your comment after it is posted.",
                 delay: [250, 0],
               }}
-            />
-            <div class="col2">
-              <UserLogin />
-              <button
-                class="submit"
-                use:tippy={{
-                  content:
-                    "You cannot edit or delete your comment after it is posted.",
-                  delay: [250, 0],
-                }}
-                on:click={() => {
-                  addComment();
-                }}
-              >
-                Add comment
-              </button>
-            </div>
-          {/if}
+              on:click={() => {
+                addComment();
+              }}
+            >
+              Add comment
+            </button>
+          </div>
+          <!-- {/if} -->
         </div>
 
         {#if $ideaCurrent.comments}
-          {#if $ideaCurrent.comments.length && $ideaCurrent.comments.length > 0}
+          {#if $ideaCurrent.comments.length > 0}
             <div class="idea-comments-wrapper">
               {#each $ideaCurrent.comments.sort((a, b) => {
-                return new Date(a.date) - new Date(b.date);
+                return new Date(b.date) - new Date(a.date);
               }) as comment}
                 <Comment
                   {comment}

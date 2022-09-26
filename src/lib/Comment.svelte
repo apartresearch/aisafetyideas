@@ -46,7 +46,7 @@
   {/if}
 </div>
 
-{#if comment.replies.length > 0}
+{#if comment.replies && comment.replies.length > 0}
   <div class="replies">
     {#each comment.replies as reply, i}
       <div class="comment reply">
