@@ -4,18 +4,23 @@
   import UserLogin from "$lib/UserLogin.svelte";
   import BurgerMenu from "$lib/BurgerMenu.svelte";
   import MediaQuery from "$lib/MediaQuery.svelte";
+
+  // Parameter to show header text
+  export let showText = true;
 </script>
 
 <header id="nav" class="sticky-nav">
   <MediaQuery query="(max-width: 768px)" let:matches>
     {#if matches}
-      <div class="content">
-        {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
-          <h1>The Alignment Project Factory</h1>
-        {:else}
-          <h1>AI Safety Ideas for Apart Research Collabs</h1>
-        {/if}
-      </div>
+      {#if showText}
+        <div class="content">
+          {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
+            <h1>The Alignment Project Factory</h1>
+          {:else}
+            <h1>AI Safety Ideas for Apart Research Collabs</h1>
+          {/if}
+        </div>
+      {/if}
       <div class="burger-parent">
         <BurgerMenu
           padding={"0.5em"}
@@ -66,18 +71,20 @@
           <a href="/projects" class="nav-link">Projects</a>
           <a href="/users" class="nav-link">Users</a>
         </div>
-        <div class="content">
-          {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
-            <h1>The Alignment Project Factory</h1>
-            <p>Find non-technical project ideas to work on in AI safety!</p>
-          {:else}
-            <h1>AI Safety Ideas for Apart Research Collabs</h1>
-            <p>
-              Alignment is one of the most interesting ML & theoretical problems
-              today. Let us solve it together!
-            </p>
-          {/if}
-        </div>
+        {#if showText}
+          <div class="content">
+            {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
+              <h1>The Alignment Project Factory</h1>
+              <p>Find non-technical project ideas to work on in AI safety!</p>
+            {:else}
+              <h1>AI Safety Ideas for Apart Research Collabs</h1>
+              <p>
+                Alignment is one of the most interesting ML & theoretical
+                problems today. Let us solve it together!
+              </p>
+            {/if}
+          </div>
+        {/if}
       </nav>
     {/if}
   </MediaQuery>
