@@ -35,7 +35,7 @@
           {idea.username}
         </a>
       {/if}
-      {#if idea.verifications_n > 0}
+      <!-- {#if idea.verifications_n > 0}
         <div
           class="idea-author"
           use:tippy={{
@@ -48,7 +48,7 @@
         >
           ✏️
         </div>
-      {/if}
+      {/if} -->
       {#if idea.superprojects[0]}
         {#each idea.superprojects as superproject}
           <SuperprojectTag
@@ -159,9 +159,9 @@
             />
             <p>{idea.interests_n}</p>
           </div>
-          {#if idea.verifications_n > 0}
+          <!-- {#if idea.verifications_n > 0}
             <div class="comment-indicator">✏️</div>
-          {/if}
+          {/if} -->
         {/if}
       </MediaQuery>
     </div>
