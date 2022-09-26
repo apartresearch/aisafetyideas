@@ -106,11 +106,13 @@
     margin-top: 0em;
   }
 
-  :global(.comment > h1, .comment > h2, .comment > h3, .comment > h4, .comment
-      > h5, .comment > h6, .comment > p, .comment > a) {
+  :global(.comment *) {
     margin: 0;
     font-size: 1rem;
     line-height: 1.3rem;
+  }
+  :global(.comment ul, .comment ol) {
+    padding-left: 1.5rem;
   }
 
   .date {

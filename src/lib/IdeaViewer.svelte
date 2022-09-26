@@ -373,7 +373,7 @@
   scrolling and a relative size unit as child. 
   */
 
-  :global(current-idea-text *) {
+  :global(current-idea-text > p) {
     font-size: 3rem;
   }
 
