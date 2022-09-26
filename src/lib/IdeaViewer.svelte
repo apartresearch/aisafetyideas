@@ -35,33 +35,36 @@
       author: $user.id,
       reply_to: replyTo,
     };
-
-    replyTo > 0
-      ? $ideaCurrent.comments.find((c) => c.id == replyTo).replies.push(comment)
-      : $ideaCurrent.comments.push(comment);
-    $ideaCurrent.comments_n++;
-    $shownIdeas.forEach((idea) => {
-      if (idea.id == $ideaCurrent.id) {
-        replyTo > 0
-          ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
-          : idea.comments.push(comment);
-        idea.comments_n++;
-      }
-    });
-    $ideas.forEach((idea) => {
-      if (idea.id == $ideaCurrent.id) {
-        replyTo > 0
-          ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
-          : idea.comments.push(comment);
-        idea.comments_n++;
-      }
-    });
-    $ideaCurrent = $ideaCurrent;
-    $shownIdeas = $shownIdeas;
-    $ideas = $ideas;
-    await supabase.from("comments").insert(comment);
-    replyTo = null;
-    commentText = "";
+    if ($ideaCurrent) {
+      replyTo > 0
+        ? $ideaCurrent.comments
+            .find((c) => c.id == replyTo)
+            .replies.push(comment)
+        : $ideaCurrent.comments.push(comment);
+      $ideaCurrent.comments_n++;
+      $shownIdeas.forEach((idea) => {
+        if (idea.id == $ideaCurrent.id) {
+          replyTo > 0
+            ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
+            : idea.comments.push(comment);
+          idea.comments_n++;
+        }
+      });
+      $ideas.forEach((idea) => {
+        if (idea.id == $ideaCurrent.id) {
+          replyTo > 0
+            ? idea.comments.find((c) => c.id == replyTo).replies.push(comment)
+            : idea.comments.push(comment);
+          idea.comments_n++;
+        }
+      });
+      $ideaCurrent = $ideaCurrent;
+      $shownIdeas = $shownIdeas;
+      $ideas = $ideas;
+      await supabase.from("comments").insert(comment);
+      replyTo = null;
+      commentText = "";
+    }
   };
 
   let commentText = "",
