@@ -120,15 +120,7 @@
   </p>
   <h2 id="metrics">Metrics</h2>
   <p class="metrics-text">
-    Apart Research has <span
-      use:tippy={{
-        content:
-          "Apart Research funding from the FTX Future Fund regrantor program.",
-      }}
-      class="inline-number">$95,000</span
-    >
-    in funding. On <a href="/">aisafetyideas.com</a>, the total number of ideas
-    is
+    On <a href="/">aisafetyideas.com</a>, the total number of ideas is
     <span
       class="inline-number"
       use:tippy={{
@@ -157,13 +149,6 @@
     <span
       class="inline-number"
       use:tippy={{
-        content: "Expert verified ideas.",
-      }}>{ideas.filter((idea) => idea.verified).length}</span
-    >
-    are verified by expert profiles and
-    <span
-      class="inline-number"
-      use:tippy={{
         content: "Ideas filtered by the Apart Research team.",
       }}>{ideas.filter((idea) => idea.filtered).length}</span
     >
@@ -182,27 +167,7 @@
       }}
     >
       {users.length}
-    </span>
-    and the number of expert users is
-    <span
-      class="inline-number"
-      use:tippy={{
-        content:
-          "Total number of expert users, i.e. users who are experts within a specific category.",
-      }}>{users.filter((user) => user.expert).length}</span
-    >.
-    <span
-      class="inline-number"
-      use:tippy={{ content: "The amount of user interviews for the site." }}
-    >
-      18
-    </span>
-    user interviews have been done. The current salary for core employees is
-    <span
-      class="inline-number"
-      use:tippy={{ content: "Salary for core employees per year." }}
-      >$60,000</span
-    >.
+    </span>.
   </p>
   <h3>Website visitors</h3>
   <div class="open-graph-wrapper">
