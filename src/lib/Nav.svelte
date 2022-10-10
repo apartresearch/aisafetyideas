@@ -17,7 +17,7 @@
           {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
             <h1>The Alignment Project Factory</h1>
           {:else}
-            <h1>AI Safety Ideas for Apart Research Collabs</h1>
+            <h1>Ideas for ML & AI Safety Research</h1>
           {/if}
         </div>
       {/if}
@@ -77,7 +77,7 @@
               <h1>The Alignment Project Factory</h1>
               <p>Find non-technical project ideas to work on in AI safety!</p>
             {:else}
-              <h1>AI Safety Ideas for Apart Research Collabs</h1>
+              <h1>Ideas for ML & AI Safety Research</h1>
               <p>
                 Alignment is one of the most interesting ML & theoretical
                 problems today. Let us solve it together!
