@@ -163,9 +163,9 @@
           ),
           interests: $interests.filter((i) => i.idea === idea.id),
           interests_n: $interests.filter((i) => i.idea === idea.id).length,
-          verifications: $verifications.filter((v) => v.idea === idea.id),
-          verifications_n: $verifications.filter((v) => v.idea === idea.id)
-            .length,
+          // verifications: $verifications.filter((v) => v.idea === idea.id),
+          // verifications_n: $verifications.filter((v) => v.idea === idea.id)
+          // .length,
         }));
 
       $superprojects = $superprojects.map((sp) => ({
