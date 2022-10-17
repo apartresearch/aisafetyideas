@@ -33,7 +33,7 @@
       idea: $ideaCurrent.id,
       text: commentText,
       //author: $user.id,
-      author: "0ab224d1-75b6-44e5-b868-26018ca607fe",
+      author: $user.id,
       reply_to: replyTo,
     };
     if ($ideaCurrent) {
