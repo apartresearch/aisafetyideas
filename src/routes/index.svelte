@@ -17,6 +17,7 @@
   import moment from "moment";
   import DataLoader from "$lib/DataLoader.svelte";
   import HeaderManager from "$lib/HeaderManager.svelte";
+  import Feedback from "$lib/Feedback.svelte";
   import {
     ideas,
     superprojects,
@@ -238,6 +239,7 @@
 <HeaderManager />
 
 <DataLoader />
+<Feedback />
 <Nav />
 <div class="globwrap">
   {#if $ideaCurrent}<IdeaViewer {url} />{/if}
