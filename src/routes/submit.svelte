@@ -56,7 +56,7 @@
     verified = false,
     idea_id = 0,
     date_sourced = "",
-    difficulty = 0,
+    difficulty = null,
     funding_amount = 0,
     funding_currency = "$",
     funding_from = "",
