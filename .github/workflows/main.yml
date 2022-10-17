@@ -1,7 +1,10 @@
-name: "Changelog"
-description: "Converts the commit messages to a changelog that the app reads."
-inputs:
-outputs:
-runs:
-  using: "node12"
-  main: "index.js"
+on:
+  push:
+    branches:
+    - main
+    - insider
+jobs:
+  steps:
+    runs-on: ubuntu-18.04
+    name: Print changelog to Svelte
+    run: node index.js
