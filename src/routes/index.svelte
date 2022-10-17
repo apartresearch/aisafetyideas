@@ -54,7 +54,7 @@
     if ($loading) {
       window.setTimeout(initState, 100);
     } else {
-      sort({ label: "From", value: "from_date" });
+      sort({ label: "New", value: "from_date" });
       updateFromUrl();
     }
   };
@@ -176,9 +176,9 @@
       } else if (dates) {
         a = a.from_date != null ? a.from_date : a.created_at;
         b = b.from_date != null ? b.from_date : b.created_at;
-        if (a[column] == null) return 1;
-        if (b[column] == null) return -1;
-        return moment(a[column]).diff(moment(b[column])) * sortModifier;
+        if (a == null) return 1;
+        if (b == null) return -1;
+        return moment(a).diff(moment(b)) * sortModifier;
       } else if (strings) {
         if (a[column] == null) return 1;
         if (b[column] == null) return -1;
@@ -217,6 +217,7 @@
   };
 
   let sortingColumns = [
+      { label: "New", value: "from_date" },
       { label: "Work in progress", value: "verifications_n" },
       { label: "Collab interest", value: "interests_n" },
       { label: "Amount of comments", value: "comments_n" },
@@ -225,11 +226,10 @@
       // { label: "Contact available", value: "contact" },
       // { label: "Author", value: "author" },
       { label: "Title", value: "title" },
-      { label: "From", value: "from_date" },
       { label: "Mentorship available", value: "mentorship_from" },
       { label: "Funding available", value: "funding_amount" },
     ],
-    currentSort = { label: "From", value: "from_date" };
+    currentSort = { label: "New", value: "from_date" };
 
   $: {
     sort(currentSort);
