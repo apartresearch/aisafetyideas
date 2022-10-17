@@ -16,7 +16,7 @@
   <div class="container">
     <h2>Users</h2>
     <div class="users">
-      {#each $users as u}
+      {#each $users.sort((a, b) => a.username.localeCompare(b.username)) as u}
         <UserBlock user={u} />
       {:else}
         <h2>No users found</h2>
