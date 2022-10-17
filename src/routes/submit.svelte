@@ -140,6 +140,7 @@
             label: idea.title,
           };
         });
+      console.log(ideaSelect);
     }
     ideaSelect = [...ideaSelect, { value: idea_id, label: "New Idea" }];
     selectedIdea = ideaSelect[ideaSelect.length - 1];
