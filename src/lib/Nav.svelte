@@ -34,7 +34,7 @@
             <div class="header">
               <a href="/" class="home"
                 ><img
-                  src="/images/home-outline (2).svg"
+                  src="/images/aisi_logo_white.png"
                   alt="home icon"
                   class="home-icon"
                 /></a
@@ -56,7 +56,7 @@
         <div class="header">
           <a href="/" class="home"
             ><img
-              src="/images/home-outline (2).svg"
+              src="/images/aisi_logo.png"
               alt="home icon"
               class="home-icon"
             /></a
