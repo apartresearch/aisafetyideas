@@ -142,7 +142,7 @@
     ideas_ids
   ) => {
     try {
-      alert(`Your idea is now under review - thank you! It will be live on the website soon.
+      alert(`Your idea is now under review - thank you! It will be live on the website soon (maximum 3 days).\n
       "${idea.title}".`);
       // Delete existing relations
       if (ideas.find((idea) => idea.id === idea_id)) {
