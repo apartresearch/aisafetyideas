@@ -130,6 +130,7 @@ export const addLikeToIdea = async (idea_id, remove = false) => {
 export async function signout() {
   const { error } = await supabase.auth.signOut();
   if (error) console.error(error);
+  window.location.reload();
 }
 
 export async function setUserData(userData, id) {
