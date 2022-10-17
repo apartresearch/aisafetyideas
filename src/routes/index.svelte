@@ -53,7 +53,7 @@
     if ($loading) {
       window.setTimeout(initState, 100);
     } else {
-      sort({ label: "Sourced on", value: "from_date" });
+      sort({ label: "From", value: "from_date" });
       updateFromUrl();
     }
   };
@@ -173,6 +173,8 @@
         // if (b[column] == null) return -1;
         return (!!a[column] - !!b[column]) * sortModifier;
       } else if (dates) {
+        a = a.from_date != null ? a.from_date : a.created_at;
+        b = b.from_date != null ? b.from_date : b.created_at;
         if (a[column] == null) return 1;
         if (b[column] == null) return -1;
         return moment(a[column]).diff(moment(b[column])) * sortModifier;
@@ -222,8 +224,7 @@
       // { label: "Contact available", value: "contact" },
       // { label: "Author", value: "author" },
       { label: "Title", value: "title" },
-      { label: "Submitted on", value: "created_at" },
-      { label: "Sourced on", value: "from_date" },
+      { label: "From", value: "from_date" },
       { label: "Mentorship available", value: "mentorship_from" },
       { label: "Funding available", value: "funding_amount" },
     ],

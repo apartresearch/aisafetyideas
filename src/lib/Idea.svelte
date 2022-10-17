@@ -124,7 +124,7 @@
           }}
         >
           <img
-            style="opacity:{idea.comments_n > 0 ? 0.6 : 1}"
+            style="opacity:{idea.comments_n > 0 ? 0.8 : 1}"
             src="/images/{idea.comments_n == 0
               ? 'chatbubbles-outline (3)'
               : 'chatbubbles'}.svg"
@@ -219,7 +219,7 @@
         </p>
       {/if}
       <p class="date">
-        {idea.from_date
+        {idea.from_date != null
           ? `${moment(idea.from_date).fromNow()}`
           : `${moment(idea.created_at).fromNow()}`}
       </p>
@@ -463,10 +463,8 @@
   }
 
   .source-icon {
-    max-width: 1.4em;
+    max-width: 2em;
     height: auto;
     max-height: 1.4em;
-    margin-top: 50%;
-    transform: translate(0, -50%);
   }
 </style>
