@@ -266,13 +266,13 @@
   }
 
   .person-icon {
-    filter: invert(63%) sepia(87%) saturate(4882%) hue-rotate(167deg)
-      brightness(95%) contrast(101%);
+    /* filter: invert(63%) sepia(87%) saturate(4882%) hue-rotate(167deg) */
+    /* brightness(95%) contrast(101%); */
   }
 
   .comment-icon {
-    filter: invert(68%) sepia(26%) saturate(788%) hue-rotate(70deg)
-      brightness(100%) contrast(86%);
+    /* filter: invert(68%) sepia(26%) saturate(788%) hue-rotate(70deg) */
+    /* brightness(100%) contrast(86%); */
   }
 
   .heart:hover {
