@@ -223,7 +223,7 @@
 
   let sortingColumns = [
       { label: "New", value: "from_date" },
-      { label: "Updated", value: "created_at" },
+      { label: "Recently updated", value: "created_at" },
       { label: "Work in progress", value: "verifications_n" },
       { label: "Collab interest", value: "interests_n" },
       { label: "Amount of comments", value: "comments_n" },
@@ -235,7 +235,7 @@
       { label: "Mentorship available", value: "mentorship_from" },
       { label: "Funding available", value: "funding_amount" },
     ],
-    currentSort = { label: "New", value: "from_date" };
+    currentSort = { label: "Recently updated", value: "created_at" };
 
   $: {
     sort(currentSort);
