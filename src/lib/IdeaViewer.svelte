@@ -332,11 +332,6 @@
             <UserLogin />
             <button
               class="submit"
-              use:tippy={{
-                content:
-                  "You cannot edit or delete your comment after it is posted.",
-                delay: [250, 0],
-              }}
               on:click={() => {
                 addComment();
               }}
