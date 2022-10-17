@@ -133,7 +133,7 @@
       });
     } else {
       ideaSelect = ideas.map((idea) => {
-        if (idea.username == $user.username) {
+        if (idea.user == $user.id) {
           return {
             value: idea.id,
             label: idea.title,
