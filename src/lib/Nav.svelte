@@ -61,7 +61,7 @@
               class="home-icon"
             />AISI</a
           >
-          <UserLogin white={true} />
+          <UserLogin white={false} />
           <div class="html-embed w-embed">
             <a href="/submit" class="button utility w-button">
               Submit an idea
