@@ -41,7 +41,7 @@
 
 {#if !!$user}
   <a
-    class="user  {white ? '' : 'light-bg'}"
+    style="color: {white ? 'white' : 'black'}"
     href={"/user/" + $user.username}
     use:tippy={{
       content: `Signed in as ${$user.username}. Click to edit information and sign out.`,
