@@ -19,11 +19,15 @@
             hideOnClick: true,
           }}
         >
-          ⭐ Admin
+          Admin
         </p>
-      {/if} 
+      {/if}
       {#if user.career_stage}
-        <p class={"indicator " + user.career_stage}>{user.career_stage}</p>
+        <p class={"indicator " + user.career_stage}>
+          {user.career_stage == "Student"
+            ? "Student"
+            : user.career_stage + " career"}
+        </p>
       {/if}
     </div>
   </div>

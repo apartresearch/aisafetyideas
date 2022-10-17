@@ -14,22 +14,10 @@
   <LoadIcon />
 {:else}
   <div class="container">
-    <h2>Admin users</h2>
-    <div class="users">
-      {#each $users as u}
-        {#if u.expert}
-          <UserBlock user={u} />
-        {/if}
-      {:else}
-        <h2>No expert users found</h2>
-      {/each}
-    </div>
     <h2>Users</h2>
     <div class="users">
       {#each $users as u}
-        {#if !u.expert}
-          <UserBlock user={u} />
-        {/if}
+        <UserBlock user={u} />
       {:else}
         <h2>No users found</h2>
       {/each}
