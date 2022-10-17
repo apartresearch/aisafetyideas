@@ -4,7 +4,7 @@
     <div class="footer-flex-container">
       <a href="/" class="footer-logo-link-2"
         ><img
-          src="https://uploads-ssl.webflow.com/622160bba1d5c0dcf96f8bdf/62431292c50af756943fd210_ideas_icon.png"
+          src="/images/aisi_logo.png"
           alt="AI safety ideas logo"
           class="footer-image"
         /></a
