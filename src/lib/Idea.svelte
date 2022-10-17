@@ -107,20 +107,26 @@
       {/if}
       {#if idea.comments_n > 0}
         <div
-          class="comment-indicator"
+          class="comment-indicator comment-icon"
           use:tippy={{
             content: `This idea has ${idea.comments_n} comments.`,
             allowHTML: true,
             delay: [250, 0],
           }}
         >
-          <img src="/images/chatbubbles-outline (3).svg" alt="Comments icon" />
+          <img
+            style="opacity:{idea.comments_n > 0 ? 0.6 : 1}"
+            src="/images/{idea.comments_n == 0
+              ? 'chatbubbles-outline (3)'
+              : 'chatbubbles'}.svg"
+            alt="Comments icon"
+          />
           <p>{idea.comments_n}</p>
         </div>
       {/if}
       <MediaQuery query="(max-width: 768px)" let:matches>
         {#if matches}
-          <div class="comment-indicator">
+          <div class="comment-indicator heart-icon">
             <img
               class="heart"
               on:click={() => {
@@ -148,13 +154,15 @@
             />
             <p>{idea.likes}</p>
           </div>
-          <div class="comment-indicator">
+          <div class="comment-indicator person-icon">
             <img
               use:tippy={{
                 content: `Login to show your interest in this idea.`,
               }}
               class="heart"
-              src="/images/person-outline (2).svg"
+              src="/images/{idea.interests_n == 0
+                ? 'person-outline (2)'
+                : 'person'}.svg"
               alt="Human icon"
             />
             <p>{idea.interests_n}</p>
@@ -206,7 +214,7 @@
           ? `${moment(idea.from_date).fromNow()}`
           : `${moment(idea.created_at).fromNow()}`}
       </p>
-      <div class="comment-indicator heart">
+      <div class="comment-indicator heart heart-icon">
         <img
           class="heart"
           on:click={() => {
@@ -232,13 +240,15 @@
         />
         <p>{idea.likes}</p>
       </div>
-      <div class="comment-indicator heart">
+      <div class="comment-indicator heart person-icon">
         <img
           use:tippy={{
             content: `Login to show your interest in this idea.`,
           }}
           class="heart"
-          src="/images/person-outline (2).svg"
+          src="/images/{idea.interests_n == 0
+            ? 'person-outline (2)'
+            : 'person'}.svg"
           alt="Human icon"
         />
         <p>{idea.interests_n}</p>
@@ -250,6 +260,21 @@
 <Toasts />
 
 <style>
+  .heart-icon {
+    filter: invert(25%) sepia(50%) saturate(7206%) hue-rotate(346deg)
+      brightness(109%) contrast(76%);
+  }
+
+  .person-icon {
+    filter: invert(63%) sepia(87%) saturate(4882%) hue-rotate(167deg)
+      brightness(95%) contrast(101%);
+  }
+
+  .comment-icon {
+    filter: invert(68%) sepia(26%) saturate(788%) hue-rotate(70deg)
+      brightness(100%) contrast(86%);
+  }
+
   .heart:hover {
     opacity: 0.8;
   }
