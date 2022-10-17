@@ -16,6 +16,6 @@ jobs:
       - name: Run Changelog CI
         uses: saadmk11/changelog-ci@v1.0.0
         with:
-          changelog_filename: /static/changelog.md
+          changelog_filename: /src/static/changelog.md
           config_file: /changelog-ci-config.yaml
           release_version: 0.1
