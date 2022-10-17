@@ -53,8 +53,7 @@
     if ($loading) {
       window.setTimeout(initState, 100);
     } else {
-      sort({ label: "Amount of comments", value: "comments_n" });
-      sort({ label: "Work in progress", value: "verifications_n" });
+      sort({ label: "Submitted on", value: "created_at" });
       updateFromUrl();
     }
   };
