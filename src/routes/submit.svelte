@@ -124,12 +124,22 @@
     categories = categories.filter((category) => !category.project_factory);
 
     idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
-    ideaSelect = ideas.map((idea) => {
-      return {
-        value: idea.id,
-        label: idea.title,
-      };
-    });
+    if ($user.expert) {
+      ideaSelect = ideas.map((idea) => {
+        return {
+          value: idea.id,
+          label: idea.title,
+        };
+      });
+    } else {
+      ideaSelect = ideas.map((idea) => {
+        if (idea.username == $user.username)
+          return {
+            value: idea.id,
+            label: idea.title,
+          };
+      });
+    }
     ideaSelect = [...ideaSelect, { value: idea_id, label: "New Idea" }];
     selectedIdea = ideaSelect[ideaSelect.length - 1];
   };
@@ -142,7 +152,7 @@
     ideas_ids
   ) => {
     try {
-      alert(`Your idea is now under review - thank you! It will be live on the website soon (maximum 3 days).\n
+      alert(`Your idea is now under review to ensure nothing breaks. Thank you for submitting! It will be live on the website soon (maximum 3 days).\n
       "${idea.title}".`);
       // Delete existing relations
       if (ideas.find((idea) => idea.id === idea_id)) {
@@ -295,7 +305,7 @@
         <UserLogin />
       </div>
     {:else}
-      {#if password == process.env.ADMIN_PASSWORD}
+      {#if $user.expert}
         <div class="input-wrapper">
           <label for="edit-idea">Edit idea</label>
           <div class="select">
@@ -480,15 +490,15 @@
           </div>
         {/if}
       </div>
-      <div class="input-wrapper">
+      <!-- <div class="input-wrapper">
         <label for="status">Admin access</label>
         <input
           type="password"
           bind:value={password}
           placeholder="Input admin password to edit and review ideas"
         />
-      </div>
-      {#if password == process.env.ADMIN_PASSWORD}
+      </div> -->
+      {#if $user.expert}
         <div class="input-wrapper">
           <label for="verified">
             Don't reset relevant variables when submitting
@@ -561,7 +571,7 @@
         >
           Submit idea
         </button>
-        {#if password == process.env.ADMIN_PASSWORD}
+        {#if $user.expert}
           <button on:click={deleteIdea(idea_id)}> Delete selected idea </button>
         {/if}
         <!-- </div> -->
