@@ -53,7 +53,7 @@
     if ($loading) {
       window.setTimeout(initState, 100);
     } else {
-      sort({ label: "Submitted on", value: "created_at" });
+      sort({ label: "Sourced on", value: "from_date" });
       updateFromUrl();
     }
   };

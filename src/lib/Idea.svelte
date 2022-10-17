@@ -87,11 +87,12 @@
           <img
             src="/images/{idea.sourced.includes('lesswrong') ||
             idea.sourced.includes('alignmentforum')
-              ? 'lw_logo'
+              ? 'lw_logo.svg'
               : idea.sourced.includes('intelligence')
-              ? 'miri_logo'
-              : 'link'}.svg"
+              ? 'miri_logo.png'
+              : 'link.svg'}"
             alt="Source link icon"
+            class="source-icon"
           />
         </a>
       {/if}
@@ -459,5 +460,13 @@
     .idea-top {
       margin-bottom: 0.1em;
     }
+  }
+
+  .source-icon {
+    max-width: 1.4em;
+    height: auto;
+    max-height: 1.4em;
+    margin-top: 50%;
+    transform: translate(0, -50%);
   }
 </style>
