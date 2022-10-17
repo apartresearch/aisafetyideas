@@ -132,14 +132,14 @@
         };
       });
     } else {
-      ideaSelect = ideas.map((idea) => {
-        if (idea.user == $user.id) {
+      ideaSelect = ideas
+        .filter((idea) => idea.user == $user.id)
+        .map((idea) => {
           return {
             value: idea.id,
             label: idea.title,
           };
-        }
-      });
+        });
     }
     ideaSelect = [...ideaSelect, { value: idea_id, label: "New Idea" }];
     selectedIdea = ideaSelect[ideaSelect.length - 1];
