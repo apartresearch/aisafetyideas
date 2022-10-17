@@ -305,7 +305,7 @@
         <UserLogin />
       </div>
     {:else}
-      {#if $user.expert}
+      {#if ideaSelect.length > 0}
         <div class="input-wrapper">
           <label for="edit-idea">Edit idea</label>
           <div class="select">
@@ -316,10 +316,12 @@
             />
           </div>
         </div>
-        <div class="input-wrapper">
-          <label for="id">ID</label>
-          <input type="number" disabled bind:value={idea_id} />
-        </div>
+        {#if $user.expert}
+          <div class="input-wrapper">
+            <label for="id">ID</label>
+            <input type="number" disabled bind:value={idea_id} />
+          </div>
+        {/if}
       {/if}
       <div class="input-wrapper">
         <label for="title">Title</label>
