@@ -220,8 +220,8 @@
       {/if}
       <p class="date">
         {idea.from_date != null
-          ? `${moment(idea.from_date).fromNow()}`
-          : `${moment(idea.created_at).fromNow()}`}
+          ? `From ${moment(idea.from_date).fromNow()}`
+          : `Submitted ${moment(idea.created_at).fromNow()}`}
       </p>
       <div class="comment-indicator heart heart-icon">
         <img
