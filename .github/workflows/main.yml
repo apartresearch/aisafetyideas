@@ -3,8 +3,8 @@ name: Changelog CI
 on:
   push:
     branches:
-    - main
-    - insider
+      - main
+      - insider
 
 jobs:
   build:
@@ -18,3 +18,4 @@ jobs:
         with:
           changelog_filename: /static/changelog.md
           config_file: changelog-ci-config.yaml
+          release_version: 0.1
