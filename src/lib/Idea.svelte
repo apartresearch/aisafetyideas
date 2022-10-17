@@ -88,6 +88,8 @@
             src="/images/{idea.sourced.includes('lesswrong') ||
             idea.sourced.includes('alignmentforum')
               ? 'lw_logo'
+              : idea.sourced.includes('intelligence')
+              ? 'miri_logo'
               : 'link'}.svg"
             alt="Source link icon"
           />
