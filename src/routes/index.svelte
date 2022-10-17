@@ -174,8 +174,13 @@
         // if (b[column] == null) return -1;
         return (!!a[column] - !!b[column]) * sortModifier;
       } else if (dates) {
-        a = a.from_date != null ? a.from_date : a.created_at;
-        b = b.from_date != null ? b.from_date : b.created_at;
+        if (column == "created_at") {
+          a = a.created_at;
+          b = b.created_at;
+        } else {
+          a = a.from_date != null ? a.from_date : a.created_at;
+          b = b.from_date != null ? b.from_date : b.created_at;
+        }
         if (a == null) return 1;
         if (b == null) return -1;
         return moment(a).diff(moment(b)) * sortModifier;
@@ -218,6 +223,7 @@
 
   let sortingColumns = [
       { label: "New", value: "from_date" },
+      { label: "Updated", value: "created_at" },
       { label: "Work in progress", value: "verifications_n" },
       { label: "Collab interest", value: "interests_n" },
       { label: "Amount of comments", value: "comments_n" },
