@@ -17,7 +17,6 @@
     problemRelations,
     ideaRelations,
     loading,
-    verifications,
   } from "$lib/stores.js";
   import { onMount } from "svelte";
   import { getTable } from "$lib/db.js";
@@ -46,7 +45,6 @@
         $superprojectRelations,
         $problemRelations,
         $ideaRelations,
-        $verifications,
       ] = await Promise.all([
         getTable("users"),
         getTable(
@@ -74,7 +72,6 @@
         getTable("idea_superproject_relation"),
         getTable("idea_problem_relation"),
         getTable("idea_idea_relation"),
-        getTable("idea_user_verification_relation"),
       ]);
       let endTime = performance.now();
 
