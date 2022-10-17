@@ -55,5 +55,6 @@
     border: 1px solid #ccc;
     border-radius: 5px;
     padding: 0.5rem;
+    max-width: 100vw;
   }
 </style>
