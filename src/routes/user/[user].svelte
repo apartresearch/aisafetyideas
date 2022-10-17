@@ -119,18 +119,7 @@
           {career}
         </p>
         {#if expert}
-          <p
-            class="career expert"
-            use:tippy={{
-              content: "Accepted as an admin user who can mark ideas as active.",
-              arrow: true,
-              duration: [200, 200],
-              delay: [0, 0],
-              hideOnClick: true,
-            }}
-          >
-            ⭐ Admin user
-          </p>
+          <p class="career expert">Admin user</p>
         {/if}
       </div>
     </div>
@@ -169,7 +158,7 @@
     <div class="user-ideas">
       <h2>Ideas</h2>
       {#each $ideas as idea}
-        {#if idea.author == username}
+        {#if idea.author == username || idea.username == username}
           <Idea {idea} />
         {/if}
       {/each}
