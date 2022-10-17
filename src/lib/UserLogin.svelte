@@ -54,7 +54,11 @@
     {#if $user.image}
       <img src={$user.image} alt="Avatar" />
     {:else}
-      <img src="/images/person-outline (2).svg" alt="Avatar" />
+      <img
+        src="/images/person-outline (2).svg"
+        alt="Avatar"
+        style="filter: invert({white ? 1 : 0});"
+      />
     {/if}
     {$user.username}
   </a>
@@ -63,7 +67,7 @@
     <img
       src="/images/person-outline (2).svg"
       alt="user icon"
-      class={white ? "white" : ""}
+      style="filter: invert({white ? 1 : 0});"
     /> Sign in
   </button>
 {/if}

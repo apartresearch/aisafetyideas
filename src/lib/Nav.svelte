@@ -37,7 +37,7 @@
                   src="/images/aisi_logo_white.png"
                   alt="home icon"
                   class="home-icon"
-                /></a
+                />AISI</a
               >
               <a href="/open" class="nav-link">About</a>
               <a href="/projects" class="nav-link">Projects</a>
@@ -59,7 +59,7 @@
               src="/images/aisi_logo.png"
               alt="home icon"
               class="home-icon"
-            /></a
+            />AISI</a
           >
           <UserLogin white={true} />
           <div class="html-embed w-embed">
@@ -104,17 +104,20 @@
     opacity: 0.9;
     /* filter: invert(1); */
     width: 2rem;
+    margin-right: 0.5rem;
   }
 
-  .home-icon:hover {
+  .home:hover {
     filter: invert(21%) sepia(13%) saturate(1463%) hue-rotate(193deg)
       brightness(92%) contrast(93%);
+    text-decoration: none;
   }
 
   .home {
     display: flex;
     align-items: center;
     margin-right: 1em;
+    color: black;
   }
 
   .header {
@@ -284,5 +287,12 @@
 
   :global(.tooltip a:hover) {
     text-decoration: underline;
+  }
+
+  /* Mobile */
+  @media screen and (max-width: 768px) {
+    .home {
+      color: white;
+    }
   }
 </style>
