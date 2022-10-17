@@ -121,6 +121,8 @@
       idea.shown = true;
     });
 
+    categories = categories.filter((category) => !category.project_factory);
+
     idea_id = Math.max(...ideas.map((idea) => idea.id)) + 1;
     ideaSelect = ideas.map((idea) => {
       return {
