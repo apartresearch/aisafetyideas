@@ -84,7 +84,13 @@
             delay: [250, 0],
           }}
         >
-          <img src="/images/link.svg" alt="Source link icon" />
+          <img
+            src="/images/{idea.sourced.includes('lesswrong') ||
+            idea.sourced.includes('alignmentforum')
+              ? 'lw_logo'
+              : 'link'}.svg"
+            alt="Source link icon"
+          />
         </a>
       {/if}
       {#if idea.mentorship_from}
