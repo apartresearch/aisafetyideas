@@ -16,7 +16,7 @@
     superprojects!inner(*),
     idea_user_likes!inner(*),
     categories!inner(*),
-    idea_idea_relation!idea_idea_relation_idea_1_fkey!inner(idea_2!inner(*))
+    idea_idea_relation!idea_idea_relation_parent_fkey!inner(child!inner(*))
     `);
       if (data) return data;
       else return error;
