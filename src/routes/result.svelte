@@ -20,6 +20,7 @@
     sourced = "",
     idea_id = 0,
     date_sourced = "",
+    image_link = "",
     hours = 0,
     type = "",
     typeList = [
@@ -140,6 +141,10 @@
         <input type="text" bind:value={sourced} />
       </div>
       <div class="input-wrapper">
+        <label for="sourced"> Link to main image (optional) </label>
+        <input type="text" bind:value={image_link} />
+      </div>
+      <div class="input-wrapper">
         <label for="edit-idea">Does the result support the hypothesis?</label>
         <div class="select">
           <Select
@@ -172,6 +177,7 @@
               title,
               description,
               link: sourced,
+              image_link,
               type,
               from_date:
                 date_sourced != '""' &&
