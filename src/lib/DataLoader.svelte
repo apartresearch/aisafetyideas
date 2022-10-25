@@ -177,43 +177,6 @@
 
       $shownIdeas = $ideas;
 
-      console.log(
-        "Ideas",
-        $ideas,
-        "Users",
-        $users,
-        "Superprojects",
-        $superprojects,
-        "Idea likes",
-        $idea_likes,
-        "Idea category relations",
-        $categoryRelations,
-        "Idea superproject relations",
-        $superprojectRelations,
-        "Idea problem relations",
-        $problemRelations,
-        "Idea idea relations",
-        $ideaRelations,
-        "Comments",
-        $comments,
-        "Categories",
-        $categories,
-        "Problems",
-        $problems,
-        "Fundings",
-        $fundings,
-        "Interests",
-        $interests,
-        "Mentorships",
-        $mentorships,
-        "User",
-        $user,
-        "Loading",
-        $loading,
-        "Results",
-        $results
-      );
-
       // Set global load state
       $loading = false;
     }

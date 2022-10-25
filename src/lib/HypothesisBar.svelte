@@ -26,13 +26,7 @@
       </div>
       <a class="more" href={result.link} target="_blank"> Read more </a>
     {:else}
-      <a
-        class="more"
-        href="mailto:operations@apartresearch.com"
-        target="_blank"
-      >
-        Submit a result
-      </a>
+      <a class="more" href="/result" target="_blank"> Submit a result </a>
     {/if}
   </div>
 </div>

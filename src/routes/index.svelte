@@ -42,23 +42,6 @@
 
   let searchValue = "";
 
-  onMount(async () => {
-    // Create event listener to listen for back button clicks
-    window.addEventListener("popstate", () => {
-      updateFromUrl();
-    });
-    initState();
-  });
-
-  const initState = () => {
-    if ($loading) {
-      window.setTimeout(initState, 100);
-    } else {
-      sort({ label: "New", value: "from_date" });
-      updateFromUrl();
-    }
-  };
-
   const selectCategory = (category) => {
     if (!$loading) {
       if (selectedCategories.includes(category)) {
@@ -222,8 +205,8 @@
   };
 
   let sortingColumns = [
-      { label: "New", value: "from_date" },
       { label: "Recently updated", value: "created_at" },
+      { label: "Date", value: "from_date" },
       { label: "Work in progress", value: "verifications_n" },
       { label: "Collab interest", value: "interests_n" },
       { label: "Amount of comments", value: "comments_n" },
@@ -235,11 +218,28 @@
       { label: "Mentorship available", value: "mentorship_from" },
       { label: "Funding available", value: "funding_amount" },
     ],
-    currentSort = { label: "Recently updated", value: "created_at" };
+    currentSort = sortingColumns[0];
 
   $: {
     sort(currentSort);
   }
+
+  onMount(async () => {
+    // Create event listener to listen for back button clicks
+    window.addEventListener("popstate", () => {
+      updateFromUrl();
+    });
+    initState();
+  });
+
+  const initState = () => {
+    if ($loading) {
+      window.setTimeout(initState, 100);
+    } else {
+      sort(currentSort);
+      updateFromUrl();
+    }
+  };
 </script>
 
 <HeaderManager />
