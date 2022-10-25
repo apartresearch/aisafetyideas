@@ -258,6 +258,9 @@
     --mid: #ff375e;
     --late: #af52de;
     --student: #34c85a;
+    --open: #0a84ff;
+    --negative: #ff375e;
+    --positive: #34c85a;
   }
 
   :global(a) {
