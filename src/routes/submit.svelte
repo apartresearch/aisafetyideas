@@ -170,10 +170,10 @@
             idea: idea_id,
           }),
           supabase.from("idea_idea_relation").delete().match({
-            idea_1: idea_id,
+            parent: idea_id,
           }),
           supabase.from("idea_idea_relation").delete().match({
-            idea_2: idea_id,
+            child: idea_id,
           }),
         ]);
       }
@@ -277,8 +277,8 @@
       supabase.from("idea_user_likes").delete().match({ idea: id }),
       supabase.from("idea_superproject_relation").delete().match({ idea: id }),
       supabase.from("idea_problem_relation").delete().match({ idea: id }),
-      supabase.from("idea_idea_relation").delete().match({ idea_1: id }),
-      supabase.from("idea_idea_relation").delete().match({ idea_2: id }),
+      supabase.from("idea_idea_relation").delete().match({ parent: id }),
+      supabase.from("idea_idea_relation").delete().match({ child: id }),
       supabase.from("idea_user_interest_relation").delete().match({
         idea: id,
       }),
@@ -566,8 +566,8 @@
                 : [],
               related_ideas
                 ? related_ideas.map((elm) => ({
-                    idea_1: idea_id,
-                    idea_2: elm.id,
+                    parent: idea_id,
+                    child: elm.id,
                   }))
                 : []
             );
