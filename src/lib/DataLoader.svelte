@@ -17,6 +17,7 @@
     problemRelations,
     ideaRelations,
     loading,
+    results,
   } from "$lib/stores.js";
   import { onMount } from "svelte";
   import { getTable } from "$lib/db.js";
@@ -45,6 +46,7 @@
         $superprojectRelations,
         $problemRelations,
         $ideaRelations,
+        $results,
       ] = await Promise.all([
         getTable("users"),
         getTable(
@@ -72,6 +74,7 @@
         getTable("idea_superproject_relation"),
         getTable("idea_problem_relation"),
         getTable("idea_idea_relation"),
+        getTable("results"),
       ]);
       let endTime = performance.now();
 
@@ -113,6 +116,7 @@
           user_liked: $idea_likes.find(
             (like) => like.idea === idea.id && $user && like.user === $user.id
           ),
+          results: $results.filter((r) => r.idea == idea.id),
           username: $users.find((user) => user.id === idea.user)
             ? $users.find((user) => user.id === idea.user).username
             : "",
@@ -173,42 +177,42 @@
 
       $shownIdeas = $ideas;
 
-      // console.log(
-      //   "Ideas",
-      //   $ideas,
-      //   "Users",
-      //   $users,
-      //   "Superprojects",
-      //   $superprojects,
-      //   "Idea likes",
-      //   $idea_likes,
-      //   "Idea category relations",
-      //   $categoryRelations,
-      //   "Idea superproject relations",
-      //   $superprojectRelations,
-      //   "Idea problem relations",
-      //   $problemRelations,
-      //   "Idea idea relations",
-      //   $ideaRelations,
-      //   "Comments",
-      //   $comments,
-      //   "Categories",
-      //   $categories,
-      //   "Problems",
-      //   $problems,
-      //   "Fundings",
-      //   $fundings,
-      //   "Interests",
-      //   $interests,
-      //   "Mentorships",
-      //   $mentorships,
-      //   "User",
-      //   $user,
-      //   "Loading",
-      //   $loading,
-      //   "Verifications",
-      //   $verifications
-      // );
+      console.log(
+        "Ideas",
+        $ideas,
+        "Users",
+        $users,
+        "Superprojects",
+        $superprojects,
+        "Idea likes",
+        $idea_likes,
+        "Idea category relations",
+        $categoryRelations,
+        "Idea superproject relations",
+        $superprojectRelations,
+        "Idea problem relations",
+        $problemRelations,
+        "Idea idea relations",
+        $ideaRelations,
+        "Comments",
+        $comments,
+        "Categories",
+        $categories,
+        "Problems",
+        $problems,
+        "Fundings",
+        $fundings,
+        "Interests",
+        $interests,
+        "Mentorships",
+        $mentorships,
+        "User",
+        $user,
+        "Loading",
+        $loading,
+        "Results",
+        $results
+      );
 
       // Set global load state
       $loading = false;

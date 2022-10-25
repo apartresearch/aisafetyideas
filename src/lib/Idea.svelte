@@ -9,6 +9,7 @@
   import { addLikeToIdea } from "$lib/db.js";
   import { Toasts, addToast } from "as-toast";
   import MediaQuery from "$lib/MediaQuery.svelte";
+  import HypothesisBar from "./HypothesisBar.svelte";
 
   export let idea, url;
 
@@ -264,6 +265,10 @@
       </div>
     </div>
   </div>
+  {#if idea.hypothesis}
+    <!-- {#if idea.results[0]}   -->
+    <HypothesisBar result={idea.results[0]} />
+  {/if}
 </div>
 
 <Toasts />
