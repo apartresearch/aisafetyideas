@@ -315,10 +315,6 @@
       {#if ideaSelect.length > 0}
         <div class="input-wrapper">
           <label for="edit-idea">Edit idea</label>
-          <div class="input-wrapper">
-            <label for="verified"> This is a hypothesis </label>
-            <input type="checkbox" bind:checked={isHypothesis} />
-          </div>
           <div class="select">
             <Select
               items={ideaSelect}
