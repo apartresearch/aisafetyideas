@@ -5,9 +5,12 @@
 </script>
 
 <!-- Show a colored bar with an icon based on if the idea is a hypothesis or not -->
-<div class="bar {result.type ? result.type : 'open'}" on:click|stopPropagation>
+<div
+  class="bar {result && result.type ? result.type : 'open'}"
+  on:click|stopPropagation
+>
   <div class="left">
-    {#if result.type}
+    {#if result && result.type}
       <img
         src="images/aisi_logo_white.png"
         alt="Hypothesis icon"
@@ -17,18 +20,18 @@
     <h3 class="title">
       <MediaQuery query="(max-width: 768px)" let:matches>
         {#if matches}
-          {result.title
+          {result && result.title
             ? result.title.slice(0, 36) +
               (result.title.length > 36 ? "..." : "")
             : "Open hypothesis"}
         {:else}
-          {result.title ? result.title : "Open hypothesis"}
+          {result && result.title ? result.title : "Open hypothesis"}
         {/if}
       </MediaQuery>
     </h3>
   </div>
   <div class="right">
-    {#if result.type}
+    {#if result && result.type}
       <div class="type">
         <p>
           {result.type[0].toUpperCase() + result.type.substring(1)} result

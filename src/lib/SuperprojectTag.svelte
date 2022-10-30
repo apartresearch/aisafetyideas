@@ -3,7 +3,6 @@
   import markdown from "$lib/drawdown";
   export let superproject,
     small = false;
-  console.log(superproject);
 </script>
 
 <!--       use:tippy={{
