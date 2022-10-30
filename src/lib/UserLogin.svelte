@@ -43,6 +43,7 @@
   <a
     style="color: {white ? 'white' : 'black'}"
     href={"/user/" + $user.username}
+    class="user"
     use:tippy={{
       content: `Signed in as ${$user.username}. Click to edit information and sign out.`,
       allowHTML: true,
@@ -101,5 +102,15 @@
     width: 1.5em;
     margin-right: 0.5em;
     border-radius: 100em;
+  }
+
+  .user {
+    margin-right: 1rem;
+  }
+
+  @media only screen and (max-width: 764px) {
+    .user {
+      margin-right: 0;
+    }
   }
 </style>

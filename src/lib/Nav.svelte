@@ -164,6 +164,10 @@
     .right {
       flex-direction: column;
     }
+    .navlink {
+      padding: 0;
+      margin: 0;
+    }
   }
 
   :global(:root) {
