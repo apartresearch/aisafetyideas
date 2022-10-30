@@ -53,8 +53,8 @@
           <a href="/open" class="navlink">About</a>
           <a href="/projects" class="navlink">Projects</a>
           <a href="/users" class="navlink">Users</a>
-          <a href="/submit" class="button"> Submit idea </a>
           <UserLogin white={false} />
+          <a href="/submit" class="button"> Submit idea </a>
         </div>
       {/if}
     </MediaQuery>
@@ -117,14 +117,13 @@
   }
 
   .navlink {
-    font-size: 1.1rem;
+    font-size: 1rem;
     line-height: 1.1rem;
-    font-weight: 500;
     opacity: 0.9;
     text-decoration: none;
     color: #252525;
     transition: all 0.1s ease-out;
-    padding: 0 1rem 0 0;
+    padding: 0 1.5rem 0 0;
   }
 
   .navlink:hover {

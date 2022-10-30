@@ -6,10 +6,16 @@
   console.log(superproject);
 </script>
 
-{#if small}
-  <a
-    class="idea-superproject list-item"
-    use:tippy={{
+<!--       use:tippy={{
+      content: `<div class='tooltip'><h4>${superproject.title}</h4>${markdown(
+        superproject.description
+      )}<p><i>Click to see more ideas</i></p></div>`,
+      allowHTML: true,
+      interactive: true,
+      delay: [500, 0],
+    }} 
+  
+  use:tippy={{
       content: `<div class='tooltip'><h4>${superproject.title}</h4>${markdown(
         superproject.description
       )}<p><i>Click to see more ideas</i></p></div>`,
@@ -17,24 +23,16 @@
       interactive: true,
       delay: [500, 0],
     }}
-    href={`/project/${superproject.slug}`}
-  >
+  
+  -->
+
+{#if small}
+  <a class="idea-superproject list-item" href={`/project/${superproject.slug}`}>
     <img src="/images/arrow-up.svg" alt="arrow" />
     {superproject.title}
   </a>
 {:else}
-  <a
-    class="idea-superproject"
-    use:tippy={{
-      content: `<div class='tooltip'><h4>${superproject.title}</h4>${markdown(
-        superproject.description
-      )}<p><i>Click to see more ideas</i></p></div>`,
-      allowHTML: true,
-      interactive: true,
-      delay: [500, 0],
-    }}
-    href={`/project/${superproject.slug}`}
-  >
+  <a class="idea-superproject" href={`/project/${superproject.slug}`}>
     {superproject.title}
   </a>
 {/if}
