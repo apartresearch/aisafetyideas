@@ -18,6 +18,8 @@
     ideaRelations,
     loading,
     results,
+    lists,
+    listIdeaRelations,
   } from "$lib/stores.js";
   import { onMount } from "svelte";
   import { getTable } from "$lib/db.js";
@@ -47,6 +49,8 @@
         $problemRelations,
         $ideaRelations,
         $results,
+        $lists,
+        $listIdeaRelations,
       ] = await Promise.all([
         getTable("users"),
         getTable(
@@ -75,6 +79,8 @@
         getTable("idea_problem_relation"),
         getTable("idea_idea_relation"),
         getTable("results"),
+        getTable("lists"),
+        getTable("lists_ideas"),
       ]);
       let endTime = performance.now();
 
@@ -164,6 +170,7 @@
           ),
           interests: $interests.filter((i) => i.idea === idea.id),
           interests_n: $interests.filter((i) => i.idea === idea.id).length,
+          lists: $lists.filter((l) => l.idea === idea.id),
           // verifications: $verifications.filter((v) => v.idea === idea.id),
           // verifications_n: $verifications.filter((v) => v.idea === idea.id)
           // .length,
@@ -176,6 +183,18 @@
       }));
 
       $shownIdeas = $ideas;
+
+      $lists = $lists.map((l) => ({
+        ...l,
+        username: $users.find((u) => u.id == l.user).username,
+        image: $users.find((u) => u.id == l.user).image,
+        ideas: $listIdeaRelations
+          .filter((r) => r.list == l.id)
+          .map((r) => ({
+            ...r,
+            idea: $ideas.find((i) => i.id == r.idea),
+          })),
+      }));
 
       // Set global load state
       $loading = false;
