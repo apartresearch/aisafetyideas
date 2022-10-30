@@ -1,4 +1,5 @@
 <script>
+  import MediaQuery from "./MediaQuery.svelte";
   export let result = {};
   let hasResult = JSON.stringify(result) !== JSON.stringify({});
 </script>
@@ -14,7 +15,16 @@
       />
     {/if}
     <h3 class="title">
-      {result.title ? result.title : "Open hypothesis"}
+      <MediaQuery query="(max-width: 768px)" let:matches>
+        {#if matches}
+          {result.title
+            ? result.title.slice(0, 36) +
+              (result.title.length > 36 ? "..." : "")
+            : "Open hypothesis"}
+        {:else}
+          {result.title ? result.title : "Open hypothesis"}
+        {/if}
+      </MediaQuery>
     </h3>
   </div>
   <div class="right">
@@ -50,7 +60,7 @@
     justify-content: space-between;
     align-items: center;
     margin: 0.2rem -0.7rem -0.55rem -0.7rem;
-    padding: 0.2rem 0.65rem;
+    padding: 0.1rem 0.65rem 0.1rem 0.4rem;
     color: white;
     border: inherit;
     font-size: 0.9rem;
@@ -74,6 +84,7 @@
     display: flex;
     flex-direction: row;
     align-items: center;
+    column-gap: 0.2rem;
   }
 
   .right {
@@ -84,13 +95,12 @@
 
   .title {
     margin: 0;
-    margin-right: 1rem;
-    margin-left: 0.3rem;
     font-size: 0.9rem;
   }
 
   .icon {
     width: 1em;
+    margin-top: -0.15rem;
   }
 
   /* Mobile */
@@ -98,11 +108,11 @@
     .bar {
       margin: -0.55rem -0.7rem 0.2rem -0.7rem;
       flex-wrap: wrap;
-      padding: 0.5rem;
+      padding: 0.2rem 0.5rem 0.2rem 0.5rem;
       justify-content: right;
     }
     .left {
-      width: 100%;
+      flex-grow: 1;
     }
   }
 </style>

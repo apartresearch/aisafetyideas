@@ -6,210 +6,166 @@
   import MediaQuery from "$lib/MediaQuery.svelte";
 
   // Parameter to show header text
-  export let showText = true;
+  export let showText = false;
 </script>
 
 <header id="nav" class="sticky-nav">
-  <MediaQuery query="(max-width: 768px)" let:matches>
-    {#if matches}
-      {#if showText}
-        <div class="content">
-          {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
-            <h1>The Alignment Project Factory</h1>
-          {:else}
-            <h1>Ideas for ML & AI Safety Research</h1>
-          {/if}
-        </div>
-      {/if}
-      <div class="burger-parent">
-        <BurgerMenu
-          padding={"0.5em"}
-          backgroundColor={"var(--bg-color-dark)"}
-          menuColor={"var(--font-color-dark)"}
-          duration={"0.2s"}
-          burgerColor={"var(--primary-color)"}
-          paddingTop={"4em"}
-        >
-          <nav class="container w-container">
-            <div class="header">
-              <a href="/" class="home"
-                ><img
-                  src="/images/aisi_logo_white.png"
-                  alt="home icon"
-                  class="home-icon"
-                />AISI</a
-              >
-              <a href="/open" class="nav-link">About</a>
-              <a href="/projects" class="nav-link">Projects</a>
-              <div class="html-embed w-embed">
-                <a href="/submit" class="button utility w-button">
-                  Submit an idea
-                </a>
-              </div>
-              <UserLogin white={true} />
-            </div>
-          </nav>
-        </BurgerMenu>
-      </div>
-    {:else}
-      <nav class="container w-container">
-        <div class="header">
+  <nav class="container">
+    <MediaQuery query="(max-width: 768px)" let:matches>
+      {#if matches}
+        <div class="burger-parent">
           <a href="/" class="home"
             ><img
               src="/images/aisi_logo.png"
               alt="home icon"
               class="home-icon"
-            />AISI</a
+            />
+            <h1>AISI</h1>
+          </a>
+          <BurgerMenu
+            backgroundColor={"white"}
+            duration={"0.1"}
+            padding={"0.75rem"}
           >
-          <UserLogin white={false} />
-          <div class="html-embed w-embed">
-            <a href="/submit" class="button utility w-button">
-              Submit an idea
-            </a>
-          </div>
-          <a href="/open" class="nav-link">About</a>
-          <a href="/projects" class="nav-link">Projects</a>
-          <a href="/users" class="nav-link">Users</a>
+            <div class="right">
+              <a href="/" class="home"
+                ><img
+                  src="/images/aisi_logo.png"
+                  alt="home icon"
+                  class="home-icon"
+                />
+                <h1>AISI</h1>
+              </a>
+              <a href="/open" class="navlink">About</a>
+              <a href="/projects" class="navlink">Projects</a>
+              <a href="/users" class="navlink">Users</a>
+              <a href="/submit" class="button"> Submit idea </a>
+              <UserLogin white={false} />
+            </div>
+          </BurgerMenu>
         </div>
-        {#if showText}
-          <div class="content">
-            {#if process.env.PROJECT_FACTORY == "TRUE" ? true : false}
-              <h1>The Alignment Project Factory</h1>
-            {:else}
-              <h1>Ideas for ML & AI Safety Research</h1>
-            {/if}
-          </div>
-        {/if}
-      </nav>
-    {/if}
-  </MediaQuery>
+      {:else}
+        <a href="/" class="home"
+          ><img src="/images/aisi_logo.png" alt="home icon" class="home-icon" />
+          <h1>AISI</h1>
+        </a>
+        <div class="right">
+          <a href="/open" class="navlink">About</a>
+          <a href="/projects" class="navlink">Projects</a>
+          <a href="/users" class="navlink">Users</a>
+          <a href="/submit" class="button"> Submit idea </a>
+          <UserLogin white={false} />
+        </div>
+      {/if}
+    </MediaQuery>
+  </nav>
 </header>
 
 <style>
-  p {
-    text-align: center;
-  }
-
-  .container {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
   .home-icon {
-    opacity: 0.9;
-    /* filter: invert(1); */
     width: 2rem;
-    margin-right: 0.5rem;
+    margin-right: 0.2rem;
   }
 
   .home:hover {
-    filter: invert(21%) sepia(13%) saturate(1463%) hue-rotate(193deg)
-      brightness(92%) contrast(93%);
+    filter: invert(100%) sepia(41%) saturate(2864%) hue-rotate(68deg)
+      brightness(90%) contrast(85%);
+
     text-decoration: none;
   }
 
   .home {
+    text-align: center;
     display: flex;
     align-items: center;
-    margin-right: 1em;
-    color: black;
+    opacity: 0.9;
+    margin: 0 0.4rem;
   }
 
-  .header {
-    display: flex;
-    align-items: center;
-    column-gap: 1.5em;
-
-    justify-content: center;
-  }
-
-  .header > * {
-    margin: auto 0;
-  }
-
-  .header .nav-link {
-    margin-left: 1.5em;
-    color: inherit;
+  .home > h1 {
+    margin: 0;
+    margin-bottom: -0.25rem;
+    font-size: 2.5rem;
+    color: #252525;
+    font-weight: 900;
   }
 
   header {
-    /* background-color: var(--bg-color-dark); */
-    /* background-image: url("https://uploads-ssl.webflow.com/622160bba1d5c0dcf96f8bdf/628f97da187df855c39bd88b_hero-bottom.png"); */
-    /* background-position: 100% 100%; */
-    /* background-size: contain; */
-    /* background-repeat: no-repeat; */
-    /* color: var(--font-color-light); */
-    padding-bottom: 0;
-    position: relative;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: white;
+    border-bottom: 1px solid #eaeaea;
+    position: static;
   }
 
-  .button {
-    background-color: transparent;
-    border: 2px solid transparent;
-    border-radius: 5px;
-    color: inherit;
-    border-color: var(--button-bg-color-dark);
+  .container {
+    display: flex;
+    width: 100%;
+    max-width: 1100px;
+    justify-content: space-between;
+    margin: 0 auto;
+    padding: 0.5rem 0 0.5rem 0;
   }
 
-  .button:hover {
-    background-color: var(--button-bg-color-dark);
-    /* color: #fff; */
+  .right {
+    display: flex;
+    column-gap: 1rem;
+    row-gap: 2rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .navlink {
+    font-size: 1.1rem;
+    line-height: 1.1rem;
+    font-weight: 500;
+    opacity: 0.9;
+    text-decoration: none;
+    color: #252525;
+    transition: all 0.1s ease-out;
+    padding: 0 1rem 0 0;
+  }
+
+  .navlink:hover {
+    opacity: 1;
+    color: var(--link-color);
+  }
+
+  :global(.button) {
+    padding: 0.7rem 1.1rem;
+    border-radius: 0.2rem;
+    font-size: 1rem;
+    line-height: 1rem;
+    font-weight: 400;
+    border: none;
+    transition: all 0.1s ease-out;
+    border: 0.1rem solid black;
+    background-color: white;
+    color: black;
+  }
+
+  :global(.button:hover) {
+    opacity: 1;
+    background-color: var(--primary-color);
+
     text-decoration: none;
   }
 
   :global(.tippy-content) {
     border-radius: var(--border-radius);
-    color: var(--font-color-light);
-    background-color: white;
-    border: 1px solid var(--primary-color);
-    box-shadow: var(--box-shadow);
+    border: none;
+    background-color: black;
+    color: white;
     overflow: hidden;
+    opacity: 0.9;
     z-index: 9999;
-  }
-
-  h1 {
-    display: block;
-    text-align: center;
-    margin: 1rem auto 0 auto;
   }
 
   /* Mobile */
   @media screen and (max-width: 768px) {
-    h1 {
-      font-size: 1.5rem;
-      line-height: 1.7rem;
-      margin-top: 0;
-    }
-
-    /* header {
-      background: none;
-      background-color: var(--bg-color-dark);
-      z-index: 102;
-    } */
-
-    .burger-parent {
-      float: right;
-      display: block;
-      align-items: right;
-    }
-
-    .content {
-      padding: 0.75rem 1rem;
-      max-width: 820px;
-      text-align: center;
-      margin: 0 auto;
-    }
-
-    .header {
+    .right {
       flex-direction: column;
-      align-items: center;
-      column-gap: 0;
-      row-gap: 1.5em;
-    }
-
-    .header > .nav-link {
-      margin: 0;
-      border: none;
     }
   }
 
@@ -224,8 +180,8 @@
     --font-color-light: #333;
     --font-color-faded: #fff;
     --font-color-faded-hover: #fff9;
-    --link-color: #af69e7;
-    --primary-color: #256dc0;
+    --link-color: #0a84ff;
+    --primary-color: #0a84ff;
     --primary-color-hover: rgba(240, 250, 255, 1);
     --secondary-color: #fff;
     --secondary-color-hover: #fff;
@@ -285,6 +241,12 @@
 
   :global(.tooltip a:hover) {
     text-decoration: underline;
+  }
+
+  :global(h4),
+  :global(h3),
+  :global(h2) {
+    font-weight: 400;
   }
 
   /* Mobile */

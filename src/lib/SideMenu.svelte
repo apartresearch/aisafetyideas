@@ -25,9 +25,12 @@
     height: 100vh;
     top: 0px;
     overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 
   #menu {
-    text-align: left;
   }
 </style>

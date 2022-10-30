@@ -63,7 +63,7 @@
     {$user.username}
   </a>
 {:else}
-  <button on:click={handleLogin} class={white ? "" : "light-bg"}>
+  <button on:click={handleLogin} class="button {white ? '' : 'light-bg'}">
     <img
       src="/images/person-outline (2).svg"
       alt="user icon"
@@ -73,28 +73,13 @@
 {/if}
 
 <style>
-  button {
-    font-size: 0.9em;
-    background: transparent;
-    border: 2px solid transparent;
-    padding: 0.5em 2em;
-    border-radius: 0.3em;
-    display: flex;
-    color: inherit;
-    border-color: var(--button-bg-color-dark);
-  }
-
-  button img {
-    width: 1.5em;
-    margin-right: 0.5em;
+  img {
+    width: 1.5rem;
+    margin: -0.3rem 0.1rem -0.2rem -0.1rem;
   }
 
   .light-bg {
     color: var(--font-color-light);
-  }
-
-  button:hover {
-    cursor: pointer;
   }
 
   a {

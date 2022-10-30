@@ -17,9 +17,14 @@
   }}
 >
   <div class="global-wrapper">
-    <h3 class="header">{project.title} | <span class="idea_n">{$ideas.filter((idea) =>
-      idea.superprojects.find((p) => p.superproject.id == project.id)
-    ).length} ideas</span></h3>
+    <h3 class="header">
+      {project.title} |
+      <span class="idea_n"
+        >{$ideas.filter((idea) =>
+          idea.superprojects.find((p) => p.superproject.id == project.id)
+        ).length} ideas</span
+      >
+    </h3>
     {@html markdown(project.summary)}
   </div>
 </a>
@@ -30,7 +35,6 @@
     line-height: 1rem;
     margin: 0;
     margin-bottom: 0.15rem;
-    font-weight: bold;
   }
 
   :global(.global-wrapper > p) {

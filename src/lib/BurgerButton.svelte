@@ -42,7 +42,7 @@
 
 <style>
   button {
-    position: fixed;
+    position: absolute;
     right: 0px;
     top: 0px;
     margin: 5px;
@@ -53,6 +53,7 @@
     cursor: pointer;
     overflow: hidden;
     outline: none;
+    z-index: 101;
   }
   svg line {
     stroke: currentColor;

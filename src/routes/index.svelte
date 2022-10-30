@@ -388,7 +388,7 @@
   }
 
   .globwrap {
-    padding-top: 0.5rem;
+    padding-top: 0.15rem;
     display: flex;
     flex-direction: column;
     justify-content: left;
@@ -427,7 +427,7 @@
 
   .container.first {
     border-radius: var(--border-radius);
-    padding: 10px 10px 0px 10px;
+    margin-top: 0.5rem;
     max-width: 820px;
     background: var(--bg-color-light);
   }
@@ -541,10 +541,6 @@
 
   /* mobile style */
   @media (max-width: 768px) {
-    .container.first {
-      margin-top: 0;
-    }
-
     .project-title {
       margin-top: 0.5rem;
     }

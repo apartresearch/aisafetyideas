@@ -344,6 +344,8 @@
     margin: 0;
     display: flex;
     flex-wrap: wrap;
+    height: 1.4rem;
+    align-items: flex-start;
   }
 
   .idea-categories-wrapper.list-item {
@@ -408,7 +410,7 @@
     padding: 0;
     vertical-align: bottom;
     margin-right: 0.6em;
-    margin-top: 0.1em;
+    margin-top: 0.2rem;
     white-space: nowrap;
   }
 
