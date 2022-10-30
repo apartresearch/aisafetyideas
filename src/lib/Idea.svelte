@@ -344,7 +344,7 @@
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    height: 1.4rem;
+    height: 1rem;
     align-items: flex-start;
   }
 
