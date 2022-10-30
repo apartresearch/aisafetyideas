@@ -70,7 +70,7 @@
   }
 
   .wrapper .idea_n {
-    color: var(--primary-color);
+    color: var(--link-color);
   }
 
   .wrapper:hover .idea_n {

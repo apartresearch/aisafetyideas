@@ -68,8 +68,7 @@
   }
 
   .home:hover {
-    filter: invert(100%) sepia(41%) saturate(2864%) hue-rotate(68deg)
-      brightness(90%) contrast(85%);
+    filter: var(--primary-color-filter);
 
     text-decoration: none;
   }
@@ -146,8 +145,7 @@
 
   :global(.button:hover) {
     opacity: 1;
-    background-color: var(--primary-color);
-
+    background-color: var(--primary-color-light);
     text-decoration: none;
   }
 
@@ -181,6 +179,9 @@
     --font-color-faded-hover: #fff9;
     --link-color: #0a84ff;
     --primary-color: #0a84ff;
+    --primary-color-light: #7ea9ea;
+    --primary-color-filter: invert(29%) sepia(83%) saturate(1901%)
+      hue-rotate(201deg) brightness(111%) contrast(101%);
     --primary-color-hover: rgba(240, 250, 255, 1);
     --secondary-color: #fff;
     --secondary-color-hover: #fff;
