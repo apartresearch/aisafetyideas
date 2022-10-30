@@ -87,22 +87,19 @@
     flex-direction: row;
     align-items: center;
     justify-content: flex-start;
+    font-size: 1rem;
+    line-height: 1.1rem;
   }
 
   a:hover {
     cursor: pointer;
     opacity: 0.8;
+    text-decoration: none;
   }
 
   a img {
     width: 1.5em;
     margin-right: 0.5em;
     border-radius: 100em;
-  }
-
-  .user {
-    cursor: pointer;
-    text-decoration: none;
-    color: var(--font-color-light);
   }
 </style>
