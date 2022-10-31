@@ -249,8 +249,14 @@
 
   :global(h4),
   :global(h3),
-  :global(h2) {
+  :global(h2),
+  :global(h1) {
     font-weight: 400;
+  }
+
+  :global(h1) {
+    font-size: 2rem;
+    line-height: 2.3rem;
   }
 
   /* Mobile */

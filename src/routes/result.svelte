@@ -25,6 +25,8 @@
     idea_id = 0,
     date_sourced = "",
     image_link = "",
+    url = "",
+    ideaParam = "",
     hours = 0,
     type = "",
     typeList = [
@@ -38,7 +40,20 @@
     showSourceInput = false,
     retainInfo = false;
 
-  onMount(async () => getTables());
+  onMount(async () => {
+    getTables();
+    // Wait until $loading is false
+    while ($loading) {
+      await new Promise((r) => setTimeout(r, 100));
+    }
+    url = new URL(window.location.href);
+    ideaParam = url.searchParams.get("idea");
+    if (ideaParam) {
+      selectedIdea = ideaSelect.find((idea) => idea.value == ideaParam);
+      selectedIdeaInfo = $ideas.find((idea) => idea.id == ideaParam);
+      console.log(ideaParam, selectedIdea);
+    }
+  });
 
   const getTables = async () => {
     [loadedIdeas, results] = await Promise.all([
@@ -53,7 +68,9 @@
         value: idea.id,
       };
     });
-    selectedIdea = ideaSelect[ideaSelect.length - 1];
+    if (!selectedIdea) {
+      selectedIdea = ideaSelect[-1];
+    }
   };
 
   const addNewResult = async (result) => {
@@ -82,8 +99,10 @@
   };
 
   $: {
-    idea_id = selectedIdea.value;
-    selectedIdeaInfo = $ideas.find((idea) => idea.id == idea_id);
+    if (selectedIdea) {
+      idea_id = selectedIdea.value;
+      selectedIdeaInfo = $ideas.find((idea) => idea.id == idea_id);
+    }
   }
 
   $: {
@@ -106,7 +125,7 @@
 
     <div class="add-idea-wrapper">
       <h1>Submit a result for a project / hypothesis</h1>
-      {#if !$user}
+      {#if $user}
         <div class="login-warning">
           <p>Please login to submit a result / project.</p>
           <UserLogin />

@@ -1,7 +1,9 @@
 <script>
+  import Idea from "./Idea.svelte";
   import MediaQuery from "./MediaQuery.svelte";
   export let result = {},
-    hypothesis = false;
+    hypothesis = false,
+    idea_id = null;
   let hasResult = JSON.stringify(result) !== JSON.stringify({});
 </script>
 
@@ -42,7 +44,7 @@
       </div>
       <a class="more" href={result.link} target="_blank"> Read more </a>
     {:else}
-      <a class="more" href="/result" target="_blank">
+      <a class="more" href="/result?idea={idea_id}" target="_blank">
         Submit a {hypothesis ? "result" : "project"}
       </a>
     {/if}

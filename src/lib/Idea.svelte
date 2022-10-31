@@ -267,7 +267,11 @@
   </div>
 
   <!-- {#if idea.results[0]}   -->
-  <HypothesisBar result={idea.results[0]} hypothesis={idea.hypothesis} />
+  <HypothesisBar
+    result={idea.results[0]}
+    hypothesis={idea.hypothesis}
+    idea_id={idea.id}
+  />
 </div>
 
 <Toasts />
