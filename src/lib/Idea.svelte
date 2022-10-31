@@ -343,7 +343,7 @@
     margin: 0;
     display: flex;
     flex-wrap: wrap;
-    height: 1rem;
+    min-height: 1rem;
     align-items: flex-start;
   }
 

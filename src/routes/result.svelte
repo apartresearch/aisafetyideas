@@ -14,7 +14,8 @@
   let loadedIdeas = [],
     ideaSelect = [],
     results = [],
-    selectedIdea = {};
+    selectedIdea = {},
+    selectedIdeaInfo = {};
 
   let author = "",
     title = "",
@@ -47,7 +48,7 @@
     ideaSelect = loadedIdeas.map((idea) => {
       return {
         label:
-          (idea.hypothesis ? "hypothesis" : "project") + " | " + idea.title,
+          (idea.hypothesis ? "Hypothesis" : "Project") + " | " + idea.title,
         value: idea.id,
       };
     });
@@ -81,6 +82,7 @@
 
   $: {
     idea_id = selectedIdea.value;
+    selectedIdeaInfo = $ideas.find((idea) => idea.id == idea_id);
   }
 
   $: {
@@ -116,8 +118,8 @@
           />
         </div>
       </div>
-      {#if selectedIdea}
-        <Idea idea={$ideas.find((idea) => idea.id === selectedIdea.value)} />
+      {#if selectedIdeaInfo}
+        <Idea idea={selectedIdeaInfo} />
       {/if}
 
       <div class="input-wrapper">
@@ -151,15 +153,14 @@
       </div>
       <div class="input-wrapper">
         <label for="edit-idea"
-          >Does the result support the hypothesis? {selectedIdea &&
-          $ideas.find((idea) => idea.id === selectedIdea.value).hypothesis
+          >Does the result support the hypothesis? {selectedIdeaInfo &&
+          selectedIdeaInfo.hypothesis
             ? ""
             : "(disabled because this project is not a hypothesis)"}</label
         >
         <div class="select">
           <Select
-            disabled={selectedIdea &&
-              !$ideas.find((idea) => idea.id === idea_id).hypothesis}
+            disabled={selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
             items={typeList}
             bind:value={typeSelect}
             placeholder="Select type"
@@ -171,12 +172,7 @@
         <input type="text" bind:value={author} />
       </div>
       <div class="input-wrapper">
-        <label
-          for="date_sourced"
-          use:tippy={{ content: "When was the sourced idea written?" }}
-        >
-          Date (if not today)
-        </label>
+        <label for="date_sourced"> Date (if not today) </label>
         <input type="date" bind:value={date_sourced} />
       </div>
 
