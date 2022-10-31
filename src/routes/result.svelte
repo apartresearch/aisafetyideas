@@ -154,7 +154,15 @@
           <input type="text" bind:value={sourced} />
         </div>
         <div class="input-wrapper">
-          <label for="sourced"> Link to main image (optional) </label>
+          <label
+            for="sourced"
+            use:tippy={{
+              content:
+                "This image will be used as a cover image for your result. If you don't have an image, you can leave this blank.",
+            }}
+          >
+            Link to main image (optional)
+          </label>
           <input type="text" bind:value={image_link} />
         </div>
         {#if selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
