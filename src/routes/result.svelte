@@ -6,10 +6,11 @@
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
   import Footer from "$lib/Footer.svelte";
-  import { user, ideas } from "$lib/stores";
+  import { user, ideas, loading } from "$lib/stores";
   import UserLogin from "$lib/UserLogin.svelte";
   import DataLoader from "$lib/DataLoader.svelte";
   import Idea from "$lib/Idea.svelte";
+  import LoadIcon from "$lib/LoadIcon.svelte";
 
   let loadedIdeas = [],
     ideaSelect = [],
@@ -97,114 +98,118 @@
 <Nav />
 <DataLoader />
 
-<div class="cols-wrapper">
-  <!-- <div class="col-parent"> -->
+{#if $loading}
+  <LoadIcon />
+{:else}
+  <div class="cols-wrapper">
+    <!-- <div class="col-parent"> -->
 
-  <div class="add-idea-wrapper">
-    <h2>Submit a result for a project / hypothesis</h2>
-    {#if !$user}
-      <div class="login-warning">
-        <p>Please login to submit a result / project.</p>
-        <UserLogin />
-      </div>
-    {:else}
-      <div class="input-wrapper">
-        <label for="edit-idea">Select project / hypothesis</label>
-        <div class="select">
-          <Select
-            isClearable={false}
-            items={ideaSelect}
-            bind:value={selectedIdea}
-            placeholder="Select project"
-          />
+    <div class="add-idea-wrapper">
+      <h2>Submit a result for a project / hypothesis</h2>
+      {#if !$user}
+        <div class="login-warning">
+          <p>Please login to submit a result / project.</p>
+          <UserLogin />
         </div>
-      </div>
-      {#if selectedIdeaInfo}
-        <Idea idea={selectedIdeaInfo} />
-      {/if}
+      {:else}
+        <div class="input-wrapper">
+          <label for="edit-idea">Select project / hypothesis</label>
+          <div class="select">
+            <Select
+              isClearable={false}
+              items={ideaSelect}
+              bind:value={selectedIdea}
+              placeholder="Select project"
+            />
+          </div>
+        </div>
+        {#if selectedIdeaInfo}
+          <Idea idea={selectedIdeaInfo} />
+        {/if}
 
-      <div class="input-wrapper">
-        <label for="title">Title</label>
-        <input type="text" bind:value={title} maxlength="80" />
-      </div>
-      <div class="input-wrapper description">
-        <label for="description">
-          Description (supports
-          <a target="_blank" href="https://adamvleggett.github.io/drawdown/">
-            markdown
-          </a>
-          )
-        </label>
-        <textarea rows="8" bind:value={description} />
-      </div>
-      {#if description != ""}
-        <div class="description-preview">
-          <p>Description preview</p>
-          {@html markdown(description)}
+        <div class="input-wrapper">
+          <label for="title">Title</label>
+          <input type="text" bind:value={title} maxlength="80" />
+        </div>
+        <div class="input-wrapper description">
+          <label for="description">
+            Description (supports
+            <a target="_blank" href="https://adamvleggett.github.io/drawdown/">
+              markdown
+            </a>
+            )
+          </label>
+          <textarea rows="8" bind:value={description} />
+        </div>
+        {#if description != ""}
+          <div class="description-preview">
+            <p>Description preview</p>
+            {@html markdown(description)}
+          </div>
+        {/if}
+
+        <div class="input-wrapper">
+          <label for="sourced"> Link </label>
+          <input type="text" bind:value={sourced} />
+        </div>
+        <div class="input-wrapper">
+          <label for="sourced"> Link to main image (optional) </label>
+          <input type="text" bind:value={image_link} />
+        </div>
+        {#if selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
+          <p>
+            <i> Disabled because this project is not a hypothesis. </i>
+          </p>
+        {/if}
+        <div class="input-wrapper">
+          <label for="edit-idea">Does the result support the hypothesis?</label>
+          <div class="select">
+            <Select
+              isDisabled={selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
+              isClearable={false}
+              items={typeList}
+              bind:value={typeSelect}
+              placeholder="Select type"
+            />
+          </div>
+        </div>
+        <div class="input-wrapper">
+          <label for="author">Author (if not you)</label>
+          <input type="text" bind:value={author} />
+        </div>
+        <div class="input-wrapper">
+          <label for="date_sourced"> Date (if not today) </label>
+          <input type="date" bind:value={date_sourced} />
+        </div>
+
+        <div class="buttons">
+          <button
+            on:click={() => {
+              addNewResult({
+                idea: idea_id,
+                author,
+                title,
+                description,
+                link: sourced,
+                image_link,
+                type,
+                from_date:
+                  date_sourced != '""' &&
+                  date_sourced != "" &&
+                  date_sourced != undefined
+                    ? date_sourced
+                    : new Date(),
+                user: $user.id,
+              });
+            }}
+          >
+            Submit result
+          </button>
         </div>
       {/if}
-
-      <div class="input-wrapper">
-        <label for="sourced"> Link </label>
-        <input type="text" bind:value={sourced} />
-      </div>
-      <div class="input-wrapper">
-        <label for="sourced"> Link to main image (optional) </label>
-        <input type="text" bind:value={image_link} />
-      </div>
-      {#if selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
-        <p>
-          <i> Disabled because this project is not a hypothesis. </i>
-        </p>
-      {/if}
-      <div class="input-wrapper">
-        <label for="edit-idea">Does the result support the hypothesis?</label>
-        <div class="select">
-          <Select
-            isDisabled={selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
-            isClearable={false}
-            items={typeList}
-            bind:value={typeSelect}
-            placeholder="Select type"
-          />
-        </div>
-      </div>
-      <div class="input-wrapper">
-        <label for="author">Author (if not you)</label>
-        <input type="text" bind:value={author} />
-      </div>
-      <div class="input-wrapper">
-        <label for="date_sourced"> Date (if not today) </label>
-        <input type="date" bind:value={date_sourced} />
-      </div>
-
-      <div class="buttons">
-        <button
-          on:click={() => {
-            addNewResult({
-              idea: idea_id,
-              author,
-              title,
-              description,
-              link: sourced,
-              image_link,
-              type,
-              from_date:
-                date_sourced != '""' &&
-                date_sourced != "" &&
-                date_sourced != undefined
-                  ? date_sourced
-                  : new Date(),
-              user: $user.id,
-            });
-          }}
-        >
-          Submit result
-        </button>
-      </div>
-    {/if}
+    </div>
   </div>
-</div>
+{/if}
 
 <Footer />
 
