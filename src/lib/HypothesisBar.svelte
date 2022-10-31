@@ -13,7 +13,7 @@
   <div class="left">
     {#if result && result.type}
       <img
-        src="images/aisi_logo_white.png"
+        src="/images/aisi_logo_white.png"
         alt="Hypothesis icon"
         class="icon"
       />
