@@ -151,16 +151,15 @@
       </div>
       <div class="input-wrapper">
         <label for="edit-idea"
-          >Does the result support the hypothesis? {$ideas.find(
-            (idea) => idea.id === selectedIdea.value
-          ).hypothesis
+          >Does the result support the hypothesis? {selectedIdea &&
+          $ideas.find((idea) => idea.id === selectedIdea.value).hypothesis
             ? ""
             : "(disabled because this project is not a hypothesis)"}</label
         >
         <div class="select">
           <Select
-            disabled={!$ideas.find((idea) => idea.id === selectedIdea.value)
-              .hypothesis}
+            disabled={selectedIdea &&
+              !$ideas.find((idea) => idea.id === idea_id).hypothesis}
             items={typeList}
             bind:value={typeSelect}
             placeholder="Select type"
