@@ -151,13 +151,13 @@
         <label for="sourced"> Link to main image (optional) </label>
         <input type="text" bind:value={image_link} />
       </div>
+      {#if selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
+        <p>
+          <i> Disabled because this project is not a hypothesis. </i>
+        </p>
+      {/if}
       <div class="input-wrapper">
-        <label for="edit-idea"
-          >Does the result support the hypothesis? {selectedIdeaInfo &&
-          selectedIdeaInfo.hypothesis
-            ? ""
-            : "(disabled because this project is not a hypothesis)"}</label
-        >
+        <label for="edit-idea">Does the result support the hypothesis?</label>
         <div class="select">
           <Select
             isDisabled={selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
