@@ -125,7 +125,7 @@
 
     <div class="add-idea-wrapper">
       <h1>Submit a result for a project / hypothesis</h1>
-      {#if $user}
+      {#if !$user}
         <div class="login-warning">
           <p>Please login to submit a result / project.</p>
           <UserLogin />
