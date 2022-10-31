@@ -218,7 +218,7 @@
     --mid: #ff375e;
     --late: #af52de;
     --student: #34c85a;
-    --open: #0a84ff;
+    --open: #7ea9ea;
     --negative: #ff375e;
     --positive: #34c85a;
   }

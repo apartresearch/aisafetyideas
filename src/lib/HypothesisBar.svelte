@@ -24,7 +24,7 @@
           {result && result.title
             ? result.title.slice(0, 36) +
               (result.title.length > 36 ? "..." : "")
-            : "Open hypothesis"}
+            : `Open ${hypothesis ? "hypothesis" : "project idea"}`}
         {:else}
           {result && result.title
             ? result.title
