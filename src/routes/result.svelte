@@ -160,7 +160,8 @@
         >
         <div class="select">
           <Select
-            disabled={selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
+            isDisabled={selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
+            isClearable={false}
             items={typeList}
             bind:value={typeSelect}
             placeholder="Select type"
