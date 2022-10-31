@@ -105,7 +105,7 @@
     <!-- <div class="col-parent"> -->
 
     <div class="add-idea-wrapper">
-      <h2>Submit a result for a project / hypothesis</h2>
+      <h1>Submit a result for a project / hypothesis</h1>
       {#if !$user}
         <div class="login-warning">
           <p>Please login to submit a result / project.</p>
@@ -127,6 +127,7 @@
           <Idea idea={selectedIdeaInfo} />
         {/if}
 
+        <h2>Result information</h2>
         <div class="input-wrapper">
           <label for="title">Title</label>
           <input type="text" bind:value={title} maxlength="80" />
