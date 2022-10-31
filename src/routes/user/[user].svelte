@@ -146,6 +146,7 @@
             }}
           />
           <Select
+            isClearable={false}
             on:select={handleSelect}
             value={career}
             items={careerStages}

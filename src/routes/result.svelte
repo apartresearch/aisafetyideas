@@ -112,6 +112,7 @@
         <label for="edit-idea">Select project / hypothesis</label>
         <div class="select">
           <Select
+            isClearable={false}
             items={ideaSelect}
             bind:value={selectedIdea}
             placeholder="Select project"

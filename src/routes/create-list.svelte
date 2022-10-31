@@ -130,6 +130,7 @@
         <label for="edit-idea">Select ideas to add</label>
         <div class="select">
           <Select
+            isClearable={false}
             items={loadedIdeas}
             bind:value={selectedIdeas}
             placeholder="Select hypothesis"

@@ -317,6 +317,7 @@
           <label for="edit-idea">Edit idea</label>
           <div class="select">
             <Select
+              isClearable={false}
               items={ideaSelect}
               bind:value={selectedIdea}
               placeholder="Select idea to edit..."
@@ -354,13 +355,19 @@
       <div class="input-wrapper">
         <label for="tags">Category tags</label>
         <div class="select">
-          <Select items={categories} bind:value={tags} isMulti={true} />
+          <Select
+            isClearable={false}
+            items={categories}
+            bind:value={tags}
+            isMulti={true}
+          />
         </div>
       </div>
       <div class="input-wrapper">
         <label for="superprojects">Superprojects</label>
         <div class="select">
           <Select
+            isClearable={false}
             items={superprojects}
             bind:value={superprojects_ids}
             isMulti={true}
@@ -382,7 +389,11 @@
       <div class="input-wrapper">
         <label for="2" />
         <div class="select">
-          <Select items={careerDiffStages} bind:value={career_difficulty} />
+          <Select
+            isClearable={false}
+            items={careerDiffStages}
+            bind:value={career_difficulty}
+          />
         </div>
       </div>
       <div class="input-wrapper">

@@ -259,6 +259,7 @@
       </div>
       <div class="sort">
         <Select
+          isClearable={false}
           placeholder="Sort by"
           items={sortingColumns}
           bind:value={currentSort}

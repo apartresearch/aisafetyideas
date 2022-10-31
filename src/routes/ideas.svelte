@@ -9,7 +9,7 @@
   import moment from "moment";
   import DataLoader from "$lib/DataLoader.svelte";
   import UserLogin from "$lib/UserLogin.svelte";
-  
+
   import {
     ideas,
     superprojects,
@@ -20,7 +20,7 @@
     categories,
   } from "$lib/stores.js";
   import { init } from "svelte/internal";
-import HeaderManager from "$lib/HeaderManager.svelte";
+  import HeaderManager from "$lib/HeaderManager.svelte";
 
   let url = "",
     ideaParam = "",
@@ -244,6 +244,7 @@ import HeaderManager from "$lib/HeaderManager.svelte";
       </div>
       <div class="sort">
         <Select
+          isClearable={false}
           placeholder="Sort by"
           items={sortingColumns}
           bind:value={currentSort}
