@@ -267,7 +267,7 @@
   </div>
   {#if idea.hypothesis}
     <!-- {#if idea.results[0]}   -->
-    <HypothesisBar result={idea.results[0]} />
+    <HypothesisBar result={idea.results[0]} hypothesis={idea.hypothesis} />
   {/if}
 </div>
 

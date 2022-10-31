@@ -1,6 +1,7 @@
 <script>
   import MediaQuery from "./MediaQuery.svelte";
-  export let result = {};
+  export let result = {},
+    hypothesis = false;
   let hasResult = JSON.stringify(result) !== JSON.stringify({});
 </script>
 
@@ -25,7 +26,9 @@
               (result.title.length > 36 ? "..." : "")
             : "Open hypothesis"}
         {:else}
-          {result && result.title ? result.title : "Open hypothesis"}
+          {result && result.title
+            ? result.title
+            : `Open ${hypothesis ? "hypothesis" : "project idea"}`}
         {/if}
       </MediaQuery>
     </h3>
@@ -39,7 +42,9 @@
       </div>
       <a class="more" href={result.link} target="_blank"> Read more </a>
     {:else}
-      <a class="more" href="/result" target="_blank"> Submit a result </a>
+      <a class="more" href="/result" target="_blank">
+        Submit a {hypothesis ? "result" : "project"}
+      </a>
     {/if}
   </div>
 </div>

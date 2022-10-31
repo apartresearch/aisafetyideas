@@ -6,10 +6,12 @@
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
   import Footer from "$lib/Footer.svelte";
-  import { user } from "$lib/stores";
+  import { user, ideas } from "$lib/stores";
   import UserLogin from "$lib/UserLogin.svelte";
+  import DataLoader from "$lib/DataLoader.svelte";
+  import Idea from "$lib/Idea.svelte";
 
-  let ideas = [],
+  let loadedIdeas = [],
     ideaSelect = [],
     results = [],
     selectedIdea = {};
@@ -37,19 +39,18 @@
   onMount(async () => getTables());
 
   const getTables = async () => {
-    [ideas, results] = await Promise.all([
+    [loadedIdeas, results] = await Promise.all([
       getTable("ideas"),
       getTable("results"),
     ]);
 
-    ideaSelect = ideas
-      .filter((idea) => idea.hypothesis)
-      .map((idea) => {
-        return {
-          label: idea.title,
-          value: idea.id,
-        };
-      });
+    ideaSelect = loadedIdeas.map((idea) => {
+      return {
+        label:
+          (idea.hypothesis ? "hypothesis" : "project") + " | " + idea.title,
+        value: idea.id,
+      };
+    });
     selectedIdea = ideaSelect[ideaSelect.length - 1];
   };
 
@@ -92,28 +93,32 @@
 </svelte:head>
 
 <Nav />
+<DataLoader />
 
 <div class="cols-wrapper">
   <!-- <div class="col-parent"> -->
 
   <div class="add-idea-wrapper">
-    <h2>Submit a result for a hypothesis</h2>
+    <h2>Submit a result for a project / hypothesis</h2>
     {#if !$user}
       <div class="login-warning">
-        <p>Please login to submit a result.</p>
+        <p>Please login to submit a result / project.</p>
         <UserLogin />
       </div>
     {:else}
       <div class="input-wrapper">
-        <label for="edit-idea">Select hypothesis</label>
+        <label for="edit-idea">Select project / hypothesis</label>
         <div class="select">
           <Select
             items={ideaSelect}
             bind:value={selectedIdea}
-            placeholder="Select hypothesis"
+            placeholder="Select project"
           />
         </div>
       </div>
+      {#if selectedIdea}
+        <Idea idea={$ideas.find((idea) => idea.id === selectedIdea.value)} />
+      {/if}
 
       <div class="input-wrapper">
         <label for="title">Title</label>
@@ -145,9 +150,17 @@
         <input type="text" bind:value={image_link} />
       </div>
       <div class="input-wrapper">
-        <label for="edit-idea">Does the result support the hypothesis?</label>
+        <label for="edit-idea"
+          >Does the result support the hypothesis? {$ideas.find(
+            (idea) => idea.id === selectedIdea.value
+          ).hypothesis
+            ? ""
+            : "(disabled because this project is not a hypothesis)"}</label
+        >
         <div class="select">
           <Select
+            disabled={!$ideas.find((idea) => idea.id === selectedIdea.value)
+              .hypothesis}
             items={typeList}
             bind:value={typeSelect}
             placeholder="Select type"
