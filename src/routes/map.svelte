@@ -54,7 +54,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    stroke: var(--primary-color);
+    stroke: var(--link-color);
   }
 
   :global(.viewer) {
