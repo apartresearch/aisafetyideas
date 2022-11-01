@@ -117,7 +117,7 @@
   }
 
   /* Mobile */
-  @media only screen and (max-width: 600px) {
+  @media only screen and (max-width: 768px) {
     .bar {
       margin: -0.55rem -0.7rem 0.2rem -0.7rem;
       flex-wrap: wrap;
