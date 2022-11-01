@@ -17,6 +17,13 @@
 
 <Nav />
 <DataLoader />
+<div class="container">
+  <h1>Map view (experimental)</h1>
+  <p>
+    Each idea is mapped as a blue dot and each list as a green dot. The
+    connections between each is marked by a line.
+  </p>
+</div>
 {#if $loading}
   <div class="loading">Loading...</div>
 {:else}
@@ -66,10 +73,11 @@
     position: relative;
     width: 100%;
     height: 1200px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: white;
+    margin: 0 auto;
+  }
+
+  .container {
+    max-width: 800px;
     margin: 0 auto;
   }
 </style>

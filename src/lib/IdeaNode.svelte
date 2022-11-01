@@ -63,7 +63,7 @@
 
   .node:hover > .very-small {
     color: var(--link-color);
-    background-color: #fff;
+    background-color: var(--bg-color);
   }
 
   .node:hover {

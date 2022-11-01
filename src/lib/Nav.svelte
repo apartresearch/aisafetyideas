@@ -174,6 +174,7 @@
   :global(:root) {
     --font-family: "Sora", sans-serif;
     --font-family-lg: "Lora", sans-serif;
+    --bg-color: #eee;
     --bg-color-dark: #121f2b;
     --bg-color-light: rgb(241, 240, 240);
     --bg-color-dark-hover: #fafafa;
