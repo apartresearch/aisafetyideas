@@ -46,7 +46,7 @@
     margin: -0.2rem 0 0 1rem;
     padding: 0.2rem;
     width: 10rem;
-    color: #0004;
+    color: #000b;
     pointer-events: none;
   }
 
