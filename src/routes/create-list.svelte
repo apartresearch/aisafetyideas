@@ -68,7 +68,7 @@
       selectedIdeas.forEach(async (idea) => {
         const { data, error } = await supabase
           .from("nodes_ideas")
-          .upsert({ list: id, idea: idea.value, user: $user.id });
+          .upsert({ node: id, idea: idea.value, user: $user.id });
       });
       if (error) {
         console.log(error);
