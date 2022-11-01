@@ -15,7 +15,9 @@
   <div class="left">
     {#if result && result.type}
       <img
-        src="/images/aisi_logo_white.png"
+        src="/images/{result.link.includes('itch.io')
+          ? 'aj.png'
+          : 'aisi_logo_white.png'}"
         alt="Hypothesis icon"
         class="icon"
       />
@@ -110,7 +112,8 @@
 
   .icon {
     width: 1em;
-    margin-top: -0.15rem;
+    margin-top: -0.05rem;
+    margin-right: 0.15rem;
   }
 
   /* Mobile */

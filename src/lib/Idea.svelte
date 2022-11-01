@@ -10,8 +10,10 @@
   import { Toasts, addToast } from "as-toast";
   import MediaQuery from "$lib/MediaQuery.svelte";
   import HypothesisBar from "./HypothesisBar.svelte";
+  import NodeTag from "./NodeTag.svelte";
 
-  export let idea, url;
+  export let idea,
+    url = false;
 
   const selectIdea = () => {
     $ideaViewVisible = true;
@@ -50,12 +52,9 @@
           ✏️
         </div>
       {/if} -->
-      {#if idea.superprojects[0]}
-        {#each idea.superprojects as superproject}
-          <SuperprojectTag
-            superproject={superproject.superproject}
-            small={true}
-          />
+      {#if idea.nodes[0]}
+        {#each idea.nodes as node}
+          <NodeTag node={node.node} small={true} />
         {/each}
       {/if}
     </div>

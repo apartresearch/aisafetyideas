@@ -14,7 +14,7 @@
   let loadedIdeas = [],
     ideaSelect = [],
     results = [],
-    lists = [],
+    nodes = [],
     selectedIdeas = [];
 
   let author = "",
@@ -28,9 +28,9 @@
   onMount(async () => getTables());
 
   const getTables = async () => {
-    [loadedIdeas, lists] = await Promise.all([
+    [loadedIdeas, nodes] = await Promise.all([
       getTable("ideas"),
-      getTable("lists"),
+      getTable("nodes"),
     ]);
 
     loadedIdeas = loadedIdeas.map((idea) => {
@@ -40,18 +40,18 @@
       };
     });
 
-    id = lists[lists.length - 1].id + 1;
+    id = nodes[nodes.length - 1].id + 1;
   };
 
   const addNewList = async (result) => {
     try {
       alert(`Your list is now live!`);
 
-      const { data, error } = await supabase.from("lists").upsert(result);
-      // Add all selected ideas to the lists_ideas table
+      const { data, error } = await supabase.from("nodes").upsert(result);
+      // Add all selected ideas to the nodes_ideas table
       selectedIdeas.forEach(async (idea) => {
         const { data, error } = await supabase
-          .from("lists_ideas")
+          .from("nodes_ideas")
           .upsert({ list: id, idea: idea.value, user: $user.id });
       });
       if (error) {

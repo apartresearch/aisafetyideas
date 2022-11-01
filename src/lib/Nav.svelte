@@ -5,8 +5,9 @@
   import BurgerMenu from "$lib/BurgerMenu.svelte";
   import MediaQuery from "$lib/MediaQuery.svelte";
 
+  import { onMount } from "svelte";
+
   // Parameter to show header text
-  export let showText = false;
 </script>
 
 <header id="nav" class="sticky-nav">
@@ -37,7 +38,7 @@
                 <h1>AISI</h1>
               </a>
               <a href="/open" class="navlink">About</a>
-              <a href="/projects" class="navlink">Projects</a>
+              <a href="/lists" class="navlink">Lists</a>
               <a href="/users" class="navlink">Users</a>
               <a href="/submit" class="button"> Submit idea </a>
               <UserLogin white={false} />
@@ -51,7 +52,7 @@
         </a>
         <div class="right">
           <a href="/open" class="navlink">About</a>
-          <a href="/projects" class="navlink">Projects</a>
+          <a href="/lists" class="navlink">Lists</a>
           <a href="/users" class="navlink">Users</a>
           <UserLogin white={false} />
           <a href="/submit" class="button"> Submit idea </a>
@@ -184,6 +185,7 @@
     --link-color: #0a84ff;
     --primary-color: #0a84ff;
     --primary-color-light: #7ea9ea;
+    --node-color: #0a84ffcc;
     --primary-color-filter: invert(29%) sepia(83%) saturate(1901%)
       hue-rotate(201deg) brightness(111%) contrast(101%);
     --primary-color-hover: rgba(240, 250, 255, 1);

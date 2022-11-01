@@ -20,7 +20,7 @@
   import Feedback from "$lib/Feedback.svelte";
   import {
     ideas,
-    superprojects,
+    nodes,
     loading,
     ideaViewVisible,
     ideaCurrent,
@@ -29,6 +29,7 @@
     user,
   } from "$lib/stores.js";
   import { init } from "svelte/internal";
+  import ListBlock from "$lib/ListBlock.svelte";
 
   let url = "",
     ideaParam = "",
@@ -331,13 +332,13 @@
       </div>
       <div class="intermission">
         <h3 class="project-title">
-          Projects (<a href="/projects">see all</a>)
+          Popular lists (<a href="/lists">see all</a>)
         </h3>
         <div class="project-contain">
-          {#each [...$superprojects]
-            .sort((a, b) => b.ideas_n - a.ideas_n)
-            .splice(0, 10) as project}
-            <SuperprojectBlock {project} />
+          {#each [...$nodes]
+            .sort((a, b) => b.ideas.length - a.ideas.length)
+            .splice(0, 8) as node}
+            <ListBlock {node} />
           {/each}
         </div>
       </div>

@@ -7,19 +7,19 @@
   import IdeaViewer from "$lib/IdeaViewer.svelte";
   import LoadIcon from "$lib/LoadIcon.svelte";
   import Footer from "$lib/Footer.svelte";
-  import { lists, loading } from "$lib/stores";
+  import { nodes, loading } from "$lib/stores";
   import DataLoader from "$lib/DataLoader.svelte";
 
-  const listSlug = $page.params.list;
+  const nodeSlug = $page.params.node;
 
-  let currentList = null;
+  let currentnode = null;
 
-  // Wait for $loading to be false and then set currentList
+  // Wait for $loading to be false and then set currentnode
   onMount(async () => {
     while ($loading) {
       await new Promise((r) => setTimeout(r, 100));
     }
-    currentList = $lists.find((list) => list.slug === listSlug);
+    currentnode = $nodes.find((node) => node.slug === nodeSlug);
   });
 </script>
 
@@ -30,18 +30,18 @@
 {#if $loading}
   <LoadIcon />
   <div class="filler" />
-{:else if currentList}
+{:else if currentnode}
   <div class="wrapper">
     <div class="header-wrapper">
       <div class="go-to-home">
-        {@html markdown(currentList.author || "")}
+        {@html markdown(currentnode.author || "")}
         <a href="/">Go to home page</a>
       </div>
-      <h1>{currentList.title}</h1>
-      {@html markdown(currentList.description)}
+      <h1>{currentnode.title}</h1>
+      {@html markdown(currentnode.description)}
     </div>
 
-    {#each currentList.ideas as i}
+    {#each currentnode.ideas as i}
       <Idea idea={i.idea} />
     {/each}
   </div>

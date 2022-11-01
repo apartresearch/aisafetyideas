@@ -11,6 +11,7 @@
   import DataLoader from "$lib/DataLoader.svelte";
   import Idea from "$lib/Idea.svelte";
   import LoadIcon from "$lib/LoadIcon.svelte";
+  import IdeaViewer from "$lib/IdeaViewer.svelte";
 
   let loadedIdeas = [],
     ideaSelect = [],
@@ -26,6 +27,7 @@
     date_sourced = "",
     image_link = "",
     url = "",
+    original = false,
     ideaParam = "",
     hours = 0,
     type = "",
@@ -125,7 +127,7 @@
 
     <div class="add-idea-wrapper">
       <h1>Submit a result for a project / hypothesis</h1>
-      {#if !$user}
+      {#if $user}
         <div class="login-warning">
           <p>Please login to submit a result / project.</p>
           <UserLogin />
@@ -185,7 +187,7 @@
           <input type="text" bind:value={image_link} />
         </div>
         {#if selectedIdeaInfo && !selectedIdeaInfo.hypothesis}
-          <p>
+          <p class="small">
             <i> Disabled because this project is not a hypothesis. </i>
           </p>
         {/if}
@@ -210,6 +212,18 @@
           <input type="date" bind:value={date_sourced} />
         </div>
 
+        <div class="input-wrapper">
+          <label for="verified"> Originally made on aisi.ai </label>
+          <input
+            type="checkbox"
+            bind:checked={original}
+            use:tippy={{
+              content:
+                "Was this result made because you saw the idea on the site? If so, please check this box. If not, please leave it unchecked.",
+            }}
+          />
+        </div>
+
         <div class="buttons">
           <button
             on:click={() => {
@@ -221,6 +235,7 @@
                 link: sourced,
                 image_link,
                 type,
+                original,
                 from_date:
                   date_sourced != '""' &&
                   date_sourced != "" &&
@@ -239,9 +254,17 @@
   </div>
 {/if}
 
+<IdeaViewer />
+
 <Footer />
 
 <style>
+  .small {
+    font-size: 0.8em;
+    color: #666;
+    text-align: right;
+  }
+
   .buttons {
     display: flex;
     justify-content: center;

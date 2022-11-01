@@ -2,7 +2,7 @@
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
   import CategoryTag from "$lib/CategoryTag.svelte";
-  import SuperprojectTag from "$lib/SuperprojectTag.svelte";
+  import NodeTag from "$lib/NodeTag.svelte";
   import Comment from "$lib/Comment.svelte";
   import { onMount } from "svelte";
   import moment from "moment";
@@ -17,7 +17,6 @@
   import { addLikeToIdea, certifyIdea } from "$lib/db.js";
   import UserLogin from "$lib/UserLogin.svelte";
   import Interest from "$lib/Interest.svelte";
-  import BurgerButton from "./BurgerButton.svelte";
   export let url;
 
   const setVisible = (val) => {
@@ -311,8 +310,8 @@
           {/each}
         </div>
         <div class="idea-superprojects-wrapper">
-          {#each $ideaCurrent.superprojects as superproject}
-            <SuperprojectTag superproject={superproject.superproject} />
+          {#each $ideaCurrent.nodes as node}
+            <NodeTag node={node.node} />
           {/each}
         </div>
         <div class="add-comment">

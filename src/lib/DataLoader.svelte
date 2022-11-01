@@ -2,7 +2,6 @@
   import {
     user,
     users,
-    superprojects,
     ideas,
     comments,
     categories,
@@ -13,16 +12,15 @@
     mentorships,
     shownIdeas,
     categoryRelations,
-    superprojectRelations,
     problemRelations,
     ideaRelations,
     loading,
     results,
-    lists,
-    listIdeaRelations,
+    nodes,
+    nodeIdeaRelations,
   } from "$lib/stores.js";
   import { onMount } from "svelte";
-  import { getTable } from "$lib/db.js";
+  import { getTable, supabase } from "$lib/db.js";
 
   onMount(async () => {
     let startTime = performance.now();
@@ -35,7 +33,6 @@
       // We load all tables to combine them manually
       [
         $users,
-        $superprojects,
         $ideas,
         $comments,
         $categories,
@@ -45,19 +42,14 @@
         $interests,
         $mentorships,
         $categoryRelations,
-        $superprojectRelations,
         $problemRelations,
         $ideaRelations,
         $results,
-        $lists,
-        $listIdeaRelations,
+        $nodes,
+        $nodeIdeaRelations,
       ] = await Promise.all([
         getTable("users"),
-        getTable(
-          "superprojects",
-          true,
-          process.env.PROJECT_FACTORY == "TRUE" ? true : false
-        ),
+
         getTable(
           "ideas",
           true,
@@ -75,13 +67,13 @@
         getTable("idea_user_interest_relation"),
         getTable("idea_user_mentorship_relation"),
         getTable("idea_category_relation"),
-        getTable("idea_superproject_relation"),
         getTable("idea_problem_relation"),
         getTable("idea_idea_relation"),
         getTable("results"),
-        getTable("lists"),
-        getTable("lists_ideas"),
+        getTable("nodes"),
+        getTable("nodes_ideas"),
       ]);
+
       let endTime = performance.now();
 
       $shownIdeas = [];
@@ -118,6 +110,14 @@
         .filter((i) => i.filtered == true)
         .map((idea) => ({
           ...idea,
+          nodes: $nodeIdeaRelations
+            .filter(
+              (r) => r.idea === idea.id && $nodes.some((n) => n.id == r.node)
+            )
+            .map((n) => ({
+              ...n,
+              node: $nodes.find((nn) => nn.id === n.node),
+            })),
           likes: $idea_likes.filter((like) => like.idea === idea.id).length,
           user_liked: $idea_likes.find(
             (like) => like.idea === idea.id && $user && like.user === $user.id
@@ -146,18 +146,6 @@
               ...c,
               category: $categories.find((cat) => cat.id === c.category),
             })),
-          superprojects: $superprojectRelations
-            .filter(
-              (r) =>
-                r.idea === idea.id &&
-                $superprojects.some((p) => p.id == r.superproject)
-            )
-            .map((s) => ({
-              ...s,
-              superproject: $superprojects.find(
-                (sp) => sp.id === s.superproject
-              ),
-            })),
           problems: $problemRelations
             .filter((r) => r.idea === idea.id)
             .map((p) => ({
@@ -170,31 +158,21 @@
           ),
           interests: $interests.filter((i) => i.idea === idea.id),
           interests_n: $interests.filter((i) => i.idea === idea.id).length,
-          lists: $lists.filter((l) => l.idea === idea.id),
-          // verifications: $verifications.filter((v) => v.idea === idea.id),
-          // verifications_n: $verifications.filter((v) => v.idea === idea.id)
-          // .length,
         }));
 
-      $superprojects = $superprojects.map((sp) => ({
-        ...sp,
-        ideas_n: $superprojectRelations.filter((r) => r.superproject == sp.id)
-          .length,
-      }));
-
-      $shownIdeas = $ideas;
-
-      $lists = $lists.map((l) => ({
+      $nodes = $nodes.map((l) => ({
         ...l,
         username: $users.find((u) => u.id == l.user).username,
-        image: $users.find((u) => u.id == l.user).image,
-        ideas: $listIdeaRelations
-          .filter((r) => r.list == l.id)
+        user_image: $users.find((u) => u.id == l.user).image,
+        ideas: $nodeIdeaRelations
+          .filter((r) => r.node == l.id)
           .map((r) => ({
             ...r,
             idea: $ideas.find((i) => i.id == r.idea),
           })),
       }));
+
+      $shownIdeas = $ideas;
 
       // Set global load state
       $loading = false;

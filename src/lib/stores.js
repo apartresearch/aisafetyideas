@@ -13,8 +13,8 @@ export const fundings = writable([]);
 export const interests = writable([]);
 export const mentorships = writable([]);
 export const shownIdeas = writable([]);
-export const lists = writable([]);
-export const listIdeaRelations = writable([]);
+export const nodes = writable([]);
+export const nodeIdeaRelations = writable([]);
 
 export const categoryRelations = writable([]);
 export const superprojectRelations = writable([]);

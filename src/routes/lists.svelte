@@ -1,6 +1,6 @@
 <script>
   import Nav from "$lib/Nav.svelte";
-  import { user, lists } from "$lib/stores.js";
+  import { user, nodes } from "$lib/stores.js";
   import ListBlock from "$lib/ListBlock.svelte";
   import DataLoader from "$lib/DataLoader.svelte";
   import Footer from "$lib/Footer.svelte";
@@ -12,11 +12,11 @@
   <h2>Lists</h2>
   <p>Click on a list to visit its page.</p>
   <div class="project-contain">
-    {#await $lists}
+    {#await $nodes}
       <p>Loading lists...</p>
-    {:then $lists}
-      {#each $lists as list}
-        <ListBlock {list} />
+    {:then $nodes}
+      {#each $nodes as node}
+        <ListBlock {node} />
       {/each}
     {:catch}
       <p>Error loading lists.</p>
