@@ -6,7 +6,7 @@
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
   import Footer from "$lib/Footer.svelte";
-  import { user, ideas } from "$lib/stores";
+  import { user, ideas, nodes } from "$lib/stores";
   import UserLogin from "$lib/UserLogin.svelte";
   import DataLoader from "$lib/DataLoader.svelte";
   import Idea from "$lib/Idea.svelte";
@@ -14,7 +14,7 @@
   let loadedIdeas = [],
     ideaSelect = [],
     results = [],
-    nodes = [],
+    loadedNodes = [],
     selectedIdeas = [];
 
   let author = "",
@@ -22,13 +22,14 @@
     description = "",
     source = "",
     image_link = "",
+    slug = "",
     id = null,
     track = false;
 
   onMount(async () => getTables());
 
   const getTables = async () => {
-    [loadedIdeas, nodes] = await Promise.all([
+    [loadedIdeas, loadedNodes] = await Promise.all([
       getTable("ideas"),
       getTable("nodes"),
     ]);
@@ -40,10 +41,25 @@
       };
     });
 
-    id = nodes[nodes.length - 1].id + 1;
+    id = loadedNodes[loadedNodes.length - 1].id + 1;
   };
 
   const addNewList = async (result) => {
+    // Validate slug to be unique and warn if not
+    if (
+      $nodes.some(
+        (node) => node.slug === title.toLowerCase().replace(/ /g, "-")
+      )
+    ) {
+      alert("Slug already exists");
+      return;
+    }
+
+    if (title == "") {
+      alert("Title is required");
+      return;
+    }
+
     try {
       alert(`Your list is now live!`);
 
@@ -72,6 +88,10 @@
     source = "";
     author = "";
   };
+
+  $: {
+    slug = title.toLowerCase().replace(/ /g, "-");
+  }
 </script>
 
 <svelte:head>
@@ -86,7 +106,7 @@
 
   <div class="add-idea-wrapper">
     <h2>Create a new list</h2>
-    {#if !$user}
+    {#if $user}
       <div class="login-warning">
         <p>Please login to create a new list.</p>
         <UserLogin />
@@ -96,6 +116,11 @@
         <label for="title">Title</label>
         <input type="text" bind:value={title} maxlength="80" />
       </div>
+      <div class="input-wrapper">
+        <label for="slug">URL</label>
+        <input type="text" disabled bind:value={slug} maxlength="80" />
+      </div>
+
       <div class="input-wrapper description">
         <label for="description">
           Description (supports
@@ -153,7 +178,7 @@
           on:click={() => {
             addNewList({
               author,
-              slug: title.toLowerCase().replace(/ /g, "-"),
+              slug,
               title,
               description,
               source,

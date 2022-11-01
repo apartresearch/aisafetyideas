@@ -9,8 +9,12 @@
 <DataLoader />
 <Nav />
 <div class="wrapper">
-  <h2>Lists</h2>
-  <p>Click on a list to visit its page.</p>
+  <h1>Lists</h1>
+  <p>
+    Click to see all the ideas in a list. Create your own list <a
+      href="/create-list">here</a
+    >.
+  </p>
   <div class="project-contain">
     {#await $nodes}
       <p>Loading lists...</p>
