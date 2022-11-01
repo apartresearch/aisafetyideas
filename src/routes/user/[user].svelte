@@ -13,14 +13,7 @@
   import Select from "svelte-select";
   import tippy from "sveltejs-tippy";
   import { signout } from "$lib/db.js";
-  import {
-    ideas,
-    superprojects,
-    comments,
-    loading,
-    users,
-    user,
-  } from "$lib/stores";
+  import { ideas, comments, loading, users, user } from "$lib/stores";
   import { exclude_internal_props } from "svelte/internal";
   const user_slug = $page.params.user;
 

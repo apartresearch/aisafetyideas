@@ -12,7 +12,7 @@
 
   import {
     ideas,
-    superprojects,
+    nodes,
     loading,
     ideaViewVisible,
     ideaCurrent,
@@ -231,7 +231,7 @@
 <div class="globwrap">
   <div class="container">
     <h3>
-      <a href="/projects" style="color:#333;">All superprojects</a>
+      <a href="/lists" style="color:#333;">All lists</a>
     </h3>
     <UserLogin />
     <br />

@@ -10,11 +10,11 @@
   import UserLogin from "$lib/UserLogin.svelte";
 
   let ideas = [],
-    superprojects = [],
+    nodes = [],
     categories = [],
     problems = [],
     categoryRelations = [],
-    superprojectRelations = [],
+    nodeIdeaRelations = [],
     problemRelations = [],
     ideaRelations = [],
     currentIdea = {},
@@ -50,7 +50,7 @@
     description = "",
     sourced = "",
     tags = [],
-    superprojects_ids = [],
+    nodes_ids = [],
     related_ideas = [],
     problem_ids = [],
     filtered = false,
@@ -75,20 +75,20 @@
   const getTables = async () => {
     [
       ideas,
-      superprojects,
+      nodes,
       categories,
       problems,
       categoryRelations,
-      superprojectRelations,
+      nodeIdeaRelations,
       problemRelations,
       ideaRelations,
     ] = await Promise.all([
       getTable("ideas"),
-      getTable("superprojects"),
+      getTable("nodes"),
       getTable("categories"),
       getTable("problems"),
       getTable("idea_category_relation"),
-      getTable("idea_superproject_relation"),
+      getTable("nodes_ideas"),
       getTable("idea_problem_relation"),
       getTable("idea_idea_relation"),
     ]);
@@ -97,7 +97,7 @@
       idea.categories = categoryRelations.filter(
         (relation) => relation.idea === idea.id
       );
-      idea.superprojects = superprojectRelations.filter(
+      idea.nodes = nodeIdeaRelations.filter(
         (relation) => relation.idea === idea.id
       );
       idea.problems = problemRelations.filter(
@@ -111,10 +111,8 @@
           (cat) => cat.id === category.category
         );
       });
-      idea.superprojects.forEach((superproject) => {
-        superproject.superproject = superprojects.find(
-          (sp) => sp.id === superproject.superproject
-        );
+      idea.nodes.forEach((node) => {
+        node.node = nodes.find((sp) => sp.id === node.node);
       });
       idea.problems.forEach((problem) => {
         problem.problem = problems.find((p) => p.title === problem.problem);
@@ -150,7 +148,7 @@
   const addNewIdea = async (
     idea,
     categories_ids,
-    superprojects_ids,
+    nodes_ids,
     problems_ids,
     ideas_ids
   ) => {
@@ -164,7 +162,7 @@
             idea: idea_id,
           }),
           // supabase.from("idea_user_likes").delete().match({ idea: idea_id }),
-          supabase.from("idea_superproject_relation").delete().match({
+          supabase.from("nodes_ideas").delete().match({
             idea: idea_id,
           }),
           supabase.from("idea_problem_relation").delete().match({
@@ -191,12 +189,10 @@
         await supabase.from("idea_category_relation").insert(category_id);
       });
       console.log("Uploaded categories relations...");
-      await superprojects_ids.forEach(async (superproject_id) => {
-        await supabase
-          .from("idea_superproject_relation")
-          .insert(superproject_id);
+      await nodes_ids.forEach(async (node_id) => {
+        await supabase.from("nodes_ideas").insert(node_id);
       });
-      console.log("Uploaded superprojects relations...");
+      console.log("Uploaded nodes relations...");
       await problems_ids.forEach(async (problem_id) => {
         await supabase.from("idea_problem_relation").insert(problem_id);
       });
@@ -227,7 +223,7 @@
     if (!retainInfo) {
       author = "";
       sourced = "";
-      superprojects_ids = [];
+      nodes_ids = [];
       filtered = false;
       verified = false;
 
@@ -246,9 +242,7 @@
       description = idea.summary;
       sourced = idea.sourced;
       tags = idea.categories.map((category) => category.category);
-      superprojects_ids = idea.superprojects[0]
-        ? idea.superprojects.map((superproject) => superproject.superproject)
-        : [];
+      nodes_ids = idea.nodes[0] ? idea.nodes.map((node) => node.node) : [];
       related_ideas = idea.related_ideas;
       filtered = idea.filtered;
       verified = idea.verified;
@@ -276,7 +270,7 @@
     Promise.all([
       supabase.from("idea_category_relation").delete().match({ idea: id }),
       supabase.from("idea_user_likes").delete().match({ idea: id }),
-      supabase.from("idea_superproject_relation").delete().match({ idea: id }),
+      supabase.from("nodes_ideas").delete().match({ idea: id }),
       supabase.from("idea_problem_relation").delete().match({ idea: id }),
       supabase.from("idea_idea_relation").delete().match({ parent: id }),
       supabase.from("idea_idea_relation").delete().match({ child: id }),
@@ -364,12 +358,12 @@
         </div>
       </div>
       <div class="input-wrapper">
-        <label for="superprojects">Superprojects</label>
+        <label for="lists">Lists</label>
         <div class="select">
           <Select
             isClearable={false}
-            items={superprojects}
-            bind:value={superprojects_ids}
+            items={nodes}
+            bind:value={nodes_ids}
             isMulti={true}
           />
         </div>
@@ -569,9 +563,9 @@
               tags
                 ? tags.map((tag) => ({ category: tag.id, idea: idea_id }))
                 : [],
-              superprojects_ids
-                ? superprojects_ids.map((elm) => ({
-                    superproject: elm.id,
+              nodes_ids
+                ? nodes_ids.map((elm) => ({
+                    node: elm.id,
                     idea: idea_id,
                   }))
                 : [],

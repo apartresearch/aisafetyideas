@@ -8,11 +8,10 @@
   import IdeaViewer from "$lib/IdeaViewer.svelte";
   import LoadIcon from "$lib/LoadIcon.svelte";
   import Footer from "$lib/Footer.svelte";
-  import { ideas, superprojects, comments, loading } from "$lib/stores";
+  import { ideas, nodes, comments, loadingm results } from "$lib/stores";
   import DataLoader from "$lib/DataLoader.svelte";
 
   const resultSlug = $page.params.result;
-  console.log(superprojectSlug, $results);
 </script>
 
 <DataLoader />

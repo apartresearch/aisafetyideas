@@ -5,7 +5,6 @@ export const user = writable(false);
 export const ideas = writable([]);
 export const categories = writable([]);
 export const problems = writable([]);
-export const superprojects = writable([]);
 export const comments = writable([]);
 export const users = writable([]);
 export const idea_likes = writable([]);
@@ -17,7 +16,6 @@ export const nodes = writable([]);
 export const nodeIdeaRelations = writable([]);
 
 export const categoryRelations = writable([]);
-export const superprojectRelations = writable([]);
 export const problemRelations = writable([]);
 export const ideaRelations = writable([]);
 export const results = writable([]);

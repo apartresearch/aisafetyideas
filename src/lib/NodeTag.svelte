@@ -5,19 +5,6 @@
     small = false;
 </script>
 
-<!--        
-  
-  use:tippy={{
-      content: `<div class='tooltip'><h4>${superproject.title}</h4>${markdown(
-        superproject.description
-      )}<p><i>Click to see more ideas</i></p></div>`,
-      allowHTML: true,
-      interactive: true,
-      delay: [500, 0],
-    }}
-  
-  -->
-
 {#if small}
   <a
     class="idea-superproject list-item"

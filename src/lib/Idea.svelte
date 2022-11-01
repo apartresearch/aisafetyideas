@@ -2,7 +2,6 @@
   import markdown from "$lib/drawdown";
   import tippy from "sveltejs-tippy";
   import CategoryTag from "$lib/CategoryTag.svelte";
-  import SuperprojectTag from "$lib/SuperprojectTag.svelte";
   import Comment from "./Comment.svelte";
   import moment from "moment";
   import { user, ideaViewVisible, ideaCurrent } from "$lib/stores.js";

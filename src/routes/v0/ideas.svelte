@@ -13,7 +13,7 @@
     try {
       const { data, error } = await supabase.from("ideas").select(`
     *,
-    superprojects!inner(*),
+    nodes!inner(*),
     idea_user_likes!inner(*),
     categories!inner(*),
     idea_idea_relation!idea_idea_relation_parent_fkey!inner(child!inner(*))
