@@ -173,6 +173,26 @@
           .filter((i) => i.idea),
       }));
 
+      // Normalize the x1 and y1 of the ideas
+      let x1 = $ideas.map((i) => i.x1);
+      let y1 = $ideas.map((i) => i.y1);
+      let x1_max = Math.max(...x1);
+      let y1_max = Math.max(...y1);
+      let x1_min = Math.min(...x1);
+      let y1_min = Math.min(...y1);
+
+      $ideas = $ideas.map((idea) => ({
+        ...idea,
+        x1: (idea.x1 - x1_min) / (x1_max - x1_min),
+        y1: (idea.y1 - y1_min) / (y1_max - y1_min),
+      }));
+
+      $ideaRelations = $ideaRelations.map((r) => ({
+        ...r,
+        parent_idea: $ideas.find((i) => i.id == r.parent),
+        child_idea: $ideas.find((i) => i.id == r.child),
+      }));
+
       $shownIdeas = $ideas;
 
       // Set global load state
