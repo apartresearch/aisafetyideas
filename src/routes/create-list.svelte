@@ -106,7 +106,7 @@
 
   <div class="add-idea-wrapper">
     <h2>Create a new list</h2>
-    {#if $user}
+    {#if !$user}
       <div class="login-warning">
         <p>Please login to create a new list.</p>
         <UserLogin />
