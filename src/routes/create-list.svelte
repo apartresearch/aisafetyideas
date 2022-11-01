@@ -41,7 +41,10 @@
       };
     });
 
-    id = loadedNodes[loadedNodes.length - 1].id + 1;
+    id =
+      loadedNodes.reduce((max, node) => {
+        return node.id > max ? node.id : max;
+      }, 0) + 1;
   };
 
   const addNewList = async (result) => {
@@ -180,6 +183,7 @@
               author,
               slug,
               title,
+              id,
               description,
               source,
               image_link,
