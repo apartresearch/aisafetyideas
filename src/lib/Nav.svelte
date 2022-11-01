@@ -186,6 +186,7 @@
     --primary-color: #0a84ff;
     --primary-color-light: #7ea9ea;
     --node-color: #0a84ffcc;
+    --category-color: #0a84ffcc;
     --primary-color-filter: invert(29%) sepia(83%) saturate(1901%)
       hue-rotate(201deg) brightness(111%) contrast(101%);
     --primary-color-hover: rgba(240, 250, 255, 1);
@@ -201,8 +202,6 @@
     --border-radius: 0;
     --box-shadow: 1px 1px 1px 0 rgba(0, 0, 0, 0.15);
     --box-shadow-hover: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.03);
-    --superproject: rgba(0, 68, 255, 0.082);
-    --category: #00ff6e1c;
 
     /* Glassmorphism */
     /* inspired by Glass UI Glassmorphism generator (https://ui.glass/generator/) */

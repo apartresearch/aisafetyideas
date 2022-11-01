@@ -44,8 +44,20 @@ a {
   top: 0px;
   z-index: 10;
   padding: 20px;
-  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(59%, hsla(0, 0%, 100%, 0.95)), color-stop(82%, hsla(0, 0%, 100%, 0.19)), to(hsla(0, 0%, 100%, 0)));
-  background-image: linear-gradient(180deg, hsla(0, 0%, 100%, 0.95) 59%, hsla(0, 0%, 100%, 0.19) 82%, hsla(0, 0%, 100%, 0));
+  background-image: -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    color-stop(59%, hsla(0, 0%, 100%, 0.95)),
+    color-stop(82%, hsla(0, 0%, 100%, 0.19)),
+    to(hsla(0, 0%, 100%, 0))
+  );
+  background-image: linear-gradient(
+    180deg,
+    hsla(0, 0%, 100%, 0.95) 59%,
+    hsla(0, 0%, 100%, 0.19) 82%,
+    hsla(0, 0%, 100%, 0)
+  );
 }
 
 .nav-grid {
@@ -529,7 +541,7 @@ a {
 
 .text-span {
   margin-bottom: -15px;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   color: #44ff98;
   font-size: 130px;
   line-height: 32px;
@@ -914,8 +926,10 @@ a {
 
 .link-icon {
   margin-right: 5px;
-  -webkit-filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg) brightness(91%) contrast(88%);
-  filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg) brightness(91%) contrast(88%);
+  -webkit-filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg)
+    brightness(91%) contrast(88%);
+  filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg)
+    brightness(91%) contrast(88%);
 }
 
 .link-icon.interaction {
@@ -925,8 +939,10 @@ a {
 }
 
 .link-icon.interaction:hover {
-  -webkit-filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg) brightness(91%) contrast(88%);
-  filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg) brightness(91%) contrast(88%);
+  -webkit-filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg)
+    brightness(91%) contrast(88%);
+  filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg)
+    brightness(91%) contrast(88%);
 }
 
 .idea-description {
@@ -1137,8 +1153,10 @@ a {
 }
 
 .interaction-icon.link-icon:hover {
-  -webkit-filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg) brightness(91%) contrast(88%);
-  filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg) brightness(91%) contrast(88%);
+  -webkit-filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg)
+    brightness(91%) contrast(88%);
+  filter: invert(72%) sepia(89%) saturate(471%) hue-rotate(81deg)
+    brightness(91%) contrast(88%);
 }
 
 .interaction-text {
@@ -1522,26 +1540,6 @@ a {
   width: 70%;
 }
 
-.superproject-view {
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-.superproject-author {
-  margin-bottom: 0px;
-}
-
-.superproject-header {
-  margin-top: 0px;
-  margin-bottom: 2px;
-}
-
-.superproject-idea-list {
-  padding: 5px;
-  border-top: 1px solid #000;
-  border-bottom: 1px solid #000;
-}
-
 .styleheader {
   border-bottom: 3px solid #000;
   background-color: #44ff98;
@@ -1793,4 +1791,3 @@ a {
     justify-self: center;
   }
 }
-

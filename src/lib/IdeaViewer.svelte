@@ -309,7 +309,7 @@
             <CategoryTag cat={cat.category} />
           {/each}
         </div>
-        <div class="idea-superprojects-wrapper">
+        <div class="idea-nodes-wrapper">
           {#each $ideaCurrent.nodes as node}
             <NodeTag node={node.node} />
           {/each}
@@ -418,25 +418,6 @@
     justify-content: space-between;
   }
 
-  .verify {
-    background-color: #f5f5f5;
-    border: 1px solid #333;
-    border-radius: 4px;
-    color: #333;
-    cursor: pointer;
-    font-size: 1.2rem;
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
-    text-align: center;
-    text-decoration: none;
-    transition: all 0.2s ease-in-out;
-  }
-
-  .verify:hover {
-    background-color: #333;
-    color: #f5f5f5;
-  }
-
   .no-user {
     color: #0006;
     margin-top: 0.3rem;
@@ -541,7 +522,7 @@
     margin-bottom: 0.5rem;
   }
 
-  .idea-superprojects-wrapper {
+  .idea-nodes-wrapper {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;

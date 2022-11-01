@@ -13,16 +13,7 @@
     ? 'list-item'
     : ''} {selected ? 'selected' : ''}"
   use:tippy={{
-    content: `<h5>${cat.title}</h5>${
-      cat.tooltip !== null ? `${markdown(cat.tooltip)}` : ""
-    }<p>${
-      selectCategory
-        ? ""
-        : `<a href="https://aisafetyideas.com/?categories=${cat.title}">Click</a> to see all ideas in this category`
-    }</p>`,
-    allowHTML: true,
-    interactive: selectCategory ? false : true,
-    delay: [1000, 0],
+    content: `${cat.title}${cat.tooltip !== null ? ` - ${cat.tooltip}` : ""}`,
   }}
   on:click={() => {
     selectCategory
@@ -36,7 +27,7 @@
 <style>
   .idea-category {
     /* Styling for a tag */
-    background-color: var(--category);
+    background-color: var(--category-color);
     border: 1px solid var(--light-accent-border);
     border-radius: var(--border-radius);
     padding: 0.2em 0.5em;
@@ -44,7 +35,13 @@
     margin-bottom: 0.3em;
     font-size: 0.8em;
     line-height: 1em;
+    color: white;
     /* opacity: 0.75; */
+  }
+
+  .idea-category.list-item,
+  .idea-category.filter {
+    color: black;
   }
 
   .idea-category.list-item {

@@ -7,7 +7,7 @@
 
 {#if small}
   <a
-    class="idea-superproject list-item"
+    class="idea-node list-item"
     use:tippy={{
       content: `${node.title}: ${node.summary} Click to see more.`,
     }}
@@ -18,7 +18,7 @@
   </a>
 {:else}
   <a
-    class="idea-superproject"
+    class="idea-node"
     href={`/list/${node.slug}`}
     use:tippy={{
       content: `${node.title}: ${node.summary} Click to see more.`,
@@ -29,9 +29,9 @@
 {/if}
 
 <style>
-  .idea-superproject {
+  .idea-node {
     /* Styling for a tag */
-    background-color: var(--superproject);
+    background-color: var(--node-color);
     border: 1px solid var(--light-accent-border);
     border-radius: var(--border-radius);
 
@@ -43,16 +43,16 @@
     font-size: 0.8em;
     line-height: 1em;
     text-decoration: none;
-    color: inherit;
+    color: white;
   }
 
-  .idea-superproject:hover {
+  .idea-node:hover {
     opacity: 0.75;
     text-decoration: none;
     cursor: pointer;
   }
 
-  .idea-superproject.list-item {
+  .idea-node.list-item {
     border: 0;
     padding: 0;
     margin: 0;
@@ -65,7 +65,7 @@
     color: black;
   }
 
-  .idea-superproject > img {
+  .idea-node > img {
     width: 0.7em;
     height: 0.7em;
     margin: 0;

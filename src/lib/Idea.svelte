@@ -27,7 +27,7 @@
 
 <div class="idea-card" on:click={() => selectIdea()}>
   <div class="idea-top">
-    <div class="idea-superprojects-wrapper list-item" on:click|stopPropagation>
+    <div class="idea-node-wrapper list-item" on:click|stopPropagation>
       {#if idea.author}
         <div class="idea-author">
           {idea.author}
@@ -341,7 +341,7 @@
     padding-top: 0.3em;
   }
 
-  .idea-superprojects-wrapper.list-item {
+  .idea-node-wrapper.list-item {
     margin: 0;
     display: flex;
     flex-wrap: wrap;
@@ -452,7 +452,7 @@
       display: none;
     }
 
-    .idea-superprojects-wrapper.list-item {
+    .idea-node-wrapper.list-item {
       display: none;
     }
 
