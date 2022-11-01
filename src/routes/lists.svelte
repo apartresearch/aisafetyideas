@@ -41,6 +41,7 @@
   .project-contain {
     text-align: left;
     display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     justify-content: left;
     align-items: stretch;

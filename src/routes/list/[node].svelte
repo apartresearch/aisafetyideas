@@ -7,7 +7,7 @@
   import IdeaViewer from "$lib/IdeaViewer.svelte";
   import LoadIcon from "$lib/LoadIcon.svelte";
   import Footer from "$lib/Footer.svelte";
-  import { nodes, loading } from "$lib/stores";
+  import { nodes, loading, ideas } from "$lib/stores";
   import DataLoader from "$lib/DataLoader.svelte";
 
   const nodeSlug = $page.params.node;

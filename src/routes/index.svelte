@@ -331,7 +331,8 @@
       </div>
       <div class="intermission">
         <h3 class="project-title">
-          Popular lists (<a href="/lists">see all</a>)
+          Popular lists (<a href="/lists">see all</a> or
+          <a href="/create-list">create your own</a>)
         </h3>
         <div class="project-contain">
           {#each [...$nodes]
@@ -368,6 +369,7 @@
   .project-contain {
     display: flex;
     flex-wrap: wrap;
+    flex-direction: row;
     justify-content: space-between;
     align-items: stretch;
     max-width: 1200px;

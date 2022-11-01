@@ -169,7 +169,8 @@
           .map((r) => ({
             ...r,
             idea: $ideas.find((i) => i.id == r.idea),
-          })),
+          }))
+          .filter((i) => i.idea),
       }));
 
       $shownIdeas = $ideas;

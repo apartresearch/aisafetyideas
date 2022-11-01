@@ -19,9 +19,10 @@
 <style>
   .header {
     font-size: 0.8rem;
-    line-height: 1rem;
+    line-height: 0.9rem;
     margin: 0;
     margin-bottom: 0.15rem;
+    font-weight: 600;
   }
 
   :global(.global-wrapper > p) {
@@ -42,7 +43,7 @@
   }
 
   .wrapper {
-    width: 49.5%;
+    width: 32.5%;
     padding: 0.35rem;
     border-radius: var(--border-radius);
     color: white;
