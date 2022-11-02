@@ -32,7 +32,7 @@
   on:mouseleave={() => {
     hover = false;
   }}
-  style="position: absolute; left: {i.x1 * 100}%; top: {i.y1 * 100}%;"
+  style="position: absolute; left: {i.x1 * 75}%; top: {i.y1 * 75}%;"
 >
   <p class="very-small">
     {i.title.length > 40 && !hover ? i.title.substr(0, 37) + "..." : i.title}

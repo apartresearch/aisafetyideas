@@ -13,6 +13,8 @@
     nodeIdeaRelations,
     ideaRelations,
   } from "$lib/stores.js";
+
+  let mult = 75;
 </script>
 
 <Nav />
@@ -21,7 +23,12 @@
   <h1>Map view (experimental)</h1>
   <p>
     Each idea is mapped as a blue dot and each list as a green dot. The
-    connections between each is marked by a line.
+    connections between each is marked by a line. Click on a dot to see the
+    details of the idea or navigate to the list.
+  </p>
+  <p>
+    The positions of the nodes are based on similarity embeddings. Scroll
+    horizontally and vertically to see all nodes.
   </p>
 </div>
 {#if $loading}
@@ -32,7 +39,7 @@
       className="viewer"
       rangeX={[0, 1000]}
       rangeY={[0, 1000]}
-      padding={100}
+      padding={20}
       zoom={1}
     >
       {#each $ideas.filter((i) => i.x1) as idea}
@@ -41,10 +48,10 @@
       {#each $ideaRelations as r}
         <svg class="relation">
           ><line
-            x1="calc({r.parent_idea.x1 * 100}% + 0.5rem)"
-            y1="calc({r.parent_idea.y1 * 100}% + 0.5rem)"
-            x2="calc({r.child_idea.x1 * 100}% + 0.5rem)"
-            y2="calc({r.child_idea.y1 * 100}% + 0.5rem)"
+            x1="calc({r.parent_idea.x1 * mult}% + 0.5rem)"
+            y1="calc({r.parent_idea.y1 * mult}% + 0.5rem)"
+            x2="calc({r.child_idea.x1 * mult}% + 0.5rem)"
+            y2="calc({r.child_idea.y1 * mult}% + 0.5rem)"
           /></svg
         >
       {/each}
