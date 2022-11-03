@@ -2,7 +2,7 @@
 
 **[The AI Safety Ideas research platform](https://aisafetyideas.com) is trying to revolutionize how science is done!**
 
-![Changelog CI Status](https://github.com/apartresearch/aisafetyideas/workflows/Changelog%20CI/badge.svg) ![Vercel](https://vercelbadge.vercel.app/api/apartresearch/aisafetyideas)
+![Vercel](https://vercelbadge.vercel.app/api/apartresearch/aisafetyideas)
 
 ## Contribute
 
