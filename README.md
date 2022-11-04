@@ -1,15 +1,17 @@
-# AI Safety Research Ideas
+# 👩‍🔬 AI Safety Research Ideas
 
-**💡 The web app CI/CD for [aisafetyideas.com](https://aisafetyideas.com).**
+**[The AI Safety Ideas research platform](https://aisafetyideas.com) is trying to revolutionize how science is done!**
 
-![Changelog CI Status](https://github.com/<username>/<repository>/workflows/Changelog%20CI/badge.svg) ![Vercel](https://vercelbadge.vercel.app/api/apartresearch/aisafetyideas)
+![Vercel](https://vercelbadge.vercel.app/api/apartresearch/aisafetyideas)
 
 ## Contribute
 
-Join our Discord on [Apart Research](https://apartresearch.com/join) and contact Esben about contributing!
+There's always new features on the horizon for AI Safety Ideas that you can help with! Check out the [issues page](https://github.com/apartresearch/aisafetyideas/issues) and the [Up for Grabs tag](https://github.com/apartresearch/aisafetyideas/labels/up-for-grabs)
 
-Currently, you can fork it and add features but it won't connect to the database unless you have account access to run `vercel dev` which will run the app and include the environment variables, i.e. database keys.
+Also join our Discord on [Apart Research](https://apartresearch.com/join) and chat with our community!
+
+Currently, you can fork it and add features but it won't connect to the database unless you have account access to run `vercel dev` which will run the app and include the environment variables, i.e. database keys. [Set up a call](https://calendly.com/esbenkran/30min) with us and we can give you access.
 
 ## About us
 
-[Apart Research](https://apartresearch.com) works on [aisafetyideas.com](https://aisafetyideas.com) and you can read more about it [here](https://aisafetyideas.com/open). You can join our Discord [here](https://apartresearch.com/join).
+Check out what we're up to at [Apart Research](https://apartresearch.com) and [our newsletter](https://newsletter.apartresearch.com). We also run the [Alignment Jam hackathons](https://alignmentjam.com).
