@@ -51,7 +51,7 @@
           ✏️
         </div>
       {/if} -->
-      {#if idea.nodes[0]}
+      {#if idea.nodes}
         {#each idea.nodes as node}
           <NodeTag node={node.node} small={true} />
         {/each}
@@ -184,7 +184,7 @@
   </div>
   <h3 class="idea-title">{idea.title}</h3>
   <div class="idea-bottom">
-    {#if idea.categories[0]}
+    {#if idea.categories}
       <div class="idea-categories-wrapper list-item">
         {#each idea.categories as cat, i}
           <CategoryTag cat={cat.category} small={true} />
@@ -266,7 +266,7 @@
 
   <!-- {#if idea.results[0]}   -->
   <HypothesisBar
-    result={idea.results[0]}
+    result={idea.results}
     hypothesis={idea.hypothesis}
     idea_id={idea.id}
   />
@@ -278,16 +278,6 @@
   .heart-icon {
     filter: invert(25%) sepia(50%) saturate(7206%) hue-rotate(346deg)
       brightness(109%) contrast(76%);
-  }
-
-  .person-icon {
-    /* filter: invert(63%) sepia(87%) saturate(4882%) hue-rotate(167deg) */
-    /* brightness(95%) contrast(101%); */
-  }
-
-  .comment-icon {
-    /* filter: invert(68%) sepia(26%) saturate(788%) hue-rotate(70deg) */
-    /* brightness(100%) contrast(86%); */
   }
 
   .heart:hover {

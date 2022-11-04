@@ -6,7 +6,7 @@
   import tippy from "sveltejs-tippy";
   import markdown from "$lib/drawdown";
   import Footer from "$lib/Footer.svelte";
-  import { user, ideas, loading } from "$lib/stores";
+  import { user, ideas, loading, results } from "$lib/stores";
   import UserLogin from "$lib/UserLogin.svelte";
   import DataLoader from "$lib/DataLoader.svelte";
   import Idea from "$lib/Idea.svelte";
@@ -15,12 +15,16 @@
 
   let loadedIdeas = [],
     ideaSelect = [],
-    results = [],
-    selectedIdea = {},
-    selectedIdeaInfo = {};
+    loadedResults = [],
+    selectedResult = null,
+    resultsSelect = [],
+    selectedIdea = null,
+    selectedIdeaInfo = {},
+    resultParam = "";
 
   let author = "",
     title = "",
+    result_id = null,
     description = "",
     sourced = "",
     idea_id = 0,
@@ -50,15 +54,32 @@
     }
     url = new URL(window.location.href);
     ideaParam = url.searchParams.get("idea");
+    resultParam = url.searchParams.get("result");
     if (ideaParam) {
       selectedIdea = ideaSelect.find((idea) => idea.value == ideaParam);
       selectedIdeaInfo = $ideas.find((idea) => idea.id == ideaParam);
       console.log(ideaParam, selectedIdea);
     }
+    // Take the max + 1 of the results ids as the new id
+    result_id =
+      loadedResults.reduce((max, result) => {
+        return result.id > max ? result.id : max;
+      }, 0) + 1;
+    if (resultParam) {
+      if (
+        $user.id == $results.find((r) => r.id == resultParam).user ||
+        $user.expert
+      )
+        selectedResult = resultsSelect.find(
+          (result) => result.value == resultParam
+        );
+      else alert("You cannot edit this result.");
+      console.log(resultParam, selectedResult);
+    }
   });
 
   const getTables = async () => {
-    [loadedIdeas, results] = await Promise.all([
+    [loadedIdeas, loadedResults] = await Promise.all([
       getTable("ideas"),
       getTable("results"),
     ]);
@@ -70,6 +91,14 @@
         value: idea.id,
       };
     });
+
+    resultsSelect = $results.map((result) => {
+      return {
+        label: result.title,
+        value: result.id,
+      };
+    });
+
     if (!selectedIdea) {
       selectedIdea = ideaSelect[-1];
     }
@@ -108,6 +137,25 @@
   }
 
   $: {
+    if (selectedResult) {
+      result_id = selectedResult.value;
+      selectedResultInfo = $results.find((result) => result.id == result_id);
+      selectedIdea = ideaSelect.find(
+        (idea) => idea.value == selectedResultInfo.idea
+      );
+      title = selectedResultInfo.title;
+      description = selectedResultInfo.description;
+      sourced = selectedResultInfo.link;
+      author = selectedResultInfo.author;
+      type = selectedResultInfo.type;
+      image_link = selectedResultInfo.image_link;
+      date_sourced = selectedResultInfo.from_date;
+      original = selectedResultInfo.original;
+      idea_id = selectedResultInfo.idea;
+    }
+  }
+
+  $: {
     type = typeSelect.value;
   }
 </script>
@@ -133,10 +181,24 @@
           <UserLogin />
         </div>
       {:else}
+        {#if $results.some((r) => r.user == $user.id)}
+          <div class="input-wrapper">
+            <label for="edit-idea">Edit your results</label>
+            <div class="select">
+              <Select
+                isClearable={false}
+                items={resultsSelect}
+                bind:value={selectedResult}
+                placeholder="Select result"
+              />
+            </div>
+          </div>
+        {/if}
         <div class="input-wrapper">
           <label for="edit-idea">Select project / hypothesis</label>
           <div class="select">
             <Select
+              isDisabled={selectedResult}
               isClearable={false}
               items={ideaSelect}
               bind:value={selectedIdea}
@@ -228,6 +290,7 @@
           <button
             on:click={() => {
               addNewResult({
+                id: result_id,
                 idea: idea_id,
                 author,
                 title,
@@ -301,59 +364,8 @@
     margin-bottom: 0.5em;
   }
 
-  .expander-top {
-    display: flex;
-    align-items: center;
-    column-gap: 0.4em;
-    justify-content: space-between;
-    margin-bottom: 0.3em;
-  }
-
-  .expander {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 0.5em;
-    column-gap: 0.5em;
-    background-color: #eee;
-    padding: 0.5em;
-    border-radius: 0.5em;
-  }
-  .expander-top > label {
-    width: 100%;
-    margin: auto 0;
-  }
-
-  .expander .checkbox {
-    padding: 0;
-    border: 0;
-    appearance: none;
-  }
-
   label {
     padding-top: 0.2em;
-  }
-
-  .checkbox:after {
-    content: "";
-    display: block;
-    width: 1em;
-    height: 1em;
-    border-radius: 0.5em;
-    margin: auto;
-    background-image: url("/images/arrow-up.png");
-    background-size: 50%;
-    background-repeat: no-repeat;
-    background-position: center;
-    transform: rotate(180deg);
-    cursor: pointer;
-  }
-
-  .checkbox:checked:after {
-    transform: rotate(0deg);
-  }
-
-  .checkbox:hover:after {
-    opacity: 0.5;
   }
 
   :global(.description-preview > h1, .description-preview

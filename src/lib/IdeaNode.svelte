@@ -9,7 +9,7 @@
     url,
     hover = false;
 
-  const selectIdea = () => {
+    const selectIdea = () => {
     $ideaViewVisible = true;
     $ideaCurrent = i;
     if (!url) {

@@ -1,6 +1,7 @@
 <script>
   import Idea from "./Idea.svelte";
   import MediaQuery from "./MediaQuery.svelte";
+  import { user } from "./stores.js";
   export let result = {},
     hypothesis = false,
     idea_id = null;
@@ -39,6 +40,9 @@
   </div>
   <div class="right">
     {#if result && result.type}
+      {#if result.user == $user.id}
+        <a href="/result?result={result.id}" class="more">Edit your result</a>
+      {/if}
       <div class="type">
         <p>
           {result.type[0].toUpperCase() + result.type.substring(1)} result
