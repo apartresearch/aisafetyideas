@@ -266,7 +266,7 @@
 
   <!-- {#if idea.results[0]}   -->
   <HypothesisBar
-    result={idea.results}
+    result={idea.results[0]}
     hypothesis={idea.hypothesis}
     idea_id={idea.id}
   />

@@ -100,7 +100,7 @@
     });
 
     if (!selectedIdea) {
-      selectedIdea = ideaSelect[-1];
+      selectedIdea = ideaSelect[ideaSelect.length - 1];
     }
   };
 
@@ -181,19 +181,19 @@
           <UserLogin />
         </div>
       {:else}
-        {#if $results.some((r) => r.user == $user.id)}
-          <div class="input-wrapper">
-            <label for="edit-idea">Edit your results</label>
-            <div class="select">
-              <Select
-                isClearable={false}
-                items={resultsSelect}
-                bind:value={selectedResult}
-                placeholder="Select result"
-              />
-            </div>
+        <!-- {#if $results.some((r) => r.user == $user.id)} -->
+        <div class="input-wrapper">
+          <label for="edit-idea">Edit your results</label>
+          <div class="select">
+            <Select
+              isClearable={false}
+              items={resultsSelect}
+              bind:value={selectedResult}
+              placeholder="Select result"
+            />
           </div>
-        {/if}
+        </div>
+        <!-- {/if} -->
         <div class="input-wrapper">
           <label for="edit-idea">Select project / hypothesis</label>
           <div class="select">
