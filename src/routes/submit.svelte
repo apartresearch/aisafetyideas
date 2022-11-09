@@ -32,16 +32,24 @@
 
   const careerDiffStages = [
     {
-      value: "Learning",
-      label: "Learning project",
+      value: "1",
+      label: "High school",
     },
     {
-      value: "Signal",
-      label: "Hard project with a medium failure rate",
+      value: "2",
+      label: "Undergrad",
     },
     {
-      value: "Frontier",
-      label: "A project at the frontier of AI safety research",
+      value: "3",
+      label: "Graduate",
+    },
+    {
+      value: "4",
+      label: "Postdoc",
+    },
+    {
+      value: "5",
+      label: "Professor",
     },
   ];
 
