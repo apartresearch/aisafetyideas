@@ -25,8 +25,8 @@
     selectedIdea = {},
     isHypothesis = false,
     career_difficulty = {
-      value: "Signal",
-      label: "Hard project with a medium failure rate",
+      value: "3",
+      label: "Graduate",
     },
     project_factory = process.env.PROJECT_FACTORY == "TRUE";
 
@@ -389,7 +389,7 @@
         </div>
       </div> -->
       <div class="input-wrapper">
-        <label for="2" />
+        <label for="2">Difficulty level</label>
         <div class="select">
           <Select
             isClearable={false}
