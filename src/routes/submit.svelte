@@ -413,13 +413,13 @@
         <div class="select">
           <Select items={problems} bind:value={problem_ids} isMulti={true} />
         </div>
-      </div>
+      </div>-->
       <div class="input-wrapper">
         <label for="filtered">Related ideas</label>
         <div class="select">
           <Select items={ideas} bind:value={related_ideas} isMulti={true} />
         </div>
-      </div> -->
+      </div>
       <div class="input-wrapper">
         <label for="2">Difficulty level</label>
         <div class="select">
