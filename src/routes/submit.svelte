@@ -283,6 +283,12 @@
       filtered = idea.filtered;
       verified = idea.verified;
       problem_ids = idea.problems;
+      career_difficulty = careerDiffStages.find(
+        (cd) => cd.value == idea.career_difficulty
+      );
+      importanceLevel = importanceLevels.find(
+        (il) => il.value == idea.importance
+      );
       difficulty = idea.difficulty;
       funding_amount = idea.funding_amount;
       funding_currency = idea.funding_currency;
@@ -606,6 +612,7 @@
                 funding_currency,
                 funding_from,
                 mentorship_from,
+                career_difficulty: career_difficulty.value,
                 contact: authorContact,
                 user: $user.id,
                 project_factory: project_factory ? "TRUE" : "FALSE",
