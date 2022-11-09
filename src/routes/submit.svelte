@@ -25,9 +25,14 @@
     selectedIdea = {},
     isHypothesis = false,
     career_difficulty = {
-      value: "3",
+      value: 3,
       label: "Graduate",
     },
+    importanceLevel = {
+      value: "3",
+      label: "3: Will inform others' work",
+    },
+    importance = null,
     project_factory = process.env.PROJECT_FACTORY == "TRUE";
 
   const careerDiffStages = [
@@ -50,6 +55,29 @@
     {
       value: "5",
       label: "Professor",
+    },
+  ];
+
+  const importanceLevels = [
+    {
+      value: 1,
+      label: "1: Useful as a learning project",
+    },
+    {
+      value: 2,
+      label: "2: Might interest researchers",
+    },
+    {
+      value: 3,
+      label: "3: Will inform others' work",
+    },
+    {
+      value: 4,
+      label: "4: Can inform a new research agenda",
+    },
+    {
+      value: 5,
+      label: "5: Might create a paradigm shift",
     },
   ];
 
@@ -274,6 +302,10 @@
     editIdea(idea_id);
   }
 
+  $: {
+    importance = importanceLevel.value;
+  }
+
   const deleteIdea = async (id) => {
     Promise.all([
       supabase.from("idea_category_relation").delete().match({ idea: id }),
@@ -395,6 +427,16 @@
             isClearable={false}
             items={careerDiffStages}
             bind:value={career_difficulty}
+          />
+        </div>
+      </div>
+      <div class="input-wrapper">
+        <label for="2">How important does this seem</label>
+        <div class="select">
+          <Select
+            isClearable={false}
+            items={importanceLevels}
+            bind:value={importanceLevel}
           />
         </div>
       </div>
@@ -567,6 +609,7 @@
                 contact: authorContact,
                 user: $user.id,
                 project_factory: project_factory ? "TRUE" : "FALSE",
+                importance,
               },
               tags
                 ? tags.map((tag) => ({ category: tag.id, idea: idea_id }))
