@@ -218,7 +218,8 @@
       { label: "Mentorship available", value: "mentorship_from" },
       { label: "Funding available", value: "funding_amount" },
     ],
-    currentSort = sortingColumns[0];
+    currentSort = sortingColumns[3];
+  currentSort = sortingColumns[5];
 
   $: {
     sort(currentSort);
