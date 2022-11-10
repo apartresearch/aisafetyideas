@@ -105,6 +105,17 @@
           : "",
       }));
 
+      $idea_likes = $idea_likes.map((i) => ({
+        ...i,
+        username: $users.find((u) => u.id == i.user)
+          ? $users.find((u) => u.id == i.user).username
+          : "",
+        weight: $users.find((u) => u.id == i.user).like_weight,
+        career_stage: $users.find((u) => u.id == i.user)
+          ? $users.find((u) => u.id == i.user).career_stage
+          : "",
+      }));
+
       //   Setup the ideas
       $ideas = $ideas
         .filter((i) => i.filtered == true)
@@ -118,7 +129,9 @@
               ...n,
               node: $nodes.find((nn) => nn.id === n.node),
             })),
-          likes: $idea_likes.filter((like) => like.idea === idea.id).length,
+          likes: $idea_likes
+            .filter((like) => like.idea === idea.id)
+            .reduce((a, b) => a + b.weight, 0),
           user_liked: $idea_likes.find(
             (like) => like.idea === idea.id && $user && like.user === $user.id
           ),
@@ -172,6 +185,8 @@
           }))
           .filter((i) => i.idea),
       }));
+
+      console.log($ideas);
 
       // Normalize the x1 and y1 of the ideas
       let x1 = $ideas.map((i) => i.x1);

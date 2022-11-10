@@ -141,7 +141,9 @@
                 if ($user) {
                   addLikeToIdea(idea.id, $user && idea.user_liked);
                   idea.user_liked = !idea.user_liked;
-                  idea.likes += idea.user_liked ? 1 : -1;
+                  idea.likes += idea.user_liked
+                    ? $user.like_weight
+                    : -$user.like_weight;
                   idea = idea;
                 }
               }}
