@@ -54,12 +54,14 @@
       await new Promise((r) => setTimeout(r, 100));
     }
 
-    resultsSelect = $results.map((result) => {
-      return {
-        label: result.title,
-        value: result.id,
-      };
-    });
+    resultsSelect = $results
+      .filter((r) => $user.id == r.user)
+      .map((result) => {
+        return {
+          label: result.title,
+          value: result.id,
+        };
+      });
 
     url = new URL(window.location.href);
     ideaParam = url.searchParams.get("idea");
