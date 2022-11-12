@@ -2,10 +2,9 @@
   import Idea from "./Idea.svelte";
   import MediaQuery from "./MediaQuery.svelte";
   import { user } from "./stores.js";
-  export let result = {},
+  export let result = [],
     hypothesis = false,
     idea_id = null;
-  let hasResult = JSON.stringify(result) !== JSON.stringify({});
 </script>
 
 <!-- Show a colored bar with an icon based on if the idea is a hypothesis or not -->

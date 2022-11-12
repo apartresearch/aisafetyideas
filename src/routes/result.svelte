@@ -53,6 +53,14 @@
     while ($loading) {
       await new Promise((r) => setTimeout(r, 100));
     }
+
+    resultsSelect = $results.map((result) => {
+      return {
+        label: result.title,
+        value: result.id,
+      };
+    });
+
     url = new URL(window.location.href);
     ideaParam = url.searchParams.get("idea");
     resultParam = url.searchParams.get("result");
@@ -92,13 +100,6 @@
         label:
           (idea.hypothesis ? "Hypothesis" : "Project") + " | " + idea.title,
         value: idea.id,
-      };
-    });
-
-    resultsSelect = $results.map((result) => {
-      return {
-        label: result.title,
-        value: result.id,
       };
     });
 
@@ -186,7 +187,7 @@
 
     <div class="add-idea-wrapper">
       <h1>Submit a result for a project / hypothesis</h1>
-      {#if !$user}
+      {#if $user}
         <div class="login-warning">
           <p>Please login to submit a result / project.</p>
           <UserLogin />
