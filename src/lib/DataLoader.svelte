@@ -186,8 +186,6 @@
           .filter((i) => i.idea),
       }));
 
-      console.log($ideas);
-
       // Normalize the x1 and y1 of the ideas
       let x1 = $ideas.map((i) => i.x1);
       let y1 = $ideas.map((i) => i.y1);

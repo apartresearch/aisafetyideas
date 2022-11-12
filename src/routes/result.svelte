@@ -17,6 +17,7 @@
     ideaSelect = [],
     loadedResults = [],
     selectedResult = null,
+    selectedResultInfo = {},
     resultsSelect = [],
     selectedIdea = null,
     selectedIdeaInfo = {},
@@ -55,11 +56,13 @@
     url = new URL(window.location.href);
     ideaParam = url.searchParams.get("idea");
     resultParam = url.searchParams.get("result");
+
     if (ideaParam) {
       selectedIdea = ideaSelect.find((idea) => idea.value == ideaParam);
       selectedIdeaInfo = $ideas.find((idea) => idea.id == ideaParam);
       console.log(ideaParam, selectedIdea);
     }
+
     // Take the max + 1 of the results ids as the new id
     result_id =
       loadedResults.reduce((max, result) => {
@@ -130,15 +133,23 @@
   };
 
   $: {
-    if (selectedIdea) {
-      idea_id = selectedIdea.value;
+    selectIdea(selectedIdea);
+  }
+
+  function selectIdea(i) {
+    if (i) {
+      idea_id = i.value;
       selectedIdeaInfo = $ideas.find((idea) => idea.id == idea_id);
     }
   }
 
   $: {
-    if (selectedResult) {
-      result_id = selectedResult.value;
+    selectResult(selectedResult);
+  }
+
+  function selectResult(r) {
+    if (r) {
+      result_id = r.value;
       selectedResultInfo = $results.find((result) => result.id == result_id);
       selectedIdea = ideaSelect.find(
         (idea) => idea.value == selectedResultInfo.idea
