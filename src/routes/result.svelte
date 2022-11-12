@@ -218,8 +218,8 @@
             />
           </div>
         </div>
-        {#if selectedIdeaInfo}
-          <Idea idea={selectedIdeaInfo} />
+        {#if selectedIdea}
+          <Idea idea={$ideas.find((i) => selectedIdea.value == i.id)} />
         {/if}
 
         <h2>Result information</h2>
