@@ -31,7 +31,8 @@
             : `Open ${hypothesis ? "hypothesis" : "project idea"}`}
         {:else}
           {result && result.title
-            ? result.title
+            ? result.title.slice(0, 50) +
+              (result.title.length > 50 ? "..." : "")
             : `Open ${hypothesis ? "hypothesis" : "project idea"}`}
         {/if}
       </MediaQuery>
