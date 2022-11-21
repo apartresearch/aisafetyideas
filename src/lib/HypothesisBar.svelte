@@ -57,7 +57,8 @@
 </div>
 
 <style>
-  .positive {
+  .positive,
+  .ambigious {
     background-color: var(--positive);
   }
 
