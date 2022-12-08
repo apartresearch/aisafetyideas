@@ -22,6 +22,7 @@
     bio = "",
     career = "",
     doesnotexist = false,
+    email = "",
     expert = false,
     saved = false;
 
@@ -99,7 +100,7 @@
   {:else}
     <div class="flex-hori">
       <h2>{username}</h2>
-      <p class="email">{email}</p>
+      <p class="email"><a href="mailto:{email}">{email}</a></p>
       <div>
         <p
           class={"career " + career}
