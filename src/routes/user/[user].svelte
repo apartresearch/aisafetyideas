@@ -77,6 +77,7 @@
       username: username,
       bio: bio,
       career_stage: career,
+      email: email,
     };
     await supabase.from("users").update(user_data).match({ id: $user.id });
     saved = true;
@@ -98,6 +99,7 @@
   {:else}
     <div class="flex-hori">
       <h2>{username}</h2>
+      <p class="email">{email}</p>
       <div>
         <p
           class={"career " + career}
