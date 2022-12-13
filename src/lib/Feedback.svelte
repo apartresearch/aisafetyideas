@@ -4,7 +4,7 @@
 
 <div class="corner" on:click={() => (active = !active)}>
   <img src="/images/construct-outline.svg" alt="Feedback icon" class="icon" />
-  <p>Report an issue</p>
+  <p>Report an issue or submit a request</p>
 </div>
 {#if active}
   <div class="form">
