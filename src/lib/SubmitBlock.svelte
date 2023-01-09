@@ -4,6 +4,7 @@
   import MediaQuery from "./MediaQuery.svelte";
 
   export let list = false;
+  export let filtered = false;
   export let text =
     "Add any ideas you have and <a href='/submit'>go here</a> if you want to add categories and related projects. We will look through the idea and make it more shovel-ready when we receive it.";
 
@@ -33,6 +34,7 @@
               user: $user.id,
               career_difficulty: "Signal",
               project_factory: process.env.PROJECT_FACTORY,
+              filtered,
             });
             if (list) {
               uploadListAssociation({

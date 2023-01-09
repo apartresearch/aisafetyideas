@@ -48,6 +48,7 @@
 
     <SubmitBlock
       list={currentnode.id}
+      filtered={true}
       text={"Add more ideas to this list. When you submit on this page, the idea will automatically be added to the list. <a href='/submit'>Go here</a> if you want to add categories and related projects."}
     />
   </div>
