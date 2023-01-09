@@ -22,11 +22,12 @@
         <button
           class="btn"
           on:click={() => {
+            const temp_id =
+              Math.max(...$ideas.map((idea) => idea.id)) +
+              Math.floor(Math.random() * 10);
             uploadIdea({
               // Take the largest value of idea.id and +1
-              id:
-                Math.max(...$ideas.map((idea) => idea.id)) +
-                Math.floor(Math.random() * 10),
+              id: temp_id,
               title,
               summary: description,
               user: $user.id,
@@ -35,10 +36,8 @@
             });
             if (list != false) {
               uploadListAssociation({
-                id:
-                  Math.max(...$ideas.map((idea) => idea.id)) +
-                  Math.floor(Math.random() * 10),
-                list: list,
+                idea: temp_id,
+                node: list,
                 user: $user.id,
               });
             }
