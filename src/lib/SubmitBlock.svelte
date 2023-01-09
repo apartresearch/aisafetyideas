@@ -34,7 +34,7 @@
               career_difficulty: "Signal",
               project_factory: process.env.PROJECT_FACTORY,
             });
-            if (list != false) {
+            if (list) {
               uploadListAssociation({
                 idea: temp_id,
                 node: list,

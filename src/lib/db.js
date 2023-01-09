@@ -13,9 +13,7 @@ export const uploadIdea = async (idea) => {
 };
 
 export const uploadListAssociation = async (nodeConnect) => {
-  const { data, error } = await supabase
-    .from("idea_list_association")
-    .insert(nodeConnect);
+  const { data, error } = await supabase.from("node_ideas").insert(nodeConnect);
   return data;
 };
 
