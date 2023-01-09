@@ -28,12 +28,12 @@
           {result && result.title
             ? result.title.slice(0, 36) +
               (result.title.length > 36 ? "..." : "")
-            : `Open ${hypothesis ? "hypothesis" : "project idea"}`}
+            : `${hypothesis ? "Hypothesis" : "Project idea"}`}
         {:else}
           {result && result.title
             ? result.title.slice(0, 50) +
               (result.title.length > 50 ? "..." : "")
-            : `Open ${hypothesis ? "hypothesis" : "project idea"}`}
+            : `${hypothesis ? "Hypothesis" : "Project idea"}`}
         {/if}
       </MediaQuery>
     </h3>
