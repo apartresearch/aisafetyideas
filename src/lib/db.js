@@ -12,12 +12,12 @@ export const uploadIdea = async (idea) => {
   return data;
 };
 
-export const uploadListAssociation = async(ideaId, listId) => {
-  const { data, error } = await supabase.from("idea_list_association").insert({
-    node: listId,
-    idea: ideaId,
-    user = supabase.auth.user().id
-  });
+export const uploadListAssociation = async (nodeConnect) => {
+  const { data, error } = await supabase
+    .from("idea_list_association")
+    .insert(nodeConnect);
+  return data;
+};
 
 export const getTable = async (
   table_name,

@@ -34,11 +34,13 @@
               project_factory: process.env.PROJECT_FACTORY,
             });
             if (list != false) {
-              uploadListAssociation(
-                Math.max(...$ideas.map((idea) => idea.id)) +
+              uploadListAssociation({
+                id:
+                  Math.max(...$ideas.map((idea) => idea.id)) +
                   Math.floor(Math.random() * 10),
-                list
-              );
+                list: list,
+                user: $user.id,
+              });
             }
             title = "";
             description = "";
