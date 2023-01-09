@@ -9,6 +9,7 @@
   import Footer from "$lib/Footer.svelte";
   import { nodes, loading, ideas } from "$lib/stores";
   import DataLoader from "$lib/DataLoader.svelte";
+  import SubmitBlock from "$lib/SubmitBlock.svelte";
 
   const nodeSlug = $page.params.node;
 
@@ -44,6 +45,11 @@
     {#each currentnode.ideas as i}
       <Idea idea={i.idea} />
     {/each}
+
+    <SubmitBlock
+      list={currentnode.id}
+      text={"Add more ideas to this list. When you submit on this page, the idea will automatically be added to the list. <a href='/submit'>Go here</a> if you want to add categories and related projects."}
+    />
   </div>
 
   <IdeaViewer />

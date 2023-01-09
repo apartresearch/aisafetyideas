@@ -1,37 +1,54 @@
 <script>
-  import {uploadIdea} from "$lib/db.js";
-  import {user, ideas} from "$lib/stores.js";
+  import { uploadIdea, uploadListAssociation } from "$lib/db.js";
+  import { user, ideas } from "$lib/stores.js";
   import MediaQuery from "./MediaQuery.svelte";
-  
+
+  export let list = false;
+  export let text =
+    "Add any ideas you have and <a href='/submit'>go here</a> if you want to add categories and related projects. We will look through the idea and make it more shovel-ready when we receive it.";
+
   let title = "";
   let description = "";
 </script>
 
 <MediaQuery query="(max-width: 768px)" let:matches>
   <div class={"wrap " + (title != "" ? "expanded" : "")}>
-      <div class="left">
-        <h3 class="head">Submit idea (<a href="/submit">add more info</a>)</h3>
-        <p class="label">Add any ideas you have and <a href="/submit">go here</a> if you want to add categories and related projects. We will look through the idea and make it more shovel-ready when we receive it.</p>
-        {#if !matches}
-        <button class="btn" on:click={() => {
-          uploadIdea({
-            // Take the largest value of idea.id and +1
-            id: Math.max(...$ideas.map(idea => idea.id)) + Math.floor(Math.random() * 10),
-            title,
-            summary: description,
-            user: $user.id,
-            career_difficulty: "Signal",
-            project_factory: process.env.PROJECT_FACTORY
-          });
-          title = "";
-          description = "";
-        }}
-      disabled={!$user}
-      >
-        {$user ? "Submit" : "Login to submit"}
-      </button>
-        {/if}
-      </div>
+    <div class="left">
+      <h3 class="head">Submit idea (<a href="/submit">add more info</a>)</h3>
+      <p class="label">
+        {@html text}
+      </p>
+      {#if !matches}
+        <button
+          class="btn"
+          on:click={() => {
+            uploadIdea({
+              // Take the largest value of idea.id and +1
+              id:
+                Math.max(...$ideas.map((idea) => idea.id)) +
+                Math.floor(Math.random() * 10),
+              title,
+              summary: description,
+              user: $user.id,
+              career_difficulty: "Signal",
+              project_factory: process.env.PROJECT_FACTORY,
+            });
+            if (list != false) {
+              uploadListAssociation(
+                Math.max(...$ideas.map((idea) => idea.id)) +
+                  Math.floor(Math.random() * 10),
+                list
+              );
+            }
+            title = "";
+            description = "";
+          }}
+          disabled={!$user}
+        >
+          {$user ? "Submit" : "Login to submit"}
+        </button>
+      {/if}
+    </div>
     <div class="right">
       <label for="title">Title</label>
       <input type="text" bind:value={title} />
@@ -44,23 +61,25 @@
       </label>
       <textarea rows="4" bind:value={description} />
     </div>
-      {#if matches}
-      <button class="btn" on:click={() => {
-        uploadIdea({
-          title,
-          summary: description,
-          user: $user.id,
-          career_difficulty: "Signal"
-        });
-        title = "";
-        description = "";
-      }}
-      disabled={!$user}
+    {#if matches}
+      <button
+        class="btn"
+        on:click={() => {
+          uploadIdea({
+            title,
+            summary: description,
+            user: $user.id,
+            career_difficulty: "Signal",
+          });
+          title = "";
+          description = "";
+        }}
+        disabled={!$user}
       >
         {$user ? "Submit" : "Login to submit"}
       </button>
-  {/if}
-</div>
+    {/if}
+  </div>
 </MediaQuery>
 
 <style>
@@ -82,7 +101,7 @@
     margin: 0;
     text-align: left;
   }
-  
+
   button {
     padding: 0.25rem 1.5rem;
     margin-right: 1rem;
@@ -101,7 +120,8 @@
     font-style: italic;
   }
 
-  label, .label {
+  label,
+  .label {
     font-size: 0.8rem;
     line-height: 1rem;
     font-weight: normal;
@@ -129,7 +149,8 @@
   }
 
   @media (max-width: 768px) {
-    .right, .left {
+    .right,
+    .left {
       width: 100%;
     }
 
