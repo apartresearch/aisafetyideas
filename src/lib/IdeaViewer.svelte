@@ -27,6 +27,14 @@
     }
   };
 
+  const updateFromURL = () => {
+    const urlContent = new URL(window.location.href).searchParams.get("idea");
+    if (urlContent) {
+      $ideaCurrent = $ideas.find((idea) => idea.id == urlContent);
+      $ideaViewVisible = true;
+    }
+  };
+
   const addComment = async () => {
     const comment = {
       idea: $ideaCurrent.id,
@@ -97,6 +105,7 @@
         }
       }
     });
+    updateFromURL();
   });
 
   const removeComment = async (id) => {
