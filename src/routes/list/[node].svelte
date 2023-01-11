@@ -24,6 +24,15 @@
   });
 </script>
 
+<svelte:head>
+  <title>{currentnode.title}</title>
+  <meta name="description" content={currentnode.description} />
+  <meta property="og:title" content={currentnode.title} />
+  <meta property="og:description" content={currentnode.description} />
+  <meta property="og:image" content={currentnode.image} />
+  <meta name="twitter:card" content="summary_large_image" />
+</svelte:head>
+
 <DataLoader />
 
 <Nav />
