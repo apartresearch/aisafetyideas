@@ -129,6 +129,17 @@
   };
 </script>
 
+<svelte:head>
+  {#if $ideaCurrent}
+    <title>{$ideaCurrent.title}</title>
+    <meta name="description" content={$ideaCurrent.description} />
+    <meta property="og:title" content={$ideaCurrent.title} />
+    <meta property="og:description" content={$ideaCurrent.description} />
+    <meta property="og:image" content={$ideaCurrent.image} />
+    <meta name="twitter:card" content="summary_large_image" />
+  {/if}
+</svelte:head>
+
 {#if $ideaViewVisible}
   <content class="fullscreen-wrapper" on:click|self={() => setVisible(false)}>
     <div class="current-idea" on:click={() => {}}>
