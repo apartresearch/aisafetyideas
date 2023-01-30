@@ -219,7 +219,7 @@
       { label: "Funding available", value: "funding_amount" },
     ],
     currentSort = sortingColumns[3];
-  currentSort = sortingColumns[5];
+  currentSort = sortingColumns[0];
 
   $: {
     sort(currentSort);
