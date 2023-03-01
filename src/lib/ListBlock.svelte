@@ -12,7 +12,7 @@
       {node.title} |
       <span class="idea_n">{node.ideas.length} ideas</span>
     </h3>
-    {#if node.summary.length < 5}
+    {#if !node.summary}
       {@html markdown(node.description.slice(0, 50) + "...")}
     {:else}
       {@html markdown(node.summary)}
