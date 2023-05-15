@@ -79,6 +79,24 @@
       $shownIdeas = [];
 
       console.log(`Time to load all data: ${endTime - startTime}ms`);
+      console.log(
+        "Loaded all data: ",
+        $users,
+        $ideas,
+        $comments,
+        $categories,
+        $problems,
+        $idea_likes,
+        $fundings,
+        $interests,
+        $mentorships,
+        $categoryRelations,
+        $problemRelations,
+        $ideaRelations,
+        $results,
+        $nodes,
+        $nodeIdeaRelations
+      );
 
       // Setup the comments
       $comments = $comments.map((c) => ({
