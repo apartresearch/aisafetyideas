@@ -99,10 +99,10 @@
       );
 
       // Setup the comments
-      $comments = $comments.map((c) => ({
-        ...c,
-        username: $users.find((u) => u.id == c.author).username,
-      }));
+      $comments = $comments.flatMap((c) => {
+        const author = $users.find((u) => u.id == c.author);
+        return author ? [{...c, username: author.username}] : [];
+      });
       $comments = $comments
         .map((c) => ({
           ...c,
