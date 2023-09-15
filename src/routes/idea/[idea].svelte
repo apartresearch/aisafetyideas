@@ -9,6 +9,10 @@
   import { loading } from "$lib/stores";
 
   let idea = {};
+
+  // TODO: Make sure all the IdeaViewer functionality works here as well
+  // Add listeners to comments so we can create emails when people do shit
+  // Make automatic stuff so we can send notifications to people's users
 </script>
 
 <DataLoader />
