@@ -32,7 +32,7 @@
               Math.max(...$ideas.map((idea) => idea.id)),
               $ideas
             );
-            uploadIdea({
+            const new_id = uploadIdea({
               // Take the largest value of idea.id and +1
               id: temp_id,
               title,
@@ -44,7 +44,7 @@
             });
             if (list) {
               uploadListAssociation({
-                idea: temp_id,
+                idea: new_id,
                 node: list,
                 user: $user.id,
               });

@@ -8,8 +8,17 @@ export const supabase = createClient(
 );
 
 export const uploadIdea = async (idea) => {
+  while (
+    await supabase
+      .from("ideas")
+      .select("*")
+      .match({ id: idea.id })
+      .then((res) => res.data.length > 0)
+  ) {
+    idea.id = idea.id + 1;
+  }
   const { data, error } = await supabase.from("ideas").insert(idea);
-  return data;
+  return idea.id;
 };
 
 export const uploadListAssociation = async (nodeConnect) => {
