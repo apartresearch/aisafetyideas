@@ -22,7 +22,7 @@
       {#if !matches}
         <button
           class="btn"
-          on:click={() => {
+          on:click={async () => {
             const temp_id =
               Math.max(...$ideas.map((idea) => idea.id)) +
               1 +
@@ -32,7 +32,7 @@
               Math.max(...$ideas.map((idea) => idea.id)),
               $ideas
             );
-            const new_id = uploadIdea({
+            const new_id = await uploadIdea({
               // Take the largest value of idea.id and +1
               id: temp_id,
               title,
@@ -45,7 +45,7 @@
             console.log("new_id", new_id, list, "old_id", temp_id);
             if (list) {
               uploadListAssociation({
-                idea: new_id,
+                idea: new_id ? new_id : temp_id,
                 node: list,
                 user: $user.id,
               });
