@@ -27,6 +27,11 @@
               Math.max(...$ideas.map((idea) => idea.id)) +
               1 +
               Math.floor(Math.random() * 10);
+            console.log(
+              temp_id,
+              Math.max(...$ideas.map((idea) => idea.id)),
+              $ideas
+            );
             uploadIdea({
               // Take the largest value of idea.id and +1
               id: temp_id,
