@@ -42,6 +42,7 @@
               project_factory: process.env.PROJECT_FACTORY,
               filtered,
             });
+            console.log("new_id", new_id, list, "old_id", temp_id);
             if (list) {
               uploadListAssociation({
                 idea: new_id,
