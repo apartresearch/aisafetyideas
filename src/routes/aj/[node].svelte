@@ -52,14 +52,8 @@
     </div>
 
     {#each currentnode.ideas as i}
-      <Idea idea={i.idea} />
+      <Idea idea={i.idea} dark_mode={true} />
     {/each}
-
-    <SubmitBlock
-      list={currentnode.id}
-      filtered={true}
-      text={"Add more ideas to this list. When you submit on this page, the idea will automatically be added to the list. <a href='/submit'>Go here</a> if you want to add categories and related projects."}
-    />
   </div>
 
   <IdeaViewer />
@@ -72,6 +66,15 @@
     --background-color: #000000;
     --accent-color: #43ff99;
     --text-color-light: #ffffff;
+  }
+
+  a {
+    color: var(--accent-color);
+    text-decoration: none;
+  }
+
+  a:hover {
+    filter: brightness(1.2);
   }
 
   body {

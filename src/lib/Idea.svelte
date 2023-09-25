@@ -12,7 +12,8 @@
   import NodeTag from "./NodeTag.svelte";
 
   export let idea,
-    url = false;
+    url = false,
+    dark_mode = false;
 
   const selectIdea = () => {
     $ideaViewVisible = true;
