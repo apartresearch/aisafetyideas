@@ -1,17 +1,42 @@
-# 👩‍🔬 AI Safety Research Ideas
+# sv
 
-**[The AI Safety Ideas research platform](https://aisafetyideas.com) is trying to revolutionize how science is done!**
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-![Vercel](https://vercelbadge.vercel.app/api/apartresearch/aisafetyideas)
+## Creating a project
 
-## Contribute
+If you're seeing this, you've probably already done this step. Congrats!
 
-There's always new features on the horizon for AI Safety Ideas that you can help with! Check out the [issues page](https://github.com/apartresearch/aisafetyideas/issues) and the [Up for Grabs tag](https://github.com/apartresearch/aisafetyideas/labels/up-for-grabs)
+```sh
+# create a new project
+npx sv create my-app
+```
 
-Also join our Discord on [Apart Research](https://apartresearch.com/join) and chat with our community!
+To recreate this project with the same configuration:
 
-Currently, you can fork it and add features but it won't connect to the database unless you have account access to run `vercel dev` which will run the app and include the environment variables, i.e. database keys. [Set up a call](https://calendly.com/esbenkran/30min) with us and we can give you access.
+```sh
+# recreate this project
+npx sv@0.15.4 create --template minimal --types ts --no-install .sk-tmp
+```
 
-## About us
+## Developing
 
-Check out what we're up to at [Apart Research](https://apartresearch.com) and [our newsletter](https://newsletter.apartresearch.com). We also run the [Alignment Jam hackathons](https://alignmentjam.com).
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+
+```sh
+npm run dev
+
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
+
+## Building
+
+To create a production version of your app:
+
+```sh
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
