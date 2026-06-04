@@ -1,0 +1,22 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npm run check          # svelte-check / typecheck
+      - run: npx vitest run         # unit/integration
+      - run: npm run build          # build must pass
+  db:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - run: supabase start          # boots local stack + applies migrations (Docker on the runner)
+      - run: supabase test db        # pgTAP RLS tests
+      - run: supabase db lint         # static schema lint
