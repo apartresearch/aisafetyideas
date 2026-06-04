@@ -1,2 +1,7 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<script lang="ts">
+  import '../app.css';
+</script>
+<main class="mx-auto max-w-3xl p-12">
+  <h1 class="text-3xl font-bold" style="color:var(--ink)">AI Safety Ideas</h1>
+  <p style="color:var(--muted)">Rebuild in progress.</p>
+</main>
