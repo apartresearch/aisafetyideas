@@ -3,6 +3,12 @@ on: [push, pull_request]
 jobs:
   app:
     runs-on: ubuntu-latest
+    env:
+      # $env/static/public only exports PUBLIC_* vars defined at build time.
+      # CI has no .env file, so provide placeholders to satisfy typecheck + build
+      # (this job does not deploy). Real values come from Vercel project env at deploy.
+      PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-ci
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
