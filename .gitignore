@@ -26,5 +26,8 @@ vite.config.ts.timestamp-*
 /test-results
 /playwright-report
 
+# ETL generated SQL artifact (contains PII — never commit)
+scripts/etl/*.generated.sql
+
 # Local-only Claude settings (shared settings.json stays tracked)
 .claude/settings.local.json
