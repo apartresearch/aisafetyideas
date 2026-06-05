@@ -14,6 +14,7 @@
 
 ## Key design decisions
 - **Emit SQL literals, rely on assignment casts.** Every value from the dump is emitted as either `NULL` or a single-quoted, quote-doubled literal (`'…''…'`); Postgres assignment-casts the unknown-typed literal to each column's type on INSERT (works for int/bool/timestamptz/jsonb/uuid). Computed values (`gen_random_uuid()`, `now()`, built `legacy` jsonb) are emitted as SQL expressions. This avoids per-column type logic.
+- **jsonb columns are canonically re-serialized, NOT emitted via `lit()`.** The COPY parser unescapes `\t`/`\n`/etc. for text fields, which would corrupt a `jsonb` source field whose text contains escaped control characters → a jsonb literal Postgres rejects (`Character with value 0x09 must be escaped`). So every `jsonb`-typed source column — `auth.users.raw_app_meta_data`, `auth.users.raw_user_meta_data`, `auth.identities.identity_data` (verbatim), and any `legacy` we build — must be emitted through **`jsonbLit(JSON.parse(field))`** (parse the unescaped text, then re-stringify canonically). Null jsonb fields → `NULL`. The CLI **fails fast** (throws, logging only the table + row id — never the PII content) if a field isn't valid JSON, so a malformed value is caught at generation, before any DB write.
 - **Standard string literals.** `standard_conforming_strings` is on by default, so backslashes in the (already-unescaped) dump text are literal — JSON `\uXXXX`/`\/` survive correctly inside `'…'`. Only `'` needs doubling.
 - **Idempotent + additive.** Every insert `on conflict do nothing` on a stable key; the cloud's 1 pre-existing test user is skipped; safe to re-run.
 - **User UUIDs preserved** → no user remap; only `ideas`/`categories` get bigint→uuid maps, and the relation tables resolve against them.
@@ -212,6 +213,19 @@ describe('transform helpers', () => {
     expect(ideaType('f')).toBe('open_ended');
   });
 });
+
+// jsonbFromText: canonical re-serialization for verbatim jsonb source columns (see Key design decisions)
+import { jsonbFromText } from './transform';
+describe('jsonbFromText', () => {
+  it('parses the unescaped dump text and re-emits a valid jsonb literal; null→NULL', () => {
+    expect(jsonbFromText(null)).toBe('NULL');
+    // a tab that the COPY parser turned into a real 0x09 inside a JSON string must come back out escaped:
+    expect(jsonbFromText('{"name":"a\tb","n":1}')).toBe('\'{"name":"a\\tb","n":1}\'::jsonb');
+  });
+  it('throws on invalid JSON (fail fast at generation)', () => {
+    expect(() => jsonbFromText('{not json')).toThrow();
+  });
+});
 ```
 
 - [ ] **Step 2: Implement** `scripts/etl/transform.ts` — exported pure helpers + the row builders. Minimum exported surface (the test pins the first four; implement the rest to the §3 mapping):
@@ -224,6 +238,13 @@ export function slugify(s: string): string {
 }
 
 const bool = (v: string | null) => v === 't' || v === 'true';
+
+/** Render a VERBATIM jsonb source column: parse the (already COPY-unescaped) text and re-serialize canonically,
+ *  so escaped control chars produce a valid jsonb literal. Throws on invalid JSON (fail fast). */
+export function jsonbFromText(field: string | null): string {
+  if (field === null) return 'NULL';
+  return jsonbLit(JSON.parse(field));
+}
 
 export function uniqueHandle(username: string | null, email: string | null, id: string, used: Set<string>): string {
   const id4 = id.replace(/-/g, '').slice(0, 4);
@@ -328,6 +349,8 @@ console.log(`wrote ${OUT}: users=${authUsers.length} ideas=${ideas.length} categ
 ```
 
 (Wire the transforms: build `oldIdeaId→newUuid` / `oldCatId→newUuid` maps with `crypto.randomUUID()`, a shared `used` handle Set, then map each batch. The CLI prints only **counts**, never row contents — PII discipline.)
+
+> **Verbatim auth rows (Task 4):** build each `auth.users` / `auth.identities` row by emitting every dump column via `lit()`, **except** the jsonb columns — `auth.users.raw_app_meta_data`, `auth.users.raw_user_meta_data`, and `auth.identities.identity_data` — which MUST go through **`jsonbFromText()`** (see Key design decisions; `lit()` on those would corrupt control chars). Skip the generated columns (`auth.users.confirmed_at`, `auth.identities.email`). Conflict target: `id`.
 
 - [ ] **Step 4: Verify** `npm run check` stays 0 errors (the script is TS; ensure it's excluded from the SvelteKit app types or type-checks cleanly). Run `npx vitest run scripts/etl` → all green.
 - [ ] **Step 5: Commit** `git add scripts/etl/emit.ts scripts/etl/emit.test.ts scripts/etl/restore-v1.ts && git commit -m "feat(etl): SQL emitter + restore-v1 CLI"`
