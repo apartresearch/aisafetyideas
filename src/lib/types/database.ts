@@ -34,6 +34,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          legacy_id: number | null
+          priority: number
+          slug: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          legacy_id?: number | null
+          priority?: number
+          slug: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          legacy_id?: number | null
+          priority?: number
+          slug?: string
+          title?: string
+        }
+        Relationships: []
+      }
       experts: {
         Row: {
           approved_at: string | null
@@ -106,6 +136,158 @@ export type Database = {
           {
             foreignKeyName: "follows_follower_id_fkey"
             columns: ["follower_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idea_categories: {
+        Row: {
+          category_id: string
+          idea_id: string
+        }
+        Insert: {
+          category_id: string
+          idea_id: string
+        }
+        Update: {
+          category_id?: string
+          idea_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_categories_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      idea_relations: {
+        Row: {
+          child_id: string
+          created_at: string
+          id: string
+          legacy_id: number | null
+          parent_id: string
+          type: string | null
+        }
+        Insert: {
+          child_id: string
+          created_at?: string
+          id?: string
+          legacy_id?: number | null
+          parent_id: string
+          type?: string | null
+        }
+        Update: {
+          child_id?: string
+          created_at?: string
+          id?: string
+          legacy_id?: number | null
+          parent_id?: string
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_relations_child_id_fkey"
+            columns: ["child_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_relations_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ideas: {
+        Row: {
+          author_id: string | null
+          auto_resolve_days: number | null
+          claim: string | null
+          closes_at: string | null
+          contact: string | null
+          created_at: string
+          currency: string
+          estimated_hours: number | null
+          from_date: string | null
+          id: string
+          importance: number | null
+          legacy: Json
+          legacy_id: number | null
+          published_at: string | null
+          resolution: string | null
+          source_url: string | null
+          status: string
+          summary_md: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          author_id?: string | null
+          auto_resolve_days?: number | null
+          claim?: string | null
+          closes_at?: string | null
+          contact?: string | null
+          created_at?: string
+          currency?: string
+          estimated_hours?: number | null
+          from_date?: string | null
+          id?: string
+          importance?: number | null
+          legacy?: Json
+          legacy_id?: number | null
+          published_at?: string | null
+          resolution?: string | null
+          source_url?: string | null
+          status?: string
+          summary_md?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string | null
+          auto_resolve_days?: number | null
+          claim?: string | null
+          closes_at?: string | null
+          contact?: string | null
+          created_at?: string
+          currency?: string
+          estimated_hours?: number | null
+          from_date?: string | null
+          id?: string
+          importance?: number | null
+          legacy?: Json
+          legacy_id?: number | null
+          published_at?: string | null
+          resolution?: string | null
+          source_url?: string | null
+          status?: string
+          summary_md?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ideas_author_id_fkey"
+            columns: ["author_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
