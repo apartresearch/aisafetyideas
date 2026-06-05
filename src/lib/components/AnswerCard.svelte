@@ -1,10 +1,11 @@
 <script lang="ts">
   import StatusBadge from './StatusBadge.svelte';
   import Money from './Money.svelte';
+  import Markdown from './Markdown.svelte';
   type Artifact = { id: string; kind: string; url: string; label: string | null };
   let { answer }: {
     answer: {
-      id: string; title: string; explanation_md: string | null; status: string;
+      id: string; title: string; explanation_html?: string | null; status: string;
       payout_amount_cents: number | null; answer_artifacts?: Artifact[] | null;
       submitter?: { handle: string; display_name: string | null } | null;
     }
@@ -16,7 +17,7 @@
     <StatusBadge status={answer.status} />
   </div>
   {#if answer.submitter}<p class="text-sm" style="color:var(--faint)">by {answer.submitter.display_name ?? answer.submitter.handle}</p>{/if}
-  {#if answer.explanation_md}<p class="mt-2 whitespace-pre-wrap text-sm" style="color:var(--body)">{answer.explanation_md}</p>{/if}
+  {#if answer.explanation_html}<Markdown html={answer.explanation_html} class="mt-2" />{/if}
   {#if answer.answer_artifacts?.length}
     <ul class="mt-3 flex flex-col gap-1 text-sm">
       {#each answer.answer_artifacts as a (a.id)}
