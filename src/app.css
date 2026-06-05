@@ -9,6 +9,8 @@
   --green:#44ff98; --green-bright:#60ff7b; --green-deep:#1cdb72;
   /* Semantic */
   --pos:#1cdb72; --neg:#ff375e; --warn:#ff9307; --info:#0a84ff;
+  /* Data-viz (green-forward on greyscale, per CLAUDE.md) */
+  --chart-1:#44ff98; --chart-2:#1cdb72; --chart-ink:#c7ccc9; --chart-grid:var(--line);
   /* Radius / shadow */
   --r-pill:999px; --r-card:16px; --r-ctrl:12px; --r-chip:10px;
   --shadow-1:0 1px 2px rgba(20,24,22,.04),0 1px 1px rgba(20,24,22,.03);
