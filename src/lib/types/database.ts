@@ -360,6 +360,60 @@ export type Database = {
           },
         ]
       }
+      idea_funding: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          currency: string
+          funder_id: string | null
+          id: string
+          idea_id: string
+          legacy: Json
+          legacy_id: number | null
+          note_md: string | null
+          status: string
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          currency?: string
+          funder_id?: string | null
+          id?: string
+          idea_id: string
+          legacy?: Json
+          legacy_id?: number | null
+          note_md?: string | null
+          status?: string
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          currency?: string
+          funder_id?: string | null
+          id?: string
+          idea_id?: string
+          legacy?: Json
+          legacy_id?: number | null
+          note_md?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_funding_funder_id_fkey"
+            columns: ["funder_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "idea_funding_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       idea_relations: {
         Row: {
           child_id: string
@@ -520,7 +574,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      bounty_pot: {
+        Row: {
+          funder_count: number | null
+          idea_id: string | null
+          pot_cents: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "idea_funding_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       admin_approve_payout: {
