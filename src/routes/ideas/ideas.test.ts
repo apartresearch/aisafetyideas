@@ -11,7 +11,7 @@ function mkLocals(rows: unknown[]) {
 
 describe('ideas browse load', () => {
   it('returns ideas + count', async () => {
-    const res = await load({ url: new URL('http://x/ideas'), locals: mkLocals([{ id: '1', title: 'A' }]) } as any);
+    const res = (await load({ url: new URL('http://x/ideas'), locals: mkLocals([{ id: '1', title: 'A' }]) } as any)) as any;
     expect(res.ideas.length).toBe(1);
     expect(res.count).toBe(1);
   });
