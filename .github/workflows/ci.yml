@@ -1,0 +1,28 @@
+name: CI
+on: [push, pull_request]
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    env:
+      # $env/static/public only exports PUBLIC_* vars defined at build time.
+      # CI has no .env file, so provide placeholders to satisfy typecheck + build
+      # (this job does not deploy). Real values come from Vercel project env at deploy.
+      PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key-for-ci
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npm run check          # svelte-check / typecheck
+      - run: npx vitest run         # unit/integration
+      - run: npm run build          # build must pass
+  db:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - run: supabase start          # boots local stack + applies migrations (Docker on the runner)
+      - run: supabase test db        # pgTAP RLS tests
+      - run: supabase db lint         # static schema lint

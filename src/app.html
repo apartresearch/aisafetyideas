@@ -1,58 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="description" content="" />
-    <link rel="icon" href="/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Add the Sora font from google fonts -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;700;900&display=swap"
-      rel="stylesheet"
-    />
-    <link href="/css/normalize.css" rel="stylesheet" type="text/css" />
-    <link href="/css/webflow.css" rel="stylesheet" type="text/css" />
-    <link
-      async
-      defer
-      href="/css/aisafetyideas.webflow.css"
-      rel="stylesheet"
-      type="text/css"
-    />
-
-    <!-- implement title -->
-    <title>AI Safety Ideas</title>
-
-    <meta
-      content="The AI Safety Ideas platform provides open source access to shovel-ready project ideas to solve the world's most pressing problems in keeping AI safe."
-      name="description"
-    />
-    <meta content="AI Safety Ideas" property="og:title" />
-    <meta
-      content="The AI Safety Ideas platform provides open source access to shovel-ready project ideas to solve the world's most pressing problems in keeping AI safe."
-      property="og:description"
-    />
-    <meta content="/images/ogimage.png" property="og:image" />
-    <meta content="AI Safety Ideas" property="twitter:title" />
-    <meta
-      content="The AI Safety Ideas platform provides open source access to shovel-ready project ideas to solve the world's most pressing problems in keeping AI safe."
-      property="twitter:description"
-    />
-    <meta content="/images/ogimage.png" property="twitter:image" />
-    <meta property="og:type" content="website" />
-    <meta content="summary_large_image" name="twitter:card" />
-    <meta content="width=device-width, initial-scale=1" name="viewport" />
-    <script async defer src="https://sa.aisafetyideas.com/latest.js"></script>
-    <noscript
-      ><img
-        src="https://sa.aisafetyideas.com/noscript.gif"
-        alt=""
-        referrerpolicy="no-referrer-when-downgrade"
-    /></noscript>
-
-    %svelte.head%
-  </head>
-  <body>
-    <div id="svelte">%svelte.body%</div>
-  </body>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+	%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
 </html>

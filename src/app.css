@@ -1,0 +1,39 @@
+@import 'tailwindcss';
+
+:root {
+  /* Structure & text: greyscale only */
+  --ink:#1a1d1b; --ink-2:#252525; --body:#3a3f3d; --muted:#6b7280; --faint:#a0a0a0;
+  --line:rgba(20,24,22,.08); --line-strong:rgba(20,24,22,.14);
+  --canvas:#f5f6f5; --surface:#fff; --surface-2:#fafbfa; --surface-dk:#1a1d1b; --on-dark:#f5f6f5;
+  /* Brand green: accent only */
+  --green:#44ff98; --green-bright:#60ff7b; --green-deep:#1cdb72;
+  /* Semantic */
+  --pos:#1cdb72; --neg:#ff375e; --warn:#ff9307; --info:#0a84ff;
+  /* Radius / shadow */
+  --r-pill:999px; --r-card:16px; --r-ctrl:12px; --r-chip:10px;
+  --shadow-1:0 1px 2px rgba(20,24,22,.04),0 1px 1px rgba(20,24,22,.03);
+  --shadow-2:0 2px 4px rgba(20,24,22,.04),0 4px 12px rgba(20,24,22,.06);
+  --shadow-3:0 8px 24px rgba(20,24,22,.08),0 2px 6px rgba(20,24,22,.05);
+  /* Motion */
+  --dur-instant:80ms; --dur-fast:140ms; --dur-base:220ms; --dur-slow:360ms; --dur-slower:520ms;
+  --ease-snappy:cubic-bezier(.2,0,0,1); --ease-out-soft:cubic-bezier(.16,1,.3,1);
+  --ease-emphasized:cubic-bezier(.32,.72,0,1); --ease-in-out:cubic-bezier(.65,0,.35,1);
+}
+
+/* Expose a subset to Tailwind v4 utilities */
+@theme {
+  --color-ink:#1a1d1b; --color-muted:#6b7280; --color-canvas:#f5f6f5; --color-surface:#fff;
+  --color-green:#44ff98; --color-green-deep:#1cdb72; --color-pos:#1cdb72; --color-neg:#ff375e;
+  --font-display:"Sora",sans-serif; --font-serif:"Lora",serif;
+  --radius-card:16px; --radius-ctrl:12px;
+}
+
+html { font-family: var(--font-display); color: var(--body); background: var(--canvas); }
+*, *::before, *::after { box-sizing: border-box; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration:.01ms !important; animation-iteration-count:1 !important;
+    transition-duration:.01ms !important; scroll-behavior:auto !important;
+  }
+}
