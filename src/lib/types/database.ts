@@ -34,6 +34,194 @@ export type Database = {
   }
   public: {
     Tables: {
+      answer_artifacts: {
+        Row: {
+          answer_id: string
+          created_at: string
+          id: string
+          kind: string
+          label: string | null
+          legacy: Json
+          legacy_id: number | null
+          url: string
+        }
+        Insert: {
+          answer_id: string
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          legacy?: Json
+          legacy_id?: number | null
+          url: string
+        }
+        Update: {
+          answer_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          legacy?: Json
+          legacy_id?: number | null
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answer_artifacts_answer_id_fkey"
+            columns: ["answer_id"]
+            isOneToOne: false
+            referencedRelation: "answers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      answer_reviews: {
+        Row: {
+          action: string
+          actor_id: string | null
+          amount_cents: number | null
+          answer_id: string
+          created_at: string
+          id: string
+          legacy_id: number | null
+          note_md: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          amount_cents?: number | null
+          answer_id: string
+          created_at?: string
+          id?: string
+          legacy_id?: number | null
+          note_md?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          amount_cents?: number | null
+          answer_id?: string
+          created_at?: string
+          id?: string
+          legacy_id?: number | null
+          note_md?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answer_reviews_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answer_reviews_answer_id_fkey"
+            columns: ["answer_id"]
+            isOneToOne: false
+            referencedRelation: "answers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      answers: {
+        Row: {
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          admin_rejected_at: string | null
+          admin_rejected_by: string | null
+          created_at: string
+          explanation_md: string | null
+          id: string
+          idea_id: string
+          legacy: Json
+          legacy_id: number | null
+          payout_amount_cents: number | null
+          payout_currency: string
+          status: string
+          submitter_id: string | null
+          title: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        Insert: {
+          admin_approved_at?: string | null
+          admin_approved_by?: string | null
+          admin_rejected_at?: string | null
+          admin_rejected_by?: string | null
+          created_at?: string
+          explanation_md?: string | null
+          id?: string
+          idea_id: string
+          legacy?: Json
+          legacy_id?: number | null
+          payout_amount_cents?: number | null
+          payout_currency?: string
+          status?: string
+          submitter_id?: string | null
+          title: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Update: {
+          admin_approved_at?: string | null
+          admin_approved_by?: string | null
+          admin_rejected_at?: string | null
+          admin_rejected_by?: string | null
+          created_at?: string
+          explanation_md?: string | null
+          id?: string
+          idea_id?: string
+          legacy?: Json
+          legacy_id?: number | null
+          payout_amount_cents?: number | null
+          payout_currency?: string
+          status?: string
+          submitter_id?: string | null
+          title?: string
+          updated_at?: string
+          verified_at?: string | null
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "answers_admin_approved_by_fkey"
+            columns: ["admin_approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answers_admin_rejected_by_fkey"
+            columns: ["admin_rejected_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answers_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answers_submitter_id_fkey"
+            columns: ["submitter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "answers_verified_by_fkey"
+            columns: ["verified_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           created_at: string
@@ -335,7 +523,219 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_approve_payout: {
+        Args: { p_answer_id: string; p_note?: string }
+        Returns: {
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          admin_rejected_at: string | null
+          admin_rejected_by: string | null
+          created_at: string
+          explanation_md: string | null
+          id: string
+          idea_id: string
+          legacy: Json
+          legacy_id: number | null
+          payout_amount_cents: number | null
+          payout_currency: string
+          status: string
+          submitter_id: string | null
+          title: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "answers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_reject_payout: {
+        Args: { p_answer_id: string; p_note?: string }
+        Returns: {
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          admin_rejected_at: string | null
+          admin_rejected_by: string | null
+          created_at: string
+          explanation_md: string | null
+          id: string
+          idea_id: string
+          legacy: Json
+          legacy_id: number | null
+          payout_amount_cents: number | null
+          payout_currency: string
+          status: string
+          submitter_id: string | null
+          title: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "answers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       is_admin: { Args: never; Returns: boolean }
+      reject_answer: {
+        Args: { p_answer_id: string; p_note?: string }
+        Returns: {
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          admin_rejected_at: string | null
+          admin_rejected_by: string | null
+          created_at: string
+          explanation_md: string | null
+          id: string
+          idea_id: string
+          legacy: Json
+          legacy_id: number | null
+          payout_amount_cents: number | null
+          payout_currency: string
+          status: string
+          submitter_id: string | null
+          title: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "answers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      request_revision_answer: {
+        Args: { p_answer_id: string; p_note?: string }
+        Returns: {
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          admin_rejected_at: string | null
+          admin_rejected_by: string | null
+          created_at: string
+          explanation_md: string | null
+          id: string
+          idea_id: string
+          legacy: Json
+          legacy_id: number | null
+          payout_amount_cents: number | null
+          payout_currency: string
+          status: string
+          submitter_id: string | null
+          title: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "answers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      resubmit_answer: {
+        Args: {
+          p_answer_id: string
+          p_explanation_md?: string
+          p_title?: string
+        }
+        Returns: {
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          admin_rejected_at: string | null
+          admin_rejected_by: string | null
+          created_at: string
+          explanation_md: string | null
+          id: string
+          idea_id: string
+          legacy: Json
+          legacy_id: number | null
+          payout_amount_cents: number | null
+          payout_currency: string
+          status: string
+          submitter_id: string | null
+          title: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "answers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      start_review: {
+        Args: { p_answer_id: string }
+        Returns: {
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          admin_rejected_at: string | null
+          admin_rejected_by: string | null
+          created_at: string
+          explanation_md: string | null
+          id: string
+          idea_id: string
+          legacy: Json
+          legacy_id: number | null
+          payout_amount_cents: number | null
+          payout_currency: string
+          status: string
+          submitter_id: string | null
+          title: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "answers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      verify_answer: {
+        Args: {
+          p_answer_id: string
+          p_note?: string
+          p_payout_amount_cents?: number
+          p_resolution?: string
+        }
+        Returns: {
+          admin_approved_at: string | null
+          admin_approved_by: string | null
+          admin_rejected_at: string | null
+          admin_rejected_by: string | null
+          created_at: string
+          explanation_md: string | null
+          id: string
+          idea_id: string
+          legacy: Json
+          legacy_id: number | null
+          payout_amount_cents: number | null
+          payout_currency: string
+          status: string
+          submitter_id: string | null
+          title: string
+          updated_at: string
+          verified_at: string | null
+          verified_by: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "answers"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       [_ in never]: never
