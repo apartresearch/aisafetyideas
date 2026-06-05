@@ -1,5 +1,6 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
+import { renderMarkdown } from '$lib/server/markdown';
 
 async function requireExpert(supabase: any, userId: string | undefined) {
   if (!userId) return false;
@@ -35,7 +36,8 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
   const queue = (rawQueue ?? []).map((q: any) => ({
     ...q,
     submitter: Array.isArray(q.submitter) ? (q.submitter[0] ?? null) : q.submitter,
-    ideas: Array.isArray(q.ideas) ? (q.ideas[0] ?? null) : q.ideas
+    ideas: Array.isArray(q.ideas) ? (q.ideas[0] ?? null) : q.ideas,
+    explanation_html: renderMarkdown(q.explanation_md)
   }));
 
   return { ideas: ideas ?? [], queue };

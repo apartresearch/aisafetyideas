@@ -1,5 +1,6 @@
 import { error, fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
+import { renderMarkdown } from '$lib/server/markdown';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
   const { data: profile } = await supabase
@@ -8,7 +9,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     .eq('handle', params.handle)
     .single();
   if (!profile) error(404, 'Profile not found');
-  return { profile };
+  return { profile, bio_html: renderMarkdown(profile.bio_md) };
 };
 
 export const actions: Actions = {

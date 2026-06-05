@@ -1,11 +1,12 @@
 <script lang="ts">
+  import Markdown from '$lib/components/Markdown.svelte';
   let { data, form } = $props();
   let isSelf = $derived(data.user?.id === data.profile.id);
 </script>
 <article class="rounded-2xl border p-6" style="border-color:var(--line);background:var(--surface);box-shadow:var(--shadow-1)">
   <h1 class="text-2xl font-bold" style="color:var(--ink)">{data.profile.display_name ?? data.profile.handle}</h1>
   <p style="color:var(--faint)">@{data.profile.handle}{#if data.profile.career_stage} · {data.profile.career_stage}{/if}</p>
-  <p class="mt-3" style="color:var(--body)">{data.profile.bio_md ?? ''}</p>
+  <Markdown html={data.bio_html} class="mt-3" />
 
   {#if isSelf}
     <form method="POST" action="?/update" class="mt-6 flex flex-col gap-2">
