@@ -1,6 +1,7 @@
 <script lang="ts">
   import StatusBadge from '$lib/components/StatusBadge.svelte';
   import Money from '$lib/components/Money.svelte';
+  import Markdown from '$lib/components/Markdown.svelte';
   let { data, form } = $props();
 </script>
 <h1 class="mb-4 text-2xl font-bold" style="color:var(--ink)">Expert console</h1>
@@ -33,7 +34,7 @@
           </div>
           <StatusBadge status={a.status} />
         </div>
-        {#if a.explanation_md}<p class="mb-2 whitespace-pre-wrap text-sm" style="color:var(--body)">{a.explanation_md}</p>{/if}
+        <Markdown html={a.explanation_html} class="mb-2" />
         {#if a.answer_artifacts?.length}
           <ul class="mb-3 flex flex-col gap-1 text-sm">
             {#each a.answer_artifacts as art (art.id)}
