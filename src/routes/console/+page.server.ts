@@ -73,15 +73,18 @@ export const actions: Actions = {
     if (!user || !(await requireExpert(supabase, user.id))) return fail(403, { message: 'Approved experts only' });
     const fd = await request.formData();
     const dollars = Number(fd.get('payout') ?? '');
-    const payout = Number.isFinite(dollars) && dollars > 0 ? Math.round(dollars * 100) : null;
+    // Pass `undefined` (not null) for omitted optional RPC params: supabase-js types defaulted params as
+    // optional (`p_note?: string`), drops undefined keys from the request, and the SQL `default null` yields
+    // the same NULL — while keeping full compile-time checking of the RPC name and param names.
+    const payout = Number.isFinite(dollars) && dollars > 0 ? Math.round(dollars * 100) : undefined;
     const resolutionRaw = String(fd.get('resolution') ?? '');
-    const resolution = ['yes', 'no', 'ambiguous'].includes(resolutionRaw) ? resolutionRaw : null;
+    const resolution = ['yes', 'no', 'ambiguous'].includes(resolutionRaw) ? resolutionRaw : undefined;
     const { error: e } = await supabase.rpc('verify_answer', {
       p_answer_id: String(fd.get('answer_id')),
-      p_note: String(fd.get('note') ?? '') || null,
+      p_note: String(fd.get('note') ?? '') || undefined,
       p_payout_amount_cents: payout,
       p_resolution: resolution
-    } as any);
+    });
     if (e) return fail(400, { message: e.message });
     return { ok: true };
   },
@@ -91,8 +94,8 @@ export const actions: Actions = {
     if (!user || !(await requireExpert(supabase, user.id))) return fail(403, { message: 'Approved experts only' });
     const fd = await request.formData();
     const { error: e } = await supabase.rpc('request_revision_answer', {
-      p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || null
-    } as any);
+      p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || undefined
+    });
     if (e) return fail(400, { message: e.message });
     return { ok: true };
   },
@@ -102,8 +105,8 @@ export const actions: Actions = {
     if (!user || !(await requireExpert(supabase, user.id))) return fail(403, { message: 'Approved experts only' });
     const fd = await request.formData();
     const { error: e } = await supabase.rpc('reject_answer', {
-      p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || null
-    } as any);
+      p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || undefined
+    });
     if (e) return fail(400, { message: e.message });
     return { ok: true };
   }

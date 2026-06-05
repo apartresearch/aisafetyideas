@@ -39,9 +39,10 @@ export const actions: Actions = {
     const { user } = await safeGetSession();
     if (!user || !(await requireAdmin(supabase, user.id))) return fail(403, { message: 'Admins only' });
     const fd = await request.formData();
+    // `undefined` (not null) for the optional note keeps full RPC param-name type-checking (see console route).
     const { error: e } = await supabase.rpc('admin_approve_payout', {
-      p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || null
-    } as any);
+      p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || undefined
+    });
     if (e) return fail(400, { message: e.message });
     return { ok: true };
   },
@@ -50,8 +51,8 @@ export const actions: Actions = {
     if (!user || !(await requireAdmin(supabase, user.id))) return fail(403, { message: 'Admins only' });
     const fd = await request.formData();
     const { error: e } = await supabase.rpc('admin_reject_payout', {
-      p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || null
-    } as any);
+      p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || undefined
+    });
     if (e) return fail(400, { message: e.message });
     return { ok: true };
   }
