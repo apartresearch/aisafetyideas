@@ -204,6 +204,14 @@ describe('v2 ref helpers', () => {
     expect(() => ideaRef('14; drop table x')).toThrow();
     expect(() => ideaRef(null)).toThrow();
   });
+  it('rejects empty string, whitespace, scientific notation, hex, and floats', () => {
+    expect(() => ideaRef('')).toThrow();
+    expect(() => ideaRef('1e3')).toThrow();
+    expect(() => ideaRef('14.0')).toThrow();
+  });
+  it('preserves bigint values beyond Number.MAX_SAFE_INTEGER verbatim', () => {
+    expect(ideaRef('9007199254740993')).toBe("(select id from public.ideas where legacy_id = 9007199254740993)");
+  });
 });
 
 describe('v2 transforms', () => {
@@ -230,6 +238,13 @@ describe('v2 transforms', () => {
       { id: '96', reply_to: '69' }, { id: '97', reply_to: null }
     ] as any[];
     expect(commentReplies(rows)).toEqual([{ legacy_id: '96', reply_legacy_id: '69' }]);
+  });
+  it('commentReplies throws on non-integer ids', () => {
+    expect(() => commentReplies([{ id: '9', reply_to: 'x' }] as any[])).toThrow();
+  });
+  it('commentReplies skips self-replies', () => {
+    const rows = [{ id: '9', reply_to: '9' }] as any[];
+    expect(commentReplies(rows)).toEqual([]);
   });
   it('toInterest maps how→note_md (blank→NULL) and contact flag→legacy', () => {
     const i = toInterest({ id: '14', created_at: '2022-06-14 12:14:29+00',
@@ -262,6 +277,9 @@ describe('v2 transforms', () => {
     expect(v.value).toBe('1');
     expect(v.legacy).toContain('"size":"3"');
   });
+  it('toVote throws when user is null (profile_id is NOT NULL)', () => {
+    expect(() => toVote({ id: '9', created_at: 'x', user: null, idea: '14', size: null })).toThrow();
+  });
   it('dedupeVotes keeps the earliest per (user, idea)', () => {
     const { kept, dropped } = dedupeVotes([
       { id: '2', created_at: '2022-02-01', user: 'u1', idea: '5', size: '1' },
@@ -270,5 +288,12 @@ describe('v2 transforms', () => {
     ] as any[]);
     expect(kept.map((r: any) => r.id)).toEqual(['1', '3']);
     expect(dropped).toBe(1);
+  });
+  it('dedupeVotes keeps chronologically-earliest with fractional-second timestamps', () => {
+    const { kept } = dedupeVotes([
+      { id: '2', created_at: '2022-01-01 10:00:00.5+00', user: 'u1', idea: '5', size: null },
+      { id: '1', created_at: '2022-01-01 10:00:00+00',   user: 'u1', idea: '5', size: null }
+    ] as any[]);
+    expect(kept[0].id).toBe('1');
   });
 });

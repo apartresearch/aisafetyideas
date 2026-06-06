@@ -228,11 +228,12 @@ export function resolveIdeaRelations(rels: Row[], ideaMap: Map<string, string>):
 
 // ───────────────────────────── Restore v2 ─────────────────────────────
 
-/** Scalar-subquery ref against a legacy_id anchor. Validates the id is an integer (never interpolate dump text). */
+/** Scalar-subquery ref against a legacy_id anchor. Validates the RAW string (bigint-safe, rejects ''/whitespace/'1e3'/'0x10'/'14.0'). */
 function legacyRef(table: string, legacyId: string | null | undefined): string {
-  const n = Number(legacyId);
-  if (legacyId == null || !Number.isInteger(n)) throw new Error(`invalid legacy id for ${table}`);
-  return `(select id from public.${table} where legacy_id = ${n})`;
+  if (legacyId == null || !/^-?\d+$/.test(legacyId)) {
+    throw new Error(`invalid legacy id for ${table}: ${JSON.stringify(legacyId)}`);
+  }
+  return `(select id from public.${table} where legacy_id = ${legacyId})`;
 }
 export const ideaRef = (legacyId: string | null | undefined) => legacyRef('ideas', legacyId);
 export const answerRef = (legacyId: string | null | undefined) => legacyRef('answers', legacyId);
@@ -257,9 +258,15 @@ export function toComment(c: Row): SqlRow {
 
 /** The (child, parent) legacy-id pairs that need the pass-2 reply_to update. */
 export function commentReplies(rows: Row[]): { legacy_id: string; reply_legacy_id: string }[] {
-  return rows
-    .filter((r) => r.reply_to != null && r.id != null)
-    .map((r) => ({ legacy_id: r.id as string, reply_legacy_id: r.reply_to as string }));
+  const INT = /^-?\d+$/;
+  const out: { legacy_id: string; reply_legacy_id: string }[] = [];
+  for (const r of rows) {
+    if (r.reply_to == null || r.id == null) continue;
+    if (!INT.test(r.id) || !INT.test(r.reply_to)) throw new Error(`invalid comment reply pair ${JSON.stringify(r.id)}→${JSON.stringify(r.reply_to)}`);
+    if (r.id === r.reply_to) continue; // self-reply: drop (stays in the row's legacy jsonb)
+    out.push({ legacy_id: r.id, reply_legacy_id: r.reply_to });
+  }
+  return out;
 }
 
 /** old `idea_user_interest_relation` → `public.interest` (spec §5). */
@@ -312,10 +319,11 @@ export function toAnswerArtifact(r: Row): SqlRow | null {
 
 /** old `idea_user_likes` → `public.idea_votes` as upvotes; old weight kept in legacy (spec §5). */
 export function toVote(l: Row): SqlRow {
+  if (l.user == null) throw new Error(`like ${l.id ?? '?'} has no user — idea_votes.profile_id is NOT NULL`);
   return {
     legacy_id: lit(l.id),
     idea_id: ideaRef(l.idea),
-    profile_id: lit(l.user ?? null),
+    profile_id: lit(l.user),
     value: '1',
     legacy: jsonbLit({ size: l.size ?? undefined }),
     created_at: lit(l.created_at ?? { sql: 'now()' })
@@ -324,7 +332,10 @@ export function toVote(l: Row): SqlRow {
 
 /** Guard for `unique (idea_id, profile_id)`: keep the earliest like per (user, idea). */
 export function dedupeVotes(rows: Row[]): { kept: Row[]; dropped: number } {
-  const sorted = [...rows].sort((a, b) => String(a.created_at ?? '').localeCompare(String(b.created_at ?? '')));
+  const cmp = (x: string, y: string) => (x < y ? -1 : x > y ? 1 : 0);
+  const sorted = [...rows].sort(
+    (a, b) => cmp(String(a.created_at ?? '~'), String(b.created_at ?? '~')) || cmp(String(a.id ?? ''), String(b.id ?? ''))
+  );
   const seen = new Set<string>();
   const kept: Row[] = [];
   for (const r of sorted) {
