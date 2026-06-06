@@ -1,5 +1,6 @@
 <script lang="ts">
   import StatusBadge from '$lib/components/StatusBadge.svelte';
+  import VoteControl from '$lib/components/VoteControl.svelte';
   import AnswerCard from '$lib/components/AnswerCard.svelte';
   import BountyMeter from '$lib/components/BountyMeter.svelte';
   import Money from '$lib/components/Money.svelte';
@@ -11,7 +12,11 @@
     <article class="rounded-2xl border p-6" style="border-color:var(--line); background:var(--surface); box-shadow:var(--shadow-1)">
       <div class="mb-2 flex items-center justify-between">
         <span class="text-xs uppercase tracking-wide" style="color:var(--faint)">{data.idea.type === 'hypothesis' ? 'Hypothesis' : 'Open-ended'}</span>
-        <StatusBadge status={data.idea.status} />
+        <div class="flex items-center gap-2">
+          <VoteControl score={data.score} myVote={data.myVote} canVote={data.canEngage}
+                       signinHref={`/login?next=/ideas/${data.idea.id}`} />
+          <StatusBadge status={data.idea.status} />
+        </div>
       </div>
       <h1 class="text-2xl font-bold" style="color:var(--ink)">{data.idea.title}</h1>
       {#if data.author}<p class="text-sm" style="color:var(--faint)">by <a href="/u/{data.author.handle}" style="color:var(--green-deep)">{data.author.display_name ?? data.author.handle}</a></p>{/if}
