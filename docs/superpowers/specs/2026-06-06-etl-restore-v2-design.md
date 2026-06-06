@@ -46,7 +46,8 @@ create table public.idea_votes (
 );
 ```
 
-- Indexes: `idea_id`, `profile_id` (covers both FKs; the unique adds `(idea_id, profile_id)`).
+- Indexes: `profile_id` (covers its FK); the `unique (idea_id, profile_id)` doubles as the
+  `idea_id` index (leading column) — no separate idea_id index.
 - **RLS mirrors `interest` exactly:**
   - SELECT: idea visible (leverages ideas RLS via `exists`) **or** own row.
   - INSERT (`to authenticated`): `auth.uid() = profile_id`, `legacy_id is null and

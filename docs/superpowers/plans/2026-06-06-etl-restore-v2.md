@@ -61,8 +61,8 @@ create table public.idea_votes (
   unique (idea_id, profile_id)
 );
 alter table public.idea_votes enable row level security;
-create index idea_votes_idea_id_idx on public.idea_votes (idea_id);
 create index idea_votes_profile_id_idx on public.idea_votes (profile_id);
+-- (no separate idea_id index: the unique (idea_id, profile_id) doubles as it — leading column)
 
 -- SELECT: readable when the idea is visible (leverages ideas RLS) OR it is the caller's own vote
 create policy "votes readable when idea visible or own" on public.idea_votes for select
@@ -177,7 +177,7 @@ select * from finish();
 rollback;
 ```
 
-- [ ] **Step 3: Run** `supabase db reset` (applies the migration) then `supabase test db` → expect `idea_votes_test` 14/14 plus all existing suites still green (96 + 14).
+- [ ] **Step 3: Run** `supabase db reset` (applies the migration) then `supabase test db` → expect `idea_votes_test` 15/15 (incl. the UPDATE-is-noop pin, test 8b) plus all existing suites still green (96 + 15 = 111).
 - [ ] **Step 4: Regenerate the DB types** (the client is typed — without this every `from('idea_votes')` in Task 4 is a TS error): `supabase gen types typescript --local > src/lib/types/database.ts`, then `npm run check` → 0 errors.
 - [ ] **Step 5: Commit** `git add supabase/migrations supabase/tests/database/idea_votes_test.sql src/lib/types/database.ts && git commit -m "feat(votes): idea_votes table + RLS + totals view + pgTAP + types"`
 
@@ -976,7 +976,7 @@ jq -Rs '{query: .}' scripts/etl/restore-v2.generated.sql | curl -sS -m 600 \
 ---
 
 ## Done-when (Restore v2 acceptance)
-- `supabase test db` green incl. `idea_votes_test` 14/14; `npx vitest run` green (etl + votes + browse); `npm run check` 0 errors; `npm run build` succeeds.
+- `supabase test db` green incl. `idea_votes_test` 15/15 (111 total); `npx vitest run` green (etl + votes + browse); `npm run check` 0 errors; `npm run build` succeeds.
 - `npm run etl:restore-v2` deterministically emits a gitignored artifact (83/13/133/5/5/387 printed).
 - Local rehearsal: embedded asserts pass, orphan scans 0, threading resolved, idempotent re-run, UI shows scores/sort/votes/comments/answers.
 - Cloud: counts verified, advisors at baseline, smoke test passes, PAT revoked.
