@@ -8,6 +8,12 @@
   <a href="/ideas?type=hypothesis" style="color:{data.type === 'hypothesis' ? 'var(--green-deep)' : 'var(--muted)'}">Hypotheses</a>
   <a href="/ideas?type=open_ended" style="color:{data.type === 'open_ended' ? 'var(--green-deep)' : 'var(--muted)'}">Open-ended</a>
 </nav>
+<nav class="mb-6 -mt-4 flex gap-2 text-sm">
+  <a href="/ideas{data.type ? `?type=${data.type}` : ''}"
+     style="color:{data.sort === 'top' ? 'var(--muted)' : 'var(--green-deep)'}">Newest</a>
+  <a href="/ideas?{data.type ? `type=${data.type}&` : ''}sort=top"
+     style="color:{data.sort === 'top' ? 'var(--green-deep)' : 'var(--muted)'}">Top</a>
+</nav>
 {#if data.ideas.length === 0}
   <p style="color:var(--muted)">No ideas yet.</p>
 {:else}
@@ -17,7 +23,7 @@
 {/if}
 {#if data.count > data.pageSize}
   <div class="mt-6 flex gap-3" style="color:var(--muted)">
-    {#if data.page > 0}<a href="/ideas?{data.type ? `type=${data.type}&` : ''}page={data.page - 1}">← Prev</a>{/if}
-    {#if (data.page + 1) * data.pageSize < data.count}<a href="/ideas?{data.type ? `type=${data.type}&` : ''}page={data.page + 1}">Next →</a>{/if}
+    {#if data.page > 0}<a href="/ideas?{data.type ? `type=${data.type}&` : ''}{data.sort === 'top' ? 'sort=top&' : ''}page={data.page - 1}">← Prev</a>{/if}
+    {#if (data.page + 1) * data.pageSize < data.count}<a href="/ideas?{data.type ? `type=${data.type}&` : ''}{data.sort === 'top' ? 'sort=top&' : ''}page={data.page + 1}">Next →</a>{/if}
   </div>
 {/if}

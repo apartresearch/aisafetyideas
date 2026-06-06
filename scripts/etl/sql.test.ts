@@ -24,4 +24,11 @@ describe('sql helpers', () => {
   it('insertRows() returns empty string for no rows', () => {
     expect(insertRows('public.t', ['id'], [], 'id')).toBe('');
   });
+  it('insertRows() omits the conflict target when null (arbitrates any unique index)', () => {
+    const sql = insertRows('public.t', ['id'], [{ id: lit('1') }], null);
+    expect(sql.trim().endsWith('on conflict do nothing;')).toBe(true);
+  });
+  it('insertRows() throws when a row is missing a listed column', () => {
+    expect(() => insertRows('public.t', ['id', 'name'], [{ id: "'1'" }], null)).toThrow(/missing column name/);
+  });
 });

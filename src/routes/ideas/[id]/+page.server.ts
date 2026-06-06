@@ -80,6 +80,16 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     isAdmin = me?.is_admin === true;
   }
 
+  // votes: totals + the caller's own vote
+  const { data: voteTotals } = await supabase
+    .from('idea_vote_totals').select('score').eq('idea_id', idea.id).maybeSingle();
+  let myVote: 1 | -1 | null = null;
+  if (user) {
+    const { data: mv } = await supabase
+      .from('idea_votes').select('value').eq('idea_id', idea.id).eq('profile_id', user.id).maybeSingle();
+    myVote = (mv?.value as 1 | -1 | undefined) ?? null;
+  }
+
   return {
     idea,
     summary_html: renderMarkdown(idea.summary_md),
@@ -90,6 +100,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     funders,
     comments,
     interestCount: interestCount ?? 0,
+    score: voteTotals?.score ?? 0,
+    myVote,
     myInterestId,
     isAdmin,
     userId: user?.id ?? null,
@@ -153,6 +165,33 @@ export const actions: Actions = {
       if ((e as { code?: string }).code === '23505') return { ok: true };
       return fail(400, { message: e.message });
     }
+    return { ok: true };
+  },
+
+  vote: async ({ request, params, locals: { supabase, safeGetSession } }) => {
+    const { user } = await safeGetSession();
+    if (!user) return fail(401, { message: 'Sign in to vote' });
+    const fd = await request.formData();
+    const value = Number(fd.get('value'));
+    if (value !== 1 && value !== -1) return fail(400, { message: 'Invalid vote' });
+    // switch = delete own row first (no UPDATE policy), then insert; a 23505 race means a vote
+    // already landed — treat as ok (the page re-load shows the truth)
+    const { error: delErr } = await supabase.from('idea_votes')
+      .delete().eq('idea_id', params.id).eq('profile_id', user.id);
+    if (delErr) return fail(400, { message: delErr.message });
+    const { error: e } = await supabase.from('idea_votes').insert({
+      idea_id: params.id, profile_id: user.id, value
+    });
+    if (e && (e as { code?: string }).code !== '23505') return fail(400, { message: e.message });
+    return { ok: true };
+  },
+
+  unvote: async ({ params, locals: { supabase, safeGetSession } }) => {
+    const { user } = await safeGetSession();
+    if (!user) return fail(401, { message: 'Sign in' });
+    const { error: e } = await supabase.from('idea_votes')
+      .delete().eq('idea_id', params.id).eq('profile_id', user.id);
+    if (e) return fail(400, { message: e.message });
     return { ok: true };
   },
 

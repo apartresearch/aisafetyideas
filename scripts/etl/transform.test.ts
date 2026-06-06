@@ -191,3 +191,109 @@ describe('resolveIdeaRelations', () => {
     expect(rows[0].type).toBe("'related'");
   });
 });
+
+import {
+  ideaRef, answerRef, toComment, commentReplies, toInterest,
+  toAnswerFromResult, toAnswerArtifact, toVote, dedupeVotes
+} from './transform';
+
+describe('v2 ref helpers', () => {
+  it('emit integer-validated scalar subqueries', () => {
+    expect(ideaRef('14')).toBe("(select id from public.ideas where legacy_id = 14)");
+    expect(answerRef('3')).toBe("(select id from public.answers where legacy_id = 3)");
+    expect(() => ideaRef('14; drop table x')).toThrow();
+    expect(() => ideaRef(null)).toThrow();
+  });
+  it('rejects empty string, whitespace, scientific notation, hex, and floats', () => {
+    expect(() => ideaRef('')).toThrow();
+    expect(() => ideaRef('1e3')).toThrow();
+    expect(() => ideaRef('14.0')).toThrow();
+  });
+  it('preserves bigint values beyond Number.MAX_SAFE_INTEGER verbatim', () => {
+    expect(ideaRef('9007199254740993')).toBe("(select id from public.ideas where legacy_id = 9007199254740993)");
+  });
+});
+
+describe('v2 transforms', () => {
+  it('toComment maps body/author and keeps reply/anon/upvotes in legacy', () => {
+    const c = toComment({ id: '96', created_at: '2022-06-30 06:00:00+00', idea: '16',
+      author: '22222222-2222-2222-2222-222222222222', text: 'Yes!', reply_to: '69',
+      anon_author: null, anon_author_url: null, upvotes: '2' });
+    expect(c.legacy_id).toBe("'96'");
+    expect(c.idea_id).toBe("(select id from public.ideas where legacy_id = 16)");
+    expect(c.author_id).toBe("'22222222-2222-2222-2222-222222222222'");
+    expect(c.body_md).toBe("'Yes!'");
+    expect(c.legacy).toContain('"reply_to":"69"');
+    expect(c.legacy).toContain('"upvotes":"2"');
+    expect(c.reply_to).toBeUndefined();           // threading is pass-2
+  });
+  it('toComment keeps empty text as empty string and null author as NULL', () => {
+    const c = toComment({ id: '175', created_at: '2023-07-07 15:00:00+00', idea: '242',
+      author: null, text: '', reply_to: null, anon_author: null, anon_author_url: null, upvotes: null });
+    expect(c.body_md).toBe("''");
+    expect(c.author_id).toBe('NULL');
+  });
+  it('commentReplies returns only rows with reply_to', () => {
+    const rows = [
+      { id: '96', reply_to: '69' }, { id: '97', reply_to: null }
+    ] as any[];
+    expect(commentReplies(rows)).toEqual([{ legacy_id: '96', reply_legacy_id: '69' }]);
+  });
+  it('commentReplies throws on non-integer ids', () => {
+    expect(() => commentReplies([{ id: '9', reply_to: 'x' }] as any[])).toThrow();
+  });
+  it('commentReplies skips self-replies', () => {
+    const rows = [{ id: '9', reply_to: '9' }] as any[];
+    expect(commentReplies(rows)).toEqual([]);
+  });
+  it('toInterest maps how→note_md (blank→NULL) and contact flag→legacy', () => {
+    const i = toInterest({ id: '14', created_at: '2022-06-14 12:00:00+00',
+      user: '33333333-3333-3333-3333-333333333333', idea: '18', contact_if_started: 'f', how: '' });
+    expect(i.note_md).toBe('NULL');
+    expect(i.profile_id).toBe("'33333333-3333-3333-3333-333333333333'");
+    expect(i.legacy).toContain('"contact_if_started":"f"');
+  });
+  it('toAnswerFromResult maps to a verified answer with a title fallback', () => {
+    const titles = new Map([['14', 'Old idea title']]);
+    const a = toAnswerFromResult({ id: '3', created_at: '2022-11-21 12:00:00+00', idea: '14',
+      user: '22222222-2222-2222-2222-222222222222', description: '', image_link: 'http://img',
+      type: 'ambiguous', title: '', author: 'Test Author A, Test Author B', link: 'http://example.com/x',
+      from_date: '2022-11-13', original: 'f' }, titles);
+    expect(a.title).toBe("'Result: Old idea title'");
+    expect(a.status).toBe("'verified'");
+    expect(a.verified_at).toBe("'2022-11-21 12:00:00+00'");
+    expect(a.explanation_md).toBe('NULL');
+    expect(a.legacy).toContain('"author":"Test Author A, Test Author B"');
+  });
+  it('toAnswerArtifact emits a url artifact only when link is non-blank', () => {
+    const art = toAnswerArtifact({ id: '3', created_at: 'x', link: 'http://example.com/x' } as any);
+    expect(art!.answer_id).toBe("(select id from public.answers where legacy_id = 3)");
+    expect(art!.kind).toBe("'url'");
+    expect(toAnswerArtifact({ id: '9', created_at: 'x', link: '' } as any)).toBeNull();
+  });
+  it('toVote maps a like to an upvote, weight in legacy', () => {
+    const v = toVote({ id: '7', created_at: '2022-07-01 00:00:00+00',
+      user: '22222222-2222-2222-2222-222222222222', idea: '14', size: '3' });
+    expect(v.value).toBe('1');
+    expect(v.legacy).toContain('"size":"3"');
+  });
+  it('toVote throws when user is null (profile_id is NOT NULL)', () => {
+    expect(() => toVote({ id: '9', created_at: 'x', user: null, idea: '14', size: null })).toThrow();
+  });
+  it('dedupeVotes keeps the earliest per (user, idea)', () => {
+    const { kept, dropped } = dedupeVotes([
+      { id: '2', created_at: '2022-02-01', user: 'u1', idea: '5', size: '1' },
+      { id: '1', created_at: '2022-01-01', user: 'u1', idea: '5', size: '1' },
+      { id: '3', created_at: '2022-03-01', user: 'u2', idea: '5', size: '1' }
+    ] as any[]);
+    expect(kept.map((r: any) => r.id)).toEqual(['1', '3']);
+    expect(dropped).toBe(1);
+  });
+  it('dedupeVotes keeps chronologically-earliest with fractional-second timestamps', () => {
+    const { kept } = dedupeVotes([
+      { id: '2', created_at: '2022-01-01 10:00:00.5+00', user: 'u1', idea: '5', size: null },
+      { id: '1', created_at: '2022-01-01 10:00:00+00',   user: 'u1', idea: '5', size: null }
+    ] as any[]);
+    expect(kept[0].id).toBe('1');
+  });
+});
