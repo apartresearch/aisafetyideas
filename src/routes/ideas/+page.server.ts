@@ -5,7 +5,7 @@ const PAGE = 24;
 export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
   const type = url.searchParams.get('type');       // 'hypothesis' | 'open_ended' | null
   const sort = url.searchParams.get('sort') === 'top' ? 'top' : 'new';
-  const page = Math.max(0, Number(url.searchParams.get('page') ?? 0));
+  const page = Math.max(0, Math.trunc(Number(url.searchParams.get('page'))) || 0);
 
   // vote totals are small (≤ #ideas rows; ~240 today, well under PostgREST's 1000-row cap — revisit
   // both whole-set fetches if the idea count ever approaches 1000) — fetched once for the card scores

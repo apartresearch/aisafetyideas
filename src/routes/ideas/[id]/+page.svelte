@@ -14,7 +14,7 @@
         <span class="text-xs uppercase tracking-wide" style="color:var(--faint)">{data.idea.type === 'hypothesis' ? 'Hypothesis' : 'Open-ended'}</span>
         <div class="flex items-center gap-2">
           <VoteControl score={data.score} myVote={data.myVote} canVote={data.canEngage}
-                       signinHref={`/login?next=/ideas/${data.idea.id}`} />
+                       signinHref={'/login?next=' + encodeURIComponent('/ideas/' + data.idea.id)} />
           <StatusBadge status={data.idea.status} />
         </div>
       </div>

@@ -176,7 +176,9 @@ export const actions: Actions = {
     if (value !== 1 && value !== -1) return fail(400, { message: 'Invalid vote' });
     // switch = delete own row first (no UPDATE policy), then insert; a 23505 race means a vote
     // already landed — treat as ok (the page re-load shows the truth)
-    await supabase.from('idea_votes').delete().eq('idea_id', params.id).eq('profile_id', user.id);
+    const { error: delErr } = await supabase.from('idea_votes')
+      .delete().eq('idea_id', params.id).eq('profile_id', user.id);
+    if (delErr) return fail(400, { message: delErr.message });
     const { error: e } = await supabase.from('idea_votes').insert({
       idea_id: params.id, profile_id: user.id, value
     });

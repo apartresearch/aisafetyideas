@@ -11,14 +11,16 @@
   $effect(() => { void score; void myVote; optimistic = null; });
   const view = $derived(optimistic ?? { score, myVote });
 
-  const submit = (value: 1 | -1) => () => {
+  const submit = (value: 1 | -1) => ({ cancel }: { cancel: () => void }) => {
+    if (pending) { cancel(); return; }
     const cur = view;
     optimistic = cur.myVote === value
       ? { score: cur.score - value, myVote: null }                        // same arrow → unvote
       : { score: cur.score + value - (cur.myVote ?? 0), myVote: value };  // vote / switch
     pending = true;
     return async ({ update }: { update: () => Promise<void> }) => {
-      await update();           // re-runs the load → fresh score/myVote → $effect clears optimistic
+      await update();           // fresh props on success; form error on failure
+      optimistic = null;        // always reconcile to props (truth), success or failure
       pending = false;
     };
   };
@@ -32,15 +34,15 @@
   {:else}
     <form method="POST" action={view.myVote === 1 ? '?/unvote' : '?/vote'} use:enhance={submit(1)}>
       <input type="hidden" name="value" value="1" />
-      <button class="px-1 transition disabled:opacity-40" disabled={!canVote || pending} aria-label="Upvote"
-              aria-pressed={view.myVote === 1}
+      <button class="px-1 transition" class:opacity-40={pending} disabled={!canVote} aria-label="Upvote"
+              aria-pressed={view.myVote === 1} aria-disabled={pending}
               style="color:{view.myVote === 1 ? 'var(--green-deep)' : 'var(--muted)'}">▲</button>
     </form>
-    <span class="min-w-5 text-center text-sm font-semibold tabular-nums" style="color:var(--ink)">{view.score}</span>
+    <span class="min-w-5 text-center text-sm font-semibold tabular-nums" style="color:var(--ink)" aria-label={'Score ' + view.score}>{view.score}</span>
     <form method="POST" action={view.myVote === -1 ? '?/unvote' : '?/vote'} use:enhance={submit(-1)}>
       <input type="hidden" name="value" value="-1" />
-      <button class="px-1 transition disabled:opacity-40" disabled={!canVote || pending} aria-label="Downvote"
-              aria-pressed={view.myVote === -1}
+      <button class="px-1 transition" class:opacity-40={pending} disabled={!canVote} aria-label="Downvote"
+              aria-pressed={view.myVote === -1} aria-disabled={pending}
               style="color:{view.myVote === -1 ? 'var(--neg)' : 'var(--muted)'}">▼</button>
     </form>
   {/if}
