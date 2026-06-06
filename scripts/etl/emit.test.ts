@@ -97,7 +97,7 @@ describe('buildDocumentV2', () => {
     replies: [{ legacy_id: '96', reply_legacy_id: '69' }],
     interest: [fill(INTEREST_COLUMNS, { legacy_id: "'14'", idea_id: '(select 1)', profile_id: 'NULL', note_md: 'NULL', legacy: "'{}'::jsonb", created_at: 'now()' })],
     answers: [fill(ANSWERS_COLUMNS, { legacy_id: "'3'", idea_id: '(select 1)', submitter_id: 'NULL', title: "''", explanation_md: 'NULL', status: "'pending'", verified_at: 'NULL', legacy: "'{}'::jsonb", created_at: 'now()' })],
-    artifacts: [fill(ARTIFACTS_COLUMNS, { legacy_id: "'3'", answer_id: '(select 1)', kind: "'link'", url: "''", created_at: 'now()' })],
+    artifacts: [fill(ARTIFACTS_COLUMNS, { legacy_id: "'3'", answer_id: '(select 1)', kind: "'url'", url: "''", created_at: 'now()' })],
     votes: [fill(VOTES_COLUMNS, { legacy_id: "'7'", idea_id: '(select 1)', profile_id: 'NULL', value: '1', legacy: "'{}'::jsonb", created_at: 'now()' })]
   };
 
