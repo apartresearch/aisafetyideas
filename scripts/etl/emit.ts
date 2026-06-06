@@ -186,25 +186,24 @@ export function buildDocumentV2(data: EmitDataV2): string {
   parts.push('set session_replication_role = replica;');
 
   parts.push(insertRows('public.comments', [...COMMENTS_COLUMNS], data.comments, 'legacy_id'));
+  const INT = /^-?\d+$/;
   parts.push(
     data.replies
       .map((r) => {
-        const child = Number(r.legacy_id);
-        const parent = Number(r.reply_legacy_id);
-        if (!Number.isInteger(child) || !Number.isInteger(parent)) throw new Error('invalid reply pair');
+        if (!INT.test(r.legacy_id) || !INT.test(r.reply_legacy_id)) throw new Error('invalid reply pair');
         return (
-          `update public.comments c set reply_to = (select p.id from public.comments p where p.legacy_id = ${parent})\n` +
-          `where c.legacy_id = ${child} and c.reply_to is null;`
+          `update public.comments c set reply_to = (select p.id from public.comments p where p.legacy_id = ${r.reply_legacy_id})\n` +
+          `where c.legacy_id = ${r.legacy_id} and c.reply_to is null;`
         );
       })
       .join('\n')
   );
   // interest + idea_votes ALSO carry unique (idea_id, profile_id): an organic post-restore row on the
   // same pair must DISPLACE the legacy insert, not abort the transaction → targetless on conflict.
-  parts.push(insertRows('public.interest', [...INTEREST_COLUMNS], data.interest));
+  parts.push(insertRows('public.interest', [...INTEREST_COLUMNS], data.interest, null));
   parts.push(insertRows('public.answers', [...ANSWERS_COLUMNS], data.answers, 'legacy_id'));
   parts.push(insertRows('public.answer_artifacts', [...ARTIFACTS_COLUMNS], data.artifacts, 'legacy_id'));
-  parts.push(insertRows('public.idea_votes', [...VOTES_COLUMNS], data.votes));
+  parts.push(insertRows('public.idea_votes', [...VOTES_COLUMNS], data.votes, null));
 
   parts.push('set session_replication_role = origin;');
 
@@ -212,6 +211,7 @@ export function buildDocumentV2(data: EmitDataV2): string {
   // never re-validates rows — these scans are the only FK-integrity check for the load.
   // Counts: comments/answers/artifacts can't be displaced → exact legacy-scoped; interest/votes can be
   // displaced by an organic (idea_id, profile_id) row → assert totals (legacy + displacing organic).
+  // Thresholds are the controller-verified source counts (probed 2026-06-06); interest has 0 duplicate (user, idea) pairs in the dump, so 133 distinct rows is exact.
   parts.push(
     [
       'do $$ begin',

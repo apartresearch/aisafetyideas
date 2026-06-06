@@ -1,17 +1,26 @@
 import { describe, it, expect } from 'vitest';
-import { buildDocument, buildDocumentV2 } from './emit';
+import {
+  buildDocument, buildDocumentV2,
+  AUTH_USERS_COLUMNS, AUTH_IDENTITIES_COLUMNS, PROFILES_COLUMNS, EXPERTS_COLUMNS,
+  CATEGORIES_COLUMNS, IDEAS_COLUMNS, IDEA_CATEGORIES_COLUMNS, IDEA_RELATIONS_COLUMNS,
+  COMMENTS_COLUMNS, INTEREST_COLUMNS, ANSWERS_COLUMNS, ARTIFACTS_COLUMNS, VOTES_COLUMNS
+} from './emit';
+
+/** Fill all columns from `cols` with NULL, overriding with provided values. */
+const fill = (cols: readonly string[], overrides: Record<string, string>): Record<string, string> =>
+  Object.fromEntries(cols.map((c) => [c, overrides[c] ?? 'NULL']));
 
 describe('buildDocument', () => {
   it('wraps in a transaction, brackets the load with session_replication_role, and ends with assertions', () => {
     const doc = buildDocument({
-      authUsers: [{ id: '11111111-1111-1111-1111-111111111111' }] as any,
+      authUsers: [fill(AUTH_USERS_COLUMNS, { id: "'11111111-1111-1111-1111-111111111111'" })],
       identities: [],
       users: [],
       ideas: [],
       categories: [],
       ideaCats: [],
       ideaRels: []
-    } as any);
+    });
     expect(doc.startsWith('begin;')).toBe(true);
     // NOT the ALTER TABLE form (postgres can't own auth.users); uses the SET that needs no ownership
     expect(doc).not.toContain('disable trigger');
@@ -31,14 +40,14 @@ describe('buildDocument', () => {
 
   it('orders inserts in dependency order and uses the right conflict targets', () => {
     const doc = buildDocument({
-      authUsers: [{ id: "'a'" }],
-      identities: [{ id: "'i'" }],
-      users: [{ id: "'u'" }],
-      experts: [{ id: "'e'" }],
-      ideas: [{ legacy_id: "'1'" }],
-      categories: [{ legacy_id: "'2'" }],
-      ideaCats: [{ idea_id: "'x'", category_id: "'y'" }],
-      ideaRels: [{ legacy_id: "'3'", parent_id: "'p'", child_id: "'c'" }]
+      authUsers: [fill(AUTH_USERS_COLUMNS, { id: "'a'" })],
+      identities: [fill(AUTH_IDENTITIES_COLUMNS, { id: "'i'" })],
+      users: [fill(PROFILES_COLUMNS, { id: "'u'" })],
+      experts: [fill(EXPERTS_COLUMNS, { id: "'e'" })],
+      ideas: [fill(IDEAS_COLUMNS, { legacy_id: "'1'" })],
+      categories: [fill(CATEGORIES_COLUMNS, { legacy_id: "'2'" })],
+      ideaCats: [fill(IDEA_CATEGORIES_COLUMNS, { idea_id: "'x'", category_id: "'y'" })],
+      ideaRels: [fill(IDEA_RELATIONS_COLUMNS, { legacy_id: "'3'", parent_id: "'p'", child_id: "'c'" })]
     });
 
     // dependency order: auth.users → auth.identities → profiles → experts → categories → ideas → idea_categories → idea_relations
@@ -84,13 +93,13 @@ describe('buildDocument', () => {
 
 describe('buildDocumentV2', () => {
   const data = {
-    comments: [{ legacy_id: "'96'" }],
+    comments: [fill(COMMENTS_COLUMNS, { legacy_id: "'96'", idea_id: '(select 1)', author_id: 'NULL', body_md: "''", legacy: "'{}'::jsonb", created_at: 'now()' })],
     replies: [{ legacy_id: '96', reply_legacy_id: '69' }],
-    interest: [{ legacy_id: "'14'" }],
-    answers: [{ legacy_id: "'3'" }],
-    artifacts: [{ legacy_id: "'3'" }],
-    votes: [{ legacy_id: "'7'" }]
-  } as any;
+    interest: [fill(INTEREST_COLUMNS, { legacy_id: "'14'", idea_id: '(select 1)', profile_id: 'NULL', note_md: 'NULL', legacy: "'{}'::jsonb", created_at: 'now()' })],
+    answers: [fill(ANSWERS_COLUMNS, { legacy_id: "'3'", idea_id: '(select 1)', submitter_id: 'NULL', title: "''", explanation_md: 'NULL', status: "'pending'", verified_at: 'NULL', legacy: "'{}'::jsonb", created_at: 'now()' })],
+    artifacts: [fill(ARTIFACTS_COLUMNS, { legacy_id: "'3'", answer_id: '(select 1)', kind: "'link'", url: "''", created_at: 'now()' })],
+    votes: [fill(VOTES_COLUMNS, { legacy_id: "'7'", idea_id: '(select 1)', profile_id: 'NULL', value: '1', legacy: "'{}'::jsonb", created_at: 'now()' })]
+  };
 
   it('wraps in a transaction with the replica bracket and ends with assertions', () => {
     const doc = buildDocumentV2(data);

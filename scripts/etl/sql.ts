@@ -15,10 +15,15 @@ export function jsonbLit(obj: Record<string, unknown>): string {
 
 /** An idempotent multi-row INSERT. `cells` rows are pre-rendered SQL (use lit()/jsonbLit()). */
 export function insertRows(
-  table: string, columns: string[], rows: Record<string, string>[], conflictTarget?: string
+  table: string, columns: string[], rows: Record<string, string>[], conflictTarget: string | null
 ): string {
   if (rows.length === 0) return '';
-  const tuples = rows.map((r) => `  (${columns.map((c) => r[c] ?? 'NULL').join(', ')})`).join(',\n');
+  const tuples = rows
+    .map((r) => `  (${columns.map((c) => {
+      if (!(c in r)) throw new Error(`${table}: row missing column ${c}`);
+      return r[c];
+    }).join(', ')})`)
+    .join(',\n');
   const conflict = conflictTarget ? `on conflict (${conflictTarget}) do nothing;` : 'on conflict do nothing;';
   return `insert into ${table} (${columns.join(', ')}) values\n${tuples}\n${conflict}\n`;
 }
