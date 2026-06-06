@@ -140,8 +140,10 @@ export function buildDocument(data: EmitData): string {
   parts.push(
     [
       'do $$ begin',
-      "  assert (select count(*) from auth.users) >= 266, 'auth.users count too low';",
-      "  assert (select count(*) from public.profiles) >= 266, 'profiles count too low';",
+      // thresholds = the exact numbers v1 restores (265 users/profiles, 19 categories, 238 ideas); `>=` so the
+      // cloud's pre-existing test row and any re-run never trip them, and so the same doc passes the fresh-local rehearsal.
+      "  assert (select count(*) from auth.users) >= 265, 'auth.users count too low';",
+      "  assert (select count(*) from public.profiles) >= 265, 'profiles count too low';",
       "  assert (select count(*) from public.categories) >= 19, 'categories count too low';",
       "  assert (select count(*) from public.ideas) >= 238, 'ideas count too low';",
       '  assert (select count(*) from public.ideas i left join public.profiles p on p.id = i.author_id',
