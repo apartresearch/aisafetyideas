@@ -7,10 +7,9 @@ create table public.idea_votes (
   value      smallint not null check (value in (-1, 1)),
   legacy     jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
-  unique (idea_id, profile_id)
+  unique (idea_id, profile_id) -- doubles as the idea_id index (leading column)
 );
 alter table public.idea_votes enable row level security;
-create index idea_votes_idea_id_idx on public.idea_votes (idea_id);
 create index idea_votes_profile_id_idx on public.idea_votes (profile_id);
 
 -- SELECT: readable when the idea is visible (leverages ideas RLS) OR it is the caller's own vote
@@ -31,6 +30,7 @@ create policy "member removes own vote" on public.idea_votes for delete to authe
   using ((select auth.uid()) = profile_id);
 -- NOTE: no UPDATE policy — switching a vote is delete + re-insert (same toggle pattern as interest).
 
+-- NOTE: aggregate-only — ideas with zero votes have NO row here; clients coalesce to 0 (by design).
 -- ============ idea_vote_totals (security_invoker: respects the caller's idea visibility) ============
 create view public.idea_vote_totals
   with (security_invoker = true) as

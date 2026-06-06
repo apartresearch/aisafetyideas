@@ -1,5 +1,5 @@
 begin;
-select plan(14);
+select plan(15);
 
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
 values
@@ -43,6 +43,9 @@ set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","r
 insert into public.idea_votes (idea_id, profile_id, value)
   values ('a0000000-0000-0000-0000-000000000001','44444444-4444-4444-4444-444444444444',-1);
 select ok((select count(*) from public.idea_votes) = 2, '8: second member downvotes');
+update public.idea_votes set value = 1 where profile_id = '44444444-4444-4444-4444-444444444444';
+select ok((select value from public.idea_votes where profile_id = '44444444-4444-4444-4444-444444444444') = -1,
+  '8b: no UPDATE policy — a client update is a silent no-op (toggle is delete + re-insert)');
 delete from public.idea_votes where profile_id = '22222222-2222-2222-2222-222222222222';
 select ok((select count(*) from public.idea_votes) = 2, '9: deleting another member''s vote is a no-op');
 select results_eq(
