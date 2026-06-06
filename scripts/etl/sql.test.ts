@@ -24,4 +24,8 @@ describe('sql helpers', () => {
   it('insertRows() returns empty string for no rows', () => {
     expect(insertRows('public.t', ['id'], [], 'id')).toBe('');
   });
+  it('insertRows() omits the conflict target when none is given (arbitrates any unique index)', () => {
+    const sql = insertRows('public.t', ['id'], [{ id: lit('1') }]);
+    expect(sql.trim().endsWith('on conflict do nothing;')).toBe(true);
+  });
 });

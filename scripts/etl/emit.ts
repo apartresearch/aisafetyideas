@@ -157,3 +157,94 @@ export function buildDocument(data: EmitData): string {
   // join with blank lines; insertRows() returns '' for empty batches — filter those out.
   return parts.filter((p) => p.trim() !== '').join('\n\n') + '\n';
 }
+
+/** v2 target column lists (only columns the ETL sets; defaults cover the rest). */
+export const COMMENTS_COLUMNS = ['legacy_id', 'idea_id', 'author_id', 'body_md', 'legacy', 'created_at'] as const;
+export const INTEREST_COLUMNS = ['legacy_id', 'idea_id', 'profile_id', 'note_md', 'legacy', 'created_at'] as const;
+export const ANSWERS_COLUMNS = ['legacy_id', 'idea_id', 'submitter_id', 'title', 'explanation_md', 'status', 'verified_at', 'legacy', 'created_at'] as const;
+export const ARTIFACTS_COLUMNS = ['legacy_id', 'answer_id', 'kind', 'url', 'created_at'] as const;
+export const VOTES_COLUMNS = ['legacy_id', 'idea_id', 'profile_id', 'value', 'legacy', 'created_at'] as const;
+
+export type EmitDataV2 = {
+  comments: SqlRow[];
+  replies: { legacy_id: string; reply_legacy_id: string }[];
+  interest: SqlRow[];
+  answers: SqlRow[];
+  artifacts: SqlRow[];
+  votes: SqlRow[];
+};
+
+/**
+ * Restore-v2 document (spec §4): begin → replica → comments → reply updates → interest → answers
+ * → artifacts → idea_votes → origin → count + orphan assertions → commit. Idempotent throughout
+ * (conflict-suppressed inserts; reply updates guarded by `reply_to is null`).
+ * Idea/answer FKs are scalar subqueries on legacy_id, resolved at apply time (see transform.ts refs).
+ */
+export function buildDocumentV2(data: EmitDataV2): string {
+  const parts: string[] = [];
+  parts.push('begin;');
+  parts.push('set session_replication_role = replica;');
+
+  parts.push(insertRows('public.comments', [...COMMENTS_COLUMNS], data.comments, 'legacy_id'));
+  parts.push(
+    data.replies
+      .map((r) => {
+        const child = Number(r.legacy_id);
+        const parent = Number(r.reply_legacy_id);
+        if (!Number.isInteger(child) || !Number.isInteger(parent)) throw new Error('invalid reply pair');
+        return (
+          `update public.comments c set reply_to = (select p.id from public.comments p where p.legacy_id = ${parent})\n` +
+          `where c.legacy_id = ${child} and c.reply_to is null;`
+        );
+      })
+      .join('\n')
+  );
+  // interest + idea_votes ALSO carry unique (idea_id, profile_id): an organic post-restore row on the
+  // same pair must DISPLACE the legacy insert, not abort the transaction → targetless on conflict.
+  parts.push(insertRows('public.interest', [...INTEREST_COLUMNS], data.interest));
+  parts.push(insertRows('public.answers', [...ANSWERS_COLUMNS], data.answers, 'legacy_id'));
+  parts.push(insertRows('public.answer_artifacts', [...ARTIFACTS_COLUMNS], data.artifacts, 'legacy_id'));
+  parts.push(insertRows('public.idea_votes', [...VOTES_COLUMNS], data.votes));
+
+  parts.push('set session_replication_role = origin;');
+
+  // VERIFICATION IS HERE OR NOWHERE: replica mode DISABLES the RI triggers and restoring `origin`
+  // never re-validates rows — these scans are the only FK-integrity check for the load.
+  // Counts: comments/answers/artifacts can't be displaced → exact legacy-scoped; interest/votes can be
+  // displaced by an organic (idea_id, profile_id) row → assert totals (legacy + displacing organic).
+  parts.push(
+    [
+      'do $$ begin',
+      "  assert (select count(*) from public.comments where legacy_id is not null) >= 83, 'comments count too low';",
+      "  assert (select count(*) from public.interest) >= 133, 'interest count too low';",
+      "  assert (select count(*) from public.answers where legacy_id is not null) >= 5, 'answers count too low';",
+      "  assert (select count(*) from public.answer_artifacts where legacy_id is not null) >= 5, 'artifacts count too low';",
+      "  assert (select count(*) from public.idea_votes) >= 387, 'votes count too low';",
+      "  assert (select count(*) from public.comments where legacy_id is not null and reply_to is not null) >= 13, 'reply links too low';",
+      '  assert (select count(*) from public.comments c left join public.profiles p on p.id = c.author_id',
+      "          where c.author_id is not null and p.id is null) = 0, 'orphan comment author';",
+      '  assert (select count(*) from public.comments c left join public.ideas i on i.id = c.idea_id',
+      "          where i.id is null) = 0, 'orphan comment idea';",
+      '  assert (select count(*) from public.comments c left join public.comments p on p.id = c.reply_to',
+      "          where c.reply_to is not null and p.id is null) = 0, 'orphan reply_to';",
+      '  assert (select count(*) from public.interest x left join public.profiles p on p.id = x.profile_id',
+      "          where x.profile_id is not null and p.id is null) = 0, 'orphan interest profile';",
+      '  assert (select count(*) from public.interest x left join public.ideas i on i.id = x.idea_id',
+      "          where i.id is null) = 0, 'orphan interest idea';",
+      '  assert (select count(*) from public.answers a left join public.profiles p on p.id = a.submitter_id',
+      "          where a.submitter_id is not null and p.id is null) = 0, 'orphan answer submitter';",
+      '  assert (select count(*) from public.answers a left join public.ideas i on i.id = a.idea_id',
+      "          where i.id is null) = 0, 'orphan answer idea';",
+      '  assert (select count(*) from public.answer_artifacts t left join public.answers a on a.id = t.answer_id',
+      "          where a.id is null) = 0, 'orphan artifact answer';",
+      '  assert (select count(*) from public.idea_votes v left join public.profiles p on p.id = v.profile_id',
+      "          where p.id is null) = 0, 'orphan vote profile';",
+      '  assert (select count(*) from public.idea_votes v left join public.ideas i on i.id = v.idea_id',
+      "          where i.id is null) = 0, 'orphan vote idea';",
+      'end $$;'
+    ].join('\n')
+  );
+
+  parts.push('commit;');
+  return parts.filter((p) => p.trim() !== '').join('\n\n') + '\n';
+}

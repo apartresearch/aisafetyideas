@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildDocument } from './emit';
+import { buildDocument, buildDocumentV2 } from './emit';
 
 describe('buildDocument', () => {
   it('wraps in a transaction, brackets the load with session_replication_role, and ends with assertions', () => {
@@ -79,5 +79,75 @@ describe('buildDocument', () => {
     expect(doc).toMatch(/assert \(select count\(\*\) from public\.ideas\) >= \d+/);
     expect(doc).toMatch(/assert \(select count\(\*\) from public\.profiles\) >= \d+/);
     expect(doc).not.toContain('assert (select count(*) from public.ideas) = ');
+  });
+});
+
+describe('buildDocumentV2', () => {
+  const data = {
+    comments: [{ legacy_id: "'96'" }],
+    replies: [{ legacy_id: '96', reply_legacy_id: '69' }],
+    interest: [{ legacy_id: "'14'" }],
+    answers: [{ legacy_id: "'3'" }],
+    artifacts: [{ legacy_id: "'3'" }],
+    votes: [{ legacy_id: "'7'" }]
+  } as any;
+
+  it('wraps in a transaction with the replica bracket and ends with assertions', () => {
+    const doc = buildDocumentV2(data);
+    expect(doc.startsWith('begin;')).toBe(true);
+    expect(doc).toContain('set session_replication_role = replica;');
+    expect(doc).toContain('set session_replication_role = origin;');
+    expect(doc).toMatch(/do \$\$[\s\S]*assert[\s\S]*\$\$/);
+    expect(doc).toContain('orphan comment author');
+    expect(doc).toContain('orphan reply_to');
+    expect(doc.trim().endsWith('commit;')).toBe(true);
+  });
+
+  it('orders inserts comments → replies-update → interest → answers → artifacts → votes', () => {
+    const doc = buildDocumentV2(data);
+    const order = [
+      'insert into public.comments',
+      'update public.comments',
+      'insert into public.interest',
+      'insert into public.answers',
+      'insert into public.answer_artifacts',
+      'insert into public.idea_votes'
+    ].map((s) => doc.indexOf(s));
+    expect(order.every((n) => n >= 0)).toBe(true);
+    for (let k = 1; k < order.length; k++) expect(order[k - 1]).toBeLessThan(order[k]);
+  });
+
+  it('emits idempotent reply updates guarded by "reply_to is null"', () => {
+    const doc = buildDocumentV2(data);
+    expect(doc).toContain(
+      'update public.comments c set reply_to = (select p.id from public.comments p where p.legacy_id = 69)\n' +
+      'where c.legacy_id = 96 and c.reply_to is null;'
+    );
+  });
+
+  it('arbitrates ALL unique constraints on interest/votes (targetless) and legacy_id elsewhere', () => {
+    const doc = buildDocumentV2(data);
+    const seg = (from: string, to: string) => doc.slice(doc.indexOf(from), doc.indexOf(to));
+    // comments/answers/artifacts: legacy_id is their only unique key
+    expect(seg('insert into public.comments', 'update public.comments')).toContain('on conflict (legacy_id) do nothing;');
+    // interest/idea_votes ALSO carry unique (idea_id, profile_id): an organic post-restore row on the
+    // same pair must NOT abort the load — a targetless `on conflict do nothing` arbitrates ANY unique index
+    expect(seg('insert into public.interest', 'insert into public.answers')).toContain('on conflict do nothing;');
+    expect(seg('insert into public.interest', 'insert into public.answers')).not.toContain('on conflict (');
+    expect(seg('insert into public.idea_votes', 'set session_replication_role = origin')).toContain('on conflict do nothing;');
+    expect(seg('insert into public.idea_votes', 'set session_replication_role = origin')).not.toContain('on conflict (');
+  });
+
+  it('asserts legacy-scoped counts where exact, totals where displacement is possible', () => {
+    const doc = buildDocumentV2(data);
+    // comments/answers/artifacts can't be displaced → exact legacy-scoped counts (organic-immune)
+    expect(doc).toMatch(/assert \(select count\(\*\) from public\.comments where legacy_id is not null\) >= \d+/);
+    expect(doc).toMatch(/assert \(select count\(\*\) from public\.answers where legacy_id is not null\) >= \d+/);
+    // interest/votes: an organic row on the same (idea_id, profile_id) DISPLACES the legacy insert,
+    // so legacy-scoped counts could undershoot — assert totals (legacy + displacing organic ≥ source)
+    expect(doc).toMatch(/assert \(select count\(\*\) from public\.idea_votes\) >= \d+/);
+    expect(doc).toMatch(/assert \(select count\(\*\) from public\.interest\) >= \d+/);
+    expect(doc).toContain('orphan comment idea');   // full spec §5 orphan-scan list
+    expect(doc).toContain('orphan artifact answer');
   });
 });
