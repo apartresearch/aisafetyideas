@@ -143,7 +143,11 @@ per reply row (13 statements).
   control disabled with a link to `/login?next=<idea>`.
 - **`/ideas` cards:** show the score (read from `idea_vote_totals`, coalesced to 0 in the
   query layer — the view omits unvoted ideas).
-- No sort-by-score changes in this plan (the data is now there for later ranking work).
+- **Sort-by-score (owner addition):** `/ideas` gains a sort control — `Newest` (default,
+  current behavior) · `Top` (score desc, ties broken by `created_at` desc). Driven by a
+  `?sort=top` URL param read in the server load; the load merges the totals into the idea
+  list and sorts server-side (238 ideas — no pagination concerns). The control follows the
+  `Label ▾` dropdown pattern from the styleguide.
 - Server load functions join/fetch totals; mutations via plain supabase inserts/deletes
   (RLS does the enforcement — no RPCs needed).
 
