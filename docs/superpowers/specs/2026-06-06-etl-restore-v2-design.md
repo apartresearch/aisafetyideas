@@ -54,8 +54,11 @@ create table public.idea_votes (
     CHECK constraint only — a single deterministic error source, not duplicated in the policy.)
   - DELETE (`to authenticated`): own row.
   - **No UPDATE** — switching a vote is delete + re-insert (same toggle pattern as `interest`).
-- **`idea_vote_totals` view** (`security_invoker = true`, mirrors `bounty_pot`):
-  `idea_id, score (sum), up_count, down_count` — grouped over `idea_votes`.
+- **`idea_vote_totals` view** (`security_invoker = true`, mirrors `bounty_pot` including its
+  explicit `grant select … to anon, authenticated`): `idea_id, score (sum), up_count, down_count`
+  — grouped over `idea_votes`.
+- Accepted product decision: individual votes — including downvotes — are publicly attributable
+  via the API (same visibility model as comments).
 - pgTAP coverage for all policies (vote-as-self ok, vote-as-other denied, legacy pinning,
   delete-own-only, draft-idea invisible, view respects invoker).
 - Applied to cloud via MCP `apply_migration` **before** the data load (controller step).
@@ -69,7 +72,11 @@ ignore). CLI logs **counts only**, never row contents.
 
 **Envelope (same as v1):** `begin;` → `set session_replication_role = replica;` → inserts →
 reply-to update → `set session_replication_role = origin;` → `do $$ … assert … $$;` →
-`commit;`. Every insert `on conflict (legacy_id) do nothing` → idempotent re-runs.
+`commit;`. Conflict handling: `on conflict (legacy_id) do nothing` for comments/answers/artifacts;
+**targetless `on conflict do nothing` for interest/idea_votes** — those tables also carry
+`unique (idea_id, profile_id)`, and an organic post-restore row on the same pair must displace
+the legacy insert rather than abort the transaction (also keeps re-runs idempotent once organic
+rows exist).
 Applied with fail-loud transport (`psql -v ON_ERROR_STOP=1` locally; Management API for cloud —
 any raised error aborts the whole transaction).
 

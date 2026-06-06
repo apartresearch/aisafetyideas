@@ -15,7 +15,7 @@
 ## Key design decisions
 - **FK resolution via scalar subqueries.** v1 minted idea UUIDs at generation time, so v2 emits `(select id from public.ideas where legacy_id = N)` for every idea reference (and `public.answers`/`public.comments` equivalents). Resolved at apply time → the same artifact works on the local rehearsal stack and cloud, stays idempotent, and a missing parent fails loudly (null into a `not null` column). Profile references stay **literal UUIDs** (v1 preserved them). The ref helpers validate `N` is an integer (no string interpolation of dump text into SQL).
 - **Comment threading is two-pass.** A multi-row INSERT cannot see its own rows, so pass 1 inserts all comments with `reply_to` omitted; pass 2 emits one idempotent `update … where c.legacy_id = <id> and c.reply_to is null` per reply.
-- **Same envelope as v1:** `begin` → `set session_replication_role = replica` → inserts (`on conflict (legacy_id) do nothing`) → reply updates → `origin` → `do $$ assert … $$` (counts + orphan scans, since FKs were deferred) → `commit`.
+- **Same envelope as v1:** `begin` → `set session_replication_role = replica` → inserts → reply updates → `origin` → `do $$ assert … $$` → `commit`. Conflict handling: `on conflict (legacy_id) do nothing` for comments/answers/artifacts; **targetless `on conflict do nothing` for interest/idea_votes** (they also carry `unique (idea_id, profile_id)` — an organic post-restore row on the same pair must displace the legacy insert, not abort the transaction). The orphan scans in the assert block are the ONLY FK verification — replica mode disables RI triggers and they are never re-validated.
 - **Privileged inserts are the point:** the load runs as `postgres` (table owner → bypasses RLS), which is what lets it insert `status='verified'` answers and legacy columns that the client INSERT policies pin shut.
 - **Votes:** `value in (-1,1)`, one row per (idea, profile); toggle = DELETE + INSERT (no UPDATE policy, same as `interest`). Old likes import as `value = 1`, weight kept in `legacy`.
 
@@ -92,9 +92,10 @@ create view public.idea_vote_totals
     count(*) filter (where value = -1)        as down_count
   from public.idea_votes
   group by idea_id;
+grant select on public.idea_vote_totals to anon, authenticated;   -- mirrors bounty_pot (idea_funding migration)
 ```
 
-(The `value` check lives on the table constraint only — a single deterministic error source; the policy pins identity/visibility/legacy.)
+(The `value` check lives on the table constraint only — a single deterministic error source; the policy pins identity/visibility/legacy. Accepted product decision: individual votes — including downvotes — are publicly attributable via the API, same as comments.)
 
 - [ ] **Step 2: Write the failing pgTAP test** `supabase/tests/database/idea_votes_test.sql` (conventions per `comments_interest_test.sql`: the `handle_new_user` trigger auto-creates profiles)
 
@@ -162,6 +163,11 @@ select ok((select count(*) from public.idea_votes where idea_id = 'a0000000-0000
   '12: draft author can vote their own draft');
 
 set local role anon;
+-- CRITICAL: clear the stale JWT claims — `set local role` does NOT reset request.jwt.claims, so
+-- auth.uid() would still be alice and the own-row SELECT branch would leak her draft vote into
+-- test 14. The POLICY is correct; only an uncleared fixture would make it look broken. Do NOT
+-- "fix" a red test 14 by weakening the policy or the view.
+set local request.jwt.claims = '';
 select ok((select count(*) from public.idea_votes where idea_id = 'a0000000-0000-0000-0000-000000000001') = 1,
   '13: anon sees votes on visible ideas');
 select ok((select count(*) from public.idea_vote_totals where idea_id = 'a0000000-0000-0000-0000-000000000002') = 0,
@@ -172,7 +178,8 @@ rollback;
 ```
 
 - [ ] **Step 3: Run** `supabase db reset` (applies the migration) then `supabase test db` → expect `idea_votes_test` 14/14 plus all existing suites still green (96 + 14).
-- [ ] **Step 4: Commit** `git add supabase/migrations supabase/tests/database/idea_votes_test.sql && git commit -m "feat(votes): idea_votes table + RLS + totals view + pgTAP"`
+- [ ] **Step 4: Regenerate the DB types** (the client is typed — without this every `from('idea_votes')` in Task 4 is a TS error): `supabase gen types typescript --local > src/lib/types/database.ts`, then `npm run check` → 0 errors.
+- [ ] **Step 5: Commit** `git add supabase/migrations supabase/tests/database/idea_votes_test.sql src/lib/types/database.ts && git commit -m "feat(votes): idea_votes table + RLS + totals view + pgTAP + types"`
 
 ---
 
@@ -297,7 +304,7 @@ export function toComment(c: Row): SqlRow {
       anon_author_url: c.anon_author_url ?? undefined,
       upvotes: c.upvotes ?? undefined
     }),
-    created_at: lit(c.created_at ?? null)
+    created_at: lit(c.created_at ?? { sql: 'now()' })   // explicit NULL would abort on the NOT NULL column
   };
 }
 
@@ -316,7 +323,7 @@ export function toInterest(r: Row): SqlRow {
     profile_id: lit(r.user ?? null),
     note_md: lit(nullifBlank(r.how)),
     legacy: jsonbLit({ contact_if_started: r.contact_if_started ?? undefined }),
-    created_at: lit(r.created_at ?? null)
+    created_at: lit(r.created_at ?? { sql: 'now()' })
   };
 }
 
@@ -339,7 +346,7 @@ export function toAnswerFromResult(r: Row, titles: Map<string, string>): SqlRow 
       from_date: r.from_date ?? undefined,
       original: r.original ?? undefined
     }),
-    created_at: lit(r.created_at ?? null)
+    created_at: lit(r.created_at ?? { sql: 'now()' })
   };
 }
 
@@ -352,7 +359,7 @@ export function toAnswerArtifact(r: Row): SqlRow | null {
     answer_id: answerRef(r.id),
     kind: lit('url'),
     url: lit(url),
-    created_at: lit(r.created_at ?? null)
+    created_at: lit(r.created_at ?? { sql: 'now()' })
   };
 }
 
@@ -364,7 +371,7 @@ export function toVote(l: Row): SqlRow {
     profile_id: lit(l.user ?? null),
     value: '1',
     legacy: jsonbLit({ size: l.size ?? undefined }),
-    created_at: lit(l.created_at ?? null)
+    created_at: lit(l.created_at ?? { sql: 'now()' })
   };
 }
 
@@ -444,18 +451,61 @@ describe('buildDocumentV2', () => {
     );
   });
 
-  it('uses on conflict (legacy_id) everywhere and >= count assertions', () => {
+  it('arbitrates ALL unique constraints on interest/votes (targetless) and legacy_id elsewhere', () => {
     const doc = buildDocumentV2(data);
-    expect(doc).toContain('on conflict (legacy_id) do nothing');
-    expect(doc).toMatch(/assert \(select count\(\*\) from public\.comments\) >= \d+/);
+    const seg = (from: string, to: string) => doc.slice(doc.indexOf(from), doc.indexOf(to));
+    // comments/answers/artifacts: legacy_id is their only unique key
+    expect(seg('insert into public.comments', 'update public.comments')).toContain('on conflict (legacy_id) do nothing;');
+    // interest/idea_votes ALSO carry unique (idea_id, profile_id): an organic post-restore row on the
+    // same pair must NOT abort the load — a targetless `on conflict do nothing` arbitrates ANY unique index
+    expect(seg('insert into public.interest', 'insert into public.answers')).toContain('on conflict do nothing;');
+    expect(seg('insert into public.interest', 'insert into public.answers')).not.toContain('on conflict (');
+    expect(seg('insert into public.idea_votes', 'set session_replication_role = origin')).toContain('on conflict do nothing;');
+    expect(seg('insert into public.idea_votes', 'set session_replication_role = origin')).not.toContain('on conflict (');
+  });
+
+  it('asserts legacy-scoped counts where exact, totals where displacement is possible', () => {
+    const doc = buildDocumentV2(data);
+    // comments/answers/artifacts can't be displaced → exact legacy-scoped counts (organic-immune)
+    expect(doc).toMatch(/assert \(select count\(\*\) from public\.comments where legacy_id is not null\) >= \d+/);
+    expect(doc).toMatch(/assert \(select count\(\*\) from public\.answers where legacy_id is not null\) >= \d+/);
+    // interest/votes: an organic row on the same (idea_id, profile_id) DISPLACES the legacy insert,
+    // so legacy-scoped counts could undershoot — assert totals (legacy + displacing organic ≥ source)
     expect(doc).toMatch(/assert \(select count\(\*\) from public\.idea_votes\) >= \d+/);
+    expect(doc).toMatch(/assert \(select count\(\*\) from public\.interest\) >= \d+/);
+    expect(doc).toContain('orphan comment idea');   // full spec §5 orphan-scan list
+    expect(doc).toContain('orphan artifact answer');
   });
 });
 ```
 
 - [ ] **Step 2: Run to verify failure** `npx vitest run scripts/etl/emit.test.ts` → FAIL (`buildDocumentV2` missing).
 
-- [ ] **Step 3: Implement** (append to `scripts/etl/emit.ts`)
+- [ ] **Step 3a: Extend `insertRows` for targetless conflicts.** In `scripts/etl/sql.ts`, make the conflict target optional — an empty/omitted target emits a targetless `on conflict do nothing` (arbitrates ANY unique index):
+
+```ts
+export function insertRows(
+  table: string, columns: string[], rows: Record<string, string>[], conflictTarget?: string
+): string {
+  if (rows.length === 0) return '';
+  const tuples = rows.map((r) => `  (${columns.map((c) => r[c] ?? 'NULL').join(', ')})`).join(',\n');
+  const conflict = conflictTarget ? `on conflict (${conflictTarget}) do nothing;` : 'on conflict do nothing;';
+  return `insert into ${table} (${columns.join(', ')}) values\n${tuples}\n${conflict}\n`;
+}
+```
+
+Append to `scripts/etl/sql.test.ts`:
+
+```ts
+  it('insertRows() omits the conflict target when none is given (arbitrates any unique index)', () => {
+    const sql = insertRows('public.t', ['id'], [{ id: lit('1') }]);
+    expect(sql.trim().endsWith('on conflict do nothing;')).toBe(true);
+  });
+```
+
+(All v1 call sites pass a target — behavior unchanged; `npx vitest run scripts/etl/sql.test.ts` must stay green.)
+
+- [ ] **Step 3b: Implement** (append to `scripts/etl/emit.ts`)
 
 ```ts
 /** v2 target column lists (only columns the ETL sets; defaults cover the rest). */
@@ -499,33 +549,48 @@ export function buildDocumentV2(data: EmitDataV2): string {
       })
       .join('\n')
   );
-  parts.push(insertRows('public.interest', [...INTEREST_COLUMNS], data.interest, 'legacy_id'));
+  // interest + idea_votes ALSO carry unique (idea_id, profile_id): an organic post-restore row on the
+  // same pair must DISPLACE the legacy insert, not abort the transaction → targetless on conflict.
+  parts.push(insertRows('public.interest', [...INTEREST_COLUMNS], data.interest));
   parts.push(insertRows('public.answers', [...ANSWERS_COLUMNS], data.answers, 'legacy_id'));
   parts.push(insertRows('public.answer_artifacts', [...ARTIFACTS_COLUMNS], data.artifacts, 'legacy_id'));
-  parts.push(insertRows('public.idea_votes', [...VOTES_COLUMNS], data.votes, 'legacy_id'));
+  parts.push(insertRows('public.idea_votes', [...VOTES_COLUMNS], data.votes));
 
   parts.push('set session_replication_role = origin;');
 
-  // counts (>= so re-runs never trip) + orphan scans (FK checks were deferred under replica)
+  // VERIFICATION IS HERE OR NOWHERE: replica mode DISABLES the RI triggers and restoring `origin`
+  // never re-validates rows — these scans are the only FK-integrity check for the load.
+  // Counts: comments/answers/artifacts can't be displaced → exact legacy-scoped; interest/votes can be
+  // displaced by an organic (idea_id, profile_id) row → assert totals (legacy + displacing organic).
   parts.push(
     [
       'do $$ begin',
-      "  assert (select count(*) from public.comments) >= 83, 'comments count too low';",
+      "  assert (select count(*) from public.comments where legacy_id is not null) >= 83, 'comments count too low';",
       "  assert (select count(*) from public.interest) >= 133, 'interest count too low';",
-      "  assert (select count(*) from public.answers) >= 5, 'answers count too low';",
-      "  assert (select count(*) from public.answer_artifacts) >= 5, 'artifacts count too low';",
+      "  assert (select count(*) from public.answers where legacy_id is not null) >= 5, 'answers count too low';",
+      "  assert (select count(*) from public.answer_artifacts where legacy_id is not null) >= 5, 'artifacts count too low';",
       "  assert (select count(*) from public.idea_votes) >= 387, 'votes count too low';",
-      "  assert (select count(*) from public.comments where reply_to is not null) >= 13, 'reply links too low';",
+      "  assert (select count(*) from public.comments where legacy_id is not null and reply_to is not null) >= 13, 'reply links too low';",
       '  assert (select count(*) from public.comments c left join public.profiles p on p.id = c.author_id',
       "          where c.author_id is not null and p.id is null) = 0, 'orphan comment author';",
+      '  assert (select count(*) from public.comments c left join public.ideas i on i.id = c.idea_id',
+      "          where i.id is null) = 0, 'orphan comment idea';",
       '  assert (select count(*) from public.comments c left join public.comments p on p.id = c.reply_to',
       "          where c.reply_to is not null and p.id is null) = 0, 'orphan reply_to';",
-      '  assert (select count(*) from public.interest i left join public.profiles p on p.id = i.profile_id',
-      "          where i.profile_id is not null and p.id is null) = 0, 'orphan interest profile';",
+      '  assert (select count(*) from public.interest x left join public.profiles p on p.id = x.profile_id',
+      "          where x.profile_id is not null and p.id is null) = 0, 'orphan interest profile';",
+      '  assert (select count(*) from public.interest x left join public.ideas i on i.id = x.idea_id',
+      "          where i.id is null) = 0, 'orphan interest idea';",
       '  assert (select count(*) from public.answers a left join public.profiles p on p.id = a.submitter_id',
       "          where a.submitter_id is not null and p.id is null) = 0, 'orphan answer submitter';",
+      '  assert (select count(*) from public.answers a left join public.ideas i on i.id = a.idea_id',
+      "          where i.id is null) = 0, 'orphan answer idea';",
+      '  assert (select count(*) from public.answer_artifacts t left join public.answers a on a.id = t.answer_id',
+      "          where a.id is null) = 0, 'orphan artifact answer';",
       '  assert (select count(*) from public.idea_votes v left join public.profiles p on p.id = v.profile_id',
       "          where p.id is null) = 0, 'orphan vote profile';",
+      '  assert (select count(*) from public.idea_votes v left join public.ideas i on i.id = v.idea_id',
+      "          where i.id is null) = 0, 'orphan vote idea';",
       'end $$;'
     ].join('\n')
   );
@@ -588,7 +653,7 @@ main();
 In `package.json` `scripts` add: `"etl:restore-v2": "tsx scripts/etl/restore-v2.ts"`.
 
 - [ ] **Step 5: Run** `npx vitest run scripts/etl` → all green (v1 + v2). `npm run check` → 0 errors.
-- [ ] **Step 6: Commit** `git add scripts/etl/emit.ts scripts/etl/emit.test.ts scripts/etl/restore-v2.ts package.json && git commit -m "feat(etl): v2 emitter + restore-v2 CLI"`
+- [ ] **Step 6: Commit** `git add scripts/etl/sql.ts scripts/etl/sql.test.ts scripts/etl/emit.ts scripts/etl/emit.test.ts scripts/etl/restore-v2.ts package.json && git commit -m "feat(etl): v2 emitter + restore-v2 CLI"`
 
 ---
 
@@ -652,27 +717,54 @@ Run `npx vitest run src/lib/votes.test.ts` → PASS.
 ```svelte
 <script lang="ts">
   import { enhance } from '$app/forms';
-  let { score, myVote, canVote }: { score: number; myVote: 1 | -1 | null; canVote: boolean } = $props();
+  let { score, myVote, canVote, signinHref }: {
+    score: number; myVote: 1 | -1 | null; canVote: boolean; signinHref?: string;
+  } = $props();
+
+  // Optimistic local view (spec §6): apply the expected outcome immediately, reconcile when the
+  // action's load re-run delivers fresh props (the $effect clears the override on every prop change).
+  let pending = $state(false);
+  let optimistic = $state<{ score: number; myVote: 1 | -1 | null } | null>(null);
+  $effect(() => { void score; void myVote; optimistic = null; });
+  const view = $derived(optimistic ?? { score, myVote });
+
+  const submit = (value: 1 | -1) => () => {
+    const cur = view;
+    optimistic = cur.myVote === value
+      ? { score: cur.score - value, myVote: null }                        // same arrow → unvote
+      : { score: cur.score + value - (cur.myVote ?? 0), myVote: value };  // vote / switch
+    pending = true;
+    return async ({ update }: { update: () => Promise<void> }) => {
+      await update();           // re-runs the load → fresh score/myVote → $effect clears optimistic
+      pending = false;
+    };
+  };
 </script>
 <div class="flex items-center gap-1.5 rounded-xl border px-2 py-1"
      style="border-color:var(--line); background:var(--surface)">
-  <form method="POST" action={myVote === 1 ? '?/unvote' : '?/vote'} use:enhance>
-    <input type="hidden" name="value" value="1" />
-    <button class="px-1 transition disabled:opacity-40" disabled={!canVote} aria-label="Upvote"
-            aria-pressed={myVote === 1}
-            style="color:{myVote === 1 ? 'var(--green-deep)' : 'var(--muted)'}">▲</button>
-  </form>
-  <span class="min-w-5 text-center text-sm font-semibold tabular-nums" style="color:var(--ink)">{score}</span>
-  <form method="POST" action={myVote === -1 ? '?/unvote' : '?/vote'} use:enhance>
-    <input type="hidden" name="value" value="-1" />
-    <button class="px-1 transition disabled:opacity-40" disabled={!canVote} aria-label="Downvote"
-            aria-pressed={myVote === -1}
-            style="color:{myVote === -1 ? 'var(--neg)' : 'var(--muted)'}">▼</button>
-  </form>
+  {#if !canVote && signinHref}
+    <a href={signinHref} class="px-1" aria-label="Sign in to vote" style="color:var(--muted)">▲</a>
+    <span class="min-w-5 text-center text-sm font-semibold tabular-nums" style="color:var(--ink)">{view.score}</span>
+    <a href={signinHref} class="px-1" aria-label="Sign in to vote" style="color:var(--muted)">▼</a>
+  {:else}
+    <form method="POST" action={view.myVote === 1 ? '?/unvote' : '?/vote'} use:enhance={submit(1)}>
+      <input type="hidden" name="value" value="1" />
+      <button class="px-1 transition disabled:opacity-40" disabled={!canVote || pending} aria-label="Upvote"
+              aria-pressed={view.myVote === 1}
+              style="color:{view.myVote === 1 ? 'var(--green-deep)' : 'var(--muted)'}">▲</button>
+    </form>
+    <span class="min-w-5 text-center text-sm font-semibold tabular-nums" style="color:var(--ink)">{view.score}</span>
+    <form method="POST" action={view.myVote === -1 ? '?/unvote' : '?/vote'} use:enhance={submit(-1)}>
+      <input type="hidden" name="value" value="-1" />
+      <button class="px-1 transition disabled:opacity-40" disabled={!canVote || pending} aria-label="Downvote"
+              aria-pressed={view.myVote === -1}
+              style="color:{view.myVote === -1 ? 'var(--neg)' : 'var(--muted)'}">▼</button>
+    </form>
+  {/if}
 </div>
 ```
 
-(Active upvote = `--green-deep` small mark; active downvote = `--neg`, the semantic negative. `use:enhance` re-runs the load after the action — no full reload. If signed out the buttons are disabled; the page already exposes a sign-in link with `?next=`.)
+(Active upvote = `--green-deep` small mark; active downvote = `--neg`, the semantic negative. The optimistic override + `pending` guard satisfy spec §6 — instant feedback, no double-submit; the load re-run reconciles to server truth. Signed-out users get the arrows as links to `signinHref` — there is no pre-existing `?next=` sign-in link on the idea page, so the control carries its own.)
 
 - [ ] **Step 4: Idea detail — load + actions.** In `src/routes/ideas/[id]/+page.server.ts`:
 
@@ -724,7 +816,8 @@ To `actions` add:
 - [ ] **Step 5: Mount the control.** In `src/routes/ideas/[id]/+page.svelte`, import `VoteControl` and render it in the header row next to the title/status:
 
 ```svelte
-<VoteControl score={data.score} myVote={data.myVote} canVote={data.canEngage} />
+<VoteControl score={data.score} myVote={data.myVote} canVote={data.canEngage}
+             signinHref={`/login?next=/ideas/${data.idea.id}`} />
 ```
 
 (Match the file's existing header layout — place it inside the same flex row as the `StatusBadge`.)
@@ -741,7 +834,8 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
   const sort = url.searchParams.get('sort') === 'top' ? 'top' : 'new';
   const page = Math.max(0, Number(url.searchParams.get('page') ?? 0));
 
-  // vote totals are small (≤ #ideas rows) — fetch once, used by both sorts for the card scores
+  // vote totals are small (≤ #ideas rows; ~240 today, well under PostgREST's 1000-row cap — revisit
+  // both whole-set fetches if the idea count ever approaches 1000) — fetched once for the card scores
   const { data: totals } = await supabase.from('idea_vote_totals').select('idea_id, score');
 
   let base = supabase
@@ -862,10 +956,18 @@ Note for the implementer: the `order()` mock above resolves the promise (the rea
 
 > Controller-only. Subagents never touch cloud.
 
-- [ ] Apply the `idea_votes` migration to `gjomchhbsbtauzkpyjwa` via MCP `apply_migration`.
-- [ ] **Checkpoint with the owner**, then apply the rehearsed artifact via the Management API over 443 (psql ports are blocked on the owner's network; the artifact must NOT stream through MCP `execute_sql`):
-  `jq -Rs '{query: .}' scripts/etl/restore-v2.generated.sql | curl -sS -m 600 -X POST "https://api.supabase.com/v1/projects/gjomchhbsbtauzkpyjwa/database/query" -H "Authorization: Bearer <fresh owner PAT>" -H "Content-Type: application/json" --data-binary @-` → expect HTTP 201.
-- [ ] Verify on cloud (MCP `execute_sql`): the Task-5 count + orphan queries; expect 83/133/5/5/387 (+ any new organic rows).
+- [ ] **PR merged first** (the deployed app must already have the vote UI + the repo the migration file), then apply the `idea_votes` migration to `gjomchhbsbtauzkpyjwa` via MCP `apply_migration`.
+- [ ] **Checkpoint with the owner** (a fresh PAT is needed — the v1 token was revoked), then apply the rehearsed artifact via the Management API over 443 (psql ports are blocked on the owner's network; the artifact must NOT stream through MCP `execute_sql`). Keep the PAT out of argv/history: have the owner paste it into a `chmod 600` temp file, then:
+
+```bash
+jq -Rs '{query: .}' scripts/etl/restore-v2.generated.sql | curl -sS -m 600 \
+  -X POST "https://api.supabase.com/v1/projects/gjomchhbsbtauzkpyjwa/database/query" \
+  -H @<(printf 'Authorization: Bearer %s\n' "$(cat /tmp/sb-pat)") -H "Content-Type: application/json" \
+  --data-binary @- -o /tmp/restore-v2-response.json -w "http=%{http_code}\n"
+```
+
+  **Treat anything other than `http=201` as failure** (the transaction rolled back — read the response body; do not retry blindly). Delete `/tmp/sb-pat` immediately after.
+- [ ] Verify on cloud (MCP `execute_sql`), organic-data-immune: `count(*) … where legacy_id is not null` per table → expect exactly **83 comments / 5 answers / 5 artifacts**, reply_to set on 13 legacy comments, and `interest`/`idea_votes` legacy counts + displaced pairs summing to **133 / 387** (displaced = organic rows sharing an (idea_id, profile_id) pair with a skipped legacy row — normally 0 this soon after launch). Then the orphan scans → all 0.
 - [ ] Re-run `get_advisors` (security + performance) — expect the accepted baseline only (`idea_vote_totals` is security_invoker; both new FKs are indexed).
 - [ ] Smoke test on the deployed app: `/ideas?sort=top`, a restored comment thread, a verified answer, casting + removing a vote.
 - [ ] Remind the owner to **revoke the PAT** (and rotate the DB password if not already done after v1).
