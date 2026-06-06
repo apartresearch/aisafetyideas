@@ -191,3 +191,84 @@ describe('resolveIdeaRelations', () => {
     expect(rows[0].type).toBe("'related'");
   });
 });
+
+import {
+  ideaRef, answerRef, toComment, commentReplies, toInterest,
+  toAnswerFromResult, toAnswerArtifact, toVote, dedupeVotes
+} from './transform';
+
+describe('v2 ref helpers', () => {
+  it('emit integer-validated scalar subqueries', () => {
+    expect(ideaRef('14')).toBe("(select id from public.ideas where legacy_id = 14)");
+    expect(answerRef('3')).toBe("(select id from public.answers where legacy_id = 3)");
+    expect(() => ideaRef('14; drop table x')).toThrow();
+    expect(() => ideaRef(null)).toThrow();
+  });
+});
+
+describe('v2 transforms', () => {
+  it('toComment maps body/author and keeps reply/anon/upvotes in legacy', () => {
+    const c = toComment({ id: '96', created_at: '2022-06-30 06:41:09+00', idea: '16',
+      author: '0ab224d1-75b6-44e5-b868-26018ca607fe', text: 'Yes!', reply_to: '69',
+      anon_author: null, anon_author_url: null, upvotes: '2' });
+    expect(c.legacy_id).toBe("'96'");
+    expect(c.idea_id).toBe("(select id from public.ideas where legacy_id = 16)");
+    expect(c.author_id).toBe("'0ab224d1-75b6-44e5-b868-26018ca607fe'");
+    expect(c.body_md).toBe("'Yes!'");
+    expect(c.legacy).toContain('"reply_to":"69"');
+    expect(c.legacy).toContain('"upvotes":"2"');
+    expect(c.reply_to).toBeUndefined();           // threading is pass-2
+  });
+  it('toComment keeps empty text as empty string and null author as NULL', () => {
+    const c = toComment({ id: '175', created_at: '2023-07-07 15:24:15+00', idea: '242',
+      author: null, text: '', reply_to: null, anon_author: null, anon_author_url: null, upvotes: null });
+    expect(c.body_md).toBe("''");
+    expect(c.author_id).toBe('NULL');
+  });
+  it('commentReplies returns only rows with reply_to', () => {
+    const rows = [
+      { id: '96', reply_to: '69' }, { id: '97', reply_to: null }
+    ] as any[];
+    expect(commentReplies(rows)).toEqual([{ legacy_id: '96', reply_legacy_id: '69' }]);
+  });
+  it('toInterest maps how→note_md (blank→NULL) and contact flag→legacy', () => {
+    const i = toInterest({ id: '14', created_at: '2022-06-14 12:14:29+00',
+      user: '3590e5a9-da55-49f8-9d61-726c0b0203fe', idea: '18', contact_if_started: 'f', how: '' });
+    expect(i.note_md).toBe('NULL');
+    expect(i.profile_id).toBe("'3590e5a9-da55-49f8-9d61-726c0b0203fe'");
+    expect(i.legacy).toContain('"contact_if_started":"f"');
+  });
+  it('toAnswerFromResult maps to a verified answer with a title fallback', () => {
+    const titles = new Map([['14', 'Old idea title']]);
+    const a = toAnswerFromResult({ id: '3', created_at: '2022-11-21 12:05:13+00', idea: '14',
+      user: '0ab224d1-75b6-44e5-b868-26018ca607fe', description: '', image_link: 'http://img',
+      type: 'ambiguous', title: '', author: 'COCO, Nina', link: 'http://itch.io/x',
+      from_date: '2022-11-13', original: 'f' }, titles);
+    expect(a.title).toBe("'Result: Old idea title'");
+    expect(a.status).toBe("'verified'");
+    expect(a.verified_at).toBe("'2022-11-21 12:05:13+00'");
+    expect(a.explanation_md).toBe('NULL');
+    expect(a.legacy).toContain('"author":"COCO, Nina"');
+  });
+  it('toAnswerArtifact emits a url artifact only when link is non-blank', () => {
+    const art = toAnswerArtifact({ id: '3', created_at: 'x', link: 'http://itch.io/x' } as any);
+    expect(art!.answer_id).toBe("(select id from public.answers where legacy_id = 3)");
+    expect(art!.kind).toBe("'url'");
+    expect(toAnswerArtifact({ id: '9', created_at: 'x', link: '' } as any)).toBeNull();
+  });
+  it('toVote maps a like to an upvote, weight in legacy', () => {
+    const v = toVote({ id: '7', created_at: '2022-07-01 00:00:00+00',
+      user: '0ab224d1-75b6-44e5-b868-26018ca607fe', idea: '14', size: '3' });
+    expect(v.value).toBe('1');
+    expect(v.legacy).toContain('"size":"3"');
+  });
+  it('dedupeVotes keeps the earliest per (user, idea)', () => {
+    const { kept, dropped } = dedupeVotes([
+      { id: '2', created_at: '2022-02-01', user: 'u1', idea: '5', size: '1' },
+      { id: '1', created_at: '2022-01-01', user: 'u1', idea: '5', size: '1' },
+      { id: '3', created_at: '2022-03-01', user: 'u2', idea: '5', size: '1' }
+    ] as any[]);
+    expect(kept.map((r: any) => r.id)).toEqual(['1', '3']);
+    expect(dropped).toBe(1);
+  });
+});
