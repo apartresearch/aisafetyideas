@@ -54,14 +54,15 @@ Columns: `provider_id, user_id, identity_data, provider, last_sign_in_at, create
 | `career_stage` | `users.career_stage` |
 | `links` | `'{}'::jsonb` |
 | `is_admin` | `false` (never import admin; the owner sets their own admin flag manually post-restore) |
-| `legacy` | `{ like_weight, username (original), user_metadata }` |
 | `created_at` | the matching `auth.users.created_at` (or `now()`) |
+
+> **No `legacy` column on `profiles`** (the table was designed without one — its `id` IS the user uuid, so there's nothing to anchor). The old `like_weight` (a deprecated ranking weight) is therefore **dropped**; `username` is preserved as `handle`; and the old `user_metadata` is **not lost** — it's restored verbatim into `auth.users.raw_user_meta_data`. No meaningful data is discarded.
 
 ### 3.4 `public.experts` (where `users.expert = true`; on conflict (id) do nothing)
 `id = users.id`, `status = 'approved'` (the old `expert` flag means a vetted expert), `featured = false`, `approved_by = null`, `approved_at = now()`.
 
 ### 3.5 `public.categories` (19; on conflict (legacy_id) do nothing)
-`id = gen_random_uuid()`, `legacy_id = old.id`, `slug = slugify(title)` (guaranteed-unique with a numeric suffix on collision), `title = title`, `description = tooltip`, `priority = priority`, `legacy = { project_factory }`.
+`id = gen_random_uuid()`, `legacy_id = old.id`, `slug = slugify(title)` (guaranteed-unique with a numeric suffix on collision), `title = title`, `description = tooltip`, `priority = priority`. (The table has **no `legacy` column** — `legacy_id` is the anchor — so the deprecated `project_factory` flag is dropped.)
 
 ### 3.6 `public.ideas` (238; on conflict (legacy_id) do nothing)
 | idea column | source / rule |

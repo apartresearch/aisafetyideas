@@ -105,41 +105,47 @@ export type EmitData = {
   ideaRels: SqlRow[];
 };
 
-const TRIGGER = 'on_auth_user_created';
-
 /**
  * Assemble the idempotent restore document (spec §4 order):
- *   begin → disable trigger → auth.users → auth.identities → profiles → experts
- *         → enable trigger → categories → ideas → idea_categories → idea_relations
- *         → count assertions → commit.
+ *   begin → session_replication_role=replica → auth.users → auth.identities → profiles → experts
+ *         → categories → ideas → idea_categories → idea_relations → session_replication_role=origin
+ *         → count + FK-integrity assertions → commit.
  * Every insert is `on conflict do nothing` on a stable key, so the document is re-runnable.
+ *
+ * NOTE on `session_replication_role = replica` (vs `ALTER TABLE auth.users DISABLE TRIGGER`):
+ * `auth.users` is owned by `supabase_auth_admin`, and the role that runs the load (`postgres`) is NOT a
+ * superuser and cannot `ALTER` it ("must be owner of table users"). `postgres` CAN, however, `SET
+ * session_replication_role`, which is the standard bulk-restore mechanism: it suppresses ALL normal
+ * triggers — including the `on_auth_user_created` welcome trigger that would otherwise double-create
+ * profiles — and defers FK checks for the load. It is restored to `origin` before the assertions.
  */
 export function buildDocument(data: EmitData): string {
   const parts: string[] = [];
   parts.push('begin;');
+  parts.push('set session_replication_role = replica;');
 
-  // ── auth import: bracket the auth.users insert with the welcome-trigger disabled ──
-  parts.push(`alter table auth.users disable trigger ${TRIGGER};`);
   parts.push(insertRows('auth.users', [...AUTH_USERS_COLUMNS], data.authUsers, 'id'));
   parts.push(insertRows('auth.identities', [...AUTH_IDENTITIES_COLUMNS], data.identities, 'id'));
   parts.push(insertRows('public.profiles', [...PROFILES_COLUMNS], data.users, 'id'));
   parts.push(insertRows('public.experts', [...EXPERTS_COLUMNS], data.experts ?? [], 'id'));
-  parts.push(`alter table auth.users enable trigger ${TRIGGER};`);
-
-  // ── content import ──
   parts.push(insertRows('public.categories', [...CATEGORIES_COLUMNS], data.categories, 'legacy_id'));
   parts.push(insertRows('public.ideas', [...IDEAS_COLUMNS], data.ideas, 'legacy_id'));
   parts.push(insertRows('public.idea_categories', [...IDEA_CATEGORIES_COLUMNS], data.ideaCats, 'idea_id, category_id'));
   parts.push(insertRows('public.idea_relations', [...IDEA_RELATIONS_COLUMNS], data.ideaRels, 'parent_id, child_id'));
 
-  // ── count assertions (>= so re-runs / the 1 pre-existing test row never trip them) ──
+  parts.push('set session_replication_role = origin;');
+
+  // ── assertions: counts (>= so re-runs / the 1 pre-existing test row never trip them) + FK integrity
+  //    (FK checks were deferred during the load, so verify no orphan author here — fail loud → rollback). ──
   parts.push(
     [
       'do $$ begin',
-      '  assert (select count(*) from auth.users) >= 266, \'auth.users count too low\';',
-      '  assert (select count(*) from public.profiles) >= 266, \'profiles count too low\';',
-      '  assert (select count(*) from public.categories) >= 19, \'categories count too low\';',
-      '  assert (select count(*) from public.ideas) >= 238, \'ideas count too low\';',
+      "  assert (select count(*) from auth.users) >= 266, 'auth.users count too low';",
+      "  assert (select count(*) from public.profiles) >= 266, 'profiles count too low';",
+      "  assert (select count(*) from public.categories) >= 19, 'categories count too low';",
+      "  assert (select count(*) from public.ideas) >= 238, 'ideas count too low';",
+      '  assert (select count(*) from public.ideas i left join public.profiles p on p.id = i.author_id',
+      "          where i.author_id is not null and p.id is null) = 0, 'orphan idea.author_id';",
       'end $$;'
     ].join('\n')
   );

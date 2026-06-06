@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { buildDocument } from './emit';
 
 describe('buildDocument', () => {
-  it('wraps in a transaction, toggles the trigger around the auth import, and ends with count assertions', () => {
+  it('wraps in a transaction, brackets the load with session_replication_role, and ends with assertions', () => {
     const doc = buildDocument({
       authUsers: [{ id: '11111111-1111-1111-1111-111111111111' }] as any,
       identities: [],
@@ -13,13 +13,19 @@ describe('buildDocument', () => {
       ideaRels: []
     } as any);
     expect(doc.startsWith('begin;')).toBe(true);
-    expect(doc).toContain('alter table auth.users disable trigger on_auth_user_created;');
-    const disableAt = doc.indexOf('disable trigger');
+    // NOT the ALTER TABLE form (postgres can't own auth.users); uses the SET that needs no ownership
+    expect(doc).not.toContain('disable trigger');
+    expect(doc).toContain('set session_replication_role = replica;');
+    expect(doc).toContain('set session_replication_role = origin;');
+    const replicaAt = doc.indexOf('set session_replication_role = replica;');
     const authInsertAt = doc.indexOf('insert into auth.users');
-    const enableAt = doc.indexOf('enable trigger');
-    expect(disableAt).toBeLessThan(authInsertAt);
-    expect(authInsertAt).toBeLessThan(enableAt);
-    expect(doc).toMatch(/do \$\$[\s\S]*assert[\s\S]*\$\$/); // count-assertion block
+    const originAt = doc.indexOf('set session_replication_role = origin;');
+    expect(replicaAt).toBeGreaterThanOrEqual(0);
+    expect(replicaAt).toBeLessThan(authInsertAt); // replica set before the auth import
+    expect(authInsertAt).toBeLessThan(originAt); // origin restored after the load, before commit
+    expect(doc).toMatch(/do \$\$[\s\S]*assert[\s\S]*\$\$/); // count + FK assertion block
+    expect(doc).toContain('orphan idea.author_id'); // FK integrity asserted (FK checks were deferred)
+    expect(originAt).toBeLessThan(doc.indexOf('do $$')); // origin restored before the assertions
     expect(doc.trim().endsWith('commit;')).toBe(true);
   });
 
@@ -55,8 +61,9 @@ describe('buildDocument', () => {
     expect(doc).toContain('on conflict (idea_id, category_id) do nothing');
     expect(doc).toContain('on conflict (parent_id, child_id) do nothing');
 
-    // the categories/ideas inserts come AFTER the trigger is re-enabled
-    expect(doc.indexOf('enable trigger')).toBeLessThan(doc.indexOf('insert into public.categories'));
+    // session_replication_role is restored to origin AFTER all inserts (incl. categories/ideas/relations)
+    expect(doc.indexOf('insert into public.idea_relations'))
+      .toBeLessThan(doc.indexOf('set session_replication_role = origin;'));
   });
 
   it('uses >= in the assertions so re-runs and the pre-existing test row do not trip them', () => {
