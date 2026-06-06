@@ -49,9 +49,9 @@ create table public.idea_votes (
 - Indexes: `idea_id`, `profile_id` (covers both FKs; the unique adds `(idea_id, profile_id)`).
 - **RLS mirrors `interest` exactly:**
   - SELECT: idea visible (leverages ideas RLS via `exists`) **or** own row.
-  - INSERT (`to authenticated`): `auth.uid() = profile_id`, `value in (-1,1)` (redundant with
-    the check constraint but keeps the policy self-documenting), `legacy_id is null and
-    legacy = '{}'::jsonb` pinned, idea visible.
+  - INSERT (`to authenticated`): `auth.uid() = profile_id`, `legacy_id is null and
+    legacy = '{}'::jsonb` pinned, idea visible. (The `value in (-1,1)` rule lives on the table
+    CHECK constraint only — a single deterministic error source, not duplicated in the policy.)
   - DELETE (`to authenticated`): own row.
   - **No UPDATE** — switching a vote is delete + re-insert (same toggle pattern as `interest`).
 - **`idea_vote_totals` view** (`security_invoker = true`, mirrors `bounty_pot`):
@@ -136,8 +136,9 @@ per reply row (13 statements).
 
 ## 6. Vote UI (minimal, this plan)
 
-- **Idea detail page:** compact `▲ score ▼` control. Own active vote renders in
-  `--green-deep` (small mark on white, per styleguide §1); inactive arrows `--muted`.
+- **Idea detail page:** compact `▲ score ▼` control. Own active upvote renders in
+  `--green-deep` (small mark on white, per styleguide §1), active downvote in `--neg`
+  (the semantic negative); inactive arrows `--muted`.
   Toggle semantics: tap same arrow = remove vote (DELETE); tap other arrow = DELETE +
   INSERT. Optimistic update, `snappy` spring, interruptible. Signed-out users see the
   control disabled with a link to `/login?next=<idea>`.
@@ -146,8 +147,8 @@ per reply row (13 statements).
 - **Sort-by-score (owner addition):** `/ideas` gains a sort control — `Newest` (default,
   current behavior) · `Top` (score desc, ties broken by `created_at` desc). Driven by a
   `?sort=top` URL param read in the server load; the load merges the totals into the idea
-  list and sorts server-side (238 ideas — no pagination concerns). The control follows the
-  `Label ▾` dropdown pattern from the styleguide.
+  list and sorts server-side (238 ideas — no pagination concerns). The control mirrors the
+  existing type-filter link nav on `/ideas` (two options don't warrant a dropdown).
 - Server load functions join/fetch totals; mutations via plain supabase inserts/deletes
   (RLS does the enforcement — no RPCs needed).
 
