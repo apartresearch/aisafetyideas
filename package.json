@@ -12,7 +12,8 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"etl:restore-v1": "tsx scripts/etl/restore-v1.ts"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.60.0",
@@ -26,6 +27,7 @@
 		"svelte": "^5.55.2",
 		"svelte-check": "^4.6.0",
 		"tailwindcss": "^4.3.0",
+		"tsx": "^4.22.4",
 		"typescript": "^6.0.3",
 		"vite": "^8.0.7",
 		"vitest": "^4.1.8"
