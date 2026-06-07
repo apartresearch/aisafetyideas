@@ -41,10 +41,12 @@ Reduced-motion (a `prefersReducedMotion` store, §3.5) → no spring/draw; rende
 
 ### 3.2 `src/lib/components/CountUp.svelte`
 Animated numeric via `svelte/motion` `tweened` over `dur.slow` (360ms), ease-out
-(`cubicOut`). Props `cents: number`, `currency = 'USD'`. Formats each frame with the **same**
-`Intl.NumberFormat(... style:'currency')` call as `Money.svelte`; `font-variant-numeric:
-tabular-nums` so width never reflows mid-count. Counts `0 → cents`. Reduced-motion → set to `cents`
-immediately (no tween). `Money.svelte` is unchanged (static sibling; CountUp is the animated one).
+(`cubicOut`). Props `cents: number`, `currency = 'USD'`, `reduced?` (default = the store value,
+injectable for tests). Formats each frame with `formatCents` (the shared helper). **Width is
+reserved** by an `aria-hidden` sizer rendering the *final* formatted string under the
+absolutely-positioned counting value — `tabular-nums` alone does not reserve space for digits/commas
+not yet present, so the count would otherwise widen and shove the seal left. Counts `0 → cents`;
+reduced → set to `cents` immediately. `Money.svelte` is unchanged (static sibling; CountUp animated).
 
 ### 3.3 Keyframes (append to `src/app.css`, inside/covered by the existing reduced-motion block)
 - `@keyframes payout-glow` — `box-shadow` from `0 0 0 0 transparent` → `0 0 0 4px rgba(68,255,152,.30)`
@@ -62,21 +64,27 @@ then refetch:
 Per-row state via a rune keyed by answer id: `outcome: 'verifying' | 'rejecting' | 'revising' | null`
 and a `pending` guard (same idiom as `VoteControl`). The enhance handler has two phases:
 
-**Before-submit phase** (runs as the POST is dispatched, so the animation and the server round-trip
-overlap):
-1. On re-entry while `pending` → `cancel()` (no double-fire).
-2. Set `pending = true` and the matching `outcome` — this mounts `VerifySeal` (+ `CountUp` for verify)
-   and toggles the row class (`payout-glow` / `reject-settle`); the moment begins playing now.
+**SUCCESS-GATED** (revised after the 6-lens plan review — the original "optimistic" mounting would
+flash a fake "Verified · $X" on a failed/rate-limited verify, wrong for a money moment):
+
+**Before-submit phase** (as the POST dispatches):
+1. On re-entry while in-flight → `cancel()` (no double-fire).
+2. `prepare(input)` captures the typed payout from `input.formData`.
+3. `markPending()` — a **neutral** in-flight marker that hides the row's controls. **No green seal,
+   no count-up** yet (nothing that implies success).
 
 **Result callback** (after the server responds):
-3. **Hold first, refetch after** (the ordering that keeps the row mounted through the moment): `await`
-   the remaining sequence time so the total reads ~700ms verify / ~260ms reject from step 2 (a
-   promise-timeout the handler owns; **skipped entirely under reduced motion**).
-4. *Then* `await update()` — runs `invalidateAll()`; the refetched data removes the row from the
-   queue (status is no longer `submitted`/`under_review`) / dims it. Clear `pending`.
+4. **Only if `result.type === 'success'`:** `showSucceeded()` mounts `VerifySeal` (+ `CountUp` for
+   verify) and toggles `payout-glow` / settle; then hold the full sequence (~700ms verify / ~400ms
+   admin approve / ~260ms reject/revision) so the moment reads — **skipped under reduced motion**.
+5. `await update()` (`invalidateAll()`): verified/rejected rows leave the queue (status off the
+   load filter); a **revision** row stays (`revision_requested` is still in the filter) and re-shows
+   its controls with an updated badge — the amber settle reads as in-place feedback, not removal.
+6. `finish()` clears the in-flight + visual state.
 
-(If the action returned `fail()` — e.g. rate-limited or an RPC error — skip the hold, surface the
-message, clear `pending`, and `update()`; no success animation plays.)
+(On a `fail()` result — rate-limit / RPC error — `showSucceeded()` never runs and there's no hold:
+just `update()` + `finish()`; the error surfaces via the page's `form` prop. **No success visual
+ever appears for a verification the server rejected.**)
 
 **Full verify timeline (~700ms):** seal draw + pop `0–360ms` → at ~60% (`~220ms`) the
 "Intended payout" line swaps to `<CountUp>` (counts to the entered amount, `360ms`) + one
@@ -87,10 +95,18 @@ than the entrance (CLAUDE.md §2.3).
 
 ### 3.5 Reduced motion
 `src/lib/motion.ts` gains a `prefersReducedMotion` readable store (matchMedia
-`(prefers-reduced-motion: reduce)`, SSR-safe default `false`, updates on change). `VerifySeal`,
-`CountUp`, and the orchestration read it to jump to final state (no spring/tween/hold). The CSS
-keyframes are already neutralized globally. Final states (seal drawn, amount shown, row dimmed) are
-always reached.
+`(prefers-reduced-motion: reduce)`, SSR-safe default `false`, updates on change). `VerifySeal` and
+`CountUp` take a `reduced` **prop** that defaults to the store but is **injectable** — so vitest
+drives both branches deterministically (jsdom has no real matchMedia). The orchestration reads the
+store to skip the hold. CSS keyframes are neutralized globally. Final states (seal drawn, amount
+shown, row dimmed) are always reached. *Accepted:* the page reads `reduced` once at init, so a
+mid-session OS toggle won't retro-apply — negligible.
+
+### 3.6 Test infrastructure (new — these don't exist yet)
+Component render tests are the repo's first. `vite.config.ts` must add `test.conditions:['browser']`
+(else `@testing-library/svelte` `render()` hits Svelte's SSR build and throws) and a `setupFiles`
+that stubs `window.matchMedia` (else `svelte/motion` throws at *import* under jsdom). Without both,
+every component test errors before asserting.
 
 ## 4. Surfaces & data
 - Recipient row = the queue card in `console` (verify/reject/revision) and the pending card in
@@ -102,15 +118,19 @@ always reached.
 - No new server fields; the actions and RPCs are untouched.
 
 ## 5. Testing
-- **Vitest** `CountUp.test.ts`: tweens from 0 toward target (intermediate < target mid-flight,
-  equals target at rest); reduced-motion (store mocked true) renders the final formatted value
-  immediately; formatting matches `Money` (`$X.XX`).
-- **Vitest** `VerifySeal.test.ts`: `play=false` (and reduced-motion) renders the done-state markup
-  (full check, no pending dashoffset); `tone='rejected'` renders the ✕/`--neg`, never `--green`.
-- **Vitest** wiring (`console` and/or `payouts`): the enhance callback sets the right `outcome`,
-  guards re-entry while `pending`, and calls `update()`; reduced-motion path skips the hold.
-- **Manual / Playwright (optional):** verify in the console → seal + count-up + glow; toggle OS
-  reduced-motion → states jump, no motion. (Money-off: the label reads "Intended payout".)
+- **Vitest** `CountUp.test.ts`: `reduced:true` → final value immediately; `reduced:false` → the
+  visible value starts at `$0.00` and animates to the target; an `aria-hidden` sizer always shows
+  the final string (width reserve). Formatting via `formatCents`.
+- **Vitest** `VerifySeal.test.ts`: `play=false` (and `reduced:true`) render the done-state (style
+  contains `stroke-dashoffset: 0` — note jsdom's space after the colon); `tone='rejected'` → the
+  ✕/`--neg`, never `--green`.
+- **Vitest** `review-motion.test.ts`: cancel-if-pending (no `markPending`); **success** →
+  `markPending → showSucceeded → hold → update → finish`; **failure** → `markPending → update →
+  finish` (**no `showSucceeded`, no hold** — the money-honesty guarantee); reduced success skips
+  the hold; `prepare` runs before `markPending`.
+- **Vitest** `money.test.ts`: `formatCents` cases.
+- **Manual (optional):** verify → seal+count-up+glow on success only; a rate-limited verify shows
+  the error with no green flash; OS reduced-motion → states jump. (Money-off: "Intended payout".)
 
 ## 6. Risks / accepted
 - Converting forms to `use:enhance` changes them from full-reload to client-updated — strictly
