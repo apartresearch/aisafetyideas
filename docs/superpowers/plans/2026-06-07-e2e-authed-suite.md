@@ -4,7 +4,7 @@
 
 **Goal:** Cover the research-bounty loop with real authenticated journeys as four distinct roles — proving the loop works end-to-end through the UI (incl. the verify→payout moment), plus key authorization guards.
 
-**Architecture:** A Playwright `global-setup` creates 5 role users via anon `auth.signUp`, sets roles via idempotent SQL, and mints per-role `storageState` by letting `@supabase/ssr` write the session cookies (in-memory jar + `signInWithPassword`) — **no service-role key, no hand-encoded cookies, no OAuth.** Specs drive the golden 4-role loop + negatives with reduced-motion forced for deterministic animation assertions. Spec: `docs/superpowers/specs/2026-06-07-e2e-authed-suite-design.md`.
+**Architecture:** A Playwright `global-setup` creates 5 role users via anon `auth.signUp`, sets roles via idempotent SQL, and mints per-role `storageState` by letting `@supabase/ssr` write the session cookies (in-memory jar + `signInWithPassword`) — **no service-role key, no hand-encoded cookies, no OAuth.** Specs drive the golden 4-role loop + negatives. Reduced-motion is **intentionally NOT forced** — the verify→payout moment's ~700ms hold is the assertion window (forcing reduce would skip the hold and the seal would vanish). Spec: `docs/superpowers/specs/2026-06-07-e2e-authed-suite-design.md`.
 
 **Tech Stack:** `@playwright/test` ^1.60, `@supabase/ssr` ^0.10, `@supabase/supabase-js` ^2.107. Local Supabase: URL `http://127.0.0.1:54321`, anon key = the standard local demo JWT, DB container `supabase_db_aisafetyideas`.
 
@@ -30,7 +30,7 @@
 | `e2e/auth.ts` (new) | `ROLES` constants (email/password/storageState path) + `mintStorageState()` cookie-mint helper |
 | `e2e/fixtures/seed.sql` (new) | idempotent SQL: confirm e2e emails + set expert/expert2/admin roles by email |
 | `e2e/global-setup.ts` (new) | signUp 5 users (anon), run seed.sql via `docker exec psql`, mint each storageState, verify |
-| `playwright.config.ts` (modify) | `globalSetup`, `use.reducedMotion`, webServer `env` → local Supabase |
+| `playwright.config.ts` (modify) | `globalSetup`, `reporter` (CI html), webServer `env` → local Supabase (reducedMotion intentionally NOT set) |
 | `package.json` (modify) | `test:e2e` script |
 | `.gitignore` (modify) | ignore `e2e/.auth/` |
 | `e2e/loop.spec.ts` (new) | golden 4-role loop (asserts the verify→payout moment) + reject + revision |
@@ -104,6 +104,10 @@ export async function mintStorageState(email: string, password: string, statePat
 - [ ] **Step 3: Create `e2e/fixtures/seed.sql`** — idempotent role/confirm SQL (matches by email; no service-role, no fixed UUIDs):
 
 ```sql
+-- Reset the per-user RPC rate-limit counters each run so the suite's repeated idea_create/answer/
+-- verify actions never trip the limits (answer 5/h, idea_create 10/h) on reruns. Local test DB only.
+delete from public.rate_limits;
+
 -- Confirm any e2e users whose email isn't confirmed (no-op if local confirmations are off).
 update auth.users set email_confirmed_at = now()
   where email like 'e2e-%@example.com' and email_confirmed_at is null;
@@ -133,10 +137,13 @@ export default async function globalSetup(_config: FullConfig) {
     auth: { persistSession: false, autoRefreshToken: false }
   });
 
-  // 1. Create users via anon signUp (GoTrue owns the password hash). Ignore "already registered".
+  // 1. Create users via anon signUp (GoTrue owns the password hash). Tolerate "already registered"
+  //    (reruns) AND "rate limit" (GoTrue sign_in_sign_ups=30/5min trips on rapid local reruns —
+  //    the user already exists from a prior run, so minting below still works).
+  const tolerable = /already registered|already been registered|rate limit|429/i;
   for (const { email, password } of Object.values(ROLES)) {
     const { error } = await anon.auth.signUp({ email, password });
-    if (error && !/already registered|already been registered/i.test(error.message)) {
+    if (error && !tolerable.test(error.message)) {
       throw new Error(`signUp failed for ${email}: ${error.message}`);
     }
   }
@@ -167,9 +174,9 @@ export default async function globalSetup(_config: FullConfig) {
 }
 ```
 
-> Note for the implementer: global-setup runs in Node (not a test). The `/dashboard` verification
-> needs the webServer up — Playwright starts `webServer` BEFORE `globalSetup`, so this is fine. If
-> the verify step races the server, add a short `await page.waitForLoadState('networkidle')`.
+> Note for the implementer: global-setup runs in Node (not a test). Playwright's `webServer` plugin
+> blocks until the port is ready BEFORE `globalSetup` runs (verified for @playwright/test 1.60), so
+> the `/dashboard` verification cannot race the server.
 
 - [ ] **Step 5: Modify `playwright.config.ts`**:
 
@@ -182,6 +189,7 @@ const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vI
 export default defineConfig({
   testDir: 'e2e',
   globalSetup: './e2e/global-setup.ts',
+  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',  // CI: emit playwright-report/ for the failure artifact
   // NB: do NOT force reducedMotion here. The verify→payout moment is success-gated and held ~700ms
   // before the row refetches away; under reduced motion that hold is SKIPPED, so the "Verified" seal
   // would vanish before Playwright could assert it. Normal motion keeps the hold window; Playwright's
@@ -253,7 +261,8 @@ test('golden loop: post → fund → answer → verify (payout moment) → admin
   await fp.goto(ideaUrl);
   await fp.getByLabel('Fund this idea ($)').fill('50');
   await fp.getByRole('button', { name: 'Pledge' }).click();
-  await expect(fp.getByText(/\$50\.00/)).toBeVisible();   // funders list / meter reflects it
+  // $50.00 renders in both the BountyMeter and the Funders list → scope to the aside + .first()
+  await expect(fp.locator('aside').getByText(/\$50\.00/).first()).toBeVisible();
 
   // ── submitter submits an answer ──
   const submitter = await ctx(browser, ROLES.submitter.state);
@@ -270,23 +279,25 @@ test('golden loop: post → fund → answer → verify (payout moment) → admin
   // ── author verifies with a payout → the verify→payout moment ──
   const ap = await expert.newPage();
   await ap.goto('/console');
-  const row = ap.locator('div', { hasText: answerTitle }).filter({ has: ap.getByRole('button', { name: 'Verify' }) }).first();
+  // scope to the answer's QUEUE CARD (div.rounded-2xl), not a bare `div` (which matches the whole
+  // queue container → strict-mode multi-match).
+  const row = ap.locator('div.rounded-2xl', { hasText: answerTitle }).first();
   await row.getByLabel('Intended payout ($)').fill('120');
   await row.getByRole('button', { name: 'Verify' }).click();
   // the verify→payout moment is held ~700ms before the row refetches away — assert it within that
-  // window, scoped to this answer's card (Playwright auto-waits, no manual timeout).
-  const verifiedCard = ap.locator('.rounded-2xl', { hasText: answerTitle });
-  await expect(verifiedCard.getByText('Verified')).toBeVisible();
-  await expect(verifiedCard.getByText(/\$120\.00/)).toBeVisible();
+  // window, scoped to this card. CountUp renders the amount in TWO spans (hidden sizer + visible),
+  // so use .first() to avoid a strict-mode multi-match.
+  await expect(row.getByText('Verified')).toBeVisible();
+  await expect(row.getByText(/\$120\.00/).first()).toBeVisible();
 
   // ── admin approves the charitable gate ──
   const admin = await ctx(browser, ROLES.admin.state);
   const adp = await admin.newPage();
   await adp.goto('/admin/payouts');
   const prow = adp.locator('tr', { hasText: title });
-  await expect(prow.getByText(/\$120\.00/)).toBeVisible();   // intended payout recorded
+  await expect(prow.getByText(/\$120\.00/).first()).toBeVisible();   // intended payout recorded
   await prow.getByRole('button', { name: 'Approve' }).click();
-  await expect(adp.getByText('Approved', { exact: false })).toBeVisible();
+  await expect(prow.getByText('Approved')).toBeVisible();
 
   // ── final state: the verified answer + intended payout shows on the idea page ──
   await fp.goto(ideaUrl);
@@ -316,10 +327,9 @@ test('reject path: author rejects an answer → it ends rejected', async ({ brow
 
   const ap = await expert.newPage();
   await ap.goto('/console');
-  const row = ap.locator('div', { hasText: answerTitle }).filter({ has: ap.getByRole('button', { name: 'Reject' }) }).first();
+  const row = ap.locator('div.rounded-2xl', { hasText: answerTitle }).first();
   await row.getByRole('button', { name: 'Reject' }).click();
-  await ap.waitForLoadState('networkidle');
-  // after the refetch the rejected answer is no longer in the review queue
+  // after the ~260ms settle + refetch the rejected answer leaves the review queue
   await expect(ap.getByText(answerTitle)).toHaveCount(0);
 
   await expert.close(); await submitter.close();
@@ -345,12 +355,11 @@ test('revision path: request_revision keeps the answer in the queue', async ({ b
 
   const ap = await expert.newPage();
   await ap.goto('/console');
-  const row = ap.locator('div', { hasText: answerTitle }).filter({ has: ap.getByRole('button', { name: 'Request revision' }) }).first();
+  const row = ap.locator('div.rounded-2xl', { hasText: answerTitle }).first();
   await row.getByPlaceholder('What to revise').fill('Add detail.');
   await row.getByRole('button', { name: 'Request revision' }).click();
-  await ap.waitForLoadState('networkidle');
-  // revision_requested stays in the queue (in-place feedback)
-  await expect(ap.getByText(answerTitle)).toBeVisible();
+  // revision_requested stays in the queue (in-place feedback) — the card remains after the refetch
+  await expect(ap.locator('div.rounded-2xl', { hasText: answerTitle }).first()).toBeVisible();
 
   await expert.close(); await submitter.close();
 });
@@ -382,17 +391,23 @@ import { ROLES } from './auth';
 test.describe('authed-but-unauthorized', () => {
   test.use({ storageState: ROLES.funder.state });
 
-  test('a member is redirected from /console', async ({ page }) => {
-    await page.goto('/console');
-    await expect(page).toHaveURL(/\/login/);
+  // NB: an AUTHENTICATED member is NOT redirected to /login (that's only for unauthenticated users,
+  // via hooks.server.ts `if (!user)`). The page-level role gate throws `error(403, …)`, which renders
+  // the +error page at the SAME url with HTTP 403. Assert the 403 + message, not a /login redirect.
+  test('a member gets 403 on /console', async ({ page }) => {
+    const resp = await page.goto('/console');
+    expect(resp?.status()).toBe(403);
+    await expect(page.getByText('Approved experts only')).toBeVisible();
   });
-  test('a member is redirected from /admin/experts', async ({ page }) => {
-    await page.goto('/admin/experts');
-    await expect(page).toHaveURL(/\/login/);
+  test('a member gets 403 on /admin/experts', async ({ page }) => {
+    const resp = await page.goto('/admin/experts');
+    expect(resp?.status()).toBe(403);
+    await expect(page.getByText('Admins only')).toBeVisible();
   });
-  test('a member is redirected from /admin/payouts', async ({ page }) => {
-    await page.goto('/admin/payouts');
-    await expect(page).toHaveURL(/\/login/);
+  test('a member gets 403 on /admin/payouts', async ({ page }) => {
+    const resp = await page.goto('/admin/payouts');
+    expect(resp?.status()).toBe(403);
+    await expect(page.getByText('Admins only')).toBeVisible();
   });
 });
 
@@ -452,12 +467,20 @@ test('funder dashboard reflects a pledge and a followed expert', async ({ browse
   await fp.goto('/dashboard?tab=discover');
   const follow = fp.getByRole('button', { name: 'Follow' }).first();
   if (await follow.count()) await follow.click();
+  await expect(fp.getByRole('button', { name: 'Following' }).first()).toBeVisible();   // follow took effect
 
-  // My funding shows the committed total
-  await fp.goto('/dashboard');
+  // Feed half of journey #6: the followed expert's open idea appears in the feed.
+  await fp.goto('/dashboard');                                   // defaults to the Feed tab
+  await expect(fp.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
+  await expect(fp.getByText('No new open bounties')).toHaveCount(0);   // feed populated (not the empty state)
+  // the idea links from BOTH the feed card and (later) the my-funding row → .first() avoids strict multi-match
+  await expect(fp.getByRole('link', { name: new RegExp(title) }).first()).toBeVisible();
+
+  // My-funding half: the section + this pledge's row (the <li> links the idea title + shows $25.00).
+  // Don't assert the exact Total committed — it accumulates across the shared funder's pledges/reruns.
   await expect(fp.getByText('My funding')).toBeVisible();
   await expect(fp.getByText(/Total committed/)).toBeVisible();
-  await expect(fp.getByText(/\$25\.00/)).toBeVisible();
+  await expect(fp.locator('li', { hasText: title }).filter({ hasText: '$25.00' }).first()).toBeVisible();
 
   await expert.close(); await funder.close();
 });
@@ -515,5 +538,5 @@ boots a fresh preview. Chromium-only for speed.)
 - Global-setup creates the 5 role users (anon signUp) + roles (SQL) + mints 5 `storageState`s with **no service-role key**; verifies each authenticates.
 - The golden 4-role loop passes through the UI and asserts the verify→payout moment (Verified seal + counted amount) and the recorded intended payout at the admin gate; reject + revision paths pass.
 - Guards (member→/console,/admin redirect; non-author can't see another's queue) + funder dashboard pass.
-- Reduced-motion forced; tests self-contained (unique titles); CI `e2e` job green.
+- Reduced-motion intentionally NOT forced (the ~700ms hold is the verify→payout assertion window); tests self-contained (unique titles); per-run `rate_limits` reset; CI `e2e` job green.
 - No app/RPC/DB/migration changes; existing 11 smoke specs still pass.

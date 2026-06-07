@@ -77,9 +77,11 @@ no redirect to `/login` (fail fast if the cookie format ever drifts).
    Verify → **assert the moment**: the row shows the "Verified" seal text and the count-up amount →
    admin opens `/admin/payouts`, approves → assert the answer is verified + the intended payout is
    recorded (visible on the idea page / admin list).
-2. **Member blocked** (`e2e/guards.spec.ts`): funder/submitter hitting `/console` and `/admin/experts`
-   / `/admin/payouts` are redirected to `/login` (authed-but-unauthorized, distinct from the existing
-   unauthenticated redirect smoke tests).
+2. **Member blocked** (`e2e/guards.spec.ts`): a funder hitting `/console`, `/admin/experts`,
+   `/admin/payouts` gets an **HTTP 403 error page** ("Approved experts only" / "Admins only") at the
+   same URL — authed-but-unauthorized hits the page-level role gate (`error(403,…)`), NOT the
+   `/login` redirect (which `hooks.server.ts` only does for *unauthenticated* users — already covered
+   by the existing smoke tests).
 3. **Non-author can't act** (`guards.spec.ts`): a second seeded approved expert
    (`e2e-expert2@example.com`) does **not** see the first expert's answer in their own review queue
    (the console queue is scoped to the caller's ideas).
