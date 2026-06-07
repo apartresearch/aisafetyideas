@@ -106,10 +106,10 @@ export const LIMITS = {
   idea_create:    { max: 10,  windowSecs: 3600 },   // expert posts an idea (console)
   review:         { max: 60,  windowSecs: 300 },    // author review transitions (console RPCs)
   profile:        { max: 10,  windowSecs: 3600 },
-  admin:          { max: 120, windowSecs: 300 },
-  login:          { max: 10,  windowSecs: 900 },    // per-IP (anon at that point)
+  admin:          { max: 120, windowSecs: 300 }
 } as const;
 export type Bucket = keyof typeof LIMITS;
+// login (10 / 15 min per IP) lives OUTSIDE LIMITS — it's the in-memory limiter below, not the DB RPC
 ```
 
 Two limiters, matched to what each role can do safely:
