@@ -55,8 +55,8 @@
 {#if data.queue.length === 0}
   <p class="mb-8" style="color:var(--muted)">No answers awaiting review.</p>
 {:else}
-  <div class="mb-8 flex flex-col gap-3" aria-live="polite">
-    <span class="sr-only">{announce}</span>
+  <div class="mb-8 flex flex-col gap-3">
+    <span class="sr-only" aria-live="polite">{announce}</span>
     {#each data.queue as a (a.id)}
       <div class="rounded-2xl border p-5"
            class:payout-glow={shown[a.id] === 'verifying'}

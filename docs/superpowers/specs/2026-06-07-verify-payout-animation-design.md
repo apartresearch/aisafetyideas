@@ -36,7 +36,7 @@ SVG seal. A circle fills `--green` with `scale(1 → 1.12 → 1)` (the `smooth` 
 - `play: boolean` — false renders the final drawn state statically (also the reduced-motion path).
 - `tone: 'verified' | 'rejected'` — `verified` = green fill + check; `rejected` = `--neg` ring + a
   muted ✕, no green, no pop (a quiet mark).
-- `size?: number` (default 28).
+- `size?: number` (default 20 — fits the console header + admin table inline without bumping row height).
 Reduced-motion (a `prefersReducedMotion` store, §3.5) → no spring/draw; render done-state instantly.
 
 ### 3.2 `src/lib/components/CountUp.svelte`
