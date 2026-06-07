@@ -1,5 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
+import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 
 export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSession } }) => {
   const { user } = await safeGetSession();
@@ -62,6 +63,7 @@ export const actions: Actions = {
   follow: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in' });
+    if (!(await rateLimit(supabase, 'engage')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const { error: e } = await supabase.from('follows')
       .insert({ follower_id: user.id, expert_id: String(fd.get('expert_id')) });
@@ -71,6 +73,7 @@ export const actions: Actions = {
   unfollow: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in' });
+    if (!(await rateLimit(supabase, 'engage')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const { error: e } = await supabase.from('follows')
       .delete().eq('follower_id', user.id).eq('expert_id', String(fd.get('expert_id')));
@@ -80,6 +83,7 @@ export const actions: Actions = {
   withdraw: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in' });
+    if (!(await rateLimit(supabase, 'pledge')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     // RLS allows deleting only the caller's own still-committed pledge; .select() surfaces a no-op (someone
     // else's pledge, or an already-escrowed one) as a failure instead of a misleading success.

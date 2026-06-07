@@ -1,6 +1,7 @@
 import { error, fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { renderMarkdown } from '$lib/server/markdown';
+import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase } }) => {
   const { data: profile } = await supabase
@@ -16,6 +17,7 @@ export const actions: Actions = {
   update: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in required' });
+    if (!(await rateLimit(supabase, 'profile')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const { error: e } = await supabase
       .from('profiles')

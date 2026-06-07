@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { renderMarkdown } from '$lib/server/markdown';
+import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 
 async function requireExpert(supabase: any, userId: string | undefined) {
   if (!userId) return false;
@@ -47,6 +48,7 @@ export const actions: Actions = {
   create: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user || !(await requireExpert(supabase, user.id))) return fail(403, { message: 'Approved experts only' });
+    if (!(await rateLimit(supabase, 'idea_create')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const title = String(fd.get('title') ?? '').trim();
     if (!title) return fail(400, { message: 'Title required' });
@@ -64,6 +66,7 @@ export const actions: Actions = {
   start_review: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user || !(await requireExpert(supabase, user.id))) return fail(403, { message: 'Approved experts only' });
+    if (!(await rateLimit(supabase, 'review')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const { error: e } = await supabase.rpc('start_review', { p_answer_id: String(fd.get('answer_id')) });
     if (e) return fail(400, { message: e.message });
@@ -73,6 +76,7 @@ export const actions: Actions = {
   verify: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user || !(await requireExpert(supabase, user.id))) return fail(403, { message: 'Approved experts only' });
+    if (!(await rateLimit(supabase, 'review')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const dollars = Number(fd.get('payout') ?? '');
     // Pass `undefined` (not null) for omitted optional RPC params: supabase-js types defaulted params as
@@ -94,6 +98,7 @@ export const actions: Actions = {
   request_revision: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user || !(await requireExpert(supabase, user.id))) return fail(403, { message: 'Approved experts only' });
+    if (!(await rateLimit(supabase, 'review')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const { error: e } = await supabase.rpc('request_revision_answer', {
       p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || undefined
@@ -105,6 +110,7 @@ export const actions: Actions = {
   reject: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user || !(await requireExpert(supabase, user.id))) return fail(403, { message: 'Approved experts only' });
+    if (!(await rateLimit(supabase, 'review')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const { error: e } = await supabase.rpc('reject_answer', {
       p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || undefined
