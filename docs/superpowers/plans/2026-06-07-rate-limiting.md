@@ -2,9 +2,9 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development for Tasks 1–3. Steps use checkbox (`- [ ]`) syntax. **Task 4 is CONTROLLER-ONLY** (cloud). Subagents must never touch the cloud project or edit `CLAUDE.md`/`docs/`/`.claude/`/`src_legacy_v0/`, and never `git add .`/`git add -A` at repo root (untracked `.claude/` must stay uncommitted).
 
-**Goal:** Per-endpoint rate limiting on every mutation (20 form actions across 9 routes) with **zero service-role usage** — a SECURITY INVOKER RPC self-keyed on `auth.uid()` over an RLS-pinned table, plus a per-instance in-memory limiter for the anon login actions.
+**Goal:** Per-endpoint rate limiting on every mutation (20 form actions across 9 routes) with **no service-role client** — a SECURITY DEFINER RPC self-keyed on `auth.uid()` (limits authoritative in the function) over a zero-policy table, plus a per-instance in-memory limiter for the anon login actions.
 
-**Architecture:** One migration (`rate_limits` table with own-rows-only RLS + `consume_rate_limit` invoker function, executable by `authenticated` only) + one server module `$lib/server/rate-limit.ts` (`LIMITS` constants, DB-backed `rateLimit(supabase, bucket)` that FAILS OPEN, in-memory `loginLimited(ip)`) + a two-line guard in each action. Spec: `docs/superpowers/specs/2026-06-07-rate-limiting-design.md`.
+**Architecture:** One migration (`rate_limits` table with **zero client policies** + `consume_rate_limit` SECURITY DEFINER function that self-keys on `auth.uid()` and owns the limit values, executable by `authenticated` only) + one server module `$lib/server/rate-limit.ts` (`BUCKETS` name list, DB-backed `rateLimit(supabase, bucket)` that FAILS OPEN, in-memory `loginLimited(ip)`) + a two-line guard in each action. The DEFINER function is a DB primitive, **not** a service-role client ([[no-service-role-in-app]]). Spec: `docs/superpowers/specs/2026-06-07-rate-limiting-design.md`.
 
 **Tech Stack:** Postgres 17 / pgTAP, SvelteKit 2 form actions, supabase-js v2 (typed client — types regen required), vitest.
 
@@ -19,7 +19,7 @@
 | `supabase/migrations/<ts>_rate_limits.sql` | table + 4 own-rows policies + invoker RPC + grants |
 | `supabase/tests/database/rate_limits_test.sql` | pgTAP: limit math, isolation, rollover, cleanup, anon denied |
 | `src/lib/types/database.ts` | regenerated (RPC + table types) |
-| `src/lib/server/rate-limit.ts` | `LIMITS`, `Bucket`, `rateLimit()` (fail-open), `loginLimited()` |
+| `src/lib/server/rate-limit.ts` | `BUCKETS`, `Bucket`, `RATE_LIMIT_MESSAGE`, `rateLimit()` (fail-open), `loginLimited()` |
 | `src/lib/server/rate-limit.test.ts` | vitest for both limiters |
 | 9 `+page.server.ts` route files | two-line guard per action (bucket map below) |
 
@@ -35,61 +35,70 @@
 - [ ] **Step 1: Create the migration** (`supabase migration new rate_limits`, then fill with exactly):
 
 ```sql
--- ============ rate_limits (fixed-window counters; NO service role — pure RLS) ============
--- The RPC below is SECURITY INVOKER and derives its key from auth.uid() internally, so RLS pins
--- every row to the caller: a direct PostgREST call can only increment the caller's OWN counter
--- (self-harm), never another user's, and can never lower a count the server checks.
+-- ============ rate_limits (fixed-window counters; NO service-role CLIENT) ============
+-- Writes go ONLY through the SECURITY DEFINER function below (owned by postgres, bypasses RLS),
+-- which self-keys on auth.uid() and looks up limits server-side. The table has ZERO client
+-- policies, so a direct PostgREST UPDATE/DELETE/SELECT by `authenticated` matches nothing — the
+-- three INVOKER bypass vectors (self-reset count, self-delete, caller-chosen window) are closed.
+-- A definer function is a DB primitive, NOT the forbidden service-role client (see memory).
 create table public.rate_limits (
   key          text not null,         -- 'user:<uuid>' (authed users only; anon login is in-memory app-side)
-  bucket       text not null,         -- endpoint family, e.g. 'comment'
+  bucket       text not null,
   window_start timestamptz not null,  -- aligned to the bucket's window size
   count        int  not null default 1,
   primary key (key, bucket, window_start)
 );
 alter table public.rate_limits enable row level security;
+-- ZERO policies on purpose (deny-by-default for every client role, like answers/answer_reviews).
 
--- Own-rows-only for every verb (key pinned to the caller — the whole security model):
-create policy "own rate rows select" on public.rate_limits for select to authenticated
-  using (key = 'user:' || (select auth.uid())::text);
-create policy "own rate rows insert" on public.rate_limits for insert to authenticated
-  with check (key = 'user:' || (select auth.uid())::text);
-create policy "own rate rows update" on public.rate_limits for update to authenticated
-  using (key = 'user:' || (select auth.uid())::text)
-  with check (key = 'user:' || (select auth.uid())::text);
-create policy "own rate rows delete" on public.rate_limits for delete to authenticated
-  using (key = 'user:' || (select auth.uid())::text);
-
-create function public.consume_rate_limit(p_bucket text, p_max int, p_window_secs int)
+-- Limits are AUTHORITATIVE here (server-side), not caller params — nothing for a client to spoof.
+create function public.consume_rate_limit(p_bucket text)
 returns boolean
-language plpgsql security invoker set search_path = ''
+language plpgsql security definer set search_path = ''
 as $$
 declare
-  v_key text;
-  v_window timestamptz := to_timestamp(
-    floor(extract(epoch from now()) / p_window_secs) * p_window_secs);
+  v_uid uuid := (select auth.uid());
+  v_max int;
+  v_window_secs int;
+  v_window timestamptz;
   v_count int;
 begin
-  if (select auth.uid()) is null then
+  if v_uid is null then
     return true;   -- anon callers are not tracked here (login uses the app's in-memory limiter)
   end if;
-  v_key := 'user:' || (select auth.uid())::text;
 
-  -- opportunistic cleanup of the CALLER's stale rows (RLS-scoped; keeps per-user rows ~2/bucket)
+  -- authoritative limit table; keep in sync with BUCKETS in $lib/server/rate-limit.ts
+  case p_bucket
+    when 'comment'        then v_max := 10;  v_window_secs := 300;
+    when 'comment_delete' then v_max := 30;  v_window_secs := 300;
+    when 'engage'         then v_max := 60;  v_window_secs := 300;
+    when 'pledge'         then v_max := 10;  v_window_secs := 300;
+    when 'answer'         then v_max := 5;   v_window_secs := 3600;
+    when 'idea_create'    then v_max := 10;  v_window_secs := 3600;
+    when 'review'         then v_max := 60;  v_window_secs := 300;
+    when 'profile'        then v_max := 10;  v_window_secs := 3600;
+    when 'admin'          then v_max := 120; v_window_secs := 300;
+    else raise exception 'unknown rate-limit bucket: %', p_bucket;  -- dev bug → fail-open + logged
+  end case;
+
+  v_window := to_timestamp(floor(extract(epoch from now()) / v_window_secs) * v_window_secs);
+
+  -- prune this caller's stale rows for this bucket (definer-owned; no client DELETE path exists)
   delete from public.rate_limits
-    where key = v_key and bucket = p_bucket
-      and window_start < now() - make_interval(secs => 2 * p_window_secs);
+    where key = 'user:' || v_uid::text and bucket = p_bucket
+      and window_start < now() - make_interval(secs => 2 * v_window_secs);
 
   insert into public.rate_limits as r (key, bucket, window_start)
-    values (v_key, p_bucket, v_window)
+    values ('user:' || v_uid::text, p_bucket, v_window)
     on conflict (key, bucket, window_start)
     do update set count = r.count + 1
     returning count into v_count;
 
-  return v_count <= p_max;
+  return v_count <= v_max;
 end $$;
 
-revoke execute on function public.consume_rate_limit(text, text, int) from public, anon;
-grant execute on function public.consume_rate_limit(text, text, int) to authenticated;
+revoke execute on function public.consume_rate_limit(text) from public, anon;
+grant execute on function public.consume_rate_limit(text) to authenticated;
 ```
 
 - [ ] **Step 2: Write the pgTAP test** `supabase/tests/database/rate_limits_test.sql` (conventions per `idea_votes_test.sql`; `handle_new_user` auto-creates profiles):
@@ -106,45 +115,55 @@ values
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
 
--- ===== limit math (max=3, 1h window) =====
-select ok(public.consume_rate_limit('t_bucket', 3, 3600), '1: first call under limit');
-select ok(public.consume_rate_limit('t_bucket', 3, 3600), '2: second call under limit');
-select ok(public.consume_rate_limit('t_bucket', 3, 3600), '3: third call AT limit still true');
-select ok(not public.consume_rate_limit('t_bucket', 3, 3600), '4: fourth call over limit → false');
+-- ===== limit math on 'answer' (max 5 / hour); 4 warm-up calls, then assert at/over limit =====
+select public.consume_rate_limit('answer');
+select public.consume_rate_limit('answer');
+select public.consume_rate_limit('answer');
+select public.consume_rate_limit('answer');
+select ok(public.consume_rate_limit('answer'), '1: 5th call AT limit still true');       -- count 5 <= 5
+select ok(not public.consume_rate_limit('answer'), '2: 6th call over limit → false');     -- count 6 > 5
 
--- ===== per-user isolation =====
+-- ===== limits are server-authoritative: an unknown bucket raises (a dev bug, not a runtime path) =====
+select throws_ok($$ select public.consume_rate_limit('nope') $$, 'P0001', null, '3: unknown bucket raises');
+
+-- ===== zero-policy lockdown: a client cannot read or mutate rate_limits directly =====
+select ok((select count(*) from public.rate_limits) = 0,
+  '4: authenticated cannot SELECT rate_limits (zero policies) though rows exist via the definer fn');
+with u as (update public.rate_limits set count = 0 where bucket = 'answer' returning 1)
+  select ok((select count(*) from u) = 0, '5: direct UPDATE count=0 matches no rows (Vector 1 closed)');
+with d as (delete from public.rate_limits where bucket = 'answer' returning 1)
+  select ok((select count(*) from d) = 0, '6: direct DELETE matches no rows (Vector 2 closed)');
+select ok(not public.consume_rate_limit('answer'),
+  '7: still over limit — the direct UPDATE/DELETE attempts reset nothing');
+
+-- ===== cross-user isolation: bob starts fresh in the same bucket =====
 set local request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}';
-select ok(public.consume_rate_limit('t_bucket', 3, 3600), '5: another user starts fresh in the same bucket');
-select ok((select count(*) from public.rate_limits where key like 'user:1111%') = 0,
-  '6: RLS hides (and protects) other users'' rows');
-update public.rate_limits set count = 0 where key like 'user:1111%';
-set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
-select ok(not public.consume_rate_limit('t_bucket', 3, 3600),
-  '7: bob''s update attempt touched nothing — alice is still over her limit');
+select ok(public.consume_rate_limit('answer'), '8: another user starts fresh');
 
--- ===== window rollover + caller-scoped cleanup (1s window so the test can outlive it) =====
--- (separate statements — never chain two volatile consume calls with AND; evaluation order is unspecified)
-select ok(public.consume_rate_limit('t_roll', 1, 1), '8: first call in the 1s window allowed');
-select ok(not public.consume_rate_limit('t_roll', 1, 1), '9: second call within the window over limit');
-select pg_sleep(2.1);
-select ok(public.consume_rate_limit('t_roll', 1, 1), '10: limit resets after the window passes');
+-- ===== window rollover: now() is FROZEN inside a txn, so age the stored row as the owner =====
+reset role;   -- back to postgres (table owner; bypasses RLS to simulate time passing)
+update public.rate_limits set window_start = window_start - interval '3 hours'
+  where key = 'user:11111111-1111-1111-1111-111111111111' and bucket = 'answer';
+set local role authenticated;
+set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
+select ok(public.consume_rate_limit('answer'), '9: a new window resets the limit (aged row is stale)');
+reset role;   -- read the table as owner to verify cleanup (clients can''t SELECT it)
 select ok((select count(*) from public.rate_limits
-           where key = 'user:11111111-1111-1111-1111-111111111111' and bucket = 't_roll') = 1,
-  '11: stale t_roll rows were cleaned up (only the live window row remains)');
+           where key = 'user:11111111-1111-1111-1111-111111111111' and bucket = 'answer') = 1,
+  '10: the stale aged row was pruned — only the live window row remains');
+
+-- ===== anon cannot execute the function (revoked) =====
+set local role anon;
+set local request.jwt.claims = '';
+select throws_ok($$ select public.consume_rate_limit('comment') $$, '42501', null,
+  '11: anon execute is denied');
 
 select * from finish();
 rollback;
 ```
 
-> Why no anon-execute test: `set local role anon` + claims-reset then `throws_ok('42501')` would be
-> nice, but inside the same transaction the earlier `set local role authenticated` interactions make
-> the matrix fiddly; the REVOKE is structural in the migration and `npm run check` + a manual PostgREST
-> probe in Task 4 confirm it. If you can add it cleanly as a 12th test (reset claims to `''`,
-> `set local role anon`, `throws_ok($$select public.consume_rate_limit('x',1,1)$$, '42501', null, …)`),
-> do — bump `plan()` accordingly.
-
-- [ ] **Step 3: Run** `supabase db reset` then `supabase test db` → `rate_limits_test` green (9 or 10), all existing suites still green (111 + new).
-- [ ] **Step 4: Regenerate types** `supabase gen types typescript --local > src/lib/types/database.ts`; `npm run check` → 0 errors. Verify the regen contains `consume_rate_limit` and `rate_limits` (and no pgTAP pollution — regen runs after a fresh `db reset`, BEFORE `supabase test db` if pollution appears).
+- [ ] **Step 3: Run** `supabase db reset` then `supabase test db` → `rate_limits_test` **11/11**, all existing suites still green (111 + 11 = 122).
+- [ ] **Step 4: Regenerate types** `supabase gen types typescript --local > src/lib/types/database.ts`; `npm run check` → 0 errors. Verify the regen contains `consume_rate_limit` (now a single `p_bucket text` arg) and `rate_limits` (regen runs right after `db reset`, before `supabase test db`, so no pgTAP pollution leaks in).
 - [ ] **Step 5: Commit** `git add supabase/migrations supabase/tests/database/rate_limits_test.sql src/lib/types/database.ts && git commit -m "feat(rate-limit): rate_limits table + RLS-pinned invoker RPC + pgTAP + types"`
 
 ---
@@ -159,18 +178,21 @@ rollback;
 
 ```ts
 import { describe, it, expect, vi } from 'vitest';
-import { LIMITS, rateLimit, loginLimited, __resetLoginLimiter } from './rate-limit';
+import { BUCKETS, rateLimit, loginLimited, __resetLoginLimiter } from './rate-limit';
 
 const mkSupabase = (rpc: (...a: any[]) => any) => ({ rpc }) as any;
 
 describe('rateLimit (DB-backed, fail-open)', () => {
-  it('passes the bucket constants to the RPC and allows on true', async () => {
+  it('passes ONLY the bucket name to the RPC (limits are server-authoritative) and allows on true', async () => {
     const rpc = vi.fn().mockResolvedValue({ data: true, error: null });
     const res = await rateLimit(mkSupabase(rpc), 'comment');
-    expect(rpc).toHaveBeenCalledWith('consume_rate_limit', {
-      p_bucket: 'comment', p_max: LIMITS.comment.max, p_window_secs: LIMITS.comment.windowSecs
-    });
+    expect(rpc).toHaveBeenCalledWith('consume_rate_limit', { p_bucket: 'comment' });
     expect(res.ok).toBe(true);
+  });
+  it('exports the full bucket set for the wiring map', () => {
+    expect(BUCKETS).toContain('comment');
+    expect(BUCKETS).toContain('admin');
+    expect(BUCKETS).not.toContain('login');   // login is the in-memory limiter, not a DB bucket
   });
   it('blocks when the RPC returns false', async () => {
     const res = await rateLimit(mkSupabase(vi.fn().mockResolvedValue({ data: false, error: null })), 'pledge');
@@ -210,37 +232,33 @@ describe('loginLimited (in-memory, per-IP)', () => {
 ```ts
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-/** Lenient launch caps (spec §4 — only a script should hit these; tighten from data later). */
-export const LIMITS = {
-  comment:        { max: 10,  windowSecs: 300 },
-  comment_delete: { max: 30,  windowSecs: 300 },
-  engage:         { max: 60,  windowSecs: 300 },    // vote/unvote/interest/uninterest/follow/unfollow
-  pledge:         { max: 10,  windowSecs: 300 },    // pledge + withdraw
-  answer:         { max: 5,   windowSecs: 3600 },
-  idea_create:    { max: 10,  windowSecs: 3600 },
-  review:         { max: 60,  windowSecs: 300 },
-  profile:        { max: 10,  windowSecs: 3600 },
-  admin:          { max: 120, windowSecs: 300 }
-} as const;
-export type Bucket = keyof typeof LIMITS;
+/**
+ * Bucket NAMES only. The limit VALUES are authoritative in the SQL function
+ * `public.consume_rate_limit` (its CASE) — keep this list in sync with that CASE; a bucket here
+ * but not there raises at runtime (caught by fail-open + log), and vice-versa is a dead name.
+ * `login` is intentionally absent — it's the in-memory limiter below, not a DB bucket.
+ */
+export const BUCKETS = [
+  'comment', 'comment_delete', 'engage', 'pledge', 'answer',
+  'idea_create', 'review', 'profile', 'admin'
+] as const;
+export type Bucket = (typeof BUCKETS)[number];
 
-/** One user-visible message everywhere (keep copy identical across actions). */
+/** Shared 429 copy for the authed buckets (login uses its own message). */
 export const RATE_LIMIT_MESSAGE = 'Slow down — try again in a moment.';
 
 /**
- * DB-backed limiter for AUTHED mutations. Calls the SECURITY INVOKER RPC with the caller's own
- * client — the RPC self-keys on auth.uid() and RLS pins the rows, so no service role is needed
- * (and none may be introduced — owner principle). FAILS OPEN on RPC error: a limiter outage must
- * never take the site down; the spam risk is bounded, the availability risk is not.
+ * DB-backed limiter for AUTHED mutations. Calls the SECURITY DEFINER RPC with the caller's own
+ * `locals.supabase` client; the function (owned by postgres) self-keys on auth.uid() and looks
+ * up the limit server-side — no service-role CLIENT involved (see memory: no-service-role-in-app).
+ * FAILS OPEN on RPC error: a limiter outage must never take the site down; the spam risk is
+ * bounded, the availability risk is not.
  */
 export async function rateLimit(
   supabase: SupabaseClient<any>,
   bucket: Bucket
 ): Promise<{ ok: boolean }> {
-  const { max, windowSecs } = LIMITS[bucket];
-  const { data, error } = await supabase.rpc('consume_rate_limit', {
-    p_bucket: bucket, p_max: max, p_window_secs: windowSecs
-  });
+  const { data, error } = await supabase.rpc('consume_rate_limit', { p_bucket: bucket });
   if (error) {
     console.error(`rate-limit rpc failed (fail-open) bucket=${bucket}: ${error.message}`);
     return { ok: true };
@@ -248,9 +266,10 @@ export async function rateLimit(
   return { ok: data !== false };
 }
 
-// ── login limiter: in-memory, per-IP. The DB cannot key anon callers without trusting spoofable
-// input, so this is deliberately per-fluid-compute-instance (real cap = 10 × instances, resets on
-// cold start) — belt-and-suspenders; Supabase Auth's own email limits are the real backstop. ──
+// ── login limiter: in-memory, per-IP, BEST-EFFORT. The DB cannot key anon callers without trusting
+// spoofable input; getClientAddress() derives from a client-influenced x-forwarded-for and the map is
+// per-fluid-compute-instance (real cap ≈ 10 × instances, resets on cold start). NOT anti-spoof —
+// Supabase Auth's own email limits are the real backstop; this just blunts casual repeat-submits. ──
 const LOGIN = { max: 10, windowMs: 15 * 60_000 };
 let loginHits = new Map<string, number[]>();
 
@@ -278,7 +297,7 @@ export function __resetLoginLimiter() {
 > — use whichever satisfies `locals.supabase`'s type without casts at the call sites.
 
 - [ ] **Step 4: Run** `npx vitest run src/lib/server/rate-limit.test.ts` → PASS; `npm run check` → 0 errors.
-- [ ] **Step 5: Commit** `git add src/lib/server/rate-limit.ts src/lib/server/rate-limit.test.ts && git commit -m "feat(rate-limit): LIMITS + fail-open rateLimit helper + in-memory login limiter"`
+- [ ] **Step 5: Commit** `git add src/lib/server/rate-limit.ts src/lib/server/rate-limit.test.ts && git commit -m "feat(rate-limit): BUCKETS + fail-open rateLimit helper + in-memory login limiter"`
 
 ---
 
@@ -323,7 +342,14 @@ if (!(await rateLimit(supabase, 'comment')).ok) return fail(429, { message: RATE
 
 `logout` stays untouched (exempt). NOTE for ideas/[id] `vote`: the guard goes after the
 `if (!user)` check and before the value validation; for console actions, after the
-`requireExpert` line; for admin actions, after `requireAdmin`.
+`requireExpert` line; for admin actions, after `requireAdmin`. Actions that end in `redirect(303,…)`
+on success (`console.create`) are unaffected — the guard `return fail(429,…)`s *before* the redirect
+throw, so there's no interaction.
+
+**Intentionally NOT guarded** (confirm, don't add): the `/auth/callback` GET route exchanges the
+OAuth/magic-link code for a session — it's the Supabase-driven auth return, not a user-triggerable
+mutation, and the `login` limiter already throttles the step that *issues* those codes. No `+server.ts`
+endpoints exist. (Grep `src/routes` for `+server` / `actions` to confirm before finishing.)
 
 - [ ] **Step 2: Login actions** (`src/routes/login/+page.server.ts`) — per-IP, in-memory; the
   actions gain `getClientAddress` in their destructure:
@@ -388,23 +414,24 @@ describe('comment action rate limiting', () => {
 > (429 + message + no insert) are the contract, not the mock.
 
 - [ ] **Step 4: Run everything.** `npx vitest run` → all green (existing 67 + new); `npm run check` → 0 errors; `npm run build` → succeeds; `supabase test db` → all green (the wiring changes no SQL, but run it to be sure nothing drifted).
-- [ ] **Step 5: Manual smoke** (stack running, `npm run dev`): sign in locally is impractical headlessly — instead temporarily verify via the test above plus: `curl -X POST localhost:5173/login?/magiclink -d 'email=x@y.z'` 11 times → the 11th response body contains `Too many attempts` (anon path needs no session). Stop after verifying; no code changes.
+- [ ] **Step 5: Manual smoke** (stack running, `npm run dev`): the anon login limiter needs no session — `for i in $(seq 1 11); do curl -s -X POST 'localhost:5173/login?/magiclink' -F 'email=x@y.z' -o /dev/null -w "%{http_code} "; done` → the 11th is the limited response (the magic-link send to a junk address against the LOCAL stack is fine; do NOT do this against prod). Stop after verifying; no code changes.
 - [ ] **Step 6: Commit** `git add src/routes && git commit -m "feat(rate-limit): guard all 20 mutation actions per the spec bucket map"`
 
 ---
 
 ## Task 4 (CONTROLLER ONLY — cloud): migrate + PR
 
-- [ ] Apply the `rate_limits` migration to `gjomchhbsbtauzkpyjwa`: MCP `apply_migration` if the MCP has been re-authed, else the Management API query endpoint (PAT) with the DDL + a `supabase_migrations.schema_migrations` history row (version = the migration timestamp, name `rate_limits`) — the proven v2 path.
-- [ ] Cloud probe: as an authenticated PostgREST call, `consume_rate_limit` works and self-keys; as anon it is denied (verify the revoke). Check `rate_limits` is not readable cross-user.
-- [ ] Re-run security advisors (Management API `/advisors/security`) — expect the unchanged baseline (the new function is SECURITY INVOKER ⇒ no new WARN).
-- [ ] Push branch, `gh pr create` (summary: no-service-role rate limiting, bucket map, fail-open), owner merges; deployed smoke: 11 rapid magic-link attempts → 429.
+- [ ] Apply the `rate_limits` migration to `gjomchhbsbtauzkpyjwa`. **Prefer MCP `apply_migration`** (writes the history row itself) if the MCP has been re-authed. Else the Management API query endpoint (PAT): send the migration DDL **and** the history insert in ONE query so they commit atomically — `insert into supabase_migrations.schema_migrations(version, name, statements) values('<migration timestamp>', 'rate_limits', null)` (version is the PK that gates re-apply; name/statements are nullable). (This is the v2 fallback path; it is a Management-API insert, not MCP.)
+- [ ] Cloud probe (Management API, authenticated context not available — use SQL as postgres): confirm `select public.consume_rate_limit('comment')` works; `\df+` shows the grant is `authenticated` only; a direct `select/update/delete on public.rate_limits` as `authenticated`/`anon` returns/affects nothing (zero policies). Anon `execute` is revoked.
+- [ ] Re-run security advisors (Management API `/advisors/security`) — expect baseline **+1**: a new `authenticated_security_definer_function_executable` WARN for `consume_rate_limit` (accepted; self-authorizes via auth.uid(), touches only the caller's rows). No other new findings.
+- [ ] Push branch, `gh pr create` (summary: rate limiting via DEFINER self-keyed RPC + zero-policy table, bucket map, fail-open, in-memory login), owner merges.
+- [ ] **Deployed smoke (no email burn):** sign in, then POST one guarded authed action (e.g. a comment) 11× rapidly → the 11th returns the 429 message. (Do NOT blast magic-link emails at prod — that burns Supabase Auth's email quota against a real address.)
 - [ ] Update project memory (rate limiting done — Phase-1 security complete).
 
 ---
 
 ## Done-when
-- pgTAP `rate_limits_test` green (9–10 tests) + all suites; vitest green incl. helper + wiring tests; `npm run check` 0 errors; build clean.
-- Every action in the §5 map guarded; `logout` exempt; login per-IP in-memory.
-- No service-role client anywhere in `src/` (grep `SERVICE_ROLE` → only `.env.local`).
-- Cloud migrated, advisors at baseline, PR merged.
+- pgTAP `rate_limits_test` 11/11 + all suites (122 total); vitest green incl. helper + wiring tests; `npm run check` 0 errors; build clean.
+- Every action in the §5 map guarded; `logout` exempt; login per-IP in-memory; the three INVOKER bypass vectors are asserted-closed in pgTAP.
+- No service-role **client** anywhere in `src/` (grep `SERVICE_ROLE` → only `.env.local`); privilege lives only in the DEFINER function.
+- Cloud migrated, advisors at baseline +1 (the accepted new definer WARN), PR merged.
