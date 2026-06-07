@@ -22,7 +22,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: supabase/setup-cli@v1
-        with: { version: latest }
+        with: { version: 2.75.0 }   # pin: `latest` resolves via the GitHub API → rate-limit failures on CI
       - run: supabase start          # boots local stack + applies migrations (Docker on the runner)
       - run: supabase test db        # pgTAP RLS tests
       - run: supabase db lint         # static schema lint
