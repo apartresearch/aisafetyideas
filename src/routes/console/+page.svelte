@@ -1,8 +1,39 @@
 <script lang="ts">
+  import { enhance } from '$app/forms';
+  import { get } from 'svelte/store';
   import StatusBadge from '$lib/components/StatusBadge.svelte';
-  import Money from '$lib/components/Money.svelte';
   import Markdown from '$lib/components/Markdown.svelte';
+  import VerifySeal from '$lib/components/VerifySeal.svelte';
+  import CountUp from '$lib/components/CountUp.svelte';
+  import { makeOutcomeEnhancer, type OutcomeKind } from '$lib/review-motion';
+  import { prefersReducedMotion } from '$lib/motion';
+
   let { data, form } = $props();
+  const reduced = get(prefersReducedMotion);
+
+  let inflight = $state<Record<string, boolean>>({});
+  let shown = $state<Record<string, OutcomeKind | undefined>>({});
+  let verifiedCents = $state<Record<string, number>>({});
+  let announce = $state('');
+
+  function enhancer(id: string, kind: OutcomeKind, label: string) {
+    return makeOutcomeEnhancer({
+      kind, reduced,
+      isPending: () => inflight[id] === true,
+      prepare: kind === 'verifying'
+        ? (input) => {
+            const dollars = Number(input.formData.get('payout'));
+            if (Number.isFinite(dollars)) verifiedCents = { ...verifiedCents, [id]: Math.round(dollars * 100) };
+          }
+        : undefined,
+      markPending: () => { inflight = { ...inflight, [id]: true }; },
+      showSucceeded: () => { shown = { ...shown, [id]: kind }; announce = label; },
+      finish: () => {
+        const i = { ...inflight }; delete i[id]; inflight = i;
+        const s = { ...shown }; delete s[id]; shown = s;
+      }
+    });
+  }
 </script>
 <h1 class="mb-4 text-2xl font-bold" style="color:var(--ink)">Expert console</h1>
 {#if form?.message}<p class="mb-3" style="color:var(--neg)">{form.message}</p>{/if}
@@ -25,14 +56,26 @@
   <p class="mb-8" style="color:var(--muted)">No answers awaiting review.</p>
 {:else}
   <div class="mb-8 flex flex-col gap-3">
+    <span class="sr-only" aria-live="polite">{announce}</span>
     {#each data.queue as a (a.id)}
-      <div class="rounded-2xl border p-5" style="border-color:var(--line); background:var(--surface)">
+      <div class="rounded-2xl border p-5"
+           class:payout-glow={shown[a.id] === 'verifying'}
+           class:reject-settle={shown[a.id] === 'rejecting' || shown[a.id] === 'revising'}
+           class:row-dim={shown[a.id] === 'rejecting'}
+           class:row-warn={shown[a.id] === 'revising'}
+           style="border-color:var(--line); background:var(--surface)">
         <div class="mb-1 flex items-center justify-between gap-2">
           <div>
             <a href="/ideas/{a.idea_id}" class="font-bold" style="color:var(--ink)">{a.title}</a>
             <span class="ml-2 text-xs" style="color:var(--faint)">on “{a.ideas?.title}” · by {a.submitter?.display_name ?? a.submitter?.handle}</span>
           </div>
-          <StatusBadge status={a.status} />
+          {#if shown[a.id] === 'verifying'}
+            <span class="flex items-center gap-1.5 text-sm font-medium whitespace-nowrap" style="color:var(--green-deep)">
+              <VerifySeal play tone="verified" {reduced} /> Verified · <CountUp cents={verifiedCents[a.id] ?? 0} {reduced} />
+            </span>
+          {:else}
+            <StatusBadge status={a.status} />
+          {/if}
         </div>
         <Markdown html={a.explanation_html} class="mb-2" />
         {#if a.answer_artifacts?.length}
@@ -43,34 +86,38 @@
           </ul>
         {/if}
 
-        <form method="POST" action="?/verify" class="flex flex-wrap items-end gap-2 border-t pt-3" style="border-color:var(--line)">
-          <input type="hidden" name="answer_id" value={a.id} />
-          <label class="text-xs" style="color:var(--faint)">Intended payout ($)
-            <input name="payout" type="number" min="0.01" step="0.01" placeholder="0.00" required
-                   class="block w-28 rounded-xl border px-2 py-1" style="border-color:var(--line)" />
-          </label>
-          {#if a.ideas?.type === 'hypothesis'}
-            <label class="text-xs" style="color:var(--faint)">Resolution
-              <select name="resolution" class="block rounded-xl border px-2 py-1" style="border-color:var(--line)">
-                <option value="yes">Yes</option><option value="no">No</option><option value="ambiguous">Ambiguous</option>
-              </select>
+        {#if !inflight[a.id]}
+          <form method="POST" action="?/verify" class="flex flex-wrap items-end gap-2 border-t pt-3"
+                style="border-color:var(--line)" use:enhance={enhancer(a.id, 'verifying', 'Answer verified.')}>
+            <input type="hidden" name="answer_id" value={a.id} />
+            <label class="text-xs" style="color:var(--faint)">Intended payout ($)
+              <input name="payout" type="number" min="0.01" step="0.01" placeholder="0.00" required
+                     class="block w-28 rounded-xl border px-2 py-1" style="border-color:var(--line)" />
             </label>
-          {/if}
-          <input name="note" placeholder="Note (optional)" class="flex-1 rounded-xl border px-2 py-1" style="border-color:var(--line)" />
-          <button class="rounded-xl px-3 py-1 text-sm font-medium" style="background:var(--ink); color:#fff">Verify</button>
-        </form>
+            {#if a.ideas?.type === 'hypothesis'}
+              <label class="text-xs" style="color:var(--faint)">Resolution
+                <select name="resolution" class="block rounded-xl border px-2 py-1" style="border-color:var(--line)">
+                  <option value="yes">Yes</option><option value="no">No</option><option value="ambiguous">Ambiguous</option>
+                </select>
+              </label>
+            {/if}
+            <input name="note" placeholder="Note (optional)" class="flex-1 rounded-xl border px-2 py-1" style="border-color:var(--line)" />
+            <button class="rounded-xl px-3 py-1 text-sm font-medium" style="background:var(--ink); color:#fff">Verify</button>
+          </form>
 
-        <div class="mt-2 flex gap-4">
-          <form method="POST" action="?/request_revision" class="flex flex-1 gap-2">
-            <input type="hidden" name="answer_id" value={a.id} />
-            <input name="note" placeholder="What to revise" class="flex-1 rounded-xl border px-2 py-1 text-sm" style="border-color:var(--line)" />
-            <button class="text-sm" style="color:var(--warn)">Request revision</button>
-          </form>
-          <form method="POST" action="?/reject">
-            <input type="hidden" name="answer_id" value={a.id} />
-            <button class="text-sm" style="color:var(--neg)">Reject</button>
-          </form>
-        </div>
+          <div class="mt-2 flex gap-4">
+            <form method="POST" action="?/request_revision" class="flex flex-1 gap-2"
+                  use:enhance={enhancer(a.id, 'revising', 'Revision requested.')}>
+              <input type="hidden" name="answer_id" value={a.id} />
+              <input name="note" placeholder="What to revise" class="flex-1 rounded-xl border px-2 py-1 text-sm" style="border-color:var(--line)" />
+              <button class="text-sm" style="color:var(--warn)">Request revision</button>
+            </form>
+            <form method="POST" action="?/reject" use:enhance={enhancer(a.id, 'rejecting', 'Answer rejected.')}>
+              <input type="hidden" name="answer_id" value={a.id} />
+              <button class="text-sm" style="color:var(--neg)">Reject</button>
+            </form>
+          </div>
+        {/if}
       </div>
     {/each}
   </div>
