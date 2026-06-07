@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import type { Database } from '$lib/types/database';
+import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 
 type ExpertUpdate = Database['public']['Tables']['experts']['Update'];
 
@@ -24,6 +25,7 @@ export const actions: Actions = {
   setStatus: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user || !(await requireAdmin(supabase, user.id))) return fail(403, { message: 'Admins only' });
+    if (!(await rateLimit(supabase, 'admin')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const id = String(fd.get('id'));
     const status = String(fd.get('status'));

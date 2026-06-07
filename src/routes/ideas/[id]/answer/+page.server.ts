@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { inferKind } from '$lib/artifacts';
+import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
   const { user } = await safeGetSession();
@@ -16,6 +17,7 @@ export const actions: Actions = {
   default: async ({ request, params, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in to submit an answer' });
+    if (!(await rateLimit(supabase, 'answer')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const title = String(fd.get('title') ?? '').trim();
     const explanation_md = String(fd.get('explanation_md') ?? '').trim();

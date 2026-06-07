@@ -1,6 +1,7 @@
 import { error, fail } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { renderMarkdown } from '$lib/server/markdown';
+import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
   const { user } = await safeGetSession();
@@ -115,6 +116,7 @@ export const actions: Actions = {
   pledge: async ({ request, params, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in to fund this idea' });
+    if (!(await rateLimit(supabase, 'pledge')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const dollars = Number(fd.get('amount') ?? '');
     if (!Number.isFinite(dollars) || dollars <= 0) return fail(400, { message: 'Enter an amount greater than 0' });
@@ -128,6 +130,7 @@ export const actions: Actions = {
   comment: async ({ request, params, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in to comment' });
+    if (!(await rateLimit(supabase, 'comment')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const body_md = String(fd.get('body_md') ?? '').trim();
     if (!body_md) return fail(400, { message: 'Write something first' });
@@ -143,6 +146,7 @@ export const actions: Actions = {
   delete_comment: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in' });
+    if (!(await rateLimit(supabase, 'comment_delete')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     // RLS allows deleting only your own comment (or admin); .select() surfaces a no-op
     const { data: del, error: e } = await supabase.from('comments')
@@ -155,6 +159,7 @@ export const actions: Actions = {
   interest: async ({ request, params, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in to express interest' });
+    if (!(await rateLimit(supabase, 'engage')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const note_md = String(fd.get('note_md') ?? '').trim().slice(0, 2000) || null;
     const { error: e } = await supabase.from('interest').insert({
@@ -171,6 +176,7 @@ export const actions: Actions = {
   vote: async ({ request, params, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in to vote' });
+    if (!(await rateLimit(supabase, 'engage')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const value = Number(fd.get('value'));
     if (value !== 1 && value !== -1) return fail(400, { message: 'Invalid vote' });
@@ -189,6 +195,7 @@ export const actions: Actions = {
   unvote: async ({ params, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in' });
+    if (!(await rateLimit(supabase, 'engage')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const { error: e } = await supabase.from('idea_votes')
       .delete().eq('idea_id', params.id).eq('profile_id', user.id);
     if (e) return fail(400, { message: e.message });
@@ -198,6 +205,7 @@ export const actions: Actions = {
   uninterest: async ({ request, params, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in' });
+    if (!(await rateLimit(supabase, 'engage')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const { data: del, error: e } = await supabase.from('interest')
       .delete().eq('idea_id', params.id).eq('profile_id', user.id).select('id');
     if (e) return fail(400, { message: e.message });

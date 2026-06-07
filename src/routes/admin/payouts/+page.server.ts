@@ -1,5 +1,6 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
+import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 
 async function requireAdmin(supabase: any, userId: string | undefined) {
   if (!userId) return false;
@@ -38,6 +39,7 @@ export const actions: Actions = {
   approve: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user || !(await requireAdmin(supabase, user.id))) return fail(403, { message: 'Admins only' });
+    if (!(await rateLimit(supabase, 'admin')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     // `undefined` (not null) for the optional note keeps full RPC param-name type-checking (see console route).
     const { error: e } = await supabase.rpc('admin_approve_payout', {
@@ -49,6 +51,7 @@ export const actions: Actions = {
   reject: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user || !(await requireAdmin(supabase, user.id))) return fail(403, { message: 'Admins only' });
+    if (!(await rateLimit(supabase, 'admin')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const { error: e } = await supabase.rpc('admin_reject_payout', {
       p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || undefined
