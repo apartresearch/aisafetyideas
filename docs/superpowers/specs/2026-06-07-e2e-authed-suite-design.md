@@ -16,7 +16,10 @@ payout").
 
 1. **Scope:** happy path + key negative paths (~6 authed tests).
 2. **Animation:** assert the moment (the "Verified" seal text + the count-up amount) **and** the end
-   state. Playwright forces reduced-motion so the moment jumps to final — deterministic, no waits.
+   state. The moment is success-gated and **held ~700ms** before the row refetches away; Playwright's
+   web-first auto-waiting catches the seal text within that window with no manual timeout. (We do NOT
+   force reduced-motion — under reduced motion the hold is skipped and the moment would vanish before
+   it could be asserted. Playwright never waits on the animation itself, only polls for the text.)
 3. **CI:** a new CI job runs the authed suite on every PR.
 
 ## 3. Auth & seeding strategy (no service-role key, no app changes, no OAuth)
@@ -91,9 +94,10 @@ no redirect to `/login` (fail fast if the cookie format ever drifts).
 
 ## 5. Determinism & CI
 
-- **Reduced-motion forced:** `playwright.config.ts` `use: { reducedMotion: 'reduce' }` — `VerifySeal`/
-  `CountUp` jump to final via their store path, so the moment is assertable with plain `toBeVisible`/
-  text checks, no `waitForTimeout`.
+- **Normal motion (NOT reduced):** the verify→payout moment relies on its ~700ms hold to stay
+  on-screen for assertion; reduced-motion skips the hold. Playwright auto-waits for the "Verified"
+  seal text / counted amount during the hold window — no `waitForTimeout`, and it never blocks on the
+  animation itself (it polls for the element). Other tests are navigation/state assertions, motion-agnostic.
 - **Self-contained tests:** each creates its own idea/answer with a per-run-unique title
   (`Idea ${Date.now()}` style — but since Playwright forbids `Date.now()`-nondeterminism only in
   *snapshots*, a unique title via `crypto.randomUUID()` slice is fine), so reruns don't collide and
