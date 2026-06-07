@@ -16,6 +16,13 @@
   let verifiedCents = $state<Record<string, number>>({});
   let announce = $state('');
 
+  // New-idea form: local state + bind:value so a review-action enhance re-render (or any invalidate)
+  // can't wipe a half-typed idea.
+  let newTitle = $state('');
+  let newType = $state('open_ended');
+  let newClaim = $state('');
+  let newSummary = $state('');
+
   function enhancer(id: string, kind: OutcomeKind, label: string) {
     return makeOutcomeEnhancer({
       kind, reduced,
@@ -41,13 +48,13 @@
 <form method="POST" action="?/create" class="mb-8 flex flex-col gap-2 rounded-2xl border p-5"
       style="border-color:var(--line); background:var(--surface)">
   <h2 class="font-bold" style="color:var(--ink)">Post a new idea</h2>
-  <input name="title" placeholder="Title" required class="rounded-xl border px-3 py-2" style="border-color:var(--line)" />
-  <select name="type" class="rounded-xl border px-3 py-2" style="border-color:var(--line)">
+  <input name="title" placeholder="Title" required bind:value={newTitle} class="rounded-xl border px-3 py-2" style="border-color:var(--line)" />
+  <select name="type" bind:value={newType} class="rounded-xl border px-3 py-2" style="border-color:var(--line)">
     <option value="open_ended">Open-ended</option>
     <option value="hypothesis">Hypothesis (yes/no)</option>
   </select>
-  <input name="claim" placeholder="Hypothesis claim (if hypothesis)" class="rounded-xl border px-3 py-2" style="border-color:var(--line)" />
-  <textarea name="summary_md" placeholder="Summary (markdown)" class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
+  <input name="claim" placeholder="Hypothesis claim (if hypothesis)" bind:value={newClaim} class="rounded-xl border px-3 py-2" style="border-color:var(--line)" />
+  <textarea name="summary_md" placeholder="Summary (markdown)" bind:value={newSummary} class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
   <button class="self-start rounded-xl px-4 py-2 font-medium" style="background:var(--ink); color:#fff">Publish</button>
 </form>
 
