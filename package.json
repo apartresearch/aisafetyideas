@@ -14,7 +14,8 @@
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"etl:restore-v1": "tsx scripts/etl/restore-v1.ts",
-		"etl:restore-v2": "tsx scripts/etl/restore-v2.ts"
+		"etl:restore-v2": "tsx scripts/etl/restore-v2.ts",
+		"test:e2e": "playwright test"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.60.0",

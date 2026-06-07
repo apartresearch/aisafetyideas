@@ -31,3 +31,5 @@ scripts/etl/*.generated.sql
 
 # Local-only Claude settings (shared settings.json stays tracked)
 .claude/settings.local.json
+
+e2e/.auth/
