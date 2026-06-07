@@ -16,37 +16,62 @@ length caps (comment 10k, interest note 2k).
    limits (anti link-spam/enumeration).
 3. **Lenient launch posture** — caps only a script would hit; tighten later from data.
 
-## 2. Schema (one migration: `rate_limits`)
+## 2. Schema (one migration: `rate_limits`) — NO service role, pure RLS
+
+> **Owner principle (2026-06-07): the app never uses a service-role client — RLS is the only
+> authority.** The original draft used a service-role-only SECURITY DEFINER RPC; rejected.
+
+The trick that makes client-role rate limiting safe: the function is **SECURITY INVOKER** and
+derives its key from `auth.uid()` **internally** (no key parameter), so RLS pins every row to
+the caller. A malicious direct call via PostgREST can only increment the attacker's *own*
+counter — self-harm, never a cross-user DoS. Bypass is impossible (clients can only add counts,
+never reset them; the server's verdict reads the same pinned rows).
 
 ```sql
 create table public.rate_limits (
-  key          text not null,         -- 'user:<uuid>' | 'ip:<addr>'
+  key          text not null,         -- 'user:<uuid>' (DB tracks authed users only; anon → §4)
   bucket       text not null,         -- endpoint family, e.g. 'comment'
   window_start timestamptz not null,  -- aligned to the bucket's window size
   count        int  not null default 1,
   primary key (key, bucket, window_start)
 );
 alter table public.rate_limits enable row level security;
--- ZERO policies: deny-by-default for every client role. Only the RPC below touches it.
+
+-- Own-rows-only for every verb (key is pinned to the caller — the whole security model):
+create policy "own rate rows select" on public.rate_limits for select to authenticated
+  using (key = 'user:' || (select auth.uid())::text);
+create policy "own rate rows insert" on public.rate_limits for insert to authenticated
+  with check (key = 'user:' || (select auth.uid())::text);
+create policy "own rate rows update" on public.rate_limits for update to authenticated
+  using (key = 'user:' || (select auth.uid())::text)
+  with check (key = 'user:' || (select auth.uid())::text);
+create policy "own rate rows delete" on public.rate_limits for delete to authenticated
+  using (key = 'user:' || (select auth.uid())::text);
 ```
 
 ```sql
-create function public.consume_rate_limit(
-  p_key text, p_bucket text, p_max int, p_window_secs int
-) returns boolean
-language plpgsql security definer set search_path = ''
+create function public.consume_rate_limit(p_bucket text, p_max int, p_window_secs int)
+returns boolean
+language plpgsql security invoker set search_path = ''
 as $$
 declare
+  v_key text;
   v_window timestamptz := to_timestamp(
     floor(extract(epoch from now()) / p_window_secs) * p_window_secs);
   v_count int;
 begin
-  -- opportunistic cleanup: this bucket's rows older than two windows (keeps the table tiny; no cron)
+  if (select auth.uid()) is null then
+    return true;   -- anon callers are not tracked here (login uses the in-memory limiter, §4)
+  end if;
+  v_key := 'user:' || (select auth.uid())::text;
+
+  -- opportunistic cleanup of the CALLER's stale rows (RLS-scoped; keeps per-user rows ~2/bucket)
   delete from public.rate_limits
-    where bucket = p_bucket and window_start < now() - make_interval(secs => 2 * p_window_secs);
+    where key = v_key and bucket = p_bucket
+      and window_start < now() - make_interval(secs => 2 * p_window_secs);
 
   insert into public.rate_limits as r (key, bucket, window_start)
-    values (p_key, p_bucket, v_window)
+    values (v_key, p_bucket, v_window)
     on conflict (key, bucket, window_start)
     do update set count = r.count + 1
     returning count into v_count;
@@ -54,36 +79,20 @@ begin
   return v_count <= p_max;
 end $$;
 
--- THE key security decision: clients must NOT be able to call this (PostgREST would let any
--- authenticated user pass someone ELSE's key and exhaust their budget — a DoS primitive).
-revoke execute on function public.consume_rate_limit(text, text, int, int) from public, anon, authenticated;
--- service_role retains execute (default PUBLIC revoked; explicit grant):
-grant execute on function public.consume_rate_limit(text, text, int, int) to service_role;
+revoke execute on function public.consume_rate_limit(text, text, int) from public, anon;
+grant execute on function public.consume_rate_limit(text, text, int) to authenticated;
 ```
 
-Notes: SECURITY DEFINER + revoked-from-clients ⇒ **no new advisor WARN** (the baseline lint
-flags *authenticated-executable* definer functions only). Fixed-window means a boundary burst
-can briefly double a limit — acceptable at lenient settings; sliding windows aren't worth the
-complexity.
+Notes: SECURITY INVOKER ⇒ **no new advisor WARN** and no RLS bypass anywhere. `p_max`/
+`p_window_secs` come from the server's constants; a direct caller passing garbage values only
+pollutes their own key (and cannot lower the count the server sees). Fixed-window means a
+boundary burst can briefly double a limit — acceptable at lenient settings.
 
-## 3. Service-role client (`$lib/server/admin.ts` — NEW, first wiring of the service key)
+## 3. No service-role client
 
-```ts
-import { createClient } from '@supabase/supabase-js';
-import { env } from '$env/dynamic/private';   // SUPABASE_SERVICE_ROLE_KEY — server-only
-import { env as pub } from '$env/dynamic/public';
-
-/** Service-role client. SERVER ONLY ($lib/server). Bypasses RLS — use for the rate-limit RPC
- *  and nothing else without a design note. No session persistence. */
-export const adminClient = createClient(pub.PUBLIC_SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!, {
-  auth: { persistSession: false, autoRefreshToken: false }
-});
-```
-
-- Env var name matches `.env.local`: **`SUPABASE_SERVICE_ROLE_KEY`**.
-- **Owner action:** add it to Vercel env (all environments), server-side only (no `PUBLIC_` prefix
-  ⇒ never bundled). `$env/dynamic/private` keeps the build env-independent (same rationale as
-  PR #46).
+Deliberately none. The user-scoped `locals.supabase` client calls the RPC; RLS does all
+enforcement. (The `SUPABASE_SERVICE_ROLE_KEY` in `.env.local` stays unwired; no Vercel env
+action needed.)
 
 ## 4. Helper (`$lib/server/rate-limit.ts`)
 
@@ -103,12 +112,21 @@ export const LIMITS = {
 export type Bucket = keyof typeof LIMITS;
 ```
 
-`rateLimit(event, bucket): Promise<{ ok: boolean }>`:
-- key = `user:<auth user id>` when signed in (via `safeGetSession`), else `ip:<event.getClientAddress()>`
-  (on Vercel this is the trusted `x-forwarded-for`).
-- Calls `adminClient.rpc('consume_rate_limit', …)` with the bucket's max/window.
-- **Fails OPEN**: any RPC error ⇒ `console.error` + `{ ok: true }`. A limiter outage must never
+Two limiters, matched to what each role can do safely:
+
+- **Authed buckets (everything except `login`):** `rateLimit(event, bucket): Promise<{ ok: boolean }>`
+  calls `event.locals.supabase.rpc('consume_rate_limit', { p_bucket, p_max, p_window_secs })` —
+  the user's own client; the RPC self-keys on `auth.uid()` (§2). All these actions already
+  require a session, so the anon-returns-true branch is never the deciding check.
+  **Fails OPEN**: any RPC error ⇒ `console.error` + `{ ok: true }`. A limiter outage must never
   take the site down; the durable risk (spam) is bounded, the availability risk is not.
+- **`login` bucket (anon — the DB cannot key anon callers without trusting spoofable input):**
+  a small **in-memory fixed-window map** in the same module, keyed by
+  `event.getClientAddress()` (trusted `x-forwarded-for` on Vercel), pruned on access.
+  Per-fluid-compute-instance, so the real cap is `10 × instances` and resets on cold start —
+  explicitly **belt-and-suspenders**; Supabase Auth's own server-side email limits are the real
+  backstop. No DB, no spoofable key, nothing an attacker can exhaust for someone else
+  (worst case: shared-IP neighbors share a generous bucket).
 
 Action wiring (two lines per action):
 
@@ -143,20 +161,22 @@ is admin-set via `setStatus`), so no `apply` bucket.
 ## 6. Testing
 
 - **pgTAP** (`rate_limits_test.sql`): under-limit true → over-limit false within one window;
-  window rollover resets; separate keys/buckets independent; cleanup removes stale rows;
-  **execute denied for anon + authenticated** (the DoS hole pinned shut); table unreadable/unwritable
-  by client roles (zero policies).
-- **Vitest** (`rate-limit.test.ts`): keying (user vs ip), limits table lookup, fail-open on RPC
-  error (mocked), fail-closed-on-false (429 path) in one representative action test.
+  window rollover resets; separate buckets independent; **one user's consumption cannot touch
+  another user's rows** (call as A, then as B — B starts fresh; A cannot select/update/delete
+  B's rows directly); anon `execute` denied; cleanup removes the caller's stale rows only.
+- **Vitest** (`rate-limit.test.ts`): bucket→params lookup, fail-open on RPC error (mocked),
+  fail-closed-on-false (429 path) in one representative action test; the in-memory login
+  limiter (window expiry, per-IP independence, prune).
 - Manual: 11 rapid comments locally → the 11th gets the friendly 429 message.
 
 ## 7. Risks / accepted
 
 - **Fail-open** trades abuse-resistance for availability — deliberate.
 - Fixed-window boundary bursts (≤2× briefly) — accepted at lenient caps.
-- The service-role key now lives in the running server's env — standard Supabase posture; it was
-  always going to be wired for Phase 2 money; `$lib/server` placement keeps it out of the client
-  bundle (build asserts this: importing `$env/dynamic/private` from client code is a build error).
-- Per-user keys mean a shared-account attacker self-throttles only themselves — fine; IP keying
-  covers anon. IPv6 rotation can dodge `ip:` buckets — accepted for Phase 1 (WAF is the Phase-2
-  escalation if needed).
+- **No service role anywhere** (owner principle). Consequence: the `login` limiter is per-instance
+  in-memory and therefore leaky — accepted, because Supabase Auth's own email limits backstop it
+  and the alternative (DB-keyed anon) would hand attackers a spoofable key.
+- A signed-in attacker can self-throttle only themselves; anon abuse beyond login (e.g. read
+  flooding) is out of scope — reads are cheap and cacheable; WAF is the Phase-2 escalation.
+- Direct RPC calls with garbage `p_max`/`p_window_secs` pollute only the caller's own rows and
+  can never lower the count the server's check sees.
