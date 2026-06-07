@@ -52,7 +52,7 @@
   <ul class="flex flex-col gap-2">
     {#each data.myPledges as p (p.id)}
       <li class="flex items-center justify-between gap-3 rounded-xl border p-3" style="border-color:var(--line); background:var(--surface)">
-        <a href="/ideas/{p.idea_id}" style="color:var(--green-deep)">{p.idea?.title ?? 'Idea'}</a>
+        <a href="/ideas/{p.idea?.slug ?? p.idea_id}" style="color:var(--green-deep)">{p.idea?.title ?? 'Idea'}</a>
         <span class="flex items-center gap-3">
           <span class="tabular-nums" style="color:var(--ink)"><Money cents={p.amount_cents} currency={p.currency} /></span>
           <span class="text-xs" style="color:var(--faint)">{p.status}</span>

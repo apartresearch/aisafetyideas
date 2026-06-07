@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 
   let base = supabase
     .from('ideas')
-    .select('id, title, summary_md, type, status, created_at', { count: 'exact' })
+    .select('id, slug, title, summary_md, type, status, created_at', { count: 'exact' })
     .neq('status', 'draft');
   if (type === 'hypothesis' || type === 'open_ended') base = base.eq('type', type);
 

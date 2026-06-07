@@ -29,7 +29,7 @@
     <section class="mt-8">
       <div class="mb-3 flex items-center justify-between">
         <h2 class="text-xl font-bold" style="color:var(--ink)">Answers</h2>
-        {#if data.canSubmit}<a href="/ideas/{data.idea.id}/answer" class="rounded-xl px-4 py-2 text-sm font-medium" style="background:var(--ink); color:#fff">Submit an answer</a>{/if}
+        {#if data.canSubmit}<a href="/ideas/{data.idea.slug}/answer" class="rounded-xl px-4 py-2 text-sm font-medium" style="background:var(--ink); color:#fff">Submit an answer</a>{/if}
       </div>
       {#if data.answers.length === 0}<p style="color:var(--muted)">No answers yet.</p>{:else}
         <div class="flex flex-col gap-3">{#each data.answers as answer (answer.id)}<AnswerCard {answer} />{/each}</div>

@@ -41,7 +41,7 @@
     <tbody>
       {#each data.pending as a (a.id)}
         <tr style="border-top:1px solid var(--line)" class:row-dim={shown[a.id] === 'rejecting'}>
-          <td class="py-2" style="color:var(--ink)"><a href="/ideas/{a.idea_id}" style="color:var(--green-deep)">{a.title}</a></td>
+          <td class="py-2" style="color:var(--ink)"><a href="/ideas/{a.ideas?.slug ?? a.idea_id}" style="color:var(--green-deep)">{a.title}</a></td>
           <td style="color:var(--muted)">{a.ideas?.title}</td>
           <td style="color:var(--muted)">{a.submitter?.display_name ?? a.submitter?.handle}</td>
           <td class="text-right" style="color:var(--ink)"><Money cents={a.payout_amount_cents} currency={a.payout_currency} /></td>
