@@ -30,7 +30,7 @@ test("a second expert does not see another expert's answers in their review queu
   await ep.goto('/console');
   await ep.getByPlaceholder('Title').fill(title);
   await ep.getByRole('button', { name: 'Publish' }).click();
-  await ep.waitForURL(/\/ideas\/[0-9a-f-]+$/);
+  await ep.waitForURL(/\/ideas\/[a-z0-9-]+$/);
   const ideaUrl = new URL(ep.url()).pathname;
 
   const submitter = await browser.newContext({ storageState: ROLES.submitter.state });
@@ -48,7 +48,7 @@ test("a second expert does not see another expert's answers in their review queu
     (form.elements.namedItem('explanation_md') as HTMLTextAreaElement).value = v.explanation;
     form.submit();
   }, { title: answerTitle, explanation: 'Isolation check answer.' });
-  await sp.waitForURL(/\/ideas\/[0-9a-f-]+$/);
+  await sp.waitForURL(/\/ideas\/[a-z0-9-]+$/);
   await expect(sp.getByText(answerTitle)).toBeVisible();
 
   const expert2 = await browser.newContext({ storageState: ROLES.expert2.state });

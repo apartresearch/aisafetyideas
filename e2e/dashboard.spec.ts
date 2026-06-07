@@ -9,7 +9,7 @@ test('funder dashboard reflects a pledge and a followed expert', async ({ browse
   await ep.goto('/console');
   await ep.getByPlaceholder('Title').fill(title);
   await ep.getByRole('button', { name: 'Publish' }).click();
-  await ep.waitForURL(/\/ideas\/[0-9a-f-]+$/);
+  await ep.waitForURL(/\/ideas\/[a-z0-9-]+$/);
   const ideaUrl = new URL(ep.url()).pathname;
 
   const funder = await browser.newContext({ storageState: ROLES.funder.state });

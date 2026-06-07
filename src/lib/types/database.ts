@@ -573,6 +573,7 @@ export type Database = {
           legacy_id: number | null
           published_at: string | null
           resolution: string | null
+          slug: string
           source_url: string | null
           status: string
           summary_md: string | null
@@ -596,6 +597,7 @@ export type Database = {
           legacy_id?: number | null
           published_at?: string | null
           resolution?: string | null
+          slug?: string
           source_url?: string | null
           status?: string
           summary_md?: string | null
@@ -619,6 +621,7 @@ export type Database = {
           legacy_id?: number | null
           published_at?: string | null
           resolution?: string | null
+          slug?: string
           source_url?: string | null
           status?: string
           summary_md?: string | null
@@ -926,6 +929,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      slugify: { Args: { txt: string }; Returns: string }
       start_review: {
         Args: { p_answer_id: string }
         Returns: {

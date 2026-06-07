@@ -10,7 +10,7 @@
   let artifacts = $state('');
 </script>
 <h1 class="mb-1 text-2xl font-bold" style="color:var(--ink)">Submit an answer</h1>
-<p class="mb-6 text-sm" style="color:var(--muted)">for <a href="/ideas/{data.idea.id}" style="color:var(--green-deep)">{data.idea.title}</a></p>
+<p class="mb-6 text-sm" style="color:var(--muted)">for <a href="/ideas/{data.idea.slug}" style="color:var(--green-deep)">{data.idea.title}</a></p>
 <form method="POST" class="flex flex-col gap-3 rounded-2xl border p-5" style="border-color:var(--line); background:var(--surface)">
   <input name="title" placeholder="Answer title" required bind:value={title}
          class="rounded-xl border px-3 py-2" style="border-color:var(--line)" />

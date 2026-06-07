@@ -1,8 +1,8 @@
 <script lang="ts">
   import StatusBadge from './StatusBadge.svelte';
-  let { idea }: { idea: { id: string; title: string; summary_md: string | null; type: string; status: string; score?: number } } = $props();
+  let { idea }: { idea: { id: string; slug: string; title: string; summary_md: string | null; type: string; status: string; score?: number } } = $props();
 </script>
-<a href="/ideas/{idea.id}" class="block rounded-2xl border p-5 transition"
+<a href="/ideas/{idea.slug}" class="block rounded-2xl border p-5 transition"
    style="border-color:var(--line); background:var(--surface); box-shadow:var(--shadow-1)">
   <div class="mb-2 flex items-center justify-between gap-2">
     <span class="text-xs uppercase tracking-wide" style="color:var(--faint)">{idea.type === 'hypothesis' ? 'Hypothesis' : 'Open-ended'}</span>

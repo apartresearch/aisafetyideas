@@ -17,7 +17,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
     .from('answers')
     .select(
       'id, title, payout_amount_cents, payout_currency, verified_at, idea_id,' +
-        ' ideas(id, title),' +
+        ' ideas(id, slug, title),' +
         ' submitter:profiles!answers_submitter_id_fkey(handle, display_name)'
     )
     .eq('status', 'verified')

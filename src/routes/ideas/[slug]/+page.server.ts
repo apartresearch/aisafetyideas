@@ -1,16 +1,19 @@
-import { error, fail } from '@sveltejs/kit';
+import { error, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { renderMarkdown } from '$lib/server/markdown';
 import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
+import { ideaParamColumn, isUuid, resolveIdeaId } from '$lib/server/ideas';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
   const { user } = await safeGetSession();
   const { data: idea } = await supabase
     .from('ideas')
-    .select('id, title, summary_md, claim, type, status, resolution, estimated_hours, importance, source_url, author_id, currency')
-    .eq('id', params.id)
+    .select('id, slug, title, summary_md, claim, type, status, resolution, estimated_hours, importance, source_url, author_id, currency')
+    .eq(ideaParamColumn(params.slug), params.slug)
     .single();
   if (!idea) error(404, 'Idea not found');
+  // legacy /ideas/<uuid> URL → permanent-redirect to the canonical slug URL
+  if (isUuid(params.slug)) redirect(301, `/ideas/${idea.slug}`);
 
   const { data: author } = idea.author_id
     ? await supabase.from('profiles').select('handle, display_name').eq('id', idea.author_id).single()
@@ -120,8 +123,10 @@ export const actions: Actions = {
     const fd = await request.formData();
     const dollars = Number(fd.get('amount') ?? '');
     if (!Number.isFinite(dollars) || dollars <= 0) return fail(400, { message: 'Enter an amount greater than 0' });
+    const ideaId = await resolveIdeaId(supabase, params.slug);
+    if (!ideaId) return fail(404, { message: 'Idea not found' });
     const { error: e } = await supabase.from('idea_funding').insert({
-      idea_id: params.id, funder_id: user.id, amount_cents: Math.round(dollars * 100), status: 'committed'
+      idea_id: ideaId, funder_id: user.id, amount_cents: Math.round(dollars * 100), status: 'committed'
     });
     if (e) return fail(400, { message: e.message });
     return { ok: true };
@@ -135,9 +140,11 @@ export const actions: Actions = {
     const body_md = String(fd.get('body_md') ?? '').trim();
     if (!body_md) return fail(400, { message: 'Write something first' });
     if (body_md.length > 10000) return fail(400, { message: 'Comment is too long (max 10,000 characters)' });
+    const ideaId = await resolveIdeaId(supabase, params.slug);
+    if (!ideaId) return fail(404, { message: 'Idea not found' });
     // RLS enforces author = self + visible idea + legacy pinned
     const { error: e } = await supabase.from('comments').insert({
-      idea_id: params.id, author_id: user.id, body_md
+      idea_id: ideaId, author_id: user.id, body_md
     });
     if (e) return fail(400, { message: e.message });
     return { ok: true };
@@ -162,8 +169,10 @@ export const actions: Actions = {
     if (!(await rateLimit(supabase, 'engage')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
     const note_md = String(fd.get('note_md') ?? '').trim().slice(0, 2000) || null;
+    const ideaId = await resolveIdeaId(supabase, params.slug);
+    if (!ideaId) return fail(404, { message: 'Idea not found' });
     const { error: e } = await supabase.from('interest').insert({
-      idea_id: params.id, profile_id: user.id, note_md
+      idea_id: ideaId, profile_id: user.id, note_md
     });
     if (e) {
       // a duplicate (double-click / stale tab) means "already interested" — idempotent, don't leak the constraint name
@@ -180,13 +189,15 @@ export const actions: Actions = {
     const fd = await request.formData();
     const value = Number(fd.get('value'));
     if (value !== 1 && value !== -1) return fail(400, { message: 'Invalid vote' });
+    const ideaId = await resolveIdeaId(supabase, params.slug);
+    if (!ideaId) return fail(404, { message: 'Idea not found' });
     // switch = delete own row first (no UPDATE policy), then insert; a 23505 race means a vote
     // already landed — treat as ok (the page re-load shows the truth)
     const { error: delErr } = await supabase.from('idea_votes')
-      .delete().eq('idea_id', params.id).eq('profile_id', user.id);
+      .delete().eq('idea_id', ideaId).eq('profile_id', user.id);
     if (delErr) return fail(400, { message: delErr.message });
     const { error: e } = await supabase.from('idea_votes').insert({
-      idea_id: params.id, profile_id: user.id, value
+      idea_id: ideaId, profile_id: user.id, value
     });
     if (e && (e as { code?: string }).code !== '23505') return fail(400, { message: e.message });
     return { ok: true };
@@ -196,18 +207,22 @@ export const actions: Actions = {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in' });
     if (!(await rateLimit(supabase, 'engage')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
+    const ideaId = await resolveIdeaId(supabase, params.slug);
+    if (!ideaId) return fail(404, { message: 'Idea not found' });
     const { error: e } = await supabase.from('idea_votes')
-      .delete().eq('idea_id', params.id).eq('profile_id', user.id);
+      .delete().eq('idea_id', ideaId).eq('profile_id', user.id);
     if (e) return fail(400, { message: e.message });
     return { ok: true };
   },
 
-  uninterest: async ({ request, params, locals: { supabase, safeGetSession } }) => {
+  uninterest: async ({ params, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in' });
     if (!(await rateLimit(supabase, 'engage')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
+    const ideaId = await resolveIdeaId(supabase, params.slug);
+    if (!ideaId) return fail(404, { message: 'Idea not found' });
     const { data: del, error: e } = await supabase.from('interest')
-      .delete().eq('idea_id', params.id).eq('profile_id', user.id).select('id');
+      .delete().eq('idea_id', ideaId).eq('profile_id', user.id).select('id');
     if (e) return fail(400, { message: e.message });
     if (!del?.length) return fail(409, { message: 'You were not marked interested' });
     return { ok: true };

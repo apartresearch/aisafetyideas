@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
   if (!(await requireExpert(supabase, user.id))) error(403, 'Approved experts only');
 
   const { data: ideas } = await supabase
-    .from('ideas').select('id, title, type, status').eq('author_id', user.id)
+    .from('ideas').select('id, slug, title, type, status').eq('author_id', user.id)
     .order('created_at', { ascending: false });
 
   // answers awaiting a decision on MY ideas (ideas!inner — exactly one FK to ideas, so no hint needed; the
@@ -24,7 +24,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
     .from('answers')
     .select(
       'id, title, explanation_md, status, payout_amount_cents, idea_id,' +
-        ' ideas!inner(id, title, type, author_id),' +
+        ' ideas!inner(id, slug, title, type, author_id),' +
         ' submitter:profiles!answers_submitter_id_fkey(handle, display_name),' +
         ' answer_artifacts(id, kind, url, label)'
     )
@@ -58,9 +58,9 @@ export const actions: Actions = {
       summary_md: String(fd.get('summary_md') ?? ''),
       claim: type === 'hypothesis' ? String(fd.get('claim') ?? '') : null,
       status: 'open', published_at: new Date().toISOString()
-    }).select('id').single();
+    }).select('slug').single();   // slug is assigned by the ideas_set_slug trigger
     if (e) return fail(400, { message: e.message });
-    redirect(303, `/ideas/${data!.id}`);
+    redirect(303, `/ideas/${data!.slug}`);
   },
 
   start_review: async ({ request, locals: { supabase, safeGetSession } }) => {

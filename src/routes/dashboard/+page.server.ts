@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
   let feed: any[] = [];
   if (followedIds.length) {
     const { data } = await supabase
-      .from('ideas').select('id, title, summary_md, type, status')
+      .from('ideas').select('id, slug, title, summary_md, type, status')
       .in('author_id', followedIds).eq('status', 'open')
       .order('created_at', { ascending: false }).limit(50);
     feed = data ?? [];
@@ -35,7 +35,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
   // my funding: my pledges joined to their idea (idea_funding has ONE fk to ideas, no hint needed)
   const { data: rawMine } = await supabase
     .from('idea_funding')
-    .select('id, amount_cents, currency, status, idea_id, ideas(id, title, status)')
+    .select('id, amount_cents, currency, status, idea_id, ideas(id, slug, title, status)')
     .eq('funder_id', user.id)
     .order('created_at', { ascending: false });
   const myPledges = (rawMine ?? []).map((p: any) => ({

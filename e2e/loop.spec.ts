@@ -30,7 +30,7 @@ async function submitAnswer(
       (form.elements.namedItem('artifacts') as HTMLTextAreaElement).value = v.artifacts;
     form.submit();
   }, vals);
-  await page.waitForURL(/\/ideas\/[0-9a-f-]+$/);
+  await page.waitForURL(/\/ideas\/[a-z0-9-]+$/);
 }
 
 test('golden loop: post → fund → answer → verify (payout moment) → admin approve', async ({ browser }) => {
@@ -43,7 +43,7 @@ test('golden loop: post → fund → answer → verify (payout moment) → admin
   await ep.goto('/console');
   await ep.getByPlaceholder('Title').fill(title);
   await ep.getByRole('button', { name: 'Publish' }).click();
-  await ep.waitForURL(/\/ideas\/[0-9a-f-]+$/);
+  await ep.waitForURL(/\/ideas\/[a-z0-9-]+$/);
   const ideaUrl = new URL(ep.url()).pathname;
   await expect(ep.getByRole('heading', { name: title })).toBeVisible();
 
@@ -108,7 +108,7 @@ test('reject path: author rejects an answer → it leaves the queue', async ({ b
   await ep.goto('/console');
   await ep.getByPlaceholder('Title').fill(title);
   await ep.getByRole('button', { name: 'Publish' }).click();
-  await ep.waitForURL(/\/ideas\/[0-9a-f-]+$/);
+  await ep.waitForURL(/\/ideas\/[a-z0-9-]+$/);
   const ideaUrl = new URL(ep.url()).pathname;
 
   const submitter = await ctx(browser, ROLES.submitter.state);
@@ -133,7 +133,7 @@ test('revision path: request_revision keeps the answer in the queue', async ({ b
   await ep.goto('/console');
   await ep.getByPlaceholder('Title').fill(title);
   await ep.getByRole('button', { name: 'Publish' }).click();
-  await ep.waitForURL(/\/ideas\/[0-9a-f-]+$/);
+  await ep.waitForURL(/\/ideas\/[a-z0-9-]+$/);
   const ideaUrl = new URL(ep.url()).pathname;
 
   const submitter = await ctx(browser, ROLES.submitter.state);

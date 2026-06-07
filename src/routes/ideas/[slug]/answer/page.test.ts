@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { render, fireEvent } from '@testing-library/svelte';
 import Page from './+page.svelte';
 
-const data = { idea: { id: 'i1', title: 'Idea' } };
+const data = { idea: { id: 'i1', slug: 'idea', title: 'Idea' } };
 
 describe('answer form input binding', () => {
   it('retains typed input across a re-render (the form prop changing must not clobber it)', async () => {

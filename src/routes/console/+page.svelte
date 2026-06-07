@@ -73,7 +73,7 @@
            style="border-color:var(--line); background:var(--surface)">
         <div class="mb-1 flex items-center justify-between gap-2">
           <div>
-            <a href="/ideas/{a.idea_id}" class="font-bold" style="color:var(--ink)">{a.title}</a>
+            <a href="/ideas/{a.ideas?.slug ?? a.idea_id}" class="font-bold" style="color:var(--ink)">{a.title}</a>
             <span class="ml-2 text-xs" style="color:var(--faint)">on “{a.ideas?.title}” · by {a.submitter?.display_name ?? a.submitter?.handle}</span>
           </div>
           {#if shown[a.id] === 'verifying'}
@@ -133,6 +133,6 @@
 <h2 class="mb-2 font-bold" style="color:var(--ink)">Your ideas</h2>
 {#if data.ideas.length === 0}<p style="color:var(--muted)">No ideas yet.</p>{:else}
   <ul class="flex flex-col gap-2">
-    {#each data.ideas as i (i.id)}<li><a href="/ideas/{i.id}" style="color:var(--green-deep)">{i.title}</a> <span style="color:var(--faint)">· {i.status}</span></li>{/each}
+    {#each data.ideas as i (i.id)}<li><a href="/ideas/{i.slug}" style="color:var(--green-deep)">{i.title}</a> <span style="color:var(--faint)">· {i.status}</span></li>{/each}
   </ul>
 {/if}
