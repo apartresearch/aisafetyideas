@@ -14,4 +14,13 @@ describe('formatCents', () => {
   it('honors a currency argument', () => {
     expect(formatCents(500, 'EUR')).toBe('€5.00');
   });
+  it('maps legacy currency symbols to ISO codes (never throws)', () => {
+    // legacy ETL rows store "$" — Intl.NumberFormat would throw RangeError and 500 the page
+    expect(formatCents(3712, '$')).toBe('$37.12');
+    expect(formatCents(500, '€')).toBe('€5.00');
+  });
+  it('falls back to USD for an unrecognized/garbage currency code', () => {
+    expect(formatCents(3712, 'not-a-code')).toBe('$37.12');
+    expect(formatCents(3712, '')).toBe('$37.12');
+  });
 });
