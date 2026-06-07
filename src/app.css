@@ -39,3 +39,19 @@ html { font-family: var(--font-display); color: var(--body); background: var(--c
     transition-duration:.01ms !important; scroll-behavior:auto !important;
   }
 }
+
+/* ── verify→payout signature motion (CLAUDE.md §5) ── */
+.payout-glow { animation: payout-glow var(--dur-slow) var(--ease-out-soft); }
+@keyframes payout-glow {
+  0%   { box-shadow: 0 0 0 0 rgba(68, 255, 152, 0); }
+  40%  { box-shadow: 0 0 0 4px rgba(68, 255, 152, .30); }
+  100% { box-shadow: 0 0 0 0 rgba(68, 255, 152, 0); }
+}
+.reject-settle { animation: reject-settle var(--dur-base) var(--ease-snappy); }
+@keyframes reject-settle {
+  0% { transform: translateX(0); } 35% { transform: translateX(-5px); }
+  70% { transform: translateX(3px); } 100% { transform: translateX(0); }
+}
+.row-dim  { opacity: .5; transition: opacity var(--dur-base) var(--ease-snappy); }
+.row-warn { box-shadow: inset 3px 0 0 0 var(--warn); transition: box-shadow var(--dur-base); }
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
