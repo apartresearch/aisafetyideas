@@ -717,6 +717,27 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limits: {
+        Row: {
+          bucket: string
+          count: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          bucket: string
+          count?: number
+          key: string
+          window_start: string
+        }
+        Update: {
+          bucket?: string
+          count?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       bounty_pot: {
@@ -812,6 +833,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      consume_rate_limit: { Args: { p_bucket: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       reject_answer: {
         Args: { p_answer_id: string; p_note?: string }
