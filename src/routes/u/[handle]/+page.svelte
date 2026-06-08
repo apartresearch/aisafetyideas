@@ -1,5 +1,6 @@
 <script lang="ts">
   import Markdown from '$lib/components/Markdown.svelte';
+  import IdeaCard from '$lib/components/IdeaCard.svelte';
   let { data, form } = $props();
   let isSelf = $derived(data.user?.id === data.profile.id);
   // Local state + bind:value so a background re-render mid-edit can't reset the fields (seeded from
@@ -11,9 +12,20 @@
   // svelte-ignore state_referenced_locally
   let bioMd = $state(data.profile.bio_md ?? '');
 </script>
-<article class="rounded-2xl border p-6" style="border-color:var(--line);background:var(--surface);box-shadow:var(--shadow-1)">
-  <h1 class="text-2xl font-bold" style="color:var(--ink)">{data.profile.display_name ?? data.profile.handle}</h1>
-  <p style="color:var(--faint)">@{data.profile.handle}{#if data.profile.career_stage} · {data.profile.career_stage}{/if}</p>
+<article class="card" style="padding:1.5rem">
+  <div class="flex flex-wrap items-start gap-3">
+    <div class="flex-1 min-w-0">
+      <div class="flex flex-wrap items-center gap-2">
+        <h1 class="text-2xl font-bold" style="color:var(--ink)">{data.profile.display_name ?? data.profile.handle}</h1>
+        {#if data.isVerifiedExpert}
+          <span class="chip" style="color:var(--green-deep);background:color-mix(in srgb,var(--green) 12%,transparent);border:1px solid color-mix(in srgb,var(--green) 30%,transparent)">
+            <span aria-hidden="true">✓</span> Verified expert
+          </span>
+        {/if}
+      </div>
+      <p class="mt-0.5" style="color:var(--faint)">@{data.profile.handle}{#if data.profile.career_stage} · {data.profile.career_stage}{/if}</p>
+    </div>
+  </div>
   <Markdown html={data.bio_html} class="mt-3" />
 
   {#if isSelf}
@@ -24,9 +36,22 @@
              class="rounded-xl border px-3 py-2" style="border-color:var(--line)" />
       <textarea name="bio_md" placeholder="Bio (markdown)" bind:value={bioMd}
              class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
-      <button class="self-start rounded-xl px-4 py-2 font-medium" style="background:var(--ink);color:#fff">Save</button>
+      <button class="self-start btn btn-primary btn-sm">Save</button>
       {#if form?.saved}<span style="color:var(--green-deep)">Saved.</span>{/if}
       {#if form?.message}<span style="color:var(--neg)">{form.message}</span>{/if}
     </form>
   {/if}
 </article>
+
+{#if data.authored.length > 0}
+  <section class="mt-8">
+    <h2 class="mb-4 text-lg font-bold" style="color:var(--ink)">
+      Ideas by {data.profile.display_name ?? data.profile.handle}
+    </h2>
+    <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {#each data.authored as idea (idea.id)}
+        <IdeaCard {idea} />
+      {/each}
+    </div>
+  </section>
+{/if}
