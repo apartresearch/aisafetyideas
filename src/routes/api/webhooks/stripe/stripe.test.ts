@@ -11,9 +11,12 @@ vi.mock('$lib/server/stripe', () => ({
 const maybeSingle = vi.fn();
 const insert = vi.fn().mockResolvedValue({ error: null });
 const rpc = vi.fn().mockResolvedValue({ data: null, error: null });
+const updateEq = vi.fn().mockResolvedValue({ error: null });
+const update = vi.fn(() => ({ eq: updateEq }));
 const from = vi.fn(() => ({
   select: () => ({ eq: () => ({ maybeSingle }) }),
-  insert
+  insert,
+  update
 }));
 const sysClient: any = {
   from,
@@ -50,6 +53,8 @@ beforeEach(() => {
   maybeSingle.mockReset().mockResolvedValue({ data: null, error: null });
   insert.mockClear();
   rpc.mockClear();
+  update.mockClear();
+  updateEq.mockClear();
   from.mockClear();
 });
 
@@ -80,6 +85,21 @@ describe('POST /api/webhooks/stripe', () => {
     const escrowCall = rpc.mock.calls.find((c) => c[0] === 'admin_escrow_for');
     expect(escrowCall).toBeTruthy();
     expect(escrowCall![1]).toMatchObject({ p_funder: 'u1', p_idea: 'idea-9', p_amount_cents: 9550, p_idempotency_key: 'evt_123:escrow' });
+  });
+
+  it('account.updated: flips payouts_enabled on the connect row keyed by stripe_account_id', async () => {
+    constructEvent.mockReturnValue({
+      id: 'evt_acct',
+      type: 'account.updated',
+      data: { object: { id: 'acct_X', payouts_enabled: true } }
+    });
+    const res = await POST(req());
+    expect(res.status).toBe(200);
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ payouts_enabled: true, onboarding_status: 'enabled' })
+    );
+    expect(updateEq).toHaveBeenCalledWith('stripe_account_id', 'acct_X');
+    expect(insert).toHaveBeenCalledWith({ id: 'evt_acct', type: 'account.updated' });
   });
 
   it('replay: a known event short-circuits — no credit_balance, fast 200', async () => {

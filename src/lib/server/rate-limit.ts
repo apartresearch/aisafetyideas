@@ -8,7 +8,8 @@ import type { SupabaseClient } from '@supabase/supabase-js';
  */
 export const BUCKETS = [
   'comment', 'comment_delete', 'engage', 'pledge', 'answer',
-  'idea_create', 'review', 'profile', 'admin', 'ai_generate', 'donate'
+  'idea_create', 'review', 'profile', 'admin', 'ai_generate', 'donate',
+  'withdraw', 'kyc'
 ] as const;
 export type Bucket = (typeof BUCKETS)[number];
 

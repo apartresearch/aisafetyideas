@@ -55,6 +55,20 @@ export const POST: RequestHandler = async ({ request }) => {
     }
   }
 
+  // Connect Express onboarding state changes: flip payouts_enabled (system user is_admin → admin-only
+  // UPDATE policy). This is the only path that can ever set payouts_enabled = true.
+  if (event.type === 'account.updated') {
+    const acct = event.data.object as any;
+    await sys
+      .from('stripe_connect_accounts')
+      .update({
+        payouts_enabled: acct.payouts_enabled,
+        onboarding_status: acct.payouts_enabled ? 'enabled' : 'pending',
+        updated_at: new Date().toISOString()
+      })
+      .eq('stripe_account_id', acct.id);
+  }
+
   // Record only after successful processing (see dedupe note above).
   await sys.from('stripe_events').insert({ id: event.id, type: event.type });
 

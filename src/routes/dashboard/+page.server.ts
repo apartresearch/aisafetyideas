@@ -63,7 +63,25 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
     .eq('author_id', user.id).eq('status', 'draft')
     .order('created_at', { ascending: false });
 
-  return { tab, hasFollows: followedIds.length > 0, feed, experts, myPledges, chart, totalCommittedCents, drafts: drafts ?? [] };
+  // Payouts: my on-platform balances + Connect onboarding state (own rows via RLS).
+  const { data: balances } = await supabase
+    .from('account_balances')
+    .select('available_cents, escrowed_cents, payable_cents')
+    .eq('profile_id', user.id).maybeSingle();
+  const { data: connect } = await supabase
+    .from('stripe_connect_accounts')
+    .select('payouts_enabled').eq('profile_id', user.id).maybeSingle();
+
+  return {
+    tab, hasFollows: followedIds.length > 0, feed, experts, myPledges, chart, totalCommittedCents,
+    drafts: drafts ?? [],
+    balances: {
+      availableCents: Number(balances?.available_cents ?? 0),
+      escrowedCents: Number(balances?.escrowed_cents ?? 0),
+      payableCents: Number(balances?.payable_cents ?? 0)
+    },
+    payoutsEnabled: connect?.payouts_enabled === true
+  };
 };
 
 export const actions: Actions = {

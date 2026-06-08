@@ -687,6 +687,118 @@ export type Database = {
           },
         ]
       }
+      ledger_entries: {
+        Row: {
+          account: string
+          amount_cents: number
+          answer_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          idea_id: string | null
+          idempotency_key: string | null
+          kind: string
+          note: string | null
+          profile_id: string | null
+          stripe_event_id: string | null
+        }
+        Insert: {
+          account: string
+          amount_cents: number
+          answer_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          idea_id?: string | null
+          idempotency_key?: string | null
+          kind: string
+          note?: string | null
+          profile_id?: string | null
+          stripe_event_id?: string | null
+        }
+        Update: {
+          account?: string
+          amount_cents?: number
+          answer_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          idea_id?: string | null
+          idempotency_key?: string | null
+          kind?: string
+          note?: string | null
+          profile_id?: string | null
+          stripe_event_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_answer_id_fkey"
+            columns: ["answer_id"]
+            isOneToOne: false
+            referencedRelation: "answers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_config: {
+        Row: {
+          fee_bps: number
+          funding_enabled: boolean
+          id: boolean
+          min_withdrawal_cents: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          fee_bps?: number
+          funding_enabled?: boolean
+          id?: boolean
+          min_withdrawal_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          fee_bps?: number
+          funding_enabled?: boolean
+          id?: boolean
+          min_withdrawal_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_config_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -747,8 +859,104 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_connect_accounts: {
+        Row: {
+          created_at: string
+          onboarding_status: string
+          payouts_enabled: boolean
+          profile_id: string
+          stripe_account_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          onboarding_status?: string
+          payouts_enabled?: boolean
+          profile_id: string
+          stripe_account_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          onboarding_status?: string
+          payouts_enabled?: boolean
+          profile_id?: string
+          stripe_account_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_connect_accounts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_customers: {
+        Row: {
+          created_at: string
+          profile_id: string
+          stripe_customer_id: string
+        }
+        Insert: {
+          created_at?: string
+          profile_id: string
+          stripe_customer_id: string
+        }
+        Update: {
+          created_at?: string
+          profile_id?: string
+          stripe_customer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_customers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_events: {
+        Row: {
+          created_at: string
+          id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
+      account_balances: {
+        Row: {
+          available_cents: number | null
+          escrowed_cents: number | null
+          payable_cents: number | null
+          profile_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bounty_pot: {
         Row: {
           funder_count: number | null
@@ -784,6 +992,15 @@ export type Database = {
       }
     }
     Functions: {
+      _escrow_core: {
+        Args: {
+          p_amount_cents: number
+          p_funder: string
+          p_idea: string
+          p_idempotency_key: string
+        }
+        Returns: string
+      }
       admin_approve_payout: {
         Args: { p_answer_id: string; p_note?: string }
         Returns: {
@@ -812,6 +1029,28 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      admin_credit_offplatform: {
+        Args: { p_amount_cents: number; p_note?: string; p_profile: string }
+        Returns: undefined
+      }
+      admin_escrow_for: {
+        Args: {
+          p_amount_cents: number
+          p_funder: string
+          p_idea: string
+          p_idempotency_key: string
+        }
+        Returns: string
+      }
+      admin_mark_paid_offplatform: {
+        Args: {
+          p_amount_cents: number
+          p_idempotency_key: string
+          p_note: string
+          p_profile: string
+        }
+        Returns: undefined
       }
       admin_reject_payout: {
         Args: { p_answer_id: string; p_note?: string }
@@ -844,7 +1083,32 @@ export type Database = {
       }
       can_use_lab_ai: { Args: never; Returns: boolean }
       consume_rate_limit: { Args: { p_bucket: string }; Returns: boolean }
+      credit_balance: {
+        Args: {
+          p_amount_cents: number
+          p_idempotency_key: string
+          p_profile: string
+          p_source?: string
+        }
+        Returns: undefined
+      }
+      escrow_pledge: {
+        Args: {
+          p_amount_cents: number
+          p_idea: string
+          p_idempotency_key: string
+        }
+        Returns: string
+      }
       is_admin: { Args: never; Returns: boolean }
+      post_ledger: {
+        Args: { p_entries: Json; p_idempotency_key?: string }
+        Returns: undefined
+      }
+      refund_funder: {
+        Args: { p_funding_id: string; p_idempotency_key: string }
+        Returns: undefined
+      }
       reject_answer: {
         Args: { p_answer_id: string; p_note?: string }
         Returns: {
@@ -874,6 +1138,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      release_grant: {
+        Args: { p_answer: string; p_idempotency_key: string }
+        Returns: undefined
+      }
       request_revision_answer: {
         Args: { p_answer_id: string; p_note?: string }
         Returns: {
@@ -902,6 +1170,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      request_withdrawal: {
+        Args: { p_amount_cents: number; p_idempotency_key: string }
+        Returns: undefined
       }
       resubmit_answer: {
         Args: {
