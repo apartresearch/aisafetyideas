@@ -35,11 +35,15 @@
           execPlan: expansions.exec_plan_md?.md ?? null,
           readablePlan: expansions.readable_plan_md?.md ?? null,
         });
-        await navigator.clipboard.writeText(prompt);
-        // transient copied feedback
-        if (copyTimer) clearTimeout(copyTimer);
-        copied = true;
-        copyTimer = setTimeout(() => { copied = false; }, 2000);
+        try {
+          await navigator.clipboard.writeText(prompt);
+          // transient copied feedback
+          if (copyTimer) clearTimeout(copyTimer);
+          copied = true;
+          copyTimer = setTimeout(() => { copied = false; }, 2000);
+        } catch {
+          errors['copy_agent'] = 'Clipboard unavailable';
+        }
         return;
       }
       if (kind === 'review') {
@@ -87,7 +91,7 @@
         <button
           class="chip chip-line exp-btn"
           class:exp-btn--loading={loading[exp.key]}
-          disabled={loading[exp.key] || (exp.key === 'copy_agent' && false)}
+          disabled={loading[exp.key]}
           onclick={() => runExpansion(exp.key, exp.kind, exp.planKind)}
           title={exp.label}
         >

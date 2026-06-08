@@ -10,10 +10,17 @@ describe('draftsStore', () => {
 		const tmp = s.add('My idea');
 		expect(s.drafts[0].title).toBe('My idea');
 		expect(s.drafts[0].pending).toBe(true);
+		const keyBefore = s.drafts[0].key;
 		await tmp;
 		expect(s.drafts[0].id).toBe('real');
 		expect(s.drafts[0].slug).toBe('sl');
 		expect(s.drafts[0].pending).toBe(false);
+		// key must remain stable after id reconcile (prevents expand-collapse DOM reset)
+		expect(s.drafts[0].key).toBe(keyBefore);
+	});
+	it('seed rows get key === id', () => {
+		const s = createDraftsStore([{ id: 'seed-1', slug: 'sl', title: 'Seeded' }]);
+		expect(s.drafts[0].key).toBe('seed-1');
 	});
 	it('marks errored on failure', async () => {
 		vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, json: async () => ({ message: 'x' }) }));

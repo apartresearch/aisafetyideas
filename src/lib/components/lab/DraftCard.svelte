@@ -1,17 +1,20 @@
 <script lang="ts">
-  // svelte-ignore state_referenced_locally
   import ExpansionPanel from './ExpansionPanel.svelte';
+  import PublishDialog from './PublishDialog.svelte';
   import type { DraftRow } from '$lib/lab/draftsStore.svelte';
 
   let {
     draft = $bindable(),
     onremove,
+    form = null,
   }: {
     draft: DraftRow;
     onremove: (id: string) => void;
+    form?: { submitted?: boolean; message?: string } | null;
   } = $props();
 
   let expanded = $state(false);
+  let publishOpen = $state(false);
 
   // Local editable copies seeded from prop — svelte-ignore state_referenced_locally
   // svelte-ignore state_referenced_locally
@@ -105,6 +108,7 @@
         <button
           class="btn btn-primary btn-sm"
           disabled={draft.pending || draft.id.startsWith('tmp-')}
+          onclick={() => { publishOpen = true; }}
           title="Publish this draft as a public idea"
         >
           Publish
@@ -120,6 +124,12 @@
     </div>
   {/if}
 </article>
+
+<PublishDialog
+  bind:open={publishOpen}
+  draft={{ id: draft.id, title: draft.title, summary_md: draft.summary_md ?? '' }}
+  {form}
+/>
 
 <style>
   .draft-card { padding: 0; overflow: hidden; }

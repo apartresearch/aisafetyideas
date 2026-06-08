@@ -4,8 +4,10 @@
 
   let {
     store,
+    form = null,
   }: {
     store: { drafts: any[]; add: (title: string) => Promise<void>; remove: (id: string) => void };
+    form?: { submitted?: boolean; message?: string } | null;
   } = $props();
 </script>
 
@@ -16,9 +18,9 @@
     <p class="draft-list__empty">Capture your first idea — type a line and hit Enter.</p>
   {:else}
     <ul class="draft-list__items">
-      {#each store.drafts as draft, i (draft.id)}
+      {#each store.drafts as draft, i (draft.key)}
         <li>
-          <DraftCard bind:draft={store.drafts[i]} onremove={store.remove} />
+          <DraftCard bind:draft={store.drafts[i]} onremove={store.remove} {form} />
         </li>
       {/each}
     </ul>

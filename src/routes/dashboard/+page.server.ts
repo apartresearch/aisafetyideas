@@ -67,6 +67,28 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 };
 
 export const actions: Actions = {
+  publish: async ({ request, locals: { supabase, safeGetSession } }) => {
+    const { user } = await safeGetSession();
+    if (!user) return fail(401, { message: 'Sign in' });
+    const fd = await request.formData();
+    const id = String(fd.get('id'));
+    if (!id) return fail(400, { message: 'Missing idea id' });
+    const type = fd.get('type') === 'hypothesis' ? 'hypothesis' : 'open_ended';
+    const patch = {
+      type,
+      claim: type === 'hypothesis' ? String(fd.get('claim') ?? '') : null,
+      summary_md: String(fd.get('summary_md') ?? ''),
+      status: 'open',
+      published_at: new Date().toISOString()
+    };
+    const { data, error: e } = await supabase
+      .from('ideas').update(patch).eq('id', id).eq('status', 'draft')
+      .select('slug, status').single();
+    if (e || !data) return fail(400, { message: e?.message ?? 'Publish failed' });
+    if (data.status === 'open') redirect(303, `/ideas/${data.slug}`);
+    return { submitted: true };
+  },
+
   follow: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in' });

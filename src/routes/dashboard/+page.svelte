@@ -21,7 +21,7 @@
 </nav>
 
 {#if data.tab === 'lab'}
-  <DraftList store={draftsStore} />
+  <DraftList store={draftsStore} {form} />
 {:else}
   {#if data.tab === 'discover' || !data.hasFollows}
     {#if !data.hasFollows && data.tab === 'feed'}
