@@ -1,3 +1,4 @@
+Connecting to db 5432
 export type Json =
   | string
   | number
@@ -566,6 +567,7 @@ export type Database = {
           created_at: string
           currency: string
           estimated_hours: number | null
+          expansions: Json
           from_date: string | null
           id: string
           importance: number | null
@@ -590,6 +592,7 @@ export type Database = {
           created_at?: string
           currency?: string
           estimated_hours?: number | null
+          expansions?: Json
           from_date?: string | null
           id?: string
           importance?: number | null
@@ -614,6 +617,7 @@ export type Database = {
           created_at?: string
           currency?: string
           estimated_hours?: number | null
+          expansions?: Json
           from_date?: string | null
           id?: string
           importance?: number | null
@@ -695,6 +699,7 @@ export type Database = {
           id: string
           is_admin: boolean
           links: Json
+          supporter_until: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -706,6 +711,7 @@ export type Database = {
           id: string
           is_admin?: boolean
           links?: Json
+          supporter_until?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -717,6 +723,7 @@ export type Database = {
           id?: string
           is_admin?: boolean
           links?: Json
+          supporter_until?: string | null
         }
         Relationships: []
       }
@@ -836,6 +843,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      can_use_lab_ai: { Args: never; Returns: boolean }
       consume_rate_limit: { Args: { p_bucket: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       reject_answer: {
@@ -1129,3 +1137,5 @@ export const Constants = {
   },
 } as const
 
+A new version of Supabase CLI is available: v2.105.0 (currently installed v2.75.0)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli
