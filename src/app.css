@@ -1,4 +1,7 @@
 @import 'tailwindcss';
+/* Self-hosted brand fonts (CLAUDE.md §1): Sora (display/UI) + Lora (serif accent) */
+@import '@fontsource-variable/sora/index.css';
+@import '@fontsource-variable/lora/index.css';
 
 :root {
   /* Structure & text: greyscale only */
@@ -30,8 +33,117 @@
   --radius-card:16px; --radius-ctrl:12px;
 }
 
-html { font-family: var(--font-display); color: var(--body); background: var(--canvas); }
+html { font-family: var(--font-display); color: var(--body); background: var(--canvas); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body { line-height: 1.55; }
 *, *::before, *::after { box-sizing: border-box; }
+
+h1, h2, h3, h4, h5 { font-family: var(--font-display); color: var(--ink); letter-spacing: -0.015em; line-height: 1.1; }
+::selection { background: var(--green); color: var(--ink-2); }
+:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: 5px; }
+
+.font-serif { font-family: var(--font-serif); }
+.tnum { font-variant-numeric: tabular-nums; }
+
+/* Span the viewport width from inside the centered .site-main container. */
+.full-bleed { margin-inline: calc(50% - 50vw); }
+
+/* Staggered entrance (set animation-delay inline). Reduced-motion collapses to an instant fade. */
+@keyframes reveal-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.reveal { animation: reveal-up var(--dur-slow) var(--ease-out-soft) both; }
+
+/* ── Texture (CLAUDE.md §1) ── */
+.u-dots { background-image: radial-gradient(var(--line) 1px, transparent 1px); background-size: 22px 22px; }
+.u-dots-strong { background-image: radial-gradient(var(--line-strong) 1px, transparent 1px); background-size: 24px 24px; }
+
+/* ── Tracked uppercase micro-label (the "AVG. CHEQUE SIZE" pattern) ── */
+.u-label { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+
+/* ── App shell ── */
+.site { min-height: 100dvh; display: flex; flex-direction: column; }
+.site-main { flex: 1 0 auto; width: 100%; max-width: 72rem; margin-inline: auto; padding: 2.5rem 1.5rem 4rem; }
+
+.site-header { position: sticky; top: 0; z-index: 40; border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--canvas) 82%, transparent); backdrop-filter: saturate(140%) blur(10px); }
+.site-header__inner { max-width: 72rem; margin-inline: auto; padding: .7rem 1.5rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.site-brand { display: inline-flex; align-items: center; gap: .55rem; }
+.site-brand__name { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; color: var(--ink); font-size: 1.02rem; }
+.site-nav { display: flex; align-items: center; gap: 1.1rem; }
+.site-nav__link { color: var(--muted); font-size: .9rem; font-weight: 500; transition: color var(--dur-fast) var(--ease-snappy); }
+.site-nav__link:hover { color: var(--ink); }
+.contents { display: contents; }
+
+.site-footer { border-top: 1px solid var(--line); background: var(--surface-2); }
+.site-footer__inner { max-width: 72rem; margin-inline: auto; padding: 2.5rem 1.5rem;
+  display: grid; gap: 1.25rem; grid-template-columns: 1fr; }
+@media (min-width: 768px) { .site-footer__inner { grid-template-columns: 2fr 1fr; align-items: start; } }
+.site-footer__mission { margin-top: .6rem; max-width: 32rem; color: var(--muted); font-size: .9rem; }
+.site-footer__links { display: flex; flex-wrap: wrap; gap: .35rem 1.1rem; }
+.site-footer__links a { color: var(--body); font-size: .9rem; }
+.site-footer__links a:hover { color: var(--ink); }
+.site-footer__legal { grid-column: 1 / -1; color: var(--faint); font-size: .8rem; border-top: 1px solid var(--line); padding-top: 1.1rem; }
+
+/* ── Buttons (CLAUDE.md §1 & §5): primary = ink pill; secondary = white + hairline ── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
+  border-radius: var(--r-pill); padding: .62rem 1.15rem; font-family: var(--font-display);
+  font-weight: 600; font-size: .9rem; line-height: 1; white-space: nowrap; cursor: pointer; border: 1px solid transparent;
+  transition: transform var(--dur-fast) var(--ease-snappy), box-shadow var(--dur-fast) var(--ease-snappy),
+    background var(--dur-fast), border-color var(--dur-fast), color var(--dur-fast); }
+.btn:active { transform: scale(.97); }
+.btn-sm { padding: .42rem .85rem; font-size: .84rem; }
+.btn-lg { padding: .8rem 1.5rem; font-size: 1rem; }
+.btn-primary { background: var(--ink); color: #fff; box-shadow: var(--shadow-1); }
+.btn-primary:hover { background: #000; transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.btn-secondary { background: var(--surface); color: var(--ink); border-color: var(--line-strong); }
+.btn-secondary:hover { border-color: var(--ink); transform: translateY(-1px); box-shadow: var(--shadow-2); }
+.btn-ghost { color: var(--muted); }
+.btn-ghost:hover { color: var(--ink); background: var(--surface-2); }
+
+/* ── Form fields ── */
+.input, .textarea, .select {
+  width: 100%; border: 1px solid var(--line-strong); background: var(--surface); color: var(--ink);
+  border-radius: var(--r-ctrl); padding: .6rem .8rem; font-family: inherit; font-size: .92rem; line-height: 1.4;
+  transition: border-color var(--dur-fast) var(--ease-snappy), box-shadow var(--dur-fast);
+}
+.input::placeholder, .textarea::placeholder { color: var(--faint); }
+.input:focus, .textarea:focus, .select:focus {
+  outline: none; border-color: var(--green);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--green) 20%, transparent);
+}
+.textarea { resize: vertical; min-height: 4.5rem; }
+
+/* ── Card ── */
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-card); box-shadow: var(--shadow-1); }
+.card-hover { transition: transform var(--dur-base) var(--ease-snappy), box-shadow var(--dur-base) var(--ease-snappy), border-color var(--dur-base); }
+.card-hover:hover { transform: translateY(-2px); box-shadow: var(--shadow-3); border-color: var(--line-strong); }
+
+/* ── Chip / tag ── */
+.chip { display: inline-flex; align-items: center; gap: .35rem; border-radius: var(--r-chip);
+  padding: .22rem .55rem; font-size: .72rem; font-weight: 600; line-height: 1; }
+.chip-line { border: 1px solid var(--line-strong); color: var(--muted); background: var(--surface); }
+.chip-open { color: var(--green-deep); background: color-mix(in srgb, var(--green) 13%, transparent); }
+.chip-muted { color: var(--muted); background: var(--surface-2); }
+
+/* ── Score (▲ net upvotes) ── */
+.score { display: inline-flex; align-items: center; gap: .25rem; font-variant-numeric: tabular-nums; font-weight: 700; }
+
+/* ── Progress fill (the "loud green" funding/verify moment, CLAUDE.md §5) ── */
+.meter { height: 8px; border-radius: 999px; background: var(--surface-2); overflow: hidden; border: 1px solid var(--line); }
+.meter__fill { height: 100%; border-radius: 999px; transform-origin: left;
+  background: linear-gradient(90deg, var(--green-deep), var(--green));
+  transition: transform var(--dur-slow) var(--ease-emphasized); }
+
+/* ── Prose (rendered markdown) ── */
+.prose-sm { font-size: .95rem; line-height: 1.7; color: var(--body); }
+.prose-sm :where(h1,h2,h3) { margin: 1.3em 0 .5em; }
+.prose-sm :where(p, ul, ol, blockquote, pre, table) { margin: .7em 0; }
+.prose-sm :where(ul, ol) { padding-left: 1.25em; }
+.prose-sm :where(ul) { list-style: disc; } .prose-sm :where(ol) { list-style: decimal; }
+.prose-sm :where(a) { color: var(--green-deep); text-underline-offset: 2px; text-decoration: underline; }
+.prose-sm :where(code) { font-size: .88em; background: var(--surface-2); padding: .1em .35em; border-radius: 6px; border: 1px solid var(--line); }
+.prose-sm :where(pre) { background: var(--surface-dk); color: var(--on-dark); padding: 1em; border-radius: var(--r-ctrl); overflow-x: auto; }
+.prose-sm :where(pre code) { background: none; border: 0; padding: 0; }
+.prose-sm :where(blockquote) { border-left: 3px solid var(--green); padding-left: 1em; color: var(--muted); font-family: var(--font-serif); font-style: italic; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

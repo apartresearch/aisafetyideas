@@ -36,6 +36,8 @@
 		"vitest": "^4.1.8"
 	},
 	"dependencies": {
+		"@fontsource-variable/lora": "^5.2.8",
+		"@fontsource-variable/sora": "^5.2.8",
 		"@supabase/ssr": "^0.10.3",
 		"@supabase/supabase-js": "^2.107.0",
 		"marked": "^18.0.5",

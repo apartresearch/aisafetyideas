@@ -51,7 +51,7 @@ test('golden loop: post → fund → answer → verify (payout moment) → admin
   const funder = await ctx(browser, ROLES.funder.state);
   const fp = await funder.newPage();
   await fp.goto(ideaUrl);
-  await fp.getByLabel('Fund this idea ($)').fill('50');
+  await fp.getByLabel('Pledge an amount').fill('50');
   await fp.getByRole('button', { name: 'Pledge' }).click();
   await expect(fp.locator('aside').getByText(/\$50\.00/).first()).toBeVisible();
 
