@@ -5,7 +5,8 @@ import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSession } }) => {
   const { user } = await safeGetSession();
   if (!user) redirect(303, '/login?next=/dashboard');
-  const tab = url.searchParams.get('tab') === 'discover' ? 'discover' : 'feed';
+  const rawTab = url.searchParams.get('tab');
+  const tab = rawTab === 'discover' ? 'discover' : rawTab === 'lab' ? 'lab' : 'feed';
 
   const { data: follows } = await supabase.from('follows').select('expert_id').eq('follower_id', user.id);
   const followedIds = (follows ?? []).map((f) => f.expert_id);
@@ -56,7 +57,13 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
   const chart = [...byIdea.values()];
   const totalCommittedCents = chart.reduce((sum, c) => sum + c.value, 0);
 
-  return { tab, hasFollows: followedIds.length > 0, feed, experts, myPledges, chart, totalCommittedCents };
+  // Lab tab: my drafts
+  const { data: drafts } = await supabase
+    .from('ideas').select('id, slug, title, summary_md, expansions')
+    .eq('author_id', user.id).eq('status', 'draft')
+    .order('created_at', { ascending: false });
+
+  return { tab, hasFollows: followedIds.length > 0, feed, experts, myPledges, chart, totalCommittedCents, drafts: drafts ?? [] };
 };
 
 export const actions: Actions = {

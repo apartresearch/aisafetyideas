@@ -1,15 +1,16 @@
 export type DraftRow = {
 	id: string; slug: string | null; title: string; pending: boolean; errored: boolean;
+	summary_md: string; expansions: any;
 };
 
 let tmpSeq = 0;
 
-export function createDraftsStore(initial: { id: string; slug: string; title: string }[]) {
-	const drafts = $state<DraftRow[]>(initial.map((d) => ({ ...d, pending: false, errored: false })));
+export function createDraftsStore(initial: { id: string; slug: string; title: string; summary_md?: string | null; expansions?: any }[]) {
+	const drafts = $state<DraftRow[]>(initial.map((d) => ({ ...d, summary_md: d.summary_md ?? '', expansions: d.expansions ?? {}, pending: false, errored: false })));
 
 	async function add(title: string) {
 		const tmpId = `tmp-${tmpSeq++}`;
-		drafts.unshift({ id: tmpId, slug: null, title, pending: true, errored: false });
+		drafts.unshift({ id: tmpId, slug: null, title, pending: true, errored: false, summary_md: '', expansions: {} });
 		const row = drafts[0];
 		try {
 			const res = await fetch('/api/drafts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ title }) });
