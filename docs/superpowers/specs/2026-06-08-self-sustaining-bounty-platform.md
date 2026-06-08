@@ -78,7 +78,8 @@ funders → more bounties. That's the flywheel.
   **no special "funder" role**.
 - **Off-platform wires:** when a grant/wire arrives outside Stripe, an **admin manually credits**
   the funder's balance — a ledger entry with no Stripe charge — so off-platform and on-platform
-  money reconcile in one place.
+  money reconcile in one place. The **platform fee applies to these too** (same fee split as Stripe
+  intake), for a uniform self-sustaining cut.
 
 ### 4.3 The fee = the self-sustaining mechanic
 A single config row (`platform_config.fee_bps`, default ~450–500 = 4.5–5%) is read everywhere fees
@@ -165,28 +166,23 @@ test/live keys are env-swapped.
 7. **Funder pitches:** the fee-vs-fund-us pitch and any launch funders.
 8. **Set `fee_bps`** to the agreed value at go-live (and the test value before).
 
-## 12. Open questions — my recommended default, flag = needs your call
+## 12. Decisions & remaining open questions
 
-These have a recommended resolution baked into the plan above; **confirm or override**:
+**RESOLVED (Esben, 2026-06-08):**
+1. **Fee timing** → ✅ **at funding** (donation). Fee → platform treasury; donor receipt = full gift.
+4. **Payout rail** → ✅ **Stripe Connect Express** (KYC + 1099/1042-S), manual grant as early fallback.
+5. **Open-ended payout** → ✅ **each verified answer gets its own owner-set payout** (the existing
+   `verify_answer(p_payout_amount_cents)` model); the pot is a funding pool, the owner allocates a
+   grant per verified answer. No automatic pot-splitting.
+10. **Fee on off-platform wires** → ✅ **fee applies to ALL funding** (Stripe and admin-credited
+    wires alike) — uniform self-sustaining cut.
 
-1. **Fee timing** → *at funding* (donation), fee→platform treasury, donor receipt = full gift.
-   *(Alt: at payout.)* **Confirm.**
-2. **Balance vs direct-fund** → support *both* (Manifund-style); off-platform wire = admin balance
-   credit. **Confirm.**
-3. **Review queue** → *reuse* the existing archived-status + `/admin/ideas` (already built); just
-   add notifications. **Confirm (no new table).**
-4. **Payout rail** → **Stripe Connect Express** (KYC + tax forms), manual grant as early fallback.
-   **Confirm.**
-5. **Single vs multi-winner** → keep current behavior: hypothesis auto-rejects others; open-ended
-   *allows multiple verified answers → multiple payouts*. **Confirm — does an open-ended bounty's
-   pot split across winners, or does each verified answer get a separate owner-set payout?**
+**Still open — defaults baked in; confirm or override (not blocking the ExecPlan draft):**
+2. **Balance vs direct-fund** → support *both* (Manifund-style). *(default)*
+3. **Review queue** → *reuse* existing archived-status + `/admin/ideas`; add notifications only,
+   no new table. *(default)*
 6. **Auto-resolve on timeout** → default **refund funders** when an idea closes unanswered.
-   *(Alt: hold.)* **Confirm.**
-7. **Min withdrawal threshold** → configurable, default e.g. $1. **Confirm the number.**
-8. **Tax docs** → handled via Connect onboarding; we store *status*, not documents. **Confirm.**
-9. **Earnings definition** → "lifetime earned" = released **and** admin-approved grants only (not
-   merely owner-verified). **Confirm.**
-10. **Fee on off-platform wires?** → does the platform fee apply to admin-credited off-platform
-    funding, or only to Stripe intake? **Needs your call.**
-11. **Invite link semantics** → single-use vs multi-use vs per-email; default **limited-use +
-    optional expiry**. **Confirm.**
+7. **Min withdrawal threshold** → configurable, default **$1**.
+8. **Tax docs** → via Connect onboarding; store *status*, not documents.
+9. **Earnings definition** → lifetime earned = **released + admin-approved** grants only.
+11. **Invite link semantics** → **limited-use + optional expiry** (admin sets max-uses/expiry).
