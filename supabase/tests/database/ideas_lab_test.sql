@@ -1,13 +1,14 @@
 begin;
-select plan(12);
+select plan(14);
 
 -- ============ fixtures ============
--- Seed three users; the on_auth_user_created trigger auto-creates their profiles.
+-- Seed four users; the on_auth_user_created trigger auto-creates their profiles.
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
 values
   ('00000000-0000-0000-0000-000000000000','aaaa0001-0000-0000-0000-000000000001','authenticated','authenticated','lab_alice@example.com','x', now(), now(), now()),
   ('00000000-0000-0000-0000-000000000000','aaaa0002-0000-0000-0000-000000000002','authenticated','authenticated','lab_bob@example.com','x', now(), now(), now()),
-  ('00000000-0000-0000-0000-000000000000','aaaa0003-0000-0000-0000-000000000003','authenticated','authenticated','lab_charlie@example.com','x', now(), now(), now());
+  ('00000000-0000-0000-0000-000000000000','aaaa0003-0000-0000-0000-000000000003','authenticated','authenticated','lab_charlie@example.com','x', now(), now(), now()),
+  ('00000000-0000-0000-0000-000000000000','aaaa0004-0000-0000-0000-000000000004','authenticated','authenticated','lab_diana@example.com','x', now(), now(), now());
 
 -- alice = approved expert
 insert into public.experts (id, status) values ('aaaa0001-0000-0000-0000-000000000001', 'approved');
@@ -15,6 +16,11 @@ insert into public.experts (id, status) values ('aaaa0001-0000-0000-0000-0000000
 -- charlie = active supporter (supporter_until in the future)
 update public.profiles set supporter_until = now() + interval '30 days'
   where id = 'aaaa0003-0000-0000-0000-000000000003';
+
+-- diana = admin (no expert record, no supporter_until)
+reset role;
+update public.profiles set is_admin = true
+  where id = 'aaaa0004-0000-0000-0000-000000000004';
 
 -- ============ INSERT gate tests ============
 
@@ -125,6 +131,26 @@ select is(
   1,
   '11: author cannot delete a non-draft idea (archived row survives)'
 );
+
+-- ============ admin override tests ============
+
+-- 12: admin publishing a draft → open (admins bypass the expert check)
+set local role authenticated;
+set local "request.jwt.claims" = '{"sub":"aaaa0004-0000-0000-0000-000000000004","role":"authenticated"}';
+
+insert into public.ideas (id, author_id, type, title, status)
+  values ('bbbb0012-0000-0000-0000-000000000012','aaaa0004-0000-0000-0000-000000000004','open_ended','diana draft','draft');
+
+update public.ideas set status = 'open' where id = 'bbbb0012-0000-0000-0000-000000000012';
+select is(
+  (select status from public.ideas where id = 'bbbb0012-0000-0000-0000-000000000012'),
+  'open',
+  '12: admin UPDATE draft→open → stays open (admin bypasses expert check)'
+);
+
+-- 13: can_use_lab_ai() returns true for admin (no expert record, no supporter_until)
+set local "request.jwt.claims" = '{"sub":"aaaa0004-0000-0000-0000-000000000004","role":"authenticated"}';
+select ok(public.can_use_lab_ai(), '13: admin can use lab AI');
 
 select * from finish();
 rollback;

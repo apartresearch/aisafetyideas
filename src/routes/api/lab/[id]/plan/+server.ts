@@ -17,7 +17,7 @@ export const POST: RequestHandler = async ({ params, request, locals: { supabase
 	const body = await request.json().catch(() => ({}));
 	const kind: 'exec' | 'readable' = body.kind === 'readable' ? 'readable' : 'exec';
 
-	const { data: idea, error: ge } = await supabase.from('ideas').select('id, title, summary_md, expansions').eq('id', params.id).single();
+	const { data: idea, error: ge } = await supabase.from('ideas').select('id, title, summary_md, expansions').eq('id', params.id).eq('author_id', user.id).eq('status', 'draft').single();
 	if (ge || !idea) return json({ message: 'Draft not found' }, { status: 404 });
 
 	let md: string;

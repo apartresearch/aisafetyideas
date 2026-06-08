@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 vi.mock('ai', () => ({
   generateText: vi.fn().mockResolvedValue({ text: 'hello' }),
-  generateObject: vi.fn().mockResolvedValue({ object: { ok: true } })
+  generateObject: vi.fn().mockResolvedValue({ object: { ok: true } }),
+  gateway: vi.fn(() => 'mock-model')
 }));
 vi.mock('$env/dynamic/private', () => ({ env: { AI_GATEWAY_API_KEY: 'test-key' } }));
 import { generate, generateStructured } from './ai';

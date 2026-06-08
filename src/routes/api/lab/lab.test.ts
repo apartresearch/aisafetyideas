@@ -5,19 +5,26 @@ vi.mock('$lib/server/ai', () => ({
 	generate: vi.fn().mockResolvedValue('PLAN')
 }));
 vi.mock('$lib/server/lab/access', () => ({ canUseLabAi: vi.fn().mockResolvedValue(true) }));
+vi.mock('$lib/server/rate-limit', () => ({ rateLimit: vi.fn().mockResolvedValue({ ok: true }) }));
 
 import { POST } from './[id]/review/+server';
 import { POST as planPOST } from './[id]/plan/+server';
 import { canUseLabAi } from '$lib/server/lab/access';
 import { generateStructured } from '$lib/server/ai';
+import { rateLimit } from '$lib/server/rate-limit';
+
+/** Returns an infinitely chainable eq/single stub. */
+function eqChain(leaf: () => any): any {
+	const chain: any = { eq: () => chain, single: leaf };
+	return chain;
+}
 
 function ev(rpcOk = true) {
 	const idea = { id: 'i1', title: 'T', summary_md: 'n', expansions: {} };
-	const single = () => Promise.resolve({ data: idea, error: null });
 	const supabase: any = {
 		rpc: vi.fn().mockResolvedValue({ data: rpcOk, error: null }),
 		from: vi.fn(() => ({
-			select: () => ({ eq: () => ({ single }) }),
+			select: () => eqChain(() => Promise.resolve({ data: idea, error: null })),
 			update: () => ({ eq: () => ({ eq: () => Promise.resolve({ error: null }) }) })
 		}))
 	};
@@ -26,12 +33,11 @@ function ev(rpcOk = true) {
 
 function planEv(body: object = { kind: 'exec' }) {
 	const idea = { id: 'i1', title: 'T', summary_md: 'n', expansions: {} };
-	const single = () => Promise.resolve({ data: idea, error: null });
 	let capturedExpansions: any;
 	const supabase: any = {
 		rpc: vi.fn().mockResolvedValue({ data: true, error: null }),
 		from: vi.fn(() => ({
-			select: () => ({ eq: () => ({ single }) }),
+			select: () => eqChain(() => Promise.resolve({ data: idea, error: null })),
 			update: (upd: any) => { capturedExpansions = upd.expansions; return { eq: () => ({ eq: () => Promise.resolve({ error: null }) }) }; }
 		}))
 	};
@@ -54,6 +60,14 @@ describe('POST /api/lab/[id]/review', () => {
 		vi.mocked(generateStructured).mockClear();
 		const res = await POST(ev());
 		expect(res.status).toBe(403);
+		expect(generateStructured).not.toHaveBeenCalled();
+	});
+
+	it('returns 429 and does not call generateStructured when rateLimit returns ok:false', async () => {
+		vi.mocked(rateLimit).mockResolvedValueOnce({ ok: false });
+		vi.mocked(generateStructured).mockClear();
+		const res = await POST(ev());
+		expect(res.status).toBe(429);
 		expect(generateStructured).not.toHaveBeenCalled();
 	});
 });

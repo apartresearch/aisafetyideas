@@ -12,7 +12,7 @@ export const POST: RequestHandler = async ({ params, locals: { supabase, safeGet
 	if (!(await rateLimit(supabase, 'ai_generate')).ok) return json({ message: 'AI rate limit reached' }, { status: 429 });
 
 	const { data: idea, error: ge } = await supabase.from('ideas')
-		.select('id, title, summary_md, expansions').eq('id', params.id).single();
+		.select('id, title, summary_md, expansions').eq('id', params.id).eq('author_id', user.id).eq('status', 'draft').single();
 	if (ge || !idea) return json({ message: 'Draft not found' }, { status: 404 });
 
 	let round;
@@ -22,7 +22,7 @@ export const POST: RequestHandler = async ({ params, locals: { supabase, safeGet
 		return json({ message: (e as Error).message || 'AI failed' }, { status: 502 });
 	}
 	const prev = Array.isArray((idea.expansions as any)?.critiques) ? (idea.expansions as any).critiques : [];
-	const entry = { round: prev.length + 1, reviewers: round.reviewers };
+	const entry = { round: prev.length + 1, at: new Date().toISOString(), reviewers: round.reviewers };
 	const expansions = { ...(idea.expansions as any), critiques: [...prev, entry] };
 	const { error: ue } = await supabase.from('ideas').update({ expansions }).eq('id', params.id).eq('status', 'draft');
 	if (ue) return json({ message: ue.message }, { status: 400 });
