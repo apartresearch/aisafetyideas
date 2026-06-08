@@ -307,6 +307,47 @@ export type Database = {
           },
         ]
       }
+      expert_invites: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          max_uses: number
+          specialty: string | null
+          token: string
+          used_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          specialty?: string | null
+          token: string
+          used_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          specialty?: string | null
+          token?: string
+          used_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_invites_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       experts: {
         Row: {
           approved_at: string | null
@@ -1105,6 +1146,24 @@ export type Database = {
         Args: { p_entries: Json; p_idempotency_key?: string }
         Returns: undefined
       }
+      redeem_expert_invite: {
+        Args: { p_token: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          featured: boolean
+          id: string
+          specialty: string | null
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "experts"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       refund_funder: {
         Args: { p_funding_id: string; p_idempotency_key: string }
         Returns: undefined
@@ -1407,4 +1466,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-
