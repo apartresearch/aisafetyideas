@@ -1,5 +1,5 @@
 begin;
-select plan(9);
+select plan(12);
 
 -- ============ fixtures ============
 -- Seed three users; the on_auth_user_created trigger auto-creates their profiles.
@@ -97,6 +97,34 @@ update public.profiles set supporter_until = now() - interval '1 day'
 set local role authenticated;
 set local "request.jwt.claims" = '{"sub":"aaaa0003-0000-0000-0000-000000000003","role":"authenticated"}';
 select ok(not public.can_use_lab_ai(), '9: expired supporter cannot use lab AI');
+
+-- ============ draft-delete policy tests ============
+
+-- 10: non-expert author can delete their own draft
+--     bob already has a draft (bbbb0002 was coerced to archived; use a fresh draft)
+set local "request.jwt.claims" = '{"sub":"aaaa0002-0000-0000-0000-000000000002","role":"authenticated"}';
+insert into public.ideas (id, author_id, type, title, status)
+  values ('bbbb0010-0000-0000-0000-000000000010','aaaa0002-0000-0000-0000-000000000002','open_ended','bob draft to delete','draft');
+
+select lives_ok(
+  $$ delete from public.ideas where id = 'bbbb0010-0000-0000-0000-000000000010' $$,
+  '10: author can delete their own draft idea'
+);
+select is(
+  (select count(*)::int from public.ideas where id = 'bbbb0010-0000-0000-0000-000000000010'),
+  0,
+  '10b: draft row is gone after author delete'
+);
+
+-- 11: author cannot delete a non-draft of theirs (silently 0 rows, no error)
+--     bbbb0002 was coerced to archived; bob cannot delete it
+set local "request.jwt.claims" = '{"sub":"aaaa0002-0000-0000-0000-000000000002","role":"authenticated"}';
+delete from public.ideas where id = 'bbbb0002-0000-0000-0000-000000000002';
+select is(
+  (select count(*)::int from public.ideas where id = 'bbbb0002-0000-0000-0000-000000000002'),
+  1,
+  '11: author cannot delete a non-draft idea (archived row survives)'
+);
 
 select * from finish();
 rollback;

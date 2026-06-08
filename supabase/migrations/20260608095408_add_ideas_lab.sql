@@ -102,3 +102,8 @@ end $$;
 
 revoke execute on function public.consume_rate_limit(text) from public, anon;
 grant execute on function public.consume_rate_limit(text) to authenticated;
+
+-- 7) Authors may delete their own draft ideas (only drafts; published rows are immutable by authors).
+create policy "authors delete own draft ideas" on public.ideas
+  for delete to authenticated
+  using ((select auth.uid()) = author_id and status = 'draft');

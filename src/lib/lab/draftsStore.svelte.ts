@@ -21,7 +21,11 @@ export function createDraftsStore(initial: { id: string; slug: string; title: st
 
 	function remove(id: string) {
 		const i = drafts.findIndex((d) => d.id === id);
-		if (i >= 0) { const [r] = drafts.splice(i, 1); fetch(`/api/drafts/${id}`, { method: 'DELETE' }); return r; }
+		if (i >= 0) {
+			const [r] = drafts.splice(i, 1);
+			if (!id.startsWith('tmp-')) fetch(`/api/drafts/${id}`, { method: 'DELETE' });
+			return r;
+		}
 	}
 
 	return { drafts, add, remove };

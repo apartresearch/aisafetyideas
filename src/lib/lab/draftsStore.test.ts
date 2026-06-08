@@ -21,4 +21,23 @@ describe('draftsStore', () => {
 		await s.add('X');
 		expect(s.drafts[0].errored).toBe(true);
 	});
+	it('remove(tmp-*) splices locally without calling DELETE', () => {
+		const mockFetch = vi.fn();
+		vi.stubGlobal('fetch', mockFetch);
+		const s = createDraftsStore([]);
+		// manually push a tmp row (simulates the in-flight state)
+		(s.drafts as any).push({ id: 'tmp-0', slug: null, title: 'Unsaved', pending: true, errored: false });
+		expect(s.drafts.length).toBe(1);
+		s.remove('tmp-0');
+		expect(s.drafts.length).toBe(0);
+		expect(mockFetch).not.toHaveBeenCalled();
+	});
+	it('remove(real-id) calls DELETE and splices', () => {
+		const mockFetch = vi.fn().mockResolvedValue({});
+		vi.stubGlobal('fetch', mockFetch);
+		const s = createDraftsStore([{ id: 'real-1', slug: 'sl', title: 'Saved' }]);
+		s.remove('real-1');
+		expect(s.drafts.length).toBe(0);
+		expect(mockFetch).toHaveBeenCalledWith('/api/drafts/real-1', { method: 'DELETE' });
+	});
 });

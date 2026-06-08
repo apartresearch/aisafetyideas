@@ -24,7 +24,7 @@ export const POST: RequestHandler = async ({ params, locals: { supabase, safeGet
 	const prev = Array.isArray((idea.expansions as any)?.critiques) ? (idea.expansions as any).critiques : [];
 	const entry = { round: prev.length + 1, reviewers: round.reviewers };
 	const expansions = { ...(idea.expansions as any), critiques: [...prev, entry] };
-	const { error: ue } = await supabase.from('ideas').update({ expansions }).eq('id', params.id);
+	const { error: ue } = await supabase.from('ideas').update({ expansions }).eq('id', params.id).eq('status', 'draft');
 	if (ue) return json({ message: ue.message }, { status: 400 });
 	return json({ round: entry });
 };

@@ -26,7 +26,7 @@ export const POST: RequestHandler = async ({ params, request, locals: { supabase
 
 	const key = kind === 'exec' ? 'exec_plan_md' : 'readable_plan_md';
 	const expansions = { ...(idea.expansions as any), [key]: { md, at: new Date().toISOString() } };
-	const { error: ue } = await supabase.from('ideas').update({ expansions }).eq('id', params.id);
+	const { error: ue } = await supabase.from('ideas').update({ expansions }).eq('id', params.id).eq('status', 'draft');
 	if (ue) return json({ message: ue.message }, { status: 400 });
 	return json({ kind, md });
 };
