@@ -4,6 +4,7 @@
   import AnswerCard from '$lib/components/AnswerCard.svelte';
   import Money from '$lib/components/Money.svelte';
   import Markdown from '$lib/components/Markdown.svelte';
+  import IdeaTemplateSections from '$lib/components/IdeaTemplateSections.svelte';
   let { data, form } = $props();
   let signinHref = $derived('/login?next=' + encodeURIComponent('/ideas/' + data.idea.slug));
 
@@ -51,6 +52,12 @@
         <p class="idea-hero__claim font-serif">“{data.idea.claim}”</p>
       {/if}
       {#if data.summary_html}<Markdown html={data.summary_html} class="idea-hero__body" />{/if}
+      <IdeaTemplateSections
+        resolution_criteria_html={data.resolution_criteria_html}
+        methodology_html={data.methodology_html}
+        theory_of_change_html={data.theory_of_change_html}
+        extensions_html={data.extensions_html}
+      />
       {#if data.categories.length}
         <div class="idea-hero__cats">
           {#each data.categories as c}<span class="chip chip-line">{c.title}</span>{/each}

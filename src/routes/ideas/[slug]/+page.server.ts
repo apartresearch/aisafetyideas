@@ -9,7 +9,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
   const { user } = await safeGetSession();
   const { data: idea } = await supabase
     .from('ideas')
-    .select('id, slug, title, summary_md, claim, type, status, resolution, estimated_hours, importance, source_url, author_id, currency')
+    .select('id, slug, title, summary_md, claim, type, status, resolution, estimated_hours, importance, source_url, author_id, currency, resolution_criteria_md, methodology_md, theory_of_change_md, extensions_md')
     .eq(ideaParamColumn(params.slug), params.slug)
     .single();
   if (!idea) error(404, 'Idea not found');
@@ -113,6 +113,10 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
   return {
     idea,
     summary_html: renderMarkdown(idea.summary_md),
+    resolution_criteria_html: idea.resolution_criteria_md ? renderMarkdown(idea.resolution_criteria_md) : '',
+    methodology_html: idea.methodology_md ? renderMarkdown(idea.methodology_md) : '',
+    theory_of_change_html: idea.theory_of_change_md ? renderMarkdown(idea.theory_of_change_md) : '',
+    extensions_html: idea.extensions_md ? renderMarkdown(idea.extensions_md) : '',
     author,
     categories: (cats ?? []).map((c: any) => c.categories),
     answers,

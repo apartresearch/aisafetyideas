@@ -22,6 +22,38 @@
   let newType = $state('open_ended');
   let newClaim = $state('');
   let newSummary = $state('');
+  let newResolutionCriteria = $state('');
+  let newMethodology = $state('');
+  let newTheoryOfChange = $state('');
+  let newExtensions = $state('');
+
+  // AI structure audit affordance
+  let auditHint = $state<{ missingSections: string[]; notes: string[] } | null>(null);
+  let auditMsg = $state('');   // soft message (e.g. "AI check is for experts/supporters")
+  let auditLoading = $state(false);
+
+  async function checkStructure() {
+    auditHint = null;
+    auditMsg = '';
+    const text = [newSummary, newResolutionCriteria, newMethodology, newTheoryOfChange, newExtensions]
+      .filter(Boolean).join('\n\n');
+    if (!text.trim()) { auditMsg = 'Add some content first.'; return; }
+    auditLoading = true;
+    try {
+      const res = await fetch('/api/audit', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ kind: 'idea', text }),
+      });
+      if (res.status === 403) { auditMsg = 'AI check is available for experts and supporters.'; return; }
+      if (!res.ok) { auditMsg = 'AI check unavailable right now.'; return; }
+      auditHint = await res.json();
+    } catch {
+      auditMsg = 'Could not reach the AI check — try again.';
+    } finally {
+      auditLoading = false;
+    }
+  }
 
   function enhancer(id: string, kind: OutcomeKind, label: string) {
     return makeOutcomeEnhancer({
@@ -55,7 +87,39 @@
   </select>
   <input name="claim" placeholder="Hypothesis claim (if hypothesis)" bind:value={newClaim} class="rounded-xl border px-3 py-2" style="border-color:var(--line)" />
   <textarea name="summary_md" placeholder="Summary (markdown)" bind:value={newSummary} class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
-  <button class="self-start rounded-xl px-4 py-2 font-medium" style="background:var(--ink); color:#fff">Publish</button>
+  <textarea name="resolution_criteria_md" placeholder="Resolution criteria (optional, markdown)" bind:value={newResolutionCriteria} class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
+  <textarea name="methodology_md" placeholder="Methodology (optional, markdown)" bind:value={newMethodology} class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
+  <textarea name="theory_of_change_md" placeholder="Theory of change (optional, markdown)" bind:value={newTheoryOfChange} class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
+  <textarea name="extensions_md" placeholder="Extensions / future directions (optional, markdown)" bind:value={newExtensions} class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
+  <div class="flex flex-wrap items-center gap-2">
+    <button class="self-start rounded-xl px-4 py-2 font-medium" style="background:var(--ink); color:#fff">Publish</button>
+    <button type="button" class="rounded-xl border px-3 py-1.5 text-sm font-medium"
+            style="border-color:var(--line); color:var(--body)"
+            onclick={checkStructure} disabled={auditLoading}>
+      {auditLoading ? 'Checking…' : 'Check structure'}
+    </button>
+  </div>
+  {#if auditMsg}
+    <p class="text-sm" style="color:var(--muted)">{auditMsg}</p>
+  {/if}
+  {#if auditHint}
+    <div class="rounded-xl border p-3 text-sm" style="border-color:var(--line); background:var(--surface-2)">
+      {#if auditHint.missingSections.length}
+        <p class="mb-1 font-medium" style="color:var(--body)">Missing or thin sections:</p>
+        <ul class="mb-2 list-disc pl-4" style="color:var(--body)">
+          {#each auditHint.missingSections as s}<li>{s}</li>{/each}
+        </ul>
+      {/if}
+      {#if auditHint.notes.length}
+        <p class="mb-1 font-medium" style="color:var(--body)">Notes:</p>
+        <ul class="list-disc pl-4" style="color:var(--muted)">
+          {#each auditHint.notes as n}<li>{n}</li>{/each}
+        </ul>
+      {/if}
+      <button type="button" class="mt-2 text-xs" style="color:var(--faint)"
+              onclick={() => { auditHint = null; }}>Dismiss</button>
+    </div>
+  {/if}
 </form>
 
 <h2 class="mb-2 font-bold" style="color:var(--ink)">Review queue</h2>

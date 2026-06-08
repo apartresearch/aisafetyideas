@@ -608,17 +608,21 @@ export type Database = {
           currency: string
           estimated_hours: number | null
           expansions: Json
+          extensions_md: string | null
           from_date: string | null
           id: string
           importance: number | null
           legacy: Json
           legacy_id: number | null
+          methodology_md: string | null
           published_at: string | null
           resolution: string | null
+          resolution_criteria_md: string | null
           slug: string
           source_url: string | null
           status: string
           summary_md: string | null
+          theory_of_change_md: string | null
           title: string
           type: string
           updated_at: string
@@ -633,17 +637,21 @@ export type Database = {
           currency?: string
           estimated_hours?: number | null
           expansions?: Json
+          extensions_md?: string | null
           from_date?: string | null
           id?: string
           importance?: number | null
           legacy?: Json
           legacy_id?: number | null
+          methodology_md?: string | null
           published_at?: string | null
           resolution?: string | null
+          resolution_criteria_md?: string | null
           slug?: string
           source_url?: string | null
           status?: string
           summary_md?: string | null
+          theory_of_change_md?: string | null
           title: string
           type?: string
           updated_at?: string
@@ -658,17 +666,21 @@ export type Database = {
           currency?: string
           estimated_hours?: number | null
           expansions?: Json
+          extensions_md?: string | null
           from_date?: string | null
           id?: string
           importance?: number | null
           legacy?: Json
           legacy_id?: number | null
+          methodology_md?: string | null
           published_at?: string | null
           resolution?: string | null
+          resolution_criteria_md?: string | null
           slug?: string
           source_url?: string | null
           status?: string
           summary_md?: string | null
+          theory_of_change_md?: string | null
           title?: string
           type?: string
           updated_at?: string

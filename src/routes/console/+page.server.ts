@@ -53,10 +53,18 @@ export const actions: Actions = {
     const title = String(fd.get('title') ?? '').trim();
     if (!title) return fail(400, { message: 'Title required' });
     const type = fd.get('type') === 'hypothesis' ? 'hypothesis' : 'open_ended';
+    const resolutionCriteria = String(fd.get('resolution_criteria_md') ?? '').trim() || null;
+    const methodology = String(fd.get('methodology_md') ?? '').trim() || null;
+    const theoryOfChange = String(fd.get('theory_of_change_md') ?? '').trim() || null;
+    const extensions = String(fd.get('extensions_md') ?? '').trim() || null;
     const { data, error: e } = await supabase.from('ideas').insert({
       author_id: user.id, title, type,
       summary_md: String(fd.get('summary_md') ?? ''),
       claim: type === 'hypothesis' ? String(fd.get('claim') ?? '') : null,
+      resolution_criteria_md: resolutionCriteria,
+      methodology_md: methodology,
+      theory_of_change_md: theoryOfChange,
+      extensions_md: extensions,
       status: 'open', published_at: new Date().toISOString()
     }).select('slug').single();   // slug is assigned by the ideas_set_slug trigger
     if (e) return fail(400, { message: e.message });

@@ -7,7 +7,15 @@
     form,
   }: {
     open: boolean;
-    draft: { id: string; title: string; summary_md: string };
+    draft: {
+      id: string;
+      title: string;
+      summary_md: string;
+      resolution_criteria_md?: string | null;
+      methodology_md?: string | null;
+      theory_of_change_md?: string | null;
+      extensions_md?: string | null;
+    };
     form: { submitted?: boolean; id?: string; message?: string } | null;
   } = $props();
 
@@ -17,6 +25,14 @@
   let claim = $state('');
   // svelte-ignore state_referenced_locally
   let summaryMd = $state(draft.summary_md ?? '');
+  // svelte-ignore state_referenced_locally
+  let resolutionCriteriaMd = $state(draft.resolution_criteria_md ?? '');
+  // svelte-ignore state_referenced_locally
+  let methodologyMd = $state(draft.methodology_md ?? '');
+  // svelte-ignore state_referenced_locally
+  let theoryOfChangeMd = $state(draft.theory_of_change_md ?? '');
+  // svelte-ignore state_referenced_locally
+  let extensionsMd = $state(draft.extensions_md ?? '');
   let submitting = $state(false);
 
   function close() { open = false; }
@@ -107,6 +123,54 @@
               bind:value={summaryMd}
               rows={5}
               placeholder="Describe your idea for the public listing…"
+            ></textarea>
+          </div>
+
+          <div class="pd-field">
+            <label class="u-label" for="pd-resolution-criteria">Resolution criteria <span style="color:var(--faint); font-weight:400">(optional)</span></label>
+            <textarea
+              id="pd-resolution-criteria"
+              name="resolution_criteria_md"
+              class="textarea"
+              bind:value={resolutionCriteriaMd}
+              rows={3}
+              placeholder="How would we know this question is answered?"
+            ></textarea>
+          </div>
+
+          <div class="pd-field">
+            <label class="u-label" for="pd-methodology">Methodology <span style="color:var(--faint); font-weight:400">(optional)</span></label>
+            <textarea
+              id="pd-methodology"
+              name="methodology_md"
+              class="textarea"
+              bind:value={methodologyMd}
+              rows={3}
+              placeholder="Suggested approaches or methods…"
+            ></textarea>
+          </div>
+
+          <div class="pd-field">
+            <label class="u-label" for="pd-theory-of-change">Theory of change <span style="color:var(--faint); font-weight:400">(optional)</span></label>
+            <textarea
+              id="pd-theory-of-change"
+              name="theory_of_change_md"
+              class="textarea"
+              bind:value={theoryOfChangeMd}
+              rows={3}
+              placeholder="How does solving this improve AI safety?"
+            ></textarea>
+          </div>
+
+          <div class="pd-field">
+            <label class="u-label" for="pd-extensions">Extensions <span style="color:var(--faint); font-weight:400">(optional)</span></label>
+            <textarea
+              id="pd-extensions"
+              name="extensions_md"
+              class="textarea"
+              bind:value={extensionsMd}
+              rows={3}
+              placeholder="Related questions or future directions…"
             ></textarea>
           </div>
 
