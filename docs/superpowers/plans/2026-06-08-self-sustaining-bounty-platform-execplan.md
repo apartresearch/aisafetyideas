@@ -12,8 +12,86 @@
 (`src/lib/server/ai.ts`), vitest + Playwright. **No service-role client anywhere.**
 
 **Reuse (do not duplicate):** `idea_funding` + `bounty_pot`, `answers` + answer RPCs +
-`answer_reviews`, `experts` + `is_admin()`, `/console` + `/admin/payouts` + `/admin/ideas`,
+`answer_reviews`, `experts` + `is_admin()`, `/console` + `/admin/payouts`,
 `consume_rate_limit`, `Money.svelte`/`BountyMeter.svelte`/`formatCents`, the design tokens.
+
+> **⚠ Cross-branch dependency (verified 2026-06-08 against `docs-money-platform-plan`).** Phase 6
+> reuses the **Lab AI seam `src/lib/server/ai.ts`**, the **Lab draft editor + `PublishDialog`**, and
+> the **`/admin/ideas`** moderation route. **None of these exist on this branch** — they live on the
+> unmerged `feat-ideas-lab` branch. Phase 6 therefore has a hard prerequisite: **merge `feat-ideas-lab`
+> to `main` before starting Phase 6**, or Phase 6 must add its own `ai.ts` seam. Phases 0–5 and 7 have
+> no dependency on Lab code. Every other reuse target below was confirmed present on this branch.
+
+---
+
+## Current-code diff + verification matrix
+
+This is the source of truth for *what changes* and *the test that proves it changed*. Every row's
+test is written to **fail against the code on this branch today** (see "Fails today because…") and
+**pass only after** the row's change lands — see **Verification discipline** below for the rule.
+
+Object existence was verified by reading the migrations and `src/` on `docs-money-platform-plan`.
+
+| Ph | Target artifact | Exists today? | Diff: current → target | Red→green test (fails on old, passes on new) |
+|----|-----------------|---------------|------------------------|----------------------------------------------|
+| 0 | `platform_config` table | **No** | — → 1-row config (`fee_bps`, `funding_enabled`, `min_withdrawal_cents`), world-read / admin-write | `platform_config_test.sql`: `has_table` (fails today — table absent); exactly-1-row; non-admin UPDATE denied, admin allowed |
+| 0 | `src/lib/fee.ts` `splitFee` | **No** (only `money.ts:23 formatCents`) | — → pure `splitFee(amt,bps)→{feeCents,netCents}` | `fee.test.ts`: `splitFee(10000,450)→{450,9550}`, `(x,0)→{0,x}`, `fee+net===amt` fuzz. Fails today: module not found |
+| 0 | `src/lib/server/config.ts` `getPlatformConfig` | **No** | — → cached-per-request reader | covered by Phase-2 integration; unit: returns seeded defaults. Fails today: module not found |
+| 1 | `ledger_entries` + `account_balances` view + `post_ledger()` | **No** | — → append-only double-entry ledger + derived balances + DEFINER poster | `ledger_test.sql`: `has_table`/`has_function` (fail today); per-txn sum=0 invariant; idempotency_key replay = no-op; client INSERT/UPDATE/DELETE RLS-denied; balance view = hand-sum |
+| 1 | `src/lib/server/ledger.ts` `getBalances`/`getLedger` | **No** | — → typed read helpers | unit + Phase-2 integration. Fails today: module not found |
+| 2 | `credit_balance` / `escrow_pledge` / `release_grant` / `refund_funder` / `admin_credit_offplatform` RPCs | **No** | — → DEFINER, pinned `search_path`, idempotent, ledger-posting | `money_rpcs_test.sql`: `has_function` ×5 (fail today); full lifecycle balanced; fee→`platform_treasury`; non-admin denied release/admin RPCs; all no-op when `funding_enabled=false` |
+| 2 | `admin_approve_payout` (in `answer_rpcs.sql:153`) | **Yes** — records decision only (`admin_approved_at`), posts nothing to money | extend → also call `release_grant` when `funding_enabled`; **charitable gate kept** | `money_rpcs_test.sql`: after existing verify→approve with funding on, `idea_funding`→`released` + a `payable` ledger row exists. Fails today: no ledger row is created (function doesn't touch money) |
+| 3 | `src/lib/server/stripe.ts` seam | **No** | — → mockable Stripe client (like the Lab `ai.ts` pattern) | `stripe.test.ts` exercises the mock. Fails today: module not found |
+| 3 | `/api/fund/+server.ts` | **No** | — → `POST`→Checkout session (auth + `rateLimit('donate')` + `funding_enabled`) | `fund.test.ts`: guards + session creation (Stripe mocked). Fails today: route 404 |
+| 3 | `/api/webhooks/stripe/+server.ts` | **No** | — → sig-verify + dedupe → `credit_balance` | `stripe.test.ts`: bad sig→400; replayed `event.id`→no-op. integration: webhook→`credit_balance`→balances |
+| 3 | `stripe_events` / `stripe_customers` tables | **No** | — → dedupe + customer map | `stripe_test.sql`: `has_table` ×2 (fail today) |
+| 3 | `donate` rate bucket — **two files** | **No** (`rate_limits.sql:34` case + `rate-limit.ts:10 BUCKETS` both lack it) | add arm in SQL `case` **and** `'donate'` in TS `BUCKETS` | `rate_limits_test.sql`: `consume_rate_limit('donate')` does **not** raise. Fails today: raises `unknown rate-limit bucket: donate` |
+| 3 | `ideas/[slug]/+page.svelte` fund panel | **Yes** — "Pledge an amount" → inserts `idea_funding` committed (action at `+page.server.ts:121`) | when `funding_enabled`: "Fund this idea"→Checkout; else current pledge | `funding.spec.ts` (extended): Checkout redirect when on; pledge fallback when off |
+| 4 | `stripe_connect_accounts` + `request_withdrawal` RPC | **No** | — → onboarding state + DEFINER withdrawal poster | `connect_test.sql`: `has_table`/`has_function` (fail today); withdraw blocked above `payable`, below `min`, or `payouts_enabled=false`; idempotent |
+| 4 | `/api/connect/onboard` + `/api/withdraw` | **No** | — → Connect link + withdraw POST | `withdraw.test.ts`/`connect.test.ts` (Stripe mocked); e2e onboard→withdraw. Fails today: route 404 |
+| 4 | `withdraw` + `kyc` rate buckets — **two files** | **No** | add to SQL `case` **and** TS `BUCKETS` | `rate_limits_test.sql`: both buckets don't raise. Fails today: `unknown rate-limit bucket` |
+| 4 | dashboard "Payouts" section | **No** (`dashboard/+page.server.ts` has follows/funding, no balance) | — → balance + onboard/withdraw CTA + history | `dashboard.spec.ts` (extended): payable balance + withdraw CTA render |
+| 5 | `expert_invites` + `redeem_expert_invite()` | **No** (`experts` table ready: `status`/`approved_by` at `identity.sql:32`) | — → invite tokens + DEFINER redeem→approved expert | `expert_invites_test.sql`: `has_table`/`has_function` (fail today); redeem→`experts.status='approved'`; expired/maxed/invalid refused; non-admin can't create |
+| 5 | `/admin/invites` + `/invite/[token]` + `/onboarding/expert` | **No** | — → create/list/revoke + capture+redeem + onboarding | `invite-flow.spec.ts`: open link→signup→publish straight to `open`. Fails today: route 404 |
+| 6 | `ideas` template columns (`resolution_criteria_md`, `methodology_md`, `theory_of_change_md`, `extensions_md`) | **No** (`ideas` has `summary_md`/`claim` only, `ideas.sql:23`) | — → 4 nullable columns; regen `database.ts` | `idea_template_test.sql`: `has_column` ×4 (fail today) |
+| 6 | `src/lib/server/lab/audit.ts` | **No** — **and its dep `ai.ts` is not on this branch** (see ⚠ above) | — → `auditAgainstTemplate` via `generateStructured` | `audit.test.ts`: schema parse, mocked AI. **Blocked until `feat-ideas-lab` merged** |
+| 6 | authoring UI (`/console` form + Lab editor + `PublishDialog`) | `/console` **yes**; Lab editor + `PublishDialog` **not on this branch** | render template sections (optional) | component test: optional sections render/hide. **Lab editor edits blocked until merge** |
+| 7 | `src/lib/server/email.ts` (Resend seam) | **No** | — → mockable seam + 4 templates | `email.test.ts`: right template+recipient per event (Resend mocked, **no live sends**). Fails today: module not found |
+| 7 | `profile_earnings` view | **No** | — → lifetime sum of released+approved grants | `earnings_test.sql`: view sums only released+admin-approved (excludes merely-verified). Fails today: relation absent |
+| 7 | `/u/[handle]` earnings display | **Yes** — profile exists, no earnings (`profile.test.ts` present) | add lifetime-earnings block (reuse `Money.svelte`) | `profile.test.ts` (extended): winner profile shows correct total |
+
+---
+
+## Verification discipline (red→green, 100% of changes covered)
+
+**The rule.** Every phase is TDD-first. Each change in the matrix above ships with the listed test,
+and **that test must fail against the code on this branch before the change and pass after** — the
+"Fails today because…" / "fails today" notes record the *exact* reason each starts red. A test that
+already passes on unchanged code proves nothing and is rejected in review.
+
+Concretely:
+
+1. **pgTAP files open with existence guards** (`has_table`, `has_function`, `has_column`) so a missing
+   object is a hard red, never a silently-skipped test. Write and run them *first* — confirm red —
+   then build the migration to green.
+2. **Vitest seams** (`fee`, `stripe`, `email`, `audit`, `ledger`, `config`) start red as
+   *module-not-found*; that is the intended first failure. No seam is implemented before its test exists.
+3. **Route specs** assert a real 404/guard on the current tree, then the new behavior — e.g.
+   `/api/fund` returns 404 today, 200/redirect after.
+4. **Two-place invariants get a dedicated test.** Rate buckets exist in `rate_limits.sql` *and*
+   `rate-limit.ts:10 BUCKETS`. The bucket test asserts `consume_rate_limit('<bucket>')` does not raise
+   (catches the SQL side) and a TS unit asserts `BUCKETS.includes('<bucket>')` (catches the type side).
+   Adding to only one file leaves one test red.
+5. **The "extend, don't replace" rows are the trap.** `admin_approve_payout` already passes its
+   existing tests — its new test asserts the *new* effect (a `payable` ledger row appears after
+   approval when `funding_enabled`), which is impossible on current code because `ledger_entries`
+   doesn't exist. That impossibility is the red→green guarantee.
+6. **A phase is "done"** only when its new tests are green **and** the full pre-existing suite
+   (typecheck · vitest · pgTAP · build · Playwright) stays green. Known baseline: `answers_test.sql`
+   has a pre-existing unrelated pgTAP failure — record its status before the phase so a *new* break is
+   distinguishable from the baseline.
+7. **CI gate.** The new tests are added to the same CI job as the existing suite; no phase merges with
+   a red it introduced. Stripe/Resend/AI are **always mocked in CI** — zero live calls, zero live keys.
 
 ---
 
@@ -264,11 +342,15 @@ sends**); a winner's profile shows the correct lifetime total; earnings exclude 
 | `expert_invites` | `expert_invites` + `redeem_expert_invite` |
 | `idea_template` | `ideas.resolution_criteria_md/methodology_md/theory_of_change_md/extensions_md` |
 | `earnings` | `profile_earnings` view |
-| (rate-limit) | add `donate` bucket (extend `consume_rate_limit`) |
+| (rate-limit) | add `donate`/`withdraw`/`kyc` buckets — **two places**: the `case` in `consume_rate_limit` (`rate_limits.sql`) **and** the `BUCKETS` array (`rate-limit.ts:10`) |
 
 All money mutations are `SECURITY DEFINER` + idempotent + ledger-posting; **no service-role client**.
 
 ## Testing strategy (every phase)
+
+> The **Current-code diff + verification matrix** and **Verification discipline** sections above are
+> the authoritative per-artifact test list (each row names the test and why it starts red). The
+> summary below is the by-layer view.
 
 - **Unit (vitest):** fee math, route guards, Stripe/Resend/AI seams (mocked — **no live calls in
   CI**), audit schema.
