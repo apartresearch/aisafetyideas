@@ -19,7 +19,7 @@
     <div class="site-header__inner">
       <a href="/" class="site-brand" aria-label="AI Safety Ideas — home">
         <Logo size={26} />
-        <span class="site-brand__name">AISI</span>
+        <span class="site-brand__name">AI&nbsp;Safety&nbsp;Ideas</span>
       </a>
       <nav class="site-nav">
         <a href="/ideas" class="site-nav__link">Ideas</a>
