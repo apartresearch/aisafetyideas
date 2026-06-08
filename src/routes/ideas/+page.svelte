@@ -1,7 +1,13 @@
 <script lang="ts">
+  import { navigating } from '$app/stores';
   import IdeaCard from '$lib/components/IdeaCard.svelte';
+  import SkeletonCard from '$lib/components/SkeletonCard.svelte';
+  import Spinner from '$lib/components/Spinner.svelte';
 
   let { data } = $props();
+
+  // show a skeleton grid while a client-side navigation to the ideas list is in flight
+  let isNavigating = $derived(!!$navigating && $navigating.to?.url.pathname === '/ideas');
 
   // Infinite scroll: SSR renders page 0; we append further pages from /api/ideas. The list is local
   // $state seeded from `data`, and re-seeded whenever the filter/sort navigation changes `data`.
@@ -71,7 +77,7 @@
 
 <header class="ideas-head">
   <div>
-    <span class="u-label">Research bounties</span>
+    <span class="u-label">Open research ideas</span>
     <h1 class="ideas-title">Ideas</h1>
   </div>
   <p class="ideas-count tnum">{data.count.toLocaleString()} open</p>
@@ -89,7 +95,11 @@
   </div>
 </div>
 
-{#if ideas.length === 0}
+{#if isNavigating}
+  <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+    {#each Array(6) as _, i (i)}<SkeletonCard />{/each}
+  </div>
+{:else if ideas.length === 0}
   <div class="ideas-empty card">
     <p>No ideas here yet.</p>
     {#if data.type}<a class="btn btn-secondary btn-sm" href={buildHref(null, data.sort)}>Clear filter</a>{/if}
@@ -101,7 +111,7 @@
 
   <div class="ideas-foot">
     {#if loading}
-      <span class="ideas-foot__note">Loading more…</span>
+      <Spinner label="Loading more ideas" />
     {:else if failed}
       <button onclick={loadMore} class="btn btn-secondary btn-sm">Couldn’t load — retry</button>
     {:else if hasMore}

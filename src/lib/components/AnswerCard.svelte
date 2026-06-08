@@ -11,7 +11,7 @@
     }
   } = $props();
 </script>
-<article class="card answer">
+<article class="card answer" id="answer-{answer.id}">
   <div class="answer__head">
     <h3 class="answer__title">{answer.title}</h3>
     <StatusBadge status={answer.status} />

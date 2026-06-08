@@ -5,7 +5,7 @@
 
   const steps = [
     { n: '01', t: 'Experts post ideas', d: 'Vetted researchers publish concrete AI-safety questions and hypotheses worth investigating.' },
-    { n: '02', t: 'Funders back them', d: 'Supporters pledge toward the questions they want answered — building a transparent bounty.' },
+    { n: '02', t: 'Funders back them', d: 'Supporters pledge toward the questions they want answered — building transparent, pooled support.' },
     { n: '03', t: 'Researchers answer', d: 'Anyone can submit an answer with evidence and artifacts — code, papers, notebooks.' },
     { n: '04', t: 'Verified payouts', d: 'The author verifies a result and the payout is recorded — a clear path from question to impact.' }
   ];
@@ -15,7 +15,7 @@
 <section class="full-bleed hero">
   <div class="hero__inner">
     <div class="hero__copy">
-      <span class="u-label reveal" style="animation-delay:40ms">Charitable research bounties · AI safety</span>
+      <span class="u-label reveal" style="animation-delay:40ms">Charitable research · AI safety</span>
       <h1 class="hero__title reveal" style="animation-delay:90ms">
         Fund the AI safety research that matters.
       </h1>
@@ -63,11 +63,11 @@
   </ol>
 </section>
 
-<!-- ── Recent bounties (degrades: hidden when empty) ── -->
+<!-- ── Recent ideas (degrades: hidden when empty) ── -->
 {#if data.recent.length}
   <section class="section">
     <div class="section__head">
-      <h2 class="section__title">Recent bounties</h2>
+      <h2 class="section__title">Recent ideas</h2>
       <a href="/ideas" class="section__more">Browse all&nbsp;→</a>
     </div>
     <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -86,7 +86,7 @@
       to the researchers whose answers are verified.
     </p>
     <div class="closing__cta">
-      <a href="/ideas" class="btn btn-lg closing__primary">Explore the bounties</a>
+      <a href="/ideas" class="btn btn-lg closing__primary">Explore the ideas</a>
       <a href="/experts" class="btn btn-lg closing__ghost">Meet the experts</a>
     </div>
   </div>

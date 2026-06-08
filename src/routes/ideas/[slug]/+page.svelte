@@ -84,7 +84,7 @@
       <!-- Bounty -->
       <div class="card panel">
         <div class="panel__row">
-          <span class="u-label">Bounty pledged</span>
+          <span class="u-label">Pledged</span>
           <span class="panel__sub">{data.pot.funder_count} {data.pot.funder_count === 1 ? 'funder' : 'funders'}</span>
         </div>
         {#if data.pot.pot_cents > 0}

@@ -12,6 +12,7 @@ export function parseSort(value: string | null): IdeaSort {
 /** Statuses never shown in public listings: drafts (unpublished) and archived (admin-hidden). */
 const HIDDEN_STATUSES = '(draft,archived)';
 
+export type VerifiedSolution = { id: string; title: string };
 export type IdeaListItem = {
   id: string;
   slug: string;
@@ -21,7 +22,40 @@ export type IdeaListItem = {
   status: string;
   created_at: string | null;
   score: number;
+  answerCount: number;
+  commentCount: number;
+  verified: VerifiedSolution | null;
 };
+
+/**
+ * Attach per-card engagement stats (answers, comments, first verified solution) to a page of ideas.
+ * Two small reads keyed by the page's idea ids — RLS governs visibility (same as the detail page).
+ */
+async function enrichCards(
+  supabase: SupabaseClient,
+  ideas: (Record<string, unknown> & { id: string; score: number })[]
+): Promise<IdeaListItem[]> {
+  if (!ideas.length) return ideas as IdeaListItem[];
+  const ids = ideas.map((i) => i.id);
+  const [{ data: answers }, { data: comments }] = await Promise.all([
+    supabase.from('answers').select('idea_id, id, title, status').in('idea_id', ids),
+    supabase.from('comments').select('idea_id').in('idea_id', ids)
+  ]);
+
+  const stats = new Map<string, { answerCount: number; commentCount: number; verified: VerifiedSolution | null }>();
+  for (const id of ids) stats.set(id, { answerCount: 0, commentCount: 0, verified: null });
+  for (const a of (answers ?? []) as { idea_id: string; id: string; title: string; status: string }[]) {
+    const s = stats.get(a.idea_id);
+    if (!s) continue;
+    s.answerCount++;
+    if (a.status === 'verified' && !s.verified) s.verified = { id: a.id, title: a.title };
+  }
+  for (const c of (comments ?? []) as { idea_id: string }[]) {
+    const s = stats.get(c.idea_id);
+    if (s) s.commentCount++;
+  }
+  return ideas.map((i) => ({ ...i, ...stats.get(i.id)! })) as IdeaListItem[];
+}
 
 export type IdeaFeedPage = {
   ideas: IdeaListItem[];
@@ -58,10 +92,10 @@ export async function loadIdeaFeed(
 
   if (opts.sort === 'top') {
     const { data: all } = await base.order('created_at', { ascending: false });
-    const ranked = sortTop(attachScores(all ?? [], totals)) as IdeaListItem[];
+    const ranked = sortTop(attachScores(all ?? [], totals));
     const start = page * PAGE_SIZE;
     return {
-      ideas: ranked.slice(start, start + PAGE_SIZE),
+      ideas: await enrichCards(supabase, ranked.slice(start, start + PAGE_SIZE)),
       count: ranked.length,
       page,
       pageSize: PAGE_SIZE,
@@ -74,7 +108,7 @@ export async function loadIdeaFeed(
     .range(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE - 1);
   const total = count ?? 0;
   return {
-    ideas: attachScores(ideas ?? [], totals) as IdeaListItem[],
+    ideas: await enrichCards(supabase, attachScores(ideas ?? [], totals)),
     count: total,
     page,
     pageSize: PAGE_SIZE,

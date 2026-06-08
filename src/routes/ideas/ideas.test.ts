@@ -4,10 +4,15 @@ import { load } from './+page.server';
 function mkLocals(rows: unknown[], totals: unknown[] = []) {
   const make = (table: string): any => {
     if (table === 'idea_vote_totals') return { select: () => Promise.resolve({ data: totals }) };
+    // enrichCards reads answers/comments via .select(...).in(...) — return no stats
+    if (table === 'answers' || table === 'comments') {
+      return { select: () => ({ in: () => Promise.resolve({ data: [] }) }) };
+    }
     // thenable builder: serves both `…order().range()` (new) and a directly-awaited `…order()` (top)
     const result = { data: rows, count: rows.length };
     const builder: any = {
-      select() { return this; }, neq() { return this; }, not() { return this; }, eq() { return this; }, order() { return this; },
+      select() { return this; }, neq() { return this; }, not() { return this; }, eq() { return this; },
+      order() { return this; }, in() { return this; },
       range() { return Promise.resolve(result); },
       then(resolve: any, reject: any) { return Promise.resolve(result).then(resolve, reject); }
     };
@@ -22,7 +27,9 @@ describe('ideas browse load', () => {
       url: new URL('http://x/ideas'),
       locals: mkLocals([{ id: '1', title: 'A' }], [{ idea_id: '1', score: 3 }])
     } as any)) as any;
-    expect(res.ideas).toEqual([{ id: '1', title: 'A', score: 3 }]);
+    expect(res.ideas).toEqual([
+      { id: '1', title: 'A', score: 3, answerCount: 0, commentCount: 0, verified: null }
+    ]);
     expect(res.count).toBe(1);
   });
   it('sort=top ranks by score desc', async () => {
