@@ -29,7 +29,8 @@ export const actions: Actions = {
     const { error: e } = await supabase
       .from('ideas')
       .update({ status: 'open', published_at: new Date().toISOString() })
-      .eq('id', String(fd.get('id')));
+      .eq('id', String(fd.get('id')))
+      .eq('status', 'archived');
     if (e) return fail(400, { message: e.message });
     return { promoted: true };
   }

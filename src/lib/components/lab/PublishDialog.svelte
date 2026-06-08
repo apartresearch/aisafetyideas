@@ -8,7 +8,7 @@
   }: {
     open: boolean;
     draft: { id: string; title: string; summary_md: string };
-    form: { submitted?: boolean; message?: string } | null;
+    form: { submitted?: boolean; id?: string; message?: string } | null;
   } = $props();
 
   // svelte-ignore state_referenced_locally
@@ -46,7 +46,7 @@
         <button class="pd-close" onclick={close} aria-label="Close">✕</button>
       </div>
 
-      {#if form?.submitted}
+      {#if form?.submitted && form?.id === draft.id}
         <div class="pd-submitted">
           <p class="pd-submitted__msg">Submitted for admin review.</p>
           <p class="pd-submitted__sub">You'll be notified when your idea goes live.</p>

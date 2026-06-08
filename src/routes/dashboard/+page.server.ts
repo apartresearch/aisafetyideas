@@ -74,10 +74,14 @@ export const actions: Actions = {
     const id = String(fd.get('id'));
     if (!id) return fail(400, { message: 'Missing idea id' });
     const type = fd.get('type') === 'hypothesis' ? 'hypothesis' : 'open_ended';
+    const claim = String(fd.get('claim') ?? '').trim();
+    const summary_md = String(fd.get('summary_md') ?? '').trim();
+    if (type === 'hypothesis' && !claim) return fail(400, { message: 'A hypothesis needs a claim' });
+    if (!summary_md) return fail(400, { message: 'Add a short summary before publishing' });
     const patch = {
       type,
-      claim: type === 'hypothesis' ? String(fd.get('claim') ?? '') : null,
-      summary_md: String(fd.get('summary_md') ?? ''),
+      claim: type === 'hypothesis' ? claim : null,
+      summary_md,
       status: 'open',
       published_at: new Date().toISOString()
     };
@@ -86,7 +90,7 @@ export const actions: Actions = {
       .select('slug, status').single();
     if (e || !data) return fail(400, { message: e?.message ?? 'Publish failed' });
     if (data.status === 'open') redirect(303, `/ideas/${data.slug}`);
-    return { submitted: true };
+    return { submitted: true, id };
   },
 
   follow: async ({ request, locals: { supabase, safeGetSession } }) => {

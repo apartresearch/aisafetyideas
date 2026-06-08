@@ -60,7 +60,7 @@
                     return async ({ update }) => {
                       await update({ reset: false });
                       promoting = { ...promoting, [idea.id]: false };
-                      if (form?.promoted !== false) promoted = { ...promoted, [idea.id]: true };
+                      if (form?.promoted === true) promoted = { ...promoted, [idea.id]: true };
                     };
                   }}
                 >
