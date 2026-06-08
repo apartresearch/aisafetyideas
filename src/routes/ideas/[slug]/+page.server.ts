@@ -3,6 +3,7 @@ import type { PageServerLoad, Actions } from './$types';
 import { renderMarkdown } from '$lib/server/markdown';
 import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 import { ideaParamColumn, isUuid, resolveIdeaId } from '$lib/server/ideas';
+import { getPlatformConfig } from '$lib/server/config';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
   const { user } = await safeGetSession();
@@ -96,6 +97,9 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     myInterestId = mine?.id ?? null;
   }
 
+  // platform funding flag — drives the Stripe Checkout path vs. the legacy pledge form
+  const { fundingEnabled } = await getPlatformConfig(supabase);
+
   // votes: totals + the caller's own vote
   const { data: voteTotals } = await supabase
     .from('idea_vote_totals').select('score').eq('idea_id', idea.id).maybeSingle();
@@ -123,6 +127,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     userId: user?.id ?? null,
     canSubmit: !!user && idea.status === 'open',
     canFund: !!user && idea.status === 'open',
+    fundingEnabled,
     canEngage: !!user
   };
 };

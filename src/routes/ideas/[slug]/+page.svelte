@@ -6,6 +6,31 @@
   import Markdown from '$lib/components/Markdown.svelte';
   let { data, form } = $props();
   let signinHref = $derived('/login?next=' + encodeURIComponent('/ideas/' + data.idea.slug));
+
+  // Stripe Checkout funding (only when platform funding is enabled)
+  let fundDollars = $state('');
+  let funding = $state(false);
+  let fundError = $state('');
+  async function fundThisIdea(e: SubmitEvent) {
+    e.preventDefault();
+    fundError = '';
+    const cents = Math.round(Number(fundDollars) * 100);
+    if (!Number.isFinite(cents) || cents < 100) { fundError = 'Enter an amount of at least $1.'; return; }
+    funding = true;
+    try {
+      const res = await fetch('/api/fund', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ idea_id: data.idea.id, amount_cents: cents })
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok || !payload.url) { fundError = payload.message ?? 'Could not start checkout.'; funding = false; return; }
+      window.location.href = payload.url;
+    } catch {
+      fundError = 'Network error — try again.';
+      funding = false;
+    }
+  }
 </script>
 
 <div class="idea-layout">
@@ -94,15 +119,28 @@
         {/if}
 
         {#if data.canFund}
-          <form method="POST" action="?/pledge" class="fund">
-            <label class="fund__label" for="fund-amount">Pledge an amount</label>
-            <div class="fund__row">
-              <span class="fund__cur">$</span>
-              <input id="fund-amount" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required class="input fund__input" />
-            </div>
-            <button class="btn btn-primary fund__btn">Pledge</button>
-            <p class="fund__note">A pledge is a commitment — no funds move yet.</p>
-          </form>
+          {#if data.fundingEnabled}
+            <form class="fund" onsubmit={fundThisIdea}>
+              <label class="fund__label" for="fund-amount">Fund this idea</label>
+              <div class="fund__row">
+                <span class="fund__cur">$</span>
+                <input id="fund-amount" type="number" min="1" step="0.01" placeholder="0.00" required class="input fund__input" bind:value={fundDollars} />
+              </div>
+              <button class="btn btn-primary fund__btn" disabled={funding}>{funding ? 'Redirecting…' : 'Fund this idea'}</button>
+              {#if fundError}<p class="fund__err">{fundError}</p>{/if}
+              <p class="fund__note">Donations are processed by Apart Research, a 501(c)(3); you’ll receive a tax receipt.</p>
+            </form>
+          {:else}
+            <form method="POST" action="?/pledge" class="fund">
+              <label class="fund__label" for="fund-amount">Pledge an amount</label>
+              <div class="fund__row">
+                <span class="fund__cur">$</span>
+                <input id="fund-amount" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required class="input fund__input" />
+              </div>
+              <button class="btn btn-primary fund__btn">Pledge</button>
+              <p class="fund__note">A pledge is a commitment — no funds move yet.</p>
+            </form>
+          {/if}
         {/if}
       </div>
 
@@ -200,6 +238,7 @@
   .fund__input { padding-left: 1.6rem; }
   .fund__btn { width: 100%; margin-top: .65rem; }
   .fund__note { margin-top: .55rem; font-size: .76rem; color: var(--faint); line-height: 1.45; }
+  .fund__err { margin-top: .55rem; font-size: .8rem; color: var(--neg); }
 
   .funders { margin-top: .75rem; display: flex; flex-direction: column; gap: .5rem; }
   .funders__row { display: flex; justify-content: space-between; gap: .75rem; font-size: .9rem; }
