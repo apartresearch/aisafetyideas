@@ -5,8 +5,8 @@ import type { PageServerLoad } from './$types';
 export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
   const [{ data: recent }, ideasCount, expertsCount] = await Promise.all([
     supabase.from('ideas').select('id, slug, title, summary_md, type, status')
-      .neq('status', 'draft').order('created_at', { ascending: false }).limit(3),
-    supabase.from('ideas').select('id', { count: 'exact', head: true }).neq('status', 'draft'),
+      .not('status', 'in', '(draft,archived)').order('created_at', { ascending: false }).limit(3),
+    supabase.from('ideas').select('id', { count: 'exact', head: true }).not('status', 'in', '(draft,archived)'),
     supabase.from('experts').select('id', { count: 'exact', head: true }).eq('status', 'approved')
   ]);
   return {

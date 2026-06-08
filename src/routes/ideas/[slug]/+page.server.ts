@@ -12,6 +12,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     .eq(ideaParamColumn(params.slug), params.slug)
     .single();
   if (!idea) error(404, 'Idea not found');
+  // archived (admin-hidden) and draft (unpublished) ideas are not publicly reachable
+  if (idea.status === 'archived' || idea.status === 'draft') error(404, 'Idea not found');
   // legacy /ideas/<uuid> URL → permanent-redirect to the canonical slug URL
   if (isUuid(params.slug)) redirect(301, `/ideas/${idea.slug}`);
 

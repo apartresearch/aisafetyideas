@@ -7,7 +7,7 @@ function mkLocals(rows: unknown[], totals: unknown[] = []) {
     // thenable builder: serves both `…order().range()` (new) and a directly-awaited `…order()` (top)
     const result = { data: rows, count: rows.length };
     const builder: any = {
-      select() { return this; }, neq() { return this; }, eq() { return this; }, order() { return this; },
+      select() { return this; }, neq() { return this; }, not() { return this; }, eq() { return this; }, order() { return this; },
       range() { return Promise.resolve(result); },
       then(resolve: any, reject: any) { return Promise.resolve(result).then(resolve, reject); }
     };
