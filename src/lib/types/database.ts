@@ -1043,6 +1043,22 @@ export type Database = {
           },
         ]
       }
+      profile_earnings: {
+        Row: {
+          lifetime_cents: number | null
+          payout_count: number | null
+          profile_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       _escrow_core: {
@@ -1154,6 +1170,10 @@ export type Database = {
         Returns: string
       }
       is_admin: { Args: never; Returns: boolean }
+      lookup_notification_email: {
+        Args: { p_profile: string }
+        Returns: string
+      }
       post_ledger: {
         Args: { p_entries: Json; p_idempotency_key?: string }
         Returns: undefined

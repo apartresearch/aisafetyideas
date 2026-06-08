@@ -1,6 +1,7 @@
 import { error, fail, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
 import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
+import { notifyPayoutReleased } from '$lib/server/notify';
 
 async function requireAdmin(supabase: any, userId: string | undefined) {
   if (!userId) return false;
@@ -41,11 +42,28 @@ export const actions: Actions = {
     if (!user || !(await requireAdmin(supabase, user.id))) return fail(403, { message: 'Admins only' });
     if (!(await rateLimit(supabase, 'admin')).ok) return fail(429, { message: RATE_LIMIT_MESSAGE });
     const fd = await request.formData();
+    const answerId = String(fd.get('answer_id'));
     // `undefined` (not null) for the optional note keeps full RPC param-name type-checking (see console route).
     const { error: e } = await supabase.rpc('admin_approve_payout', {
-      p_answer_id: String(fd.get('answer_id')), p_note: String(fd.get('note') ?? '') || undefined
+      p_answer_id: answerId, p_note: String(fd.get('note') ?? '') || undefined
     });
     if (e) return fail(400, { message: e.message });
+    // Best-effort: fetch answer context for notification
+    const { data: answerCtx } = await supabase
+      .from('answers')
+      .select('submitter_id, payout_amount_cents, ideas!inner(slug, title)')
+      .eq('id', answerId)
+      .single();
+    if (answerCtx?.submitter_id) {
+      const idea = Array.isArray(answerCtx.ideas) ? (answerCtx.ideas[0] ?? null) : answerCtx.ideas;
+      if (idea) {
+        await notifyPayoutReleased(answerCtx.submitter_id, {
+          ideaTitle: idea.title,
+          amountCents: answerCtx.payout_amount_cents ?? 0,
+          url: `/ideas/${idea.slug}`
+        });
+      }
+    }
     return { ok: true };
   },
   reject: async ({ request, locals: { supabase, safeGetSession } }) => {
