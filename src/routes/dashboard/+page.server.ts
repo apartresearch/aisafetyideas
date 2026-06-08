@@ -59,11 +59,29 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 
   // Lab tab: my drafts
   const { data: drafts } = await supabase
-    .from('ideas').select('id, slug, title, summary_md, expansions')
+    .from('ideas').select('id, slug, title, summary_md, expansions, resolution_criteria_md, methodology_md, theory_of_change_md, extensions_md')
     .eq('author_id', user.id).eq('status', 'draft')
     .order('created_at', { ascending: false });
 
-  return { tab, hasFollows: followedIds.length > 0, feed, experts, myPledges, chart, totalCommittedCents, drafts: drafts ?? [] };
+  // Payouts: my on-platform balances + Connect onboarding state (own rows via RLS).
+  const { data: balances } = await supabase
+    .from('account_balances')
+    .select('available_cents, escrowed_cents, payable_cents')
+    .eq('profile_id', user.id).maybeSingle();
+  const { data: connect } = await supabase
+    .from('stripe_connect_accounts')
+    .select('payouts_enabled').eq('profile_id', user.id).maybeSingle();
+
+  return {
+    tab, hasFollows: followedIds.length > 0, feed, experts, myPledges, chart, totalCommittedCents,
+    drafts: drafts ?? [],
+    balances: {
+      availableCents: Number(balances?.available_cents ?? 0),
+      escrowedCents: Number(balances?.escrowed_cents ?? 0),
+      payableCents: Number(balances?.payable_cents ?? 0)
+    },
+    payoutsEnabled: connect?.payouts_enabled === true
+  };
 };
 
 export const actions: Actions = {
@@ -78,10 +96,19 @@ export const actions: Actions = {
     const summary_md = String(fd.get('summary_md') ?? '').trim();
     if (type === 'hypothesis' && !claim) return fail(400, { message: 'A hypothesis needs a claim' });
     if (!summary_md) return fail(400, { message: 'Add a short summary before publishing' });
+    // Optional template sections — pass-through if the dialog provides them (nullable: empty → null)
+    const resolution_criteria_md = String(fd.get('resolution_criteria_md') ?? '').trim() || null;
+    const methodology_md = String(fd.get('methodology_md') ?? '').trim() || null;
+    const theory_of_change_md = String(fd.get('theory_of_change_md') ?? '').trim() || null;
+    const extensions_md = String(fd.get('extensions_md') ?? '').trim() || null;
     const patch = {
       type,
       claim: type === 'hypothesis' ? claim : null,
       summary_md,
+      resolution_criteria_md,
+      methodology_md,
+      theory_of_change_md,
+      extensions_md,
       status: 'open',
       published_at: new Date().toISOString()
     };

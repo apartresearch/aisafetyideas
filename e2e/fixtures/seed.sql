@@ -2,6 +2,16 @@
 -- verify actions never trip the limits (answer 5/h, idea_create 10/h) on reruns. Local test DB only.
 delete from public.rate_limits;
 
+-- Reset member user's expert status so invite-flow spec is repeatable across runs.
+delete from public.experts
+  where id = (select id from auth.users where email = 'e2e-member@example.com');
+
+-- Seed a known invite token for the invite-flow e2e spec; reset used_count on reruns.
+insert into public.expert_invites (token, created_by, max_uses)
+  select 'e2e-invite-token', id, 5
+  from auth.users where email = 'e2e-admin@example.com'
+  on conflict (token) do update set used_count = 0;
+
 -- Clean up entities prior runs created (each run posts ideas + answers as the e2e experts).
 -- Deleting their ideas cascades to answers/pledges/comments/votes, so the review queue + dashboards
 -- start empty each run — keeps /console light (the verify→payout moment's ~700ms window isn't crowded

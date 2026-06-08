@@ -1,6 +1,7 @@
 <script lang="ts">
   import Markdown from '$lib/components/Markdown.svelte';
   import IdeaCard from '$lib/components/IdeaCard.svelte';
+  import Money from '$lib/components/Money.svelte';
   let { data, form } = $props();
   let isSelf = $derived(data.user?.id === data.profile.id);
   // Local state + bind:value so a background re-render mid-edit can't reset the fields (seeded from
@@ -27,6 +28,21 @@
     </div>
   </div>
   <Markdown html={data.bio_html} class="mt-3" />
+
+  {#if data.earnings.lifetime_cents > 0}
+    <div class="mt-4 flex flex-wrap gap-6">
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider" style="color:var(--faint);letter-spacing:.06em">Lifetime earnings</p>
+        <p class="mt-0.5 text-lg font-bold" style="color:var(--ink);font-variant-numeric:tabular-nums">
+          <Money cents={data.earnings.lifetime_cents} />
+        </p>
+      </div>
+      <div>
+        <p class="text-xs font-semibold uppercase tracking-wider" style="color:var(--faint);letter-spacing:.06em">Verified answers</p>
+        <p class="mt-0.5 text-lg font-bold" style="color:var(--ink);font-variant-numeric:tabular-nums">{data.earnings.payout_count}</p>
+      </div>
+    </div>
+  {/if}
 
   {#if isSelf}
     <form method="POST" action="?/update" class="mt-6 flex flex-col gap-2">

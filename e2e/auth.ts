@@ -9,13 +9,14 @@ export const SUPABASE_ANON_KEY =
 
 const PASSWORD = 'e2e-password-Aa1!';
 
-export type RoleName = 'expert' | 'expert2' | 'funder' | 'submitter' | 'admin';
+export type RoleName = 'expert' | 'expert2' | 'funder' | 'submitter' | 'admin' | 'member';
 export const ROLES: Record<RoleName, { email: string; password: string; state: string }> = {
   expert:    { email: 'e2e-expert@example.com',    password: PASSWORD, state: 'e2e/.auth/expert.json' },
   expert2:   { email: 'e2e-expert2@example.com',   password: PASSWORD, state: 'e2e/.auth/expert2.json' },
   funder:    { email: 'e2e-funder@example.com',    password: PASSWORD, state: 'e2e/.auth/funder.json' },
   submitter: { email: 'e2e-submitter@example.com', password: PASSWORD, state: 'e2e/.auth/submitter.json' },
-  admin:     { email: 'e2e-admin@example.com',     password: PASSWORD, state: 'e2e/.auth/admin.json' }
+  admin:     { email: 'e2e-admin@example.com',     password: PASSWORD, state: 'e2e/.auth/admin.json' },
+  member:    { email: 'e2e-member@example.com',    password: PASSWORD, state: 'e2e/.auth/member.json' }
 };
 
 /**

@@ -3,12 +3,13 @@ import type { PageServerLoad, Actions } from './$types';
 import { inferKind } from '$lib/artifacts';
 import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 import { ideaParamColumn, isUuid, resolveIdeaId } from '$lib/server/ideas';
+import { notifyAnswerSubmitted } from '$lib/server/notify';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
   const { user } = await safeGetSession();
   if (!user) redirect(303, `/login?next=/ideas/${params.slug}/answer`);
   const { data: idea } = await supabase
-    .from('ideas').select('id, slug, title, type, status').eq(ideaParamColumn(params.slug), params.slug).single();
+    .from('ideas').select('id, slug, title, type, status, author_id').eq(ideaParamColumn(params.slug), params.slug).single();
   if (!idea) error(404, 'Idea not found');
   // legacy /ideas/<uuid>/answer URL → canonical slug URL
   if (isUuid(params.slug)) redirect(301, `/ideas/${idea.slug}/answer`);
@@ -42,6 +43,18 @@ export const actions: Actions = {
       const { error: ae } = await supabase.from('answer_artifacts').insert(rows);
       if (ae) return fail(400, { message: `Answer saved, but artifacts failed: ${ae.message}` });
     }
+
+    // Fetch idea author_id for notification (need a fresh read in the action since load data isn't available here)
+    const { data: ideaForNotify } = await supabase
+      .from('ideas').select('title, author_id').eq(ideaParamColumn(params.slug), params.slug).single();
+    if (ideaForNotify?.author_id) {
+      await notifyAnswerSubmitted(ideaForNotify.author_id, {
+        ideaTitle: ideaForNotify.title,
+        answerTitle: title,
+        url: `/ideas/${params.slug}`
+      });
+    }
+
     redirect(303, `/ideas/${params.slug}`);
   }
 };

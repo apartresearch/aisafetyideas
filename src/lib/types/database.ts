@@ -307,6 +307,47 @@ export type Database = {
           },
         ]
       }
+      expert_invites: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          max_uses: number
+          specialty: string | null
+          token: string
+          used_count: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          specialty?: string | null
+          token: string
+          used_count?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          specialty?: string | null
+          token?: string
+          used_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expert_invites_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       experts: {
         Row: {
           approved_at: string | null
@@ -567,17 +608,21 @@ export type Database = {
           currency: string
           estimated_hours: number | null
           expansions: Json
+          extensions_md: string | null
           from_date: string | null
           id: string
           importance: number | null
           legacy: Json
           legacy_id: number | null
+          methodology_md: string | null
           published_at: string | null
           resolution: string | null
+          resolution_criteria_md: string | null
           slug: string
           source_url: string | null
           status: string
           summary_md: string | null
+          theory_of_change_md: string | null
           title: string
           type: string
           updated_at: string
@@ -592,17 +637,21 @@ export type Database = {
           currency?: string
           estimated_hours?: number | null
           expansions?: Json
+          extensions_md?: string | null
           from_date?: string | null
           id?: string
           importance?: number | null
           legacy?: Json
           legacy_id?: number | null
+          methodology_md?: string | null
           published_at?: string | null
           resolution?: string | null
+          resolution_criteria_md?: string | null
           slug?: string
           source_url?: string | null
           status?: string
           summary_md?: string | null
+          theory_of_change_md?: string | null
           title: string
           type?: string
           updated_at?: string
@@ -617,17 +666,21 @@ export type Database = {
           currency?: string
           estimated_hours?: number | null
           expansions?: Json
+          extensions_md?: string | null
           from_date?: string | null
           id?: string
           importance?: number | null
           legacy?: Json
           legacy_id?: number | null
+          methodology_md?: string | null
           published_at?: string | null
           resolution?: string | null
+          resolution_criteria_md?: string | null
           slug?: string
           source_url?: string | null
           status?: string
           summary_md?: string | null
+          theory_of_change_md?: string | null
           title?: string
           type?: string
           updated_at?: string
@@ -681,6 +734,118 @@ export type Database = {
           {
             foreignKeyName: "interest_profile_id_fkey"
             columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ledger_entries: {
+        Row: {
+          account: string
+          amount_cents: number
+          answer_id: string | null
+          created_at: string
+          created_by: string | null
+          currency: string
+          id: string
+          idea_id: string | null
+          idempotency_key: string | null
+          kind: string
+          note: string | null
+          profile_id: string | null
+          stripe_event_id: string | null
+        }
+        Insert: {
+          account: string
+          amount_cents: number
+          answer_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          idea_id?: string | null
+          idempotency_key?: string | null
+          kind: string
+          note?: string | null
+          profile_id?: string | null
+          stripe_event_id?: string | null
+        }
+        Update: {
+          account?: string
+          amount_cents?: number
+          answer_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          currency?: string
+          id?: string
+          idea_id?: string | null
+          idempotency_key?: string | null
+          kind?: string
+          note?: string | null
+          profile_id?: string | null
+          stripe_event_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_answer_id_fkey"
+            columns: ["answer_id"]
+            isOneToOne: false
+            referencedRelation: "answers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_idea_id_fkey"
+            columns: ["idea_id"]
+            isOneToOne: false
+            referencedRelation: "ideas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ledger_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_config: {
+        Row: {
+          fee_bps: number
+          funding_enabled: boolean
+          id: boolean
+          min_withdrawal_cents: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          fee_bps?: number
+          funding_enabled?: boolean
+          id?: boolean
+          min_withdrawal_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          fee_bps?: number
+          funding_enabled?: boolean
+          id?: boolean
+          min_withdrawal_cents?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_config_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -747,8 +912,104 @@ export type Database = {
         }
         Relationships: []
       }
+      stripe_connect_accounts: {
+        Row: {
+          created_at: string
+          onboarding_status: string
+          payouts_enabled: boolean
+          profile_id: string
+          stripe_account_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          onboarding_status?: string
+          payouts_enabled?: boolean
+          profile_id: string
+          stripe_account_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          onboarding_status?: string
+          payouts_enabled?: boolean
+          profile_id?: string
+          stripe_account_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_connect_accounts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_customers: {
+        Row: {
+          created_at: string
+          profile_id: string
+          stripe_customer_id: string
+        }
+        Insert: {
+          created_at?: string
+          profile_id: string
+          stripe_customer_id: string
+        }
+        Update: {
+          created_at?: string
+          profile_id?: string
+          stripe_customer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stripe_customers_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      stripe_events: {
+        Row: {
+          created_at: string
+          id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
+      account_balances: {
+        Row: {
+          available_cents: number | null
+          escrowed_cents: number | null
+          payable_cents: number | null
+          profile_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bounty_pot: {
         Row: {
           funder_count: number | null
@@ -782,8 +1043,33 @@ export type Database = {
           },
         ]
       }
+      profile_earnings: {
+        Row: {
+          lifetime_cents: number | null
+          payout_count: number | null
+          profile_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ledger_entries_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      _escrow_core: {
+        Args: {
+          p_amount_cents: number
+          p_funder: string
+          p_idea: string
+          p_idempotency_key: string
+        }
+        Returns: string
+      }
       admin_approve_payout: {
         Args: { p_answer_id: string; p_note?: string }
         Returns: {
@@ -812,6 +1098,28 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      admin_credit_offplatform: {
+        Args: { p_amount_cents: number; p_note?: string; p_profile: string }
+        Returns: undefined
+      }
+      admin_escrow_for: {
+        Args: {
+          p_amount_cents: number
+          p_funder: string
+          p_idea: string
+          p_idempotency_key: string
+        }
+        Returns: string
+      }
+      admin_mark_paid_offplatform: {
+        Args: {
+          p_amount_cents: number
+          p_idempotency_key: string
+          p_note: string
+          p_profile: string
+        }
+        Returns: undefined
       }
       admin_reject_payout: {
         Args: { p_answer_id: string; p_note?: string }
@@ -844,7 +1152,54 @@ export type Database = {
       }
       can_use_lab_ai: { Args: never; Returns: boolean }
       consume_rate_limit: { Args: { p_bucket: string }; Returns: boolean }
+      credit_balance: {
+        Args: {
+          p_amount_cents: number
+          p_idempotency_key: string
+          p_profile: string
+          p_source?: string
+        }
+        Returns: undefined
+      }
+      escrow_pledge: {
+        Args: {
+          p_amount_cents: number
+          p_idea: string
+          p_idempotency_key: string
+        }
+        Returns: string
+      }
       is_admin: { Args: never; Returns: boolean }
+      lookup_notification_email: {
+        Args: { p_profile: string }
+        Returns: string
+      }
+      post_ledger: {
+        Args: { p_entries: Json; p_idempotency_key?: string }
+        Returns: undefined
+      }
+      redeem_expert_invite: {
+        Args: { p_token: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          featured: boolean
+          id: string
+          specialty: string | null
+          status: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "experts"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      refund_funder: {
+        Args: { p_funding_id: string; p_idempotency_key: string }
+        Returns: undefined
+      }
       reject_answer: {
         Args: { p_answer_id: string; p_note?: string }
         Returns: {
@@ -874,6 +1229,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      release_grant: {
+        Args: { p_answer: string; p_idempotency_key: string }
+        Returns: undefined
+      }
       request_revision_answer: {
         Args: { p_answer_id: string; p_note?: string }
         Returns: {
@@ -902,6 +1261,10 @@ export type Database = {
           isOneToOne: true
           isSetofReturn: false
         }
+      }
+      request_withdrawal: {
+        Args: { p_amount_cents: number; p_idempotency_key: string }
+        Returns: undefined
       }
       resubmit_answer: {
         Args: {
@@ -1135,4 +1498,3 @@ export const Constants = {
     Enums: {},
   },
 } as const
-

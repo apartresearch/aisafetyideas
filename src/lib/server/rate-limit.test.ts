@@ -13,6 +13,7 @@ describe('rateLimit (DB-backed, fail-open)', () => {
   it('exports the full bucket set for the wiring map', () => {
     expect(BUCKETS).toContain('comment');
     expect(BUCKETS).toContain('admin');
+    expect(BUCKETS).toContain('donate');       // Stripe donation intake bucket (Phase 3)
     expect(BUCKETS).not.toContain('login');   // login is the in-memory limiter, not a DB bucket
   });
   it('blocks when the RPC returns false', async () => {

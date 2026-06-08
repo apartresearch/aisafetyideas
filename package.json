@@ -42,7 +42,9 @@
 		"@supabase/supabase-js": "^2.107.0",
 		"ai": "^6.0.197",
 		"marked": "^18.0.5",
+		"resend": "^6.12.4",
 		"sanitize-html": "^2.17.4",
+		"stripe": "^22.2.0",
 		"zod": "^4.4.3"
 	}
 }

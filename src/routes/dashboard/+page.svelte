@@ -10,6 +10,52 @@
 
   // svelte-ignore state_referenced_locally
   const draftsStore = createDraftsStore(data.drafts);
+
+  // ── Payouts panel state ──
+  let payoutBusy = $state(false);
+  let payoutMsg = $state('');
+  let withdrawAmount = $state('');
+
+  async function onboard() {
+    payoutBusy = true;
+    payoutMsg = '';
+    try {
+      const res = await fetch('/api/connect/onboard', { method: 'POST' });
+      const body = await res.json();
+      if (res.ok && body.url) window.location.href = body.url;
+      else payoutMsg = body.message ?? 'Could not start onboarding';
+    } catch {
+      payoutMsg = 'Could not start onboarding';
+    } finally {
+      payoutBusy = false;
+    }
+  }
+
+  async function withdraw(e: SubmitEvent) {
+    e.preventDefault();
+    payoutBusy = true;
+    payoutMsg = '';
+    const dollars = Number(withdrawAmount);
+    const amount_cents = Math.round(dollars * 100);
+    try {
+      const res = await fetch('/api/withdraw', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ amount_cents, nonce: crypto.randomUUID() })
+      });
+      const body = await res.json();
+      if (res.ok) {
+        payoutMsg = 'Withdrawal sent — your balance will update shortly.';
+        withdrawAmount = '';
+      } else {
+        payoutMsg = body.message ?? 'Withdrawal failed';
+      }
+    } catch {
+      payoutMsg = 'Withdrawal failed';
+    } finally {
+      payoutBusy = false;
+    }
+  }
 </script>
 <h1 class="mb-4 text-2xl font-bold" style="color:var(--ink)">Dashboard</h1>
 {#if form?.message}<p class="mb-3 text-sm" style="color:var(--neg)">{form.message}</p>{/if}
@@ -77,4 +123,51 @@
       {/each}
     </ul>
   {/if}
+
+  <h2 class="mb-3 mt-8 text-xl font-bold" style="color:var(--ink)">Payouts</h2>
+  <div class="rounded-2xl border p-4" style="border-color:var(--line); background:var(--surface)">
+    <div class="mb-4 grid gap-3 sm:grid-cols-3">
+      <div>
+        <p class="text-xs uppercase tracking-wide" style="color:var(--faint); letter-spacing:.06em">Payable</p>
+        <p class="text-lg font-bold" style="color:var(--ink)"><Money cents={data.balances.payableCents} /></p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-wide" style="color:var(--faint); letter-spacing:.06em">Available</p>
+        <p class="text-lg font-bold" style="color:var(--ink)"><Money cents={data.balances.availableCents} /></p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-wide" style="color:var(--faint); letter-spacing:.06em">Escrowed</p>
+        <p class="text-lg font-bold" style="color:var(--ink)"><Money cents={data.balances.escrowedCents} /></p>
+      </div>
+    </div>
+
+    {#if payoutMsg}<p class="mb-3 text-sm" style="color:var(--muted)">{payoutMsg}</p>{/if}
+
+    {#if data.payoutsEnabled}
+      <form class="flex flex-wrap items-end gap-2" onsubmit={withdraw}>
+        <label class="flex flex-col text-xs" style="color:var(--faint)">
+          Amount (USD)
+          <input
+            type="number" min="1" step="0.01" inputmode="decimal" required
+            bind:value={withdrawAmount} placeholder="0.00"
+            class="mt-1 w-32 rounded-xl border px-3 py-2 tabular-nums"
+            style="border-color:var(--line); color:var(--ink)" />
+        </label>
+        <button
+          type="submit" disabled={payoutBusy}
+          class="rounded-xl px-4 py-2 text-sm font-medium"
+          style="background:var(--ink); color:#fff; opacity:{payoutBusy ? 0.6 : 1}">
+          {payoutBusy ? 'Working…' : 'Withdraw'}
+        </button>
+      </form>
+    {:else}
+      <p class="mb-3 text-sm" style="color:var(--muted)">Connect a payout account to withdraw your payable balance.</p>
+      <button
+        type="button" onclick={onboard} disabled={payoutBusy}
+        class="rounded-xl px-4 py-2 text-sm font-medium"
+        style="background:var(--ink); color:#fff; opacity:{payoutBusy ? 0.6 : 1}">
+        {payoutBusy ? 'Working…' : 'Onboard to receive payouts'}
+      </button>
+    {/if}
+  </div>
 {/if}

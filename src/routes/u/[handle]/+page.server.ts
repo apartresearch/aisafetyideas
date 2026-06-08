@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     .single();
   if (!profile) error(404, 'Profile not found');
 
-  const [{ data: expert }, { data: authored }] = await Promise.all([
+  const [{ data: expert }, { data: authored }, { data: earningsRow }] = await Promise.all([
     supabase.from('experts').select('status').eq('id', profile.id).maybeSingle(),
     supabase
       .from('ideas')
@@ -19,14 +19,25 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
       .eq('author_id', profile.id)
       .not('status', 'in', '(draft,archived)')
       .order('created_at', { ascending: false })
-      .limit(50)
+      .limit(50),
+    supabase
+      .from('profile_earnings')
+      .select('lifetime_cents, payout_count')
+      .eq('profile_id', profile.id)
+      .maybeSingle()
   ]);
+
+  const earnings = {
+    lifetime_cents: (earningsRow as any)?.lifetime_cents ?? 0,
+    payout_count: (earningsRow as any)?.payout_count ?? 0
+  };
 
   return {
     profile,
     bio_html: renderMarkdown(profile.bio_md),
     isVerifiedExpert: expert?.status === 'approved',
-    authored: authored ?? []
+    authored: authored ?? [],
+    earnings
   };
 };
 
