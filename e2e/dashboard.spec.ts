@@ -15,7 +15,7 @@ test('funder dashboard reflects a pledge and a followed expert', async ({ browse
   const funder = await browser.newContext({ storageState: ROLES.funder.state });
   const fp = await funder.newPage();
   await fp.goto(ideaUrl);
-  await fp.getByLabel('Fund this idea ($)').fill('25');
+  await fp.getByLabel('Pledge an amount').fill('25');
   await fp.getByRole('button', { name: 'Pledge' }).click();
   await expect(fp.locator('aside').getByText(/\$25\.00/).first()).toBeVisible();
 

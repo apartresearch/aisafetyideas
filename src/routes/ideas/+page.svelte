@@ -69,38 +69,67 @@
   });
 </script>
 
-<h1 class="mb-4 text-2xl font-bold" style="color:var(--ink)">Ideas</h1>
-<nav class="mb-6 flex gap-2 text-sm">
-  <a href={buildHref(null, data.sort)} style="color:{data.type ? 'var(--muted)' : 'var(--green-deep)'}">All</a>
-  <a href={buildHref('hypothesis', data.sort)} style="color:{data.type === 'hypothesis' ? 'var(--green-deep)' : 'var(--muted)'}">Hypotheses</a>
-  <a href={buildHref('open_ended', data.sort)} style="color:{data.type === 'open_ended' ? 'var(--green-deep)' : 'var(--muted)'}">Open-ended</a>
-</nav>
-<nav class="mb-6 -mt-4 flex gap-2 text-sm">
-  <a href={buildHref(data.type, 'top')} style="color:{data.sort === 'top' ? 'var(--green-deep)' : 'var(--muted)'}">Top</a>
-  <a href={buildHref(data.type, 'new')} style="color:{data.sort === 'new' ? 'var(--green-deep)' : 'var(--muted)'}">Newest</a>
-</nav>
+<header class="ideas-head">
+  <div>
+    <span class="u-label">Research bounties</span>
+    <h1 class="ideas-title">Ideas</h1>
+  </div>
+  <p class="ideas-count tnum">{data.count.toLocaleString()} open</p>
+</header>
+
+<div class="ideas-controls">
+  <div class="seg" role="tablist" aria-label="Filter by type">
+    <a class="seg__item" aria-current={!data.type} href={buildHref(null, data.sort)}>All</a>
+    <a class="seg__item" aria-current={data.type === 'hypothesis'} href={buildHref('hypothesis', data.sort)}>Hypotheses</a>
+    <a class="seg__item" aria-current={data.type === 'open_ended'} href={buildHref('open_ended', data.sort)}>Open-ended</a>
+  </div>
+  <div class="seg" role="tablist" aria-label="Sort">
+    <a class="seg__item" aria-current={data.sort === 'top'} href={buildHref(data.type, 'top')}>Top</a>
+    <a class="seg__item" aria-current={data.sort === 'new'} href={buildHref(data.type, 'new')}>Newest</a>
+  </div>
+</div>
 
 {#if ideas.length === 0}
-  <p style="color:var(--muted)">No ideas yet.</p>
+  <div class="ideas-empty card">
+    <p>No ideas here yet.</p>
+    {#if data.type}<a class="btn btn-secondary btn-sm" href={buildHref(null, data.sort)}>Clear filter</a>{/if}
+  </div>
 {:else}
-  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+  <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
     {#each ideas as idea (idea.id)}<IdeaCard {idea} />{/each}
   </div>
 
-  <!-- sentinel + status row -->
-  <div class="mt-8 flex flex-col items-center gap-3">
+  <div class="ideas-foot">
     {#if loading}
-      <span class="text-sm" style="color:var(--faint)">Loading more…</span>
+      <span class="ideas-foot__note">Loading more…</span>
     {:else if failed}
-      <button onclick={loadMore} class="rounded-xl border px-4 py-2 text-sm font-medium"
-              style="border-color:var(--line); color:var(--ink)">Couldn’t load — retry</button>
+      <button onclick={loadMore} class="btn btn-secondary btn-sm">Couldn’t load — retry</button>
     {:else if hasMore}
       <!-- manual fallback (keyboard / no-IntersectionObserver); the observer auto-triggers loadMore -->
-      <button onclick={loadMore} class="rounded-xl border px-4 py-2 text-sm font-medium"
-              style="border-color:var(--line); color:var(--muted)">Load more</button>
+      <button onclick={loadMore} class="btn btn-ghost btn-sm">Load more</button>
     {:else}
-      <span class="text-sm" style="color:var(--faint)">That’s all {data.count} ideas.</span>
+      <span class="ideas-foot__note">That’s all {data.count.toLocaleString()} ideas.</span>
     {/if}
     <div bind:this={sentinel} aria-hidden="true"></div>
   </div>
 {/if}
+
+<style>
+  .ideas-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
+  .ideas-title { margin-top: .35rem; font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; }
+  .ideas-count { color: var(--faint); font-size: .9rem; font-weight: 500; }
+
+  .ideas-controls { margin: 1.5rem 0 1.75rem; display: flex; flex-wrap: wrap; gap: .6rem; }
+  .seg { display: inline-flex; padding: 3px; gap: 2px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-pill); }
+  .seg__item {
+    border-radius: var(--r-pill); padding: .4rem .9rem; font-size: .85rem; font-weight: 600; color: var(--muted);
+    transition: background var(--dur-fast) var(--ease-snappy), color var(--dur-fast); white-space: nowrap;
+  }
+  .seg__item:hover { color: var(--ink); }
+  .seg__item[aria-current='true'] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-1); }
+
+  .ideas-empty { display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 3rem 1.5rem; color: var(--muted); }
+
+  .ideas-foot { margin-top: 2.25rem; display: flex; flex-direction: column; align-items: center; gap: .5rem; }
+  .ideas-foot__note { font-size: .85rem; color: var(--faint); }
+</style>
