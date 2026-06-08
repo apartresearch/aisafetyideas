@@ -5,7 +5,8 @@ import { rateLimit, RATE_LIMIT_MESSAGE } from '$lib/server/rate-limit';
 export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSession } }) => {
   const { user } = await safeGetSession();
   if (!user) redirect(303, '/login?next=/dashboard');
-  const tab = url.searchParams.get('tab') === 'discover' ? 'discover' : 'feed';
+  const rawTab = url.searchParams.get('tab');
+  const tab = rawTab === 'discover' ? 'discover' : rawTab === 'lab' ? 'lab' : 'feed';
 
   const { data: follows } = await supabase.from('follows').select('expert_id').eq('follower_id', user.id);
   const followedIds = (follows ?? []).map((f) => f.expert_id);
@@ -56,10 +57,42 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
   const chart = [...byIdea.values()];
   const totalCommittedCents = chart.reduce((sum, c) => sum + c.value, 0);
 
-  return { tab, hasFollows: followedIds.length > 0, feed, experts, myPledges, chart, totalCommittedCents };
+  // Lab tab: my drafts
+  const { data: drafts } = await supabase
+    .from('ideas').select('id, slug, title, summary_md, expansions')
+    .eq('author_id', user.id).eq('status', 'draft')
+    .order('created_at', { ascending: false });
+
+  return { tab, hasFollows: followedIds.length > 0, feed, experts, myPledges, chart, totalCommittedCents, drafts: drafts ?? [] };
 };
 
 export const actions: Actions = {
+  publish: async ({ request, locals: { supabase, safeGetSession } }) => {
+    const { user } = await safeGetSession();
+    if (!user) return fail(401, { message: 'Sign in' });
+    const fd = await request.formData();
+    const id = String(fd.get('id'));
+    if (!id) return fail(400, { message: 'Missing idea id' });
+    const type = fd.get('type') === 'hypothesis' ? 'hypothesis' : 'open_ended';
+    const claim = String(fd.get('claim') ?? '').trim();
+    const summary_md = String(fd.get('summary_md') ?? '').trim();
+    if (type === 'hypothesis' && !claim) return fail(400, { message: 'A hypothesis needs a claim' });
+    if (!summary_md) return fail(400, { message: 'Add a short summary before publishing' });
+    const patch = {
+      type,
+      claim: type === 'hypothesis' ? claim : null,
+      summary_md,
+      status: 'open',
+      published_at: new Date().toISOString()
+    };
+    const { data, error: e } = await supabase
+      .from('ideas').update(patch).eq('id', id).eq('status', 'draft')
+      .select('slug, status').single();
+    if (e || !data) return fail(400, { message: e?.message ?? 'Publish failed' });
+    if (data.status === 'open') redirect(303, `/ideas/${data.slug}`);
+    return { submitted: true, id };
+  },
+
   follow: async ({ request, locals: { supabase, safeGetSession } }) => {
     const { user } = await safeGetSession();
     if (!user) return fail(401, { message: 'Sign in' });

@@ -1,5 +1,5 @@
 begin;
-select plan(8);
+select plan(9);
 
 -- two users: alice (approved expert), bob (regular)
 insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
@@ -25,10 +25,17 @@ select throws_ok(
 -- act as bob (NOT an expert)
 set local request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}';
 
--- 3) non-expert cannot insert an idea (even authoring themselves)
-select throws_ok(
-  $$ insert into public.ideas (author_id, title) values ('22222222-2222-2222-2222-222222222222','bob idea') $$,
-  '42501', null, 'non-expert cannot insert idea');
+-- 3a) non-expert CAN insert their own idea (RLS allows authenticated insert own ideas)
+select lives_ok(
+  $$ insert into public.ideas (id, author_id, type, title, status)
+       values ('bbbbbbbb-0000-0000-0000-000000000001','22222222-2222-2222-2222-222222222222','hypothesis','bob idea','open') $$,
+  'non-expert can insert own idea');
+
+-- 3b) but the enforce_idea_submission trigger forces it to status=''archived''
+select is(
+  (select status from public.ideas where id = 'bbbbbbbb-0000-0000-0000-000000000001'),
+  'archived',
+  'non-expert own insert is coerced to archived by trigger');
 
 -- 4) bob (authed) can read alice's OPEN idea
 select ok((select count(*) from public.ideas where status='open') = 1, 'open idea readable by other users');
@@ -47,14 +54,16 @@ select throws_ok(
 set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
 update public.ideas set status='draft' where id='aaaaaaaa-0000-0000-0000-000000000001';
 
--- 7) anon cannot see a draft idea
+-- 7) anon cannot see a draft idea (filter by draft status; archived ideas remain readable)
 set local role anon;
-select ok((select count(*) from public.ideas) = 0, 'anon cannot see draft ideas');
+select ok((select count(*) from public.ideas where status = 'draft') = 0, 'anon cannot see draft ideas');
 
--- 8) the author CAN still see their own draft
+-- 8) the author CAN still see their own draft (check by ID)
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"11111111-1111-1111-1111-111111111111","role":"authenticated"}';
-select ok((select count(*) from public.ideas) = 1, 'author sees own draft');
+select ok(
+  exists(select 1 from public.ideas where id = 'aaaaaaaa-0000-0000-0000-000000000001' and status = 'draft'),
+  'author sees own draft');
 
 select * from finish();
 rollback;

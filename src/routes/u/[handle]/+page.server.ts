@@ -10,7 +10,24 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
     .eq('handle', params.handle)
     .single();
   if (!profile) error(404, 'Profile not found');
-  return { profile, bio_html: renderMarkdown(profile.bio_md) };
+
+  const [{ data: expert }, { data: authored }] = await Promise.all([
+    supabase.from('experts').select('status').eq('id', profile.id).maybeSingle(),
+    supabase
+      .from('ideas')
+      .select('id, slug, title, summary_md, type, status')
+      .eq('author_id', profile.id)
+      .not('status', 'in', '(draft,archived)')
+      .order('created_at', { ascending: false })
+      .limit(50)
+  ]);
+
+  return {
+    profile,
+    bio_html: renderMarkdown(profile.bio_md),
+    isVerifiedExpert: expert?.status === 'approved',
+    authored: authored ?? []
+  };
 };
 
 export const actions: Actions = {

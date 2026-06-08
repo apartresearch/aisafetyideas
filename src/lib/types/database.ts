@@ -566,6 +566,7 @@ export type Database = {
           created_at: string
           currency: string
           estimated_hours: number | null
+          expansions: Json
           from_date: string | null
           id: string
           importance: number | null
@@ -590,6 +591,7 @@ export type Database = {
           created_at?: string
           currency?: string
           estimated_hours?: number | null
+          expansions?: Json
           from_date?: string | null
           id?: string
           importance?: number | null
@@ -614,6 +616,7 @@ export type Database = {
           created_at?: string
           currency?: string
           estimated_hours?: number | null
+          expansions?: Json
           from_date?: string | null
           id?: string
           importance?: number | null
@@ -695,6 +698,7 @@ export type Database = {
           id: string
           is_admin: boolean
           links: Json
+          supporter_until: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -706,6 +710,7 @@ export type Database = {
           id: string
           is_admin?: boolean
           links?: Json
+          supporter_until?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -717,6 +722,7 @@ export type Database = {
           id?: string
           is_admin?: boolean
           links?: Json
+          supporter_until?: string | null
         }
         Relationships: []
       }
@@ -836,6 +842,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      can_use_lab_ai: { Args: never; Returns: boolean }
       consume_rate_limit: { Args: { p_bucket: string }; Returns: boolean }
       is_admin: { Args: never; Returns: boolean }
       reject_answer: {

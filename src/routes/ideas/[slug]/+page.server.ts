@@ -12,8 +12,20 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     .eq(ideaParamColumn(params.slug), params.slug)
     .single();
   if (!idea) error(404, 'Idea not found');
-  // archived (admin-hidden) and draft (unpublished) ideas are not publicly reachable
-  if (idea.status === 'archived' || idea.status === 'draft') error(404, 'Idea not found');
+
+  // Determine admin status early — needed for the draft/archived gate below.
+  let isAdminEarly = false;
+  if (user) {
+    const { data: me } = await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
+    isAdminEarly = me?.is_admin === true;
+  }
+
+  // Draft/archived ideas are only visible to their author or an admin.
+  if (idea.status === 'archived' || idea.status === 'draft') {
+    const isAuthor = !!user && user.id === idea.author_id;
+    if (!isAuthor && !isAdminEarly) error(404, 'Idea not found');
+  }
+
   // legacy /ideas/<uuid> URL → permanent-redirect to the canonical slug URL
   if (isUuid(params.slug)) redirect(301, `/ideas/${idea.slug}`);
 
@@ -76,14 +88,12 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
   const { count: interestCount } = await supabase
     .from('interest').select('id', { count: 'exact', head: true }).eq('idea_id', idea.id);
   let myInterestId: string | null = null;
-  let isAdmin = false;
+  // isAdminEarly was already fetched above; reuse it here (avoids a second profile fetch)
+  let isAdmin = isAdminEarly;
   if (user) {
     const { data: mine } = await supabase
       .from('interest').select('id').eq('idea_id', idea.id).eq('profile_id', user.id).maybeSingle();
     myInterestId = mine?.id ?? null;
-    // real admin status (from the DB, never user_metadata) so an admin sees the moderation delete control
-    const { data: me } = await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
-    isAdmin = me?.is_admin === true;
   }
 
   // votes: totals + the caller's own vote
