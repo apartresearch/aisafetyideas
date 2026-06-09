@@ -7,11 +7,27 @@ import { getPlatformConfig } from '$lib/server/config';
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, safeGetSession } }) => {
   const { user } = await safeGetSession();
-  const { data: idea } = await supabase
-    .from('ideas')
-    .select('id, slug, title, summary_md, claim, type, status, resolution, estimated_hours, importance, source_url, author_id, currency, resolution_criteria_md, methodology_md, theory_of_change_md, extensions_md')
-    .eq(ideaParamColumn(params.slug), params.slug)
-    .single();
+  // Core columns are guaranteed to exist (the same set the public list query reads), so existence
+  // and the 404 decision never depend on a column a drifted DB might be missing.
+  const CORE = 'id, slug, title, summary_md, type, status, author_id';
+  // Extended columns enrich the page but must NOT be able to 404 it: if the DB is missing any of
+  // them (schema drift between the migrations and a rebuilt prod DB), the rich select errors and we
+  // fall back to the core columns so a real idea still renders rather than masquerading as 404.
+  const EXTENDED =
+    `${CORE}, claim, resolution, estimated_hours, importance, source_url, currency,` +
+    ' resolution_criteria_md, methodology_md, theory_of_change_md, extensions_md';
+  const col = ideaParamColumn(params.slug);
+  let idea: Record<string, any> | null = null;
+  {
+    const full = await supabase.from('ideas').select(EXTENDED).eq(col, params.slug).single();
+    if (full.data) {
+      idea = full.data as Record<string, any>;
+    } else {
+      if (full.error) console.error('idea detail: extended select failed, falling back to core', full.error.message);
+      const core = await supabase.from('ideas').select(CORE).eq(col, params.slug).single();
+      idea = (core.data as Record<string, any>) ?? null;
+    }
+  }
   if (!idea) error(404, 'Idea not found');
 
   // Determine admin status early — needed for the draft/archived gate below.
