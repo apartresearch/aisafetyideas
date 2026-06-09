@@ -57,6 +57,12 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
   const chart = [...byIdea.values()];
   const totalCommittedCents = chart.reduce((sum, c) => sum + c.value, 0);
 
+  // Is the current user an approved expert? Approved experts publish straight to live;
+  // everyone else submits into the admin review queue. Drives the publish-button copy.
+  const { data: myExpert } = await supabase
+    .from('experts').select('status').eq('id', user.id).maybeSingle();
+  const isExpert = myExpert?.status === 'approved';
+
   // Lab tab: my drafts
   const { data: drafts } = await supabase
     .from('ideas').select('id, slug, title, summary_md, expansions, resolution_criteria_md, methodology_md, theory_of_change_md, extensions_md')
@@ -74,6 +80,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase, safeGetSes
 
   return {
     tab, hasFollows: followedIds.length > 0, feed, experts, myPledges, chart, totalCommittedCents,
+    isExpert,
     drafts: drafts ?? [],
     balances: {
       availableCents: Number(balances?.available_cents ?? 0),

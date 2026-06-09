@@ -5,6 +5,7 @@
     open = $bindable(false),
     draft,
     form,
+    isExpert = false,
   }: {
     open: boolean;
     draft: {
@@ -17,7 +18,11 @@
       extensions_md?: string | null;
     };
     form: { submitted?: boolean; id?: string; message?: string } | null;
+    isExpert?: boolean;
   } = $props();
+
+  // Approved experts publish straight to live; everyone else submits into the admin review queue.
+  let cta = $derived(isExpert ? 'Publish' : 'Submit for review');
 
   // svelte-ignore state_referenced_locally
   let type = $state<'open_ended' | 'hypothesis'>('open_ended');
@@ -58,7 +63,7 @@
 
     <div class="pd-panel card">
       <div class="pd-header">
-        <h2 class="pd-title" id="publish-dialog-title">Publish idea</h2>
+        <h2 class="pd-title" id="publish-dialog-title">{isExpert ? 'Publish idea' : 'Submit idea for review'}</h2>
         <button class="pd-close" onclick={close} aria-label="Close">✕</button>
       </div>
 
@@ -180,7 +185,7 @@
               class="btn btn-primary btn-sm"
               disabled={submitting}
             >
-              {submitting ? 'Publishing…' : 'Publish idea'}
+              {submitting ? (isExpert ? 'Publishing…' : 'Submitting…') : cta}
             </button>
             <button
               type="button"

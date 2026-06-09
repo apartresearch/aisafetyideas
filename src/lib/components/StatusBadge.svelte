@@ -1,7 +1,7 @@
 <script lang="ts">
   let { status }: { status: string } = $props();
   const label: Record<string, string> = {
-    open: 'Open', resolved: 'Resolved', closed: 'Closed', draft: 'Draft', archived: 'Archived',
+    open: 'Open', resolved: 'Resolved', closed: 'Closed', draft: 'Draft', review: 'In review', archived: 'Archived',
     submitted: 'Submitted', under_review: 'Under review', revision_requested: 'Revision requested',
     verified: 'Verified', rejected: 'Rejected'
   };

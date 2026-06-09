@@ -7,11 +7,16 @@
     draft = $bindable(),
     onremove,
     form = null,
+    isExpert = false,
   }: {
     draft: DraftRow;
     onremove: (id: string) => void;
     form?: { submitted?: boolean; message?: string } | null;
+    isExpert?: boolean;
   } = $props();
+
+  // Approved experts publish straight to live; everyone else submits for admin review.
+  let publishLabel = $derived(isExpert ? 'Publish' : 'Submit for review');
 
   let expanded = $state(false);
   let publishOpen = $state(false);
@@ -109,9 +114,9 @@
           class="btn btn-primary btn-sm"
           disabled={draft.pending || draft.id.startsWith('tmp-')}
           onclick={() => { publishOpen = true; }}
-          title="Publish this draft as a public idea"
+          title={isExpert ? 'Publish this draft as a public idea' : 'Submit this draft for admin review'}
         >
-          Publish
+          {publishLabel}
         </button>
         <button
           class="btn btn-ghost btn-sm draft-card__delete"
@@ -129,6 +134,7 @@
   bind:open={publishOpen}
   draft={{ id: draft.id, title: draft.title, summary_md: draft.summary_md ?? '' }}
   {form}
+  {isExpert}
 />
 
 <style>

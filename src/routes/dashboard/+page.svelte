@@ -67,7 +67,7 @@
 </nav>
 
 {#if data.tab === 'lab'}
-  <DraftList store={draftsStore} {form} />
+  <DraftList store={draftsStore} {form} isExpert={data.isExpert} />
 {:else}
   {#if data.tab === 'discover' || !data.hasFollows}
     {#if !data.hasFollows && data.tab === 'feed'}

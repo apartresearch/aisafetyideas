@@ -9,8 +9,9 @@ export function parseSort(value: string | null): IdeaSort {
   return value === 'new' ? 'new' : 'top';
 }
 
-/** Statuses never shown in public listings: drafts (unpublished) and archived (admin-hidden). */
-const HIDDEN_STATUSES = '(draft,archived)';
+/** Statuses never shown in public listings: drafts (unpublished), review (awaiting admin
+ *  moderation), and archived (admin-hidden). */
+const HIDDEN_STATUSES = '(draft,review,archived)';
 
 export type VerifiedSolution = { id: string; title: string };
 export type IdeaListItem = {

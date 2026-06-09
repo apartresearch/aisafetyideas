@@ -31,11 +31,11 @@ select lives_ok(
        values ('bbbbbbbb-0000-0000-0000-000000000001','22222222-2222-2222-2222-222222222222','hypothesis','bob idea','open') $$,
   'non-expert can insert own idea');
 
--- 3b) but the enforce_idea_submission trigger forces it to status=''archived''
+-- 3b) but the enforce_idea_submission trigger forces it into the review queue
 select is(
   (select status from public.ideas where id = 'bbbbbbbb-0000-0000-0000-000000000001'),
-  'archived',
-  'non-expert own insert is coerced to archived by trigger');
+  'review',
+  'non-expert own insert is coerced to review by trigger');
 
 -- 4) bob (authed) can read alice's OPEN idea
 select ok((select count(*) from public.ideas where status='open') = 1, 'open idea readable by other users');

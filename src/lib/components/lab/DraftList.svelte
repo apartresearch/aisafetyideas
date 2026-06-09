@@ -5,9 +5,11 @@
   let {
     store,
     form = null,
+    isExpert = false,
   }: {
     store: { drafts: any[]; add: (title: string) => Promise<void>; remove: (id: string) => void };
     form?: { submitted?: boolean; message?: string } | null;
+    isExpert?: boolean;
   } = $props();
 </script>
 
@@ -20,7 +22,7 @@
     <ul class="draft-list__items">
       {#each store.drafts as draft, i (draft.key)}
         <li>
-          <DraftCard bind:draft={store.drafts[i]} onremove={store.remove} {form} />
+          <DraftCard bind:draft={store.drafts[i]} onremove={store.remove} {form} {isExpert} />
         </li>
       {/each}
     </ul>

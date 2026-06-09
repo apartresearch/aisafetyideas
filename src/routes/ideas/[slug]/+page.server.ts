@@ -37,8 +37,8 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     isAdminEarly = me?.is_admin === true;
   }
 
-  // Draft/archived ideas are only visible to their author or an admin.
-  if (idea.status === 'archived' || idea.status === 'draft') {
+  // Draft/review/archived ideas are only visible to their author or an admin.
+  if (idea.status === 'archived' || idea.status === 'draft' || idea.status === 'review') {
     const isAuthor = !!user && user.id === idea.author_id;
     if (!isAuthor && !isAdminEarly) error(404, 'Idea not found');
   }
