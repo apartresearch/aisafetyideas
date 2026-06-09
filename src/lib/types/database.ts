@@ -1070,6 +1070,26 @@ export type Database = {
         }
         Returns: string
       }
+      admin_dashboard_stats: {
+        Args: Record<string, never>
+        Returns: Json
+      }
+      admin_set_admin: {
+        Args: { p_is_admin: boolean; p_profile: string }
+        Returns: undefined
+      }
+      admin_set_expert: {
+        Args: { p_approved: boolean; p_profile: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          featured: boolean
+          id: string
+          specialty: string | null
+          status: string
+        }
+      }
       admin_approve_payout: {
         Args: { p_answer_id: string; p_note?: string }
         Returns: {

@@ -26,6 +26,9 @@
         <a href="/experts" class="site-nav__link">Experts</a>
         {#if data.user}
           <a href="/dashboard" class="site-nav__link">Dashboard</a>
+          {#if data.isAdmin}
+            <a href="/admin" class="site-nav__link">Admin</a>
+          {/if}
           <form method="POST" action="/logout" class="contents">
             <button type="submit" class="btn btn-secondary btn-sm">Sign out</button>
           </form>
