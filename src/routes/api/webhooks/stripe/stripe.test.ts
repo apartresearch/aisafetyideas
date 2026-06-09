@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// ── mock the seams (Stripe + system client + config) — NO live calls ──
+// ── mock the seams (Stripe + system client + config) - NO live calls ──
 const constructEvent = vi.fn();
 vi.mock('$lib/server/stripe', () => ({
   getStripe: () => ({ webhooks: { constructEvent } }),
@@ -26,7 +26,7 @@ const sysClient: any = {
 };
 vi.mock('$lib/server/system-client', () => ({ getSystemClient: async () => sysClient }));
 
-// config reads via getPlatformConfig(sys) — mock it directly so we don't fight the from() mock.
+// config reads via getPlatformConfig(sys) - mock it directly so we don't fight the from() mock.
 vi.mock('$lib/server/config', () => ({
   getPlatformConfig: async () => ({ feeBps: 450, fundingEnabled: true, minWithdrawalCents: 100 })
 }));
@@ -102,7 +102,7 @@ describe('POST /api/webhooks/stripe', () => {
     expect(insert).toHaveBeenCalledWith({ id: 'evt_acct', type: 'account.updated' });
   });
 
-  it('replay: a known event short-circuits — no credit_balance, fast 200', async () => {
+  it('replay: a known event short-circuits - no credit_balance, fast 200', async () => {
     constructEvent.mockReturnValue(completedEvent);
     maybeSingle.mockResolvedValue({ data: { id: 'evt_123' }, error: null });
     const res = await POST(req());

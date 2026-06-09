@@ -45,7 +45,7 @@ select is(
   '4: payout_count = 1 after first release'
 );                                                                                                          -- 4
 
--- ── 5: post a withdrawal — lifetime_cents must NOT decrease ──────────────────
+-- ── 5: post a withdrawal - lifetime_cents must NOT decrease ──────────────────
 select public.post_ledger(
   '[
     {"kind":"withdrawal","account":"payable","profile_id":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","amount_cents":-1000},

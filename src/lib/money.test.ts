@@ -8,14 +8,14 @@ describe('formatCents', () => {
     expect(formatCents(100000)).toBe('$1,000.00');
   });
   it('renders an em-dash for null/undefined', () => {
-    expect(formatCents(null)).toBe('—');
-    expect(formatCents(undefined)).toBe('—');
+    expect(formatCents(null)).toBe('-');
+    expect(formatCents(undefined)).toBe('-');
   });
   it('honors a currency argument', () => {
     expect(formatCents(500, 'EUR')).toBe('€5.00');
   });
   it('maps legacy currency symbols to ISO codes (never throws)', () => {
-    // legacy ETL rows store "$" — Intl.NumberFormat would throw RangeError and 500 the page
+    // legacy ETL rows store "$" - Intl.NumberFormat would throw RangeError and 500 the page
     expect(formatCents(3712, '$')).toBe('$37.12');
     expect(formatCents(500, '€')).toBe('€5.00');
   });

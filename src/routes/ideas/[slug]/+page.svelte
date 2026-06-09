@@ -28,7 +28,7 @@
       if (!res.ok || !payload.url) { fundError = payload.message ?? 'Could not start checkout.'; funding = false; return; }
       window.location.href = payload.url;
     } catch {
-      fundError = 'Network error — try again.';
+      fundError = 'Network error - try again.';
       funding = false;
     }
   }
@@ -74,7 +74,7 @@
         {#if data.canSubmit}<a href="/ideas/{data.idea.slug}/answer" class="btn btn-primary btn-sm">Submit an answer</a>{/if}
       </div>
       {#if data.answers.length === 0}
-        <p class="block__empty">No answers yet{#if data.canSubmit} — be the first to respond.{/if}</p>
+        <p class="block__empty">No answers yet{#if data.canSubmit} - be the first to respond.{/if}</p>
       {:else}
         <div class="stack">{#each data.answers as answer (answer.id)}<AnswerCard {answer} />{/each}</div>
       {/if}
@@ -85,6 +85,7 @@
       {#if data.canEngage}
         <form method="POST" action="?/comment" class="comment-form">
           <textarea name="body_md" required placeholder="Add a comment (markdown supported)" rows="3" class="textarea"></textarea>
+          <p style="font-size:.75rem; color:var(--faint); margin:0">Markdown + LaTeX ($x^2$, $$\sum$$) supported</p>
           <button class="btn btn-secondary btn-sm comment-form__btn">Comment</button>
         </form>
       {/if}
@@ -122,7 +123,7 @@
         {#if data.pot.pot_cents > 0}
           <div class="panel__amount tnum"><Money cents={data.pot.pot_cents} currency={data.idea.currency ?? 'USD'} /></div>
         {:else}
-          <p class="panel__hint">Open for funding — be the first to back this question.</p>
+          <p class="panel__hint">Open for funding - be the first to back this question.</p>
         {/if}
 
         {#if data.canFund}
@@ -145,7 +146,7 @@
                 <input id="fund-amount" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required class="input fund__input" />
               </div>
               <button class="btn btn-primary fund__btn">Pledge</button>
-              <p class="fund__note">A pledge is a commitment — no funds move yet.</p>
+              <p class="fund__note">A pledge is a commitment - no funds move yet.</p>
             </form>
           {/if}
         {/if}
@@ -160,7 +161,7 @@
         {#if data.canEngage}
           {#if data.myInterestId}
             <form method="POST" action="?/uninterest">
-              <button class="btn btn-secondary panel__action panel__action--on">Interested ✓ — withdraw</button>
+              <button class="btn btn-secondary panel__action panel__action--on">Interested ✓ - withdraw</button>
             </form>
           {:else}
             <form method="POST" action="?/interest">

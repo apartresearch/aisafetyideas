@@ -65,7 +65,7 @@
   .idea__stat { white-space: nowrap; }
   .idea__stat .tnum { color: var(--body); font-weight: 600; }
 
-  /* verified solution strip — sits above the stretched link so it's independently clickable */
+  /* verified solution strip - sits above the stretched link so it's independently clickable */
   .idea__verified {
     position: relative; z-index: 1; margin-top: .85rem; display: flex; align-items: center; gap: .4rem;
     padding: .55rem .7rem; border-radius: var(--r-chip); font-size: .82rem;

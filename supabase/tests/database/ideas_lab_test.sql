@@ -36,13 +36,13 @@ select is(
   '1: non-expert INSERT draft → stays draft'
 );
 
--- 2: non-expert INSERT with status != draft → coerced to archived
+-- 2: non-expert INSERT with status != draft → coerced to review
 insert into public.ideas (id, author_id, type, title, status)
   values ('bbbb0002-0000-0000-0000-000000000002','aaaa0002-0000-0000-0000-000000000002','open_ended','bob open','open');
 select is(
   (select status from public.ideas where id = 'bbbb0002-0000-0000-0000-000000000002'),
-  'archived',
-  '2: non-expert INSERT non-draft → coerced to archived'
+  'review',
+  '2: non-expert INSERT non-draft → coerced to review'
 );
 
 -- 3: approved-expert INSERT with status != draft → stays open
@@ -58,14 +58,14 @@ select is(
 
 -- ============ UPDATE (publish) gate tests ============
 
--- 4: non-expert UPDATE draft→open → coerced to archived
+-- 4: non-expert UPDATE draft→open → coerced to review
 set local "request.jwt.claims" = '{"sub":"aaaa0002-0000-0000-0000-000000000002","role":"authenticated"}';
 
 update public.ideas set status = 'open' where id = 'bbbb0001-0000-0000-0000-000000000001';
 select is(
   (select status from public.ideas where id = 'bbbb0001-0000-0000-0000-000000000001'),
-  'archived',
-  '4: non-expert UPDATE draft→open → coerced to archived'
+  'review',
+  '4: non-expert UPDATE draft→open → coerced to review'
 );
 
 -- 5: approved-expert UPDATE draft→open → stays open
@@ -107,7 +107,7 @@ select ok(not public.can_use_lab_ai(), '9: expired supporter cannot use lab AI')
 -- ============ draft-delete policy tests ============
 
 -- 10: non-expert author can delete their own draft
---     bob already has a draft (bbbb0002 was coerced to archived; use a fresh draft)
+--     bob already has a draft (bbbb0002 was coerced to review; use a fresh draft)
 set local "request.jwt.claims" = '{"sub":"aaaa0002-0000-0000-0000-000000000002","role":"authenticated"}';
 insert into public.ideas (id, author_id, type, title, status)
   values ('bbbb0010-0000-0000-0000-000000000010','aaaa0002-0000-0000-0000-000000000002','open_ended','bob draft to delete','draft');
@@ -123,13 +123,13 @@ select is(
 );
 
 -- 11: author cannot delete a non-draft of theirs (silently 0 rows, no error)
---     bbbb0002 was coerced to archived; bob cannot delete it
+--     bbbb0002 was coerced to review; bob cannot delete it
 set local "request.jwt.claims" = '{"sub":"aaaa0002-0000-0000-0000-000000000002","role":"authenticated"}';
 delete from public.ideas where id = 'bbbb0002-0000-0000-0000-000000000002';
 select is(
   (select count(*)::int from public.ideas where id = 'bbbb0002-0000-0000-0000-000000000002'),
   1,
-  '11: author cannot delete a non-draft idea (archived row survives)'
+  '11: author cannot delete a non-draft idea (review row survives)'
 );
 
 -- ============ admin override tests ============

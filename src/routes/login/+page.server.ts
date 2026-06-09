@@ -12,7 +12,7 @@ export const load: PageServerLoad = async ({ url }) => ({ next: safeNext(url.sea
 export const actions: Actions = {
   google: async ({ url, getClientAddress, locals: { supabase } }) => {
     if (loginLimited(getClientAddress()))
-      return fail(429, { message: 'Too many attempts — try again in a few minutes.' });
+      return fail(429, { message: 'Too many attempts - try again in a few minutes.' });
     const next = safeNext(url.searchParams.get('next'));
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -23,7 +23,7 @@ export const actions: Actions = {
   },
   magiclink: async ({ request, url, getClientAddress, locals: { supabase } }) => {
     if (loginLimited(getClientAddress()))
-      return fail(429, { message: 'Too many attempts — try again in a few minutes.' });
+      return fail(429, { message: 'Too many attempts - try again in a few minutes.' });
     const next = safeNext(url.searchParams.get('next'));
     const email = String((await request.formData()).get('email') ?? '');
     if (!email) return fail(400, { message: 'Email required' });

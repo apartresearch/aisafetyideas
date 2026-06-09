@@ -1,4 +1,4 @@
--- ============ profiles (1:1 with auth.users; NO email column — email stays in auth.users) ============
+-- ============ profiles (1:1 with auth.users; NO email column - email stays in auth.users) ============
 create table public.profiles (
   id           uuid primary key references auth.users(id) on delete cascade,
   handle       text unique not null,

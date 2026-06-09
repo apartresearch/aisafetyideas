@@ -7,7 +7,7 @@ alter table public.ideas add column expansions jsonb not null default '{}'::json
 alter table public.profiles add column supporter_until timestamptz;
 
 -- 3) INSERT gate: exempt drafts (private scratchpad); else expert→open, other→archived.
---    create or replace — replaces the version from 20260608081014_open_idea_submissions.sql
+--    create or replace - replaces the version from 20260608081014_open_idea_submissions.sql
 create or replace function public.enforce_idea_submission()
 returns trigger language plpgsql set search_path = '' as $$
 begin
@@ -53,7 +53,7 @@ revoke all on function public.can_use_lab_ai() from public;
 grant execute on function public.can_use_lab_ai() to authenticated;
 
 -- 6) Add ai_generate bucket to consume_rate_limit (copy function verbatim + new CASE arm).
---    Source: supabase/migrations/20260607102806_rate_limits.sql — only the CASE arm is new.
+--    Source: supabase/migrations/20260607102806_rate_limits.sql - only the CASE arm is new.
 create or replace function public.consume_rate_limit(p_bucket text)
 returns boolean
 language plpgsql security definer set search_path = ''

@@ -34,7 +34,7 @@
   function buildHref(type: string | null, sort: 'top' | 'new'): string {
     const p = new URLSearchParams();
     if (type) p.set('type', type);
-    if (sort === 'new') p.set('sort', 'new'); // 'top' (net upvotes) is the default — omit it
+    if (sort === 'new') p.set('sort', 'new'); // 'top' (net upvotes) is the default - omit it
     const qs = p.toString();
     return qs ? `/ideas?${qs}` : '/ideas';
   }
@@ -113,7 +113,7 @@
     {#if loading}
       <Spinner label="Loading more ideas" />
     {:else if failed}
-      <button onclick={loadMore} class="btn btn-secondary btn-sm">Couldn’t load — retry</button>
+      <button onclick={loadMore} class="btn btn-secondary btn-sm">Couldn’t load - retry</button>
     {:else if hasMore}
       <!-- manual fallback (keyboard / no-IntersectionObserver); the observer auto-triggers loadMore -->
       <button onclick={loadMore} class="btn btn-ghost btn-sm">Load more</button>

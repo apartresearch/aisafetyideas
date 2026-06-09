@@ -1,21 +1,21 @@
 # Verify→Payout Signature Animation Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development. Steps use checkbox (`- [ ]`) syntax. No cloud/DB/RPC changes — presentational + an enhance conversion. Constraints: never edit CLAUDE.md/docs//.claude//src_legacy_v0/; never `git add .`/`git add -A` (explicit paths only).
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development. Steps use checkbox (`- [ ]`) syntax. No cloud/DB/RPC changes - presentational + an enhance conversion. Constraints: never edit CLAUDE.md/docs//.claude//src_legacy_v0/; never `git add .`/`git add -A` (explicit paths only).
 
-**Goal:** Play CLAUDE.md's verify→payout signature moment — a seal draws its check + fills `--green` with a small pop, then the recorded payout counts up with one green glow — **only after the server confirms** the verify; a lighter seal on admin approve; a restrained settle on reject (dim) / revision (amber); everything jumps to final under `prefers-reduced-motion`.
+**Goal:** Play CLAUDE.md's verify→payout signature moment - a seal draws its check + fills `--green` with a small pop, then the recorded payout counts up with one green glow - **only after the server confirms** the verify; a lighter seal on admin approve; a restrained settle on reject (dim) / revision (amber); everything jumps to final under `prefers-reduced-motion`.
 
 **Architecture:** Two presentational primitives (`VerifySeal`, `CountUp`, each with an injectable `reduced` prop), a pure formatter + a reduced-motion store, two CSS keyframes, and a framework-agnostic `use:enhance` orchestration helper (`makeOutcomeEnhancer`) that shows the success visual **in the result callback on success only**. Wired into the console + admin/payouts review forms. Spec: `docs/superpowers/specs/2026-06-07-verify-payout-animation-design.md`.
 
-**Tech Stack:** Svelte 5 runes, `svelte/motion` `tweened` + `svelte/easing` `cubicOut`, Tailwind v4, vitest + `@testing-library/svelte` (jsdom). **Component render tests require config not yet present** — Task 1 adds `resolve.conditions:['browser']` + a `matchMedia` setup stub (without which `svelte/motion` throws at import under jsdom). The `reduced` prop (not the store) is what tests drive, so both motion branches are deterministically testable.
+**Tech Stack:** Svelte 5 runes, `svelte/motion` `tweened` + `svelte/easing` `cubicOut`, Tailwind v4, vitest + `@testing-library/svelte` (jsdom). **Component render tests require config not yet present** - Task 1 adds `resolve.conditions:['browser']` + a `matchMedia` setup stub (without which `svelte/motion` throws at import under jsdom). The `reduced` prop (not the store) is what tests drive, so both motion branches are deterministically testable.
 
 ---
 
 ## Key decisions
-- **Success-gated visual (the money-honesty fix):** the green seal/CountUp/glow mount **only when `result.type==='success'`**, never optimistically — a rate-limited/failed verify must never flash "Verified · $X". The before-submit phase only marks the row in-flight (hides controls, no green).
+- **Success-gated visual (the money-honesty fix):** the green seal/CountUp/glow mount **only when `result.type==='success'`**, never optimistically - a rate-limited/failed verify must never flash "Verified · $X". The before-submit phase only marks the row in-flight (hides controls, no green).
 - **`reduced` is an injectable prop** on `CountUp`/`VerifySeal` (default = `get(prefersReducedMotion)`), so vitest drives both branches without depending on jsdom matchMedia.
 - **DRY money:** `formatCents` in `$lib/money.ts`, used by `Money` + `CountUp`.
 - **Orchestration extracted** to `$lib/review-motion.ts` for unit testing the phase logic.
-- **Seal/glow are CSS-driven**; the global reduced-motion block neutralizes them. On the admin **table**, animate cells (`<td>`)/opacity — never `transform`/`box-shadow` on `<tr>` (unreliable).
+- **Seal/glow are CSS-driven**; the global reduced-motion block neutralizes them. On the admin **table**, animate cells (`<td>`)/opacity - never `transform`/`box-shadow` on `<tr>` (unreliable).
 
 ## File structure
 
@@ -73,7 +73,7 @@ if (typeof window !== 'undefined' && typeof window.matchMedia !== 'function') {
 }
 ```
 
-- [ ] **Step 2: Confirm the config works** — `npx vitest run` → the existing suites still pass (the `conditions`/setup change must not break route-logic tests). Expected: all current tests green.
+- [ ] **Step 2: Confirm the config works** - `npx vitest run` → the existing suites still pass (the `conditions`/setup change must not break route-logic tests). Expected: all current tests green.
 
 - [ ] **Step 3: Write the failing test** `src/lib/money.test.ts`:
 
@@ -88,8 +88,8 @@ describe('formatCents', () => {
     expect(formatCents(100000)).toBe('$1,000.00');
   });
   it('renders an em-dash for null/undefined', () => {
-    expect(formatCents(null)).toBe('—');
-    expect(formatCents(undefined)).toBe('—');
+    expect(formatCents(null)).toBe('-');
+    expect(formatCents(undefined)).toBe('-');
   });
   it('honors a currency argument', () => {
     expect(formatCents(500, 'EUR')).toBe('€5.00');
@@ -105,7 +105,7 @@ describe('formatCents', () => {
 /** Format integer cents as a localized currency string; null/undefined → em-dash. */
 export function formatCents(cents: number | null | undefined, currency = 'USD'): string {
   return cents == null
-    ? '—'
+    ? '-'
     : new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(cents / 100);
 }
 ```
@@ -205,7 +205,7 @@ describe('CountUp', () => {
 ```
 
 - [ ] **Step 4: Run** → PASS (`reduced:true` immediate; `reduced:false` animates 0→target; sizer shows final). `npm run check` → 0 errors.
-- [ ] **Step 5: Commit** `git add src/lib/components/CountUp.svelte src/lib/components/CountUp.test.ts && git commit -m "feat(motion): CountUp — width-reserved tweened amount, reduced prop"`
+- [ ] **Step 5: Commit** `git add src/lib/components/CountUp.svelte src/lib/components/CountUp.test.ts && git commit -m "feat(motion): CountUp - width-reserved tweened amount, reduced prop"`
 
 ---
 
@@ -289,7 +289,7 @@ describe('VerifySeal', () => {
 ```
 
 - [ ] **Step 4: Run** → PASS; `npm run check` → 0 errors.
-- [ ] **Step 5: Commit** `git add src/lib/components/VerifySeal.svelte src/lib/components/VerifySeal.test.ts && git commit -m "feat(motion): VerifySeal — check-draw + green pop / reject ✕, reduced prop"`
+- [ ] **Step 5: Commit** `git add src/lib/components/VerifySeal.svelte src/lib/components/VerifySeal.test.ts && git commit -m "feat(motion): VerifySeal - check-draw + green pop / reject ✕, reduced prop"`
 
 ---
 
@@ -354,7 +354,7 @@ describe('makeOutcomeEnhancer', () => {
     expect(hold).toHaveBeenCalledWith(HOLD_MS.verifying);
     expect(calls).toEqual(['markPending', 'showSucceeded', 'hold', 'update', 'finish']);
   });
-  it('FAILURE: never shows the success visual, no hold — just update + finish', async () => {
+  it('FAILURE: never shows the success visual, no hold - just update + finish', async () => {
     const { enhancer, calls, hold } = harness();
     const update = vi.fn(() => { calls.push('update'); return Promise.resolve(); });
     await enhancer({ cancel: vi.fn() } as any)!({ result: { type: 'failure' }, update } as any);
@@ -399,11 +399,11 @@ export const HOLD_MS: Record<OutcomeKind, number> = {
 
 /**
  * Build a `use:enhance` SubmitFunction that plays the review-outcome moment, then refetches.
- * SUCCESS-GATED: the before-submit phase only marks the row in-flight (markPending — NO green seal,
+ * SUCCESS-GATED: the before-submit phase only marks the row in-flight (markPending - NO green seal,
  * so a rejected/failed request never flashes a fake "Verified"). The success visual (showSucceeded)
  * mounts ONLY in the result callback when result.type === 'success', then holds the full sequence
  * (skipped under reduced motion), then update() refetches, then finish().
- * On a fail() result: no success visual, no hold — just update() + finish() (the form's
+ * On a fail() result: no success visual, no hold - just update() + finish() (the form's
  * error message surfaces via the page's `form` prop after invalidateAll).
  */
 export function makeOutcomeEnhancer(opts: {
@@ -448,7 +448,7 @@ export function makeOutcomeEnhancer(opts: {
 > **Behavior note (corrected):** after `update()`, a **verified** or **rejected** row leaves the
 > queue (those statuses aren't in the load filter `submitted/under_review/revision_requested`), so
 > the moment is its send-off. A **request_revision** row **stays** (`revision_requested` is in the
-> filter) and re-shows its controls with a "Revision requested" badge — the amber settle reads as
+> filter) and re-shows its controls with a "Revision requested" badge - the amber settle reads as
 > in-place feedback, not a removal.
 
 - [ ] **Step 1: Replace the `<script>` block** in `src/routes/console/+page.svelte`:
@@ -567,14 +567,14 @@ export function makeOutcomeEnhancer(opts: {
 (If `.sr-only` isn't already a global utility, add it to `app.css`: `.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}`.)
 
 - [ ] **Step 3: Verify** `npm run check` → 0 errors; `npm run build` → succeeds; `npx vitest run` → all green.
-- [ ] **Step 4: Manual smoke** (`npm run dev`): expert sign-in isn't headless-feasible — confirm the route compiles/renders (curl returns 200 or the auth redirect) and rely on the unit suites for behavior. Note the observation.
+- [ ] **Step 4: Manual smoke** (`npm run dev`): expert sign-in isn't headless-feasible - confirm the route compiles/renders (curl returns 200 or the auth redirect) and rely on the unit suites for behavior. Note the observation.
 - [ ] **Step 5: Commit** `git add src/routes/console/+page.svelte src/app.css && git commit -m "feat(console): success-gated verify moment + reject(dim)/revision(amber) settle"`
 
 ---
 
 ## Task 6: Wire the admin/payouts gate (lighter seal, table-safe)
 
-**Files:** Modify `src/routes/admin/payouts/+page.svelte`. Approve = `approving` kind (~400ms seal pop + glow, **no count-up** — amount unchanged). Reject = dim only. **No `transform`/`box-shadow` on `<tr>`** — glow goes on the action `<td>`, reject uses `row-dim` (opacity, which is reliable on rows).
+**Files:** Modify `src/routes/admin/payouts/+page.svelte`. Approve = `approving` kind (~400ms seal pop + glow, **no count-up** - amount unchanged). Reject = dim only. **No `transform`/`box-shadow` on `<tr>`** - glow goes on the action `<td>`, reject uses `row-dim` (opacity, which is reliable on rows).
 
 - [ ] **Step 1: Replace the `<script>`**:
 

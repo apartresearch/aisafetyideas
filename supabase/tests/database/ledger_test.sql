@@ -68,7 +68,7 @@ select throws_ok(
   'P0001', null, '7: single-leg transaction raises exception'
 );                                                                                                                      -- 7
 
--- ── 8: idempotency — re-posting same key is a no-op ──────────────────────────
+-- ── 8: idempotency - re-posting same key is a no-op ──────────────────────────
 select is(
   (select count(*) from public.ledger_entries where idempotency_key = 'idem-test-1')::int,
   1,
@@ -143,7 +143,7 @@ select is((select count(*) from del)::int, 0,
   '11: authenticated DELETE matches 0 rows (no RLS write policy)'
 );                                                                                                                      -- 13
 
--- ── 12: RLS read isolation — alice cannot see bob's rows ─────────────────────
+-- ── 12: RLS read isolation - alice cannot see bob's rows ─────────────────────
 reset role;
 -- post some ledger entries for bob as superuser
 select public.post_ledger(
@@ -173,7 +173,7 @@ select ok(
   '13: alice can SELECT her own ledger rows'
 );                                                                                                                      -- 15
 
--- ── 14: balance correctness — multi-leg scenario ────────────────────────────
+-- ── 14: balance correctness - multi-leg scenario ────────────────────────────
 -- alice current state (from tests 4+5 above): available=400, escrowed=600
 -- now post a release: bounty -300, payable +300
 reset role;

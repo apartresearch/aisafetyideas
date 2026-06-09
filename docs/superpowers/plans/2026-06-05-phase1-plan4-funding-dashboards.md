@@ -1,10 +1,10 @@
-# AI Safety Ideas — Phase 1 · Plan 4: Funding pledges & Dashboards — Implementation Plan
+# AI Safety Ideas - Phase 1 · Plan 4: Funding pledges & Dashboards - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax.
 
-**Goal:** Add the **funding** layer — `idea_funding` (pledges) + a `bounty_pot` view — the **funder dashboard** (`/dashboard`: followed-expert feed · discover/follow · my funding), the **BountyMeter** on idea pages, and the first **data-viz** surface using the `CLAUDE.md` chart tokens. **Money stays OFF**: a pledge is a *visible Phase-1 commitment* (`status='committed'`), not a money movement; escrow/release/refund are Phase-2 RPCs.
+**Goal:** Add the **funding** layer - `idea_funding` (pledges) + a `bounty_pot` view - the **funder dashboard** (`/dashboard`: followed-expert feed · discover/follow · my funding), the **BountyMeter** on idea pages, and the first **data-viz** surface using the `CLAUDE.md` chart tokens. **Money stays OFF**: a pledge is a *visible Phase-1 commitment* (`status='committed'`), not a money movement; escrow/release/refund are Phase-2 RPCs.
 
-**Architecture:** Builds on Plans 1–3 (identity/`follows`, `ideas`, `answers`). Pledge creation is a plain RLS INSERT (funder pledges to an open idea, `status` + `legacy` pinned), mirroring how answer-submission works — no money RPC in Phase 1. The pot is a `security_invoker` SQL **view** over active pledges (no mutable column on `ideas`). The dashboard reuses Plan 1's `follows` table (RLS already allows self-manage) for the feed/discover. Charts are dependency-free inline SVG using the brand chart tokens.
+**Architecture:** Builds on Plans 1–3 (identity/`follows`, `ideas`, `answers`). Pledge creation is a plain RLS INSERT (funder pledges to an open idea, `status` + `legacy` pinned), mirroring how answer-submission works - no money RPC in Phase 1. The pot is a `security_invoker` SQL **view** over active pledges (no mutable column on `ideas`). The dashboard reuses Plan 1's `follows` table (RLS already allows self-manage) for the feed/discover. Charts are dependency-free inline SVG using the brand chart tokens.
 
 **Tech Stack:** unchanged from Plans 1–3 (SvelteKit 2 + Svelte 5 runes + Supabase v2 + `@supabase/ssr`, pgTAP, Playwright, Vitest, Tailwind v4).
 
@@ -15,19 +15,19 @@
 ## Key design decisions
 
 - **Pledges are Phase-1 commitments, money OFF.** `idea_funding.status='committed'` records "this funder pledges $X to this idea." No funds move; `escrowed`/`released`/`refunded` are reserved for the Phase-2 money plan (which adds the ledger + SECURITY DEFINER escrow RPCs that transition a pledge). Plan 4 adds **no** UPDATE policy and **no** money RPC.
-- **Pledge creation is a plain RLS INSERT** (not an RPC) — same posture as answer submission: `WITH CHECK` pins `funder_id = auth.uid()`, `status='committed'`, `currency='USD'`, `amount_cents > 0`, `legacy_id IS NULL`/`legacy='{}'` (service-role-only ETL anchors), and requires the idea to be `open`.
-- **Pledges follow their idea's visibility** (hardened after plan review). The SELECT policy reads a pledge only if the caller can see its idea (`exists (select 1 from public.ideas i where i.id = idea_id)` — leverages the `ideas` RLS that hides drafts) **or** the caller is the funder. So reverting an idea to `draft` hides its pledges + pot too (no money-leak on un-publish); for non-draft ideas this is the Manifund-style public display. Because `bounty_pot` is `security_invoker`, this same gate automatically excludes hidden-idea pledges from the pot. (A funder-anonymity flag is deferred.)
+- **Pledge creation is a plain RLS INSERT** (not an RPC) - same posture as answer submission: `WITH CHECK` pins `funder_id = auth.uid()`, `status='committed'`, `currency='USD'`, `amount_cents > 0`, `legacy_id IS NULL`/`legacy='{}'` (service-role-only ETL anchors), and requires the idea to be `open`.
+- **Pledges follow their idea's visibility** (hardened after plan review). The SELECT policy reads a pledge only if the caller can see its idea (`exists (select 1 from public.ideas i where i.id = idea_id)` - leverages the `ideas` RLS that hides drafts) **or** the caller is the funder. So reverting an idea to `draft` hides its pledges + pot too (no money-leak on un-publish); for non-draft ideas this is the Manifund-style public display. Because `bounty_pot` is `security_invoker`, this same gate automatically excludes hidden-idea pledges from the pot. (A funder-anonymity flag is deferred.)
 - **Top-ups allowed:** a funder may pledge multiple times to the same idea (spec §3 "funders can top up"); no unique `(idea, funder)` constraint. The idea-page funder list **aggregates by funder** (sums a funder's pledges into one row) so it agrees with `funder_count`.
-- **Anti-vandalism:** the INSERT WITH CHECK caps a single pledge at **`amount_cents <= 100000000`** ($1M) so a malicious member can't deface a public pot with an absurd figure. (Per-endpoint **rate-limiting** — spec §9 — is a cross-cutting concern applying to submit/pledge/etc.; it's deferred to a single app-wide pass, noted in Plan 5, not bolted onto this one RLS policy.)
+- **Anti-vandalism:** the INSERT WITH CHECK caps a single pledge at **`amount_cents <= 100000000`** ($1M) so a malicious member can't deface a public pot with an absurd figure. (Per-endpoint **rate-limiting** - spec §9 - is a cross-cutting concern applying to submit/pledge/etc.; it's deferred to a single app-wide pass, noted in Plan 5, not bolted onto this one RLS policy.)
 - **Withdraw = delete own `committed` pledge** (DELETE policy, `committed`-only). The action `.select()`s the deleted row and fails loudly if RLS matched nothing (no false "withdrawn"). Once Phase 2 escrows a pledge it's no longer `committed`, so it can't be silently withdrawn.
-- **`bounty_pot` is a `security_invoker` view** — `sum(amount) filter (committed|escrowed)` (COALESCE→0) + **`count(distinct coalesce(funder_id::text,'anon'))`** per idea (spec's "no mutable column" rule). The `coalesce(...,'anon')` is deliberate: plain `count(distinct funder_id)` drops deleted (`null`) funders and desyncs from `pot_cents`; bucketing nulls as `'anon'` keeps the count consistent with the money the pot shows. `security_invoker=true` (PG15+) so it respects `idea_funding` RLS; explicit `grant select ... to anon, authenticated`.
-- **Post-login honors `?next=`** (fixed here). The dashboard gate redirects to `/login?next=/dashboard`; this plan threads `next` through the login actions → `/auth/callback?next=…` (already sanitized) so sign-in returns the user to where they were headed — fixing every gated route (`/console`, `/admin`, `/ideas/[id]/answer`, `/dashboard`), not just this one.
-- **Dashboard shows a "total committed" aggregate** (§8 "balance", money OFF) above the chart — the funder's Phase-1 advisory total, labelled "no funds moved yet".
-- **`follows.expert_id` references `profiles`, not `experts`** (Plan-1 schema): a user can technically follow any profile, but only approved experts can author ideas, so only expert-authored bounties ever surface in the feed — harmless, left as-is.
+- **`bounty_pot` is a `security_invoker` view** - `sum(amount) filter (committed|escrowed)` (COALESCE→0) + **`count(distinct coalesce(funder_id::text,'anon'))`** per idea (spec's "no mutable column" rule). The `coalesce(...,'anon')` is deliberate: plain `count(distinct funder_id)` drops deleted (`null`) funders and desyncs from `pot_cents`; bucketing nulls as `'anon'` keeps the count consistent with the money the pot shows. `security_invoker=true` (PG15+) so it respects `idea_funding` RLS; explicit `grant select ... to anon, authenticated`.
+- **Post-login honors `?next=`** (fixed here). The dashboard gate redirects to `/login?next=/dashboard`; this plan threads `next` through the login actions → `/auth/callback?next=…` (already sanitized) so sign-in returns the user to where they were headed - fixing every gated route (`/console`, `/admin`, `/ideas/[id]/answer`, `/dashboard`), not just this one.
+- **Dashboard shows a "total committed" aggregate** (§8 "balance", money OFF) above the chart - the funder's Phase-1 advisory total, labelled "no funds moved yet".
+- **`follows.expert_id` references `profiles`, not `experts`** (Plan-1 schema): a user can technically follow any profile, but only approved experts can author ideas, so only expert-authored bounties ever surface in the feed - harmless, left as-is.
 - **No funding goal.** The schema has none (spec: pot is open-ended; hypothesis "winner takes the pot", open-ended "top up"). `BountyMeter` shows the accumulating pot with a green "funded" accent bar (full when pot>0), not a progress-to-goal fill.
 - **`funder_id` is `on delete set null`** (a pledge outlives a deleted account; original anchored in `legacy`), mirroring `ideas.author_id` / `answers.submitter_id`.
 - **Chart tokens land in `app.css`** now (`--chart-1..2`, `--chart-ink`, `--chart-grid`) per `CLAUDE.md` §data-viz; charts are green-forward on greyscale, dependency-free inline SVG, reduced-motion-safe (the global `prefers-reduced-motion` rule neutralizes the width transition).
-- **Dashboard tabs are server-driven** (`?tab=feed|discover`), matching the Plan-2 `/ideas` filter pattern — no client store. Follow/unfollow uses Plan 1's `follows` RLS (`users manage own follows`); no new policy.
+- **Dashboard tabs are server-driven** (`?tab=feed|discover`), matching the Plan-2 `/ideas` filter pattern - no client store. Follow/unfollow uses Plan 1's `follows` RLS (`users manage own follows`); no new policy.
 - **ETL:** the old `idea_user_funding_relation` rows map into `idea_funding` (amount/funder/idea + `legacy`), anchored by `legacy_id`; imported as `committed` (Phase 1). `legacy_*` is service-role-only.
 
 ---
@@ -49,7 +49,7 @@
 
 ---
 
-## Task 1: Migration — idea_funding + RLS + bounty_pot view
+## Task 1: Migration - idea_funding + RLS + bounty_pot view
 
 **Files:** `supabase/migrations/<ts>_idea_funding.sql`
 
@@ -77,7 +77,7 @@ create index idea_funding_idea_id_idx on public.idea_funding (idea_id);
 create index idea_funding_funder_id_idx on public.idea_funding (funder_id);
 
 -- SELECT: a pledge is readable when the caller can see its idea (the ideas RLS hides drafts), OR the caller
--- is the funder. So un-publishing an idea (revert to draft) hides its pledges + pot too — no money-leak.
+-- is the funder. So un-publishing an idea (revert to draft) hides its pledges + pot too - no money-leak.
 create policy "idea_funding readable when its idea is visible" on public.idea_funding for select
   using (
     (select auth.uid()) = funder_id
@@ -102,7 +102,7 @@ create policy "members pledge to open ideas" on public.idea_funding for insert t
 create policy "funder withdraws own committed pledge" on public.idea_funding for delete to authenticated
   using ((select auth.uid()) = funder_id and status = 'committed');
 
--- NOTE: NO update policy — committed -> escrowed -> released/refunded are Phase-2 SECURITY DEFINER money RPCs.
+-- NOTE: NO update policy - committed -> escrowed -> released/refunded are Phase-2 SECURITY DEFINER money RPCs.
 
 -- ============ bounty_pot (sum of active pledges per idea; no mutable column on ideas) ============
 -- security_invoker so the view respects idea_funding RLS (which is public-select anyway).
@@ -119,7 +119,7 @@ grant select on public.bounty_pot to anon, authenticated;
 
 - [ ] **Step 2: Apply locally**
 
-Run: `supabase db reset` (a FULL rebuild — **not** `supabase migration up`. The local DB may hold orphaned `idea_funding`/`bounty_pot` objects from a prior session; a full reset rebuilds from migrations only and clears them. `migration up` onto a dirty DB would fail with "relation already exists".)
+Run: `supabase db reset` (a FULL rebuild - **not** `supabase migration up`. The local DB may hold orphaned `idea_funding`/`bounty_pot` objects from a prior session; a full reset rebuilds from migrations only and clears them. `migration up` onto a dirty DB would fail with "relation already exists".)
 Expected: all migrations (Plans 1–4) apply with no errors.
 
 - [ ] **Step 3: Smoke-check**
@@ -138,7 +138,7 @@ git commit -m "feat(db): idea_funding pledges + RLS + bounty_pot view (Plan 4)"
 
 ---
 
-## Task 2: pgTAP — idea_funding RLS + bounty_pot view
+## Task 2: pgTAP - idea_funding RLS + bounty_pot view
 
 **Files:** `supabase/tests/database/idea_funding_test.sql`
 
@@ -273,7 +273,7 @@ git commit -m "test(db): pgTAP RLS + bounty_pot view tests for idea_funding"
 
 **Files:** `src/app.css` (modify), `src/lib/types/database.ts`, `src/lib/funding.ts`, `src/lib/components/BountyMeter.svelte`, `src/lib/components/BarChart.svelte`
 
-- [ ] **Step 1: Add the data-viz tokens to `src/app.css`** — insert into the `:root` block, right after the Semantic line (`--pos:...; --info:...;`):
+- [ ] **Step 1: Add the data-viz tokens to `src/app.css`** - insert into the `:root` block, right after the Semantic line (`--pos:...; --info:...;`):
 
 ```css
   /* Data-viz (green-forward on greyscale, per CLAUDE.md) */
@@ -357,7 +357,7 @@ git commit -m "feat: chart tokens + regenerate types + funding helper + BountyMe
 
 ---
 
-## Task 4: Idea detail — BountyMeter + pledge
+## Task 4: Idea detail - BountyMeter + pledge
 
 **Files:** `src/routes/ideas/[id]/+page.server.ts` (modify), `src/routes/ideas/[id]/+page.svelte` (modify)
 
@@ -503,7 +503,7 @@ export const actions: Actions = {
                  class="mt-1 block w-full rounded-xl border px-3 py-2" style="border-color:var(--line)" />
         </label>
         <button class="mt-3 w-full rounded-xl px-4 py-2 text-sm font-medium" style="background:var(--ink); color:#fff">Pledge</button>
-        <p class="mt-2 text-xs" style="color:var(--faint)">A pledge is a commitment — no funds move yet.</p>
+        <p class="mt-2 text-xs" style="color:var(--faint)">A pledge is a commitment - no funds move yet.</p>
         {#if form?.message}<p class="mt-2 text-sm" style="color:var(--neg)">{form.message}</p>{/if}
       </form>
     {/if}
@@ -527,7 +527,7 @@ export const actions: Actions = {
 
 - [ ] **Step 3: Verify** `npm run check` (0 errors) + `npm run build` (clean).
 
-- [ ] **Step 4: Commit** `git add src/routes/ideas && git commit -m "feat: idea detail funding — BountyMeter, pledge action, funder list"`
+- [ ] **Step 4: Commit** `git add src/routes/ideas && git commit -m "feat: idea detail funding - BountyMeter, pledge action, funder list"`
 
 ---
 
@@ -535,9 +535,9 @@ export const actions: Actions = {
 
 **Files:** `src/routes/login/+page.server.ts` (modify), `src/routes/login/+page.svelte` (modify), `src/routes/dashboard/+page.server.ts` (new), `src/routes/dashboard/+page.svelte` (new)
 
-### Part A — make post-login return to the gated page
+### Part A - make post-login return to the gated page
 
-The dashboard (and `/console`, `/admin`, `/ideas/[id]/answer`) redirect unauthenticated users to `/login?next=<path>`, and `/auth/callback` already sanitizes + honors `next` — but the login actions hard-code `next=/`, so sign-in always dumps the user on `/`. Thread `next` through.
+The dashboard (and `/console`, `/admin`, `/ideas/[id]/answer`) redirect unauthenticated users to `/login?next=<path>`, and `/auth/callback` already sanitizes + honors `next` - but the login actions hard-code `next=/`, so sign-in always dumps the user on `/`. Thread `next` through.
 
 - [ ] **Step A1: Replace `src/routes/login/+page.server.ts`** (add a `load` that exposes a sanitized `next`; read+use it in both actions)
 
@@ -576,7 +576,7 @@ export const actions: Actions = {
 };
 ```
 
-- [ ] **Step A2: Replace `src/routes/login/+page.svelte`** (carry `next` in the form action URLs — a `?`-relative action replaces the query string, so `next` must be embedded in the action, not left on the page URL)
+- [ ] **Step A2: Replace `src/routes/login/+page.svelte`** (carry `next` in the form action URLs - a `?`-relative action replaces the query string, so `next` must be embedded in the action, not left on the page URL)
 
 ```svelte
 <script lang="ts">
@@ -600,9 +600,9 @@ export const actions: Actions = {
 
 - [ ] **Step A3: Verify + commit** `npm run check` (0 errors); `git add src/routes/login && git commit -m "fix: thread ?next= through login so gated routes return after sign-in"`
 
-### Part B — the dashboard
+### Part B - the dashboard
 
-- [ ] **Step 1: `+page.server.ts`** — auth-gated; feed (followed experts) · discover/follow · my funding; follow/unfollow/withdraw actions
+- [ ] **Step 1: `+page.server.ts`** - auth-gated; feed (followed experts) · discover/follow · my funding; follow/unfollow/withdraw actions
 
 ```ts
 import { fail, redirect } from '@sveltejs/kit';
@@ -699,7 +699,7 @@ export const actions: Actions = {
 };
 ```
 
-- [ ] **Step 2: `+page.svelte`** — tabs + feed/discover + my funding (with the chart)
+- [ ] **Step 2: `+page.svelte`** - tabs + feed/discover + my funding (with the chart)
 
 ```svelte
 <script lang="ts">
@@ -775,11 +775,11 @@ export const actions: Actions = {
 
 - [ ] **Step 3: Verify** `npm run check` (0 errors) + `npm run build` (clean).
 
-- [ ] **Step 4: Commit** `git add src/routes/dashboard && git commit -m "feat: funder dashboard — feed/discover/follow + my funding chart"`
+- [ ] **Step 4: Commit** `git add src/routes/dashboard && git commit -m "feat: funder dashboard - feed/discover/follow + my funding chart"`
 
 ---
 
-## Task 6: Tests — unit + E2E + full suite
+## Task 6: Tests - unit + E2E + full suite
 
 **Files:** `src/lib/funding.test.ts`, `e2e/funding.spec.ts`
 
@@ -821,7 +821,7 @@ test('ideas browse still renders', async ({ page }) => {
 - `npm run build` → clean
 - `npx playwright test` → all pass (free the port first if needed)
 
-- [ ] **Step 4: Commit** `git add . && git commit -m "test: barPercents unit + funding E2E"` (stage only the two new test files — do NOT `git add .` blindly; `.claude/settings.json` is untracked-but-not-ignored, so add paths explicitly)
+- [ ] **Step 4: Commit** `git add . && git commit -m "test: barPercents unit + funding E2E"` (stage only the two new test files - do NOT `git add .` blindly; `.claude/settings.json` is untracked-but-not-ignored, so add paths explicitly)
 
 ---
 
@@ -835,4 +835,4 @@ test('ideas browse still renders', async ({ page }) => {
 - `legacy_id` + `legacy jsonb` carried so the old `idea_user_funding_relation` ETL is lossless.
 - All suites green; no secrets; no `@html` of user content; advisors show no new findings (the public `bounty_pot` view is `security_invoker`; both new FKs are indexed; one policy per command). Per-endpoint **rate-limiting** (spec §9) is deferred to a single app-wide pass in Plan 5.
 
-**After merge:** controller applies the Plan-4 migration to cloud `gjomchhbsbtauzkpyjwa` via MCP, re-runs advisors, then authors **Plan 5 (Social & Polish)** — comments + interest, markdown sanitizer, the verify→payout signature animation, a standalone experts roster, and a fuller authed E2E — followed by the one-big ETL.
+**After merge:** controller applies the Plan-4 migration to cloud `gjomchhbsbtauzkpyjwa` via MCP, re-runs advisors, then authors **Plan 5 (Social & Polish)** - comments + interest, markdown sanitizer, the verify→payout signature animation, a standalone experts roster, and a fuller authed E2E - followed by the one-big ETL.

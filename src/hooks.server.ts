@@ -16,7 +16,7 @@ const supabase: Handle = async ({ event, resolve }) => {
   event.locals.safeGetSession = async () => {
     const { data: { session } } = await event.locals.supabase.auth.getSession();
     if (!session) return { session: null, user: null };
-    // ALWAYS validate the JWT with getUser() — never trust getSession alone
+    // ALWAYS validate the JWT with getUser() - never trust getSession alone
     const { data: { user }, error } = await event.locals.supabase.auth.getUser();
     if (error) return { session: null, user: null };
     return { session, user };
@@ -28,7 +28,7 @@ const supabase: Handle = async ({ event, resolve }) => {
   });
 };
 
-const PROTECTED = ['/dashboard', '/console', '/admin']; // NOT /u — profiles are public to view
+const PROTECTED = ['/dashboard', '/console', '/admin']; // NOT /u - profiles are public to view
 
 const authGuard: Handle = async ({ event, resolve }) => {
   const { session, user } = await event.locals.safeGetSession();

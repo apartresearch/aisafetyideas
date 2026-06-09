@@ -28,7 +28,7 @@ with u as (update public.rate_limits set count = 0 where bucket = 'answer' retur
 with d as (delete from public.rate_limits where bucket = 'answer' returning 1)
   select ok((select count(*) from d) = 0, '6: direct DELETE matches no rows (Vector 2 closed)');
 select ok(not public.consume_rate_limit('answer'),
-  '7: still over limit — the direct UPDATE/DELETE attempts reset nothing');
+  '7: still over limit - the direct UPDATE/DELETE attempts reset nothing');
 
 -- ===== cross-user isolation: bob starts fresh in the same bucket =====
 set local request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222","role":"authenticated"}';
@@ -44,7 +44,7 @@ select ok(public.consume_rate_limit('answer'), '9: a new window resets the limit
 reset role;
 select ok((select count(*) from public.rate_limits
            where key = 'user:11111111-1111-1111-1111-111111111111' and bucket = 'answer') = 1,
-  '10: the stale aged row was pruned — only the live window row remains');
+  '10: the stale aged row was pruned - only the live window row remains');
 
 -- ===== anon cannot execute the function (revoked) =====
 set local role anon;

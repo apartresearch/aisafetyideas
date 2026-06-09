@@ -1,12 +1,12 @@
-# ETL Restore v2 (Comments, Interest, Answers, Votes) — Implementation Plan
+# ETL Restore v2 (Comments, Interest, Answers, Votes) - Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development for Tasks 1–4. Steps use checkbox (`- [ ]`) syntax. **Tasks 5–6 are CONTROLLER-ONLY** (they touch the real PII backup + the cloud project) — a subagent must NOT run them. Subagents must never read `~/Downloads/db_cluster-*.backup`, touch the cloud project, or edit `CLAUDE.md`/`docs/`/`.claude/`/`src_legacy_v0/`.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development for Tasks 1–4. Steps use checkbox (`- [ ]`) syntax. **Tasks 5–6 are CONTROLLER-ONLY** (they touch the real PII backup + the cloud project) - a subagent must NOT run them. Subagents must never read `~/Downloads/db_cluster-*.backup`, touch the cloud project, or edit `CLAUDE.md`/`docs/`/`.claude/`/`src_legacy_v0/`.
 
 **Goal:** Restore the remaining old-platform content (83 comments, 133 interests, 5 results→verified answers, 387 likes→upvotes) and ship the new **idea voting feature** (`idea_votes` table + RLS + totals view + minimal UI + sort-by-score).
 
 **Architecture:** One new migration (`idea_votes` + `idea_vote_totals` security-invoker view, RLS mirroring `interest`), new pure transforms + a `buildDocumentV2` emitter in the existing `scripts/etl/` machinery (idea/answer FKs resolved by **scalar subqueries on `legacy_id`** so one artifact works on any environment; comment threading is **two-pass** insert-then-update), and a thin UI layer (VoteControl on the idea page, score on cards, `?sort=top` on `/ideas`). Spec: `docs/superpowers/specs/2026-06-06-etl-restore-v2-design.md`.
 
-**Tech Stack:** TypeScript via `tsx`, `vitest` (synthetic fixtures only), pgTAP, SvelteKit 2 / Svelte 5 runes, supabase-js v2 (RLS does all mutation enforcement — no RPCs).
+**Tech Stack:** TypeScript via `tsx`, `vitest` (synthetic fixtures only), pgTAP, SvelteKit 2 / Svelte 5 runes, supabase-js v2 (RLS does all mutation enforcement - no RPCs).
 
 **Security:** the backup + `scripts/etl/*.generated.sql` contain PII and are gitignored (already covered). The v2 CLI prints **counts only**. Verified source facts (controller probed): perfect referential integrity in all 4 source tables; 0 duplicate interest pairs; all 13 `reply_to` point to lower ids; all 5 results have a link.
 
@@ -15,7 +15,7 @@
 ## Key design decisions
 - **FK resolution via scalar subqueries.** v1 minted idea UUIDs at generation time, so v2 emits `(select id from public.ideas where legacy_id = N)` for every idea reference (and `public.answers`/`public.comments` equivalents). Resolved at apply time → the same artifact works on the local rehearsal stack and cloud, stays idempotent, and a missing parent fails loudly (null into a `not null` column). Profile references stay **literal UUIDs** (v1 preserved them). The ref helpers validate `N` is an integer (no string interpolation of dump text into SQL).
 - **Comment threading is two-pass.** A multi-row INSERT cannot see its own rows, so pass 1 inserts all comments with `reply_to` omitted; pass 2 emits one idempotent `update … where c.legacy_id = <id> and c.reply_to is null` per reply.
-- **Same envelope as v1:** `begin` → `set session_replication_role = replica` → inserts → reply updates → `origin` → `do $$ assert … $$` → `commit`. Conflict handling: `on conflict (legacy_id) do nothing` for comments/answers/artifacts; **targetless `on conflict do nothing` for interest/idea_votes** (they also carry `unique (idea_id, profile_id)` — an organic post-restore row on the same pair must displace the legacy insert, not abort the transaction). The orphan scans in the assert block are the ONLY FK verification — replica mode disables RI triggers and they are never re-validated.
+- **Same envelope as v1:** `begin` → `set session_replication_role = replica` → inserts → reply updates → `origin` → `do $$ assert … $$` → `commit`. Conflict handling: `on conflict (legacy_id) do nothing` for comments/answers/artifacts; **targetless `on conflict do nothing` for interest/idea_votes** (they also carry `unique (idea_id, profile_id)` - an organic post-restore row on the same pair must displace the legacy insert, not abort the transaction). The orphan scans in the assert block are the ONLY FK verification - replica mode disables RI triggers and they are never re-validated.
 - **Privileged inserts are the point:** the load runs as `postgres` (table owner → bypasses RLS), which is what lets it insert `status='verified'` answers and legacy columns that the client INSERT policies pin shut.
 - **Votes:** `value in (-1,1)`, one row per (idea, profile); toggle = DELETE + INSERT (no UPDATE policy, same as `interest`). Old likes import as `value = 1`, weight kept in `legacy`.
 
@@ -41,7 +41,7 @@
 ## Task 1: `idea_votes` migration + pgTAP
 
 **Files:**
-- Create: `supabase/migrations/<generated>_idea_votes.sql` (via `supabase migration new idea_votes` — never invent the filename)
+- Create: `supabase/migrations/<generated>_idea_votes.sql` (via `supabase migration new idea_votes` - never invent the filename)
 - Create: `supabase/tests/database/idea_votes_test.sql`
 
 - [ ] **Step 1: Create the migration file**
@@ -62,7 +62,7 @@ create table public.idea_votes (
 );
 alter table public.idea_votes enable row level security;
 create index idea_votes_profile_id_idx on public.idea_votes (profile_id);
--- (no separate idea_id index: the unique (idea_id, profile_id) doubles as it — leading column)
+-- (no separate idea_id index: the unique (idea_id, profile_id) doubles as it - leading column)
 
 -- SELECT: readable when the idea is visible (leverages ideas RLS) OR it is the caller's own vote
 create policy "votes readable when idea visible or own" on public.idea_votes for select
@@ -80,7 +80,7 @@ create policy "members vote on visible ideas" on public.idea_votes for insert to
 -- DELETE: a member removes their own vote
 create policy "member removes own vote" on public.idea_votes for delete to authenticated
   using ((select auth.uid()) = profile_id);
--- NOTE: no UPDATE policy — switching a vote is delete + re-insert (same toggle pattern as interest).
+-- NOTE: no UPDATE policy - switching a vote is delete + re-insert (same toggle pattern as interest).
 
 -- ============ idea_vote_totals (security_invoker: respects the caller's idea visibility) ============
 create view public.idea_vote_totals
@@ -95,7 +95,7 @@ create view public.idea_vote_totals
 grant select on public.idea_vote_totals to anon, authenticated;   -- mirrors bounty_pot (idea_funding migration)
 ```
 
-(The `value` check lives on the table constraint only — a single deterministic error source; the policy pins identity/visibility/legacy. Accepted product decision: individual votes — including downvotes — are publicly attributable via the API, same as comments.)
+(The `value` check lives on the table constraint only - a single deterministic error source; the policy pins identity/visibility/legacy. Accepted product decision: individual votes - including downvotes - are publicly attributable via the API, same as comments.)
 
 - [ ] **Step 2: Write the failing pgTAP test** `supabase/tests/database/idea_votes_test.sql` (conventions per `comments_interest_test.sql`: the `handle_new_user` trigger auto-creates profiles)
 
@@ -163,7 +163,7 @@ select ok((select count(*) from public.idea_votes where idea_id = 'a0000000-0000
   '12: draft author can vote their own draft');
 
 set local role anon;
--- CRITICAL: clear the stale JWT claims — `set local role` does NOT reset request.jwt.claims, so
+-- CRITICAL: clear the stale JWT claims - `set local role` does NOT reset request.jwt.claims, so
 -- auth.uid() would still be alice and the own-row SELECT branch would leak her draft vote into
 -- test 14. The POLICY is correct; only an uncleared fixture would make it look broken. Do NOT
 -- "fix" a red test 14 by weakening the policy or the view.
@@ -178,7 +178,7 @@ rollback;
 ```
 
 - [ ] **Step 3: Run** `supabase db reset` (applies the migration) then `supabase test db` → expect `idea_votes_test` 15/15 (incl. the UPDATE-is-noop pin, test 8b) plus all existing suites still green (96 + 15 = 111).
-- [ ] **Step 4: Regenerate the DB types** (the client is typed — without this every `from('idea_votes')` in Task 4 is a TS error): `supabase gen types typescript --local > src/lib/types/database.ts`, then `npm run check` → 0 errors.
+- [ ] **Step 4: Regenerate the DB types** (the client is typed - without this every `from('idea_votes')` in Task 4 is a TS error): `supabase gen types typescript --local > src/lib/types/database.ts`, then `npm run check` → 0 errors.
 - [ ] **Step 5: Commit** `git add supabase/migrations supabase/tests/database/idea_votes_test.sql src/lib/types/database.ts && git commit -m "feat(votes): idea_votes table + RLS + totals view + pgTAP + types"`
 
 ---
@@ -297,7 +297,7 @@ export function toComment(c: Row): SqlRow {
     legacy_id: lit(c.id),
     idea_id: ideaRef(c.idea),
     author_id: lit(c.author ?? null),
-    body_md: lit(c.text ?? ''),                       // empty-text rows are real thread anchors — keep ''
+    body_md: lit(c.text ?? ''),                       // empty-text rows are real thread anchors - keep ''
     legacy: jsonbLit({
       reply_to: c.reply_to ?? undefined,
       anon_author: c.anon_author ?? undefined,
@@ -457,7 +457,7 @@ describe('buildDocumentV2', () => {
     // comments/answers/artifacts: legacy_id is their only unique key
     expect(seg('insert into public.comments', 'update public.comments')).toContain('on conflict (legacy_id) do nothing;');
     // interest/idea_votes ALSO carry unique (idea_id, profile_id): an organic post-restore row on the
-    // same pair must NOT abort the load — a targetless `on conflict do nothing` arbitrates ANY unique index
+    // same pair must NOT abort the load - a targetless `on conflict do nothing` arbitrates ANY unique index
     expect(seg('insert into public.interest', 'insert into public.answers')).toContain('on conflict do nothing;');
     expect(seg('insert into public.interest', 'insert into public.answers')).not.toContain('on conflict (');
     expect(seg('insert into public.idea_votes', 'set session_replication_role = origin')).toContain('on conflict do nothing;');
@@ -470,7 +470,7 @@ describe('buildDocumentV2', () => {
     expect(doc).toMatch(/assert \(select count\(\*\) from public\.comments where legacy_id is not null\) >= \d+/);
     expect(doc).toMatch(/assert \(select count\(\*\) from public\.answers where legacy_id is not null\) >= \d+/);
     // interest/votes: an organic row on the same (idea_id, profile_id) DISPLACES the legacy insert,
-    // so legacy-scoped counts could undershoot — assert totals (legacy + displacing organic ≥ source)
+    // so legacy-scoped counts could undershoot - assert totals (legacy + displacing organic ≥ source)
     expect(doc).toMatch(/assert \(select count\(\*\) from public\.idea_votes\) >= \d+/);
     expect(doc).toMatch(/assert \(select count\(\*\) from public\.interest\) >= \d+/);
     expect(doc).toContain('orphan comment idea');   // full spec §5 orphan-scan list
@@ -481,7 +481,7 @@ describe('buildDocumentV2', () => {
 
 - [ ] **Step 2: Run to verify failure** `npx vitest run scripts/etl/emit.test.ts` → FAIL (`buildDocumentV2` missing).
 
-- [ ] **Step 3a: Extend `insertRows` for targetless conflicts.** In `scripts/etl/sql.ts`, make the conflict target optional — an empty/omitted target emits a targetless `on conflict do nothing` (arbitrates ANY unique index):
+- [ ] **Step 3a: Extend `insertRows` for targetless conflicts.** In `scripts/etl/sql.ts`, make the conflict target optional - an empty/omitted target emits a targetless `on conflict do nothing` (arbitrates ANY unique index):
 
 ```ts
 export function insertRows(
@@ -503,7 +503,7 @@ Append to `scripts/etl/sql.test.ts`:
   });
 ```
 
-(All v1 call sites pass a target — behavior unchanged; `npx vitest run scripts/etl/sql.test.ts` must stay green.)
+(All v1 call sites pass a target - behavior unchanged; `npx vitest run scripts/etl/sql.test.ts` must stay green.)
 
 - [ ] **Step 3b: Implement** (append to `scripts/etl/emit.ts`)
 
@@ -559,7 +559,7 @@ export function buildDocumentV2(data: EmitDataV2): string {
   parts.push('set session_replication_role = origin;');
 
   // VERIFICATION IS HERE OR NOWHERE: replica mode DISABLES the RI triggers and restoring `origin`
-  // never re-validates rows — these scans are the only FK-integrity check for the load.
+  // never re-validates rows - these scans are the only FK-integrity check for the load.
   // Counts: comments/answers/artifacts can't be displaced → exact legacy-scoped; interest/votes can be
   // displaced by an organic (idea_id, profile_id) row → assert totals (legacy + displacing organic).
   parts.push(
@@ -604,8 +604,8 @@ export function buildDocumentV2(data: EmitDataV2): string {
 
 ```ts
 /**
- * Restore-v2 CLI — comments / interest / results→answers(+artifacts) / likes→votes.
- * Prints COUNTS only (never row contents) — backup + generated SQL contain PII (gitignored).
+ * Restore-v2 CLI - comments / interest / results→answers(+artifacts) / likes→votes.
+ * Prints COUNTS only (never row contents) - backup + generated SQL contain PII (gitignored).
  *
  * Usage: `npm run etl:restore-v2 [path/to/backup]`
  * (Controller-only against the real backup; subagents use synthetic fixtures.)
@@ -640,7 +640,7 @@ function main() {
 
   writeFileSync(OUT, buildDocumentV2({ comments, replies, interest, answers, artifacts, votes }), 'utf8');
 
-  // COUNTS ONLY — never row contents (PII discipline).
+  // COUNTS ONLY - never row contents (PII discipline).
   console.log(
     `wrote ${OUT}: comments=${comments.length} replies=${replies.length} interest=${interest.length} ` +
       `answers=${answers.length} artifacts=${artifacts.length} votes=${votes.length} (deduped ${dropped})`
@@ -764,9 +764,9 @@ Run `npx vitest run src/lib/votes.test.ts` → PASS.
 </div>
 ```
 
-(Active upvote = `--green-deep` small mark; active downvote = `--neg`, the semantic negative. The optimistic override + `pending` guard satisfy spec §6 — instant feedback, no double-submit; the load re-run reconciles to server truth. Signed-out users get the arrows as links to `signinHref` — there is no pre-existing `?next=` sign-in link on the idea page, so the control carries its own.)
+(Active upvote = `--green-deep` small mark; active downvote = `--neg`, the semantic negative. The optimistic override + `pending` guard satisfy spec §6 - instant feedback, no double-submit; the load re-run reconciles to server truth. Signed-out users get the arrows as links to `signinHref` - there is no pre-existing `?next=` sign-in link on the idea page, so the control carries its own.)
 
-- [ ] **Step 4: Idea detail — load + actions.** In `src/routes/ideas/[id]/+page.server.ts`:
+- [ ] **Step 4: Idea detail - load + actions.** In `src/routes/ideas/[id]/+page.server.ts`:
 
 To the `load`, after the interest block, add:
 
@@ -794,7 +794,7 @@ To `actions` add:
     const value = Number(fd.get('value'));
     if (value !== 1 && value !== -1) return fail(400, { message: 'Invalid vote' });
     // switch = delete own row first (no UPDATE policy), then insert; a 23505 race means a vote
-    // already landed — treat as ok (the page re-load shows the truth)
+    // already landed - treat as ok (the page re-load shows the truth)
     await supabase.from('idea_votes').delete().eq('idea_id', params.id).eq('profile_id', user.id);
     const { error: e } = await supabase.from('idea_votes').insert({
       idea_id: params.id, profile_id: user.id, value
@@ -820,9 +820,9 @@ To `actions` add:
              signinHref={`/login?next=/ideas/${data.idea.id}`} />
 ```
 
-(Match the file's existing header layout — place it inside the same flex row as the `StatusBadge`.)
+(Match the file's existing header layout - place it inside the same flex row as the `StatusBadge`.)
 
-- [ ] **Step 6: Browse page — sort + scores.** Replace `src/routes/ideas/+page.server.ts` with:
+- [ ] **Step 6: Browse page - sort + scores.** Replace `src/routes/ideas/+page.server.ts` with:
 
 ```ts
 import type { PageServerLoad } from './$types';
@@ -834,8 +834,8 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
   const sort = url.searchParams.get('sort') === 'top' ? 'top' : 'new';
   const page = Math.max(0, Number(url.searchParams.get('page') ?? 0));
 
-  // vote totals are small (≤ #ideas rows; ~240 today, well under PostgREST's 1000-row cap — revisit
-  // both whole-set fetches if the idea count ever approaches 1000) — fetched once for the card scores
+  // vote totals are small (≤ #ideas rows; ~240 today, well under PostgREST's 1000-row cap - revisit
+  // both whole-set fetches if the idea count ever approaches 1000) - fetched once for the card scores
   const { data: totals } = await supabase.from('idea_vote_totals').select('idea_id, score');
 
   let base = supabase
@@ -928,20 +928,20 @@ describe('ideas browse load', () => {
 });
 ```
 
-Note for the implementer: the `order()` mock above resolves the promise (the real builder is thenable after `.order()` when no `.range()` follows); make the mock match however the final query chain is written — the assertion targets are the returned `ideas`/`count`, not the mock's shape.
+Note for the implementer: the `order()` mock above resolves the promise (the real builder is thenable after `.order()` when no `.range()` follows); make the mock match however the final query chain is written - the assertion targets are the returned `ideas`/`count`, not the mock's shape.
 
 - [ ] **Step 9: Run everything.** `npm run check` → 0 errors; `npx vitest run` → all green; `npm run build` → succeeds.
 - [ ] **Step 10: Commit** `git add -A -- src && git commit -m "feat(votes): VoteControl + idea-page voting + /ideas scores & sort-by-top"`
 
 ---
 
-## Task 5 (CONTROLLER ONLY — real PII backup, local): rehearse
+## Task 5 (CONTROLLER ONLY - real PII backup, local): rehearse
 
-> A subagent must NOT do this — it reads the real backup. The controller runs it.
+> A subagent must NOT do this - it reads the real backup. The controller runs it.
 
 - [ ] Generate: `npm run etl:restore-v2` → expect `comments=83 replies=13 interest=133 answers=5 artifacts=5 votes=387 (deduped 0)`.
-- [ ] Fresh local stack: `supabase db reset` (applies the `idea_votes` migration), then apply **v1 first** (its artifact still exists; regenerate with `npm run etl:restore-v1` if not), then v2 — both via
-  `docker exec -i supabase_db_aisafetyideas psql -U postgres -d postgres -v ON_ERROR_STOP=1 < scripts/etl/restore-v<N>.generated.sql > /tmp/restore-v<N>.log 2>&1; echo exit=$?` (capture the exit code directly — never pipe psql into `tail`).
+- [ ] Fresh local stack: `supabase db reset` (applies the `idea_votes` migration), then apply **v1 first** (its artifact still exists; regenerate with `npm run etl:restore-v1` if not), then v2 - both via
+  `docker exec -i supabase_db_aisafetyideas psql -U postgres -d postgres -v ON_ERROR_STOP=1 < scripts/etl/restore-v<N>.generated.sql > /tmp/restore-v<N>.log 2>&1; echo exit=$?` (capture the exit code directly - never pipe psql into `tail`).
 - [ ] Verify locally:
   - counts: comments 83 / interest 133 / answers 5 / artifacts 5 / votes 387; `reply_to` set on 13 comments.
   - orphan scans (same queries as the embedded asserts) → all 0.
@@ -952,12 +952,12 @@ Note for the implementer: the `order()` mock above resolves the promise (the rea
 
 ---
 
-## Task 6 (CONTROLLER ONLY — cloud + PII): load to cloud
+## Task 6 (CONTROLLER ONLY - cloud + PII): load to cloud
 
 > Controller-only. Subagents never touch cloud.
 
 - [ ] **PR merged first** (the deployed app must already have the vote UI + the repo the migration file), then apply the `idea_votes` migration to `gjomchhbsbtauzkpyjwa` via MCP `apply_migration`.
-- [ ] **Checkpoint with the owner** (a fresh PAT is needed — the v1 token was revoked), then apply the rehearsed artifact via the Management API over 443 (psql ports are blocked on the owner's network; the artifact must NOT stream through MCP `execute_sql`). Keep the PAT out of argv/history: have the owner paste it into a `chmod 600` temp file, then:
+- [ ] **Checkpoint with the owner** (a fresh PAT is needed - the v1 token was revoked), then apply the rehearsed artifact via the Management API over 443 (psql ports are blocked on the owner's network; the artifact must NOT stream through MCP `execute_sql`). Keep the PAT out of argv/history: have the owner paste it into a `chmod 600` temp file, then:
 
 ```bash
 jq -Rs '{query: .}' scripts/etl/restore-v2.generated.sql | curl -sS -m 600 \
@@ -966,12 +966,12 @@ jq -Rs '{query: .}' scripts/etl/restore-v2.generated.sql | curl -sS -m 600 \
   --data-binary @- -o /tmp/restore-v2-response.json -w "http=%{http_code}\n"
 ```
 
-  **Treat anything other than `http=201` as failure** (the transaction rolled back — read the response body; do not retry blindly). Delete `/tmp/sb-pat` immediately after.
-- [ ] Verify on cloud (MCP `execute_sql`), organic-data-immune: `count(*) … where legacy_id is not null` per table → expect exactly **83 comments / 5 answers / 5 artifacts**, reply_to set on 13 legacy comments, and `interest`/`idea_votes` legacy counts + displaced pairs summing to **133 / 387** (displaced = organic rows sharing an (idea_id, profile_id) pair with a skipped legacy row — normally 0 this soon after launch). Then the orphan scans → all 0.
-- [ ] Re-run `get_advisors` (security + performance) — expect the accepted baseline only (`idea_vote_totals` is security_invoker; both new FKs are indexed).
+  **Treat anything other than `http=201` as failure** (the transaction rolled back - read the response body; do not retry blindly). Delete `/tmp/sb-pat` immediately after.
+- [ ] Verify on cloud (MCP `execute_sql`), organic-data-immune: `count(*) … where legacy_id is not null` per table → expect exactly **83 comments / 5 answers / 5 artifacts**, reply_to set on 13 legacy comments, and `interest`/`idea_votes` legacy counts + displaced pairs summing to **133 / 387** (displaced = organic rows sharing an (idea_id, profile_id) pair with a skipped legacy row - normally 0 this soon after launch). Then the orphan scans → all 0.
+- [ ] Re-run `get_advisors` (security + performance) - expect the accepted baseline only (`idea_vote_totals` is security_invoker; both new FKs are indexed).
 - [ ] Smoke test on the deployed app: `/ideas?sort=top`, a restored comment thread, a verified answer, casting + removing a vote.
 - [ ] Remind the owner to **revoke the PAT** (and rotate the DB password if not already done after v1).
-- [ ] Update project memory: Restore v2 complete (counts) — the old-platform restore is DONE; remaining: post-ETL polish (rate-limiting, verify→payout animation, fuller E2E).
+- [ ] Update project memory: Restore v2 complete (counts) - the old-platform restore is DONE; remaining: post-ETL polish (rate-limiting, verify→payout animation, fuller E2E).
 
 ---
 

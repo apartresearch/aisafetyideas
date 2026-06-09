@@ -16,13 +16,13 @@ grant select on all tables in schema public to anon, authenticated;
 
 -- Writes for signed-in users only; RLS WITH CHECK / USING clauses gate which rows. Tables without a
 -- client write policy (categories, idea_categories, idea_relations, answer_reviews) still reject
--- writes at the row level — the grant is harmless there.
+-- writes at the row level - the grant is harmless there.
 grant insert, update, delete on all tables in schema public to authenticated;
 
 -- NOTE: rate_limits is intentionally LEFT with these grants but stays locked by its ZERO RLS policies
 -- (deny-all): a client SELECT returns 0 rows and UPDATE/DELETE affect 0 rows, while the SECURITY
 -- DEFINER consume_rate_limit() (owned by postgres) is the only writer. We deliberately do NOT revoke
--- the grant — revoking turns the client's no-op into a hard "permission denied", which the
+-- the grant - revoking turns the client's no-op into a hard "permission denied", which the
 -- rate_limits pgTAP lockdown tests (and the standard RLS-as-gate posture) rely on NOT happening.
 
 -- Keep future tables working without another grants migration (objects created by postgres inherit these).

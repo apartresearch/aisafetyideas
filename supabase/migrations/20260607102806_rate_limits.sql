@@ -1,7 +1,7 @@
 -- ============ rate_limits (fixed-window counters; NO service-role CLIENT) ============
 -- Writes go ONLY through the SECURITY DEFINER function below (owned by postgres, bypasses RLS),
 -- which self-keys on auth.uid() and looks up limits server-side. The table has ZERO client
--- policies, so a direct PostgREST UPDATE/DELETE/SELECT by `authenticated` matches nothing — the
+-- policies, so a direct PostgREST UPDATE/DELETE/SELECT by `authenticated` matches nothing - the
 -- three INVOKER bypass vectors (self-reset count, self-delete, caller-chosen window) are closed.
 -- A definer function is a DB primitive, NOT the forbidden service-role client.
 create table public.rate_limits (
@@ -14,7 +14,7 @@ create table public.rate_limits (
 alter table public.rate_limits enable row level security;
 -- ZERO policies on purpose (deny-by-default for every client role, like answers/answer_reviews).
 
--- Limits are AUTHORITATIVE here (server-side), not caller params — nothing for a client to spoof.
+-- Limits are AUTHORITATIVE here (server-side), not caller params - nothing for a client to spoof.
 create function public.consume_rate_limit(p_bucket text)
 returns boolean
 language plpgsql security definer set search_path = ''

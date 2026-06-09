@@ -1,4 +1,4 @@
-// Best-effort notification helpers — NEVER throw into the caller.
+// Best-effort notification helpers - NEVER throw into the caller.
 // Each exported function catches all errors internally.
 import { getSystemClient } from './system-client';
 import {

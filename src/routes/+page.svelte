@@ -5,9 +5,9 @@
 
   const steps = [
     { n: '01', t: 'Experts post ideas', d: 'Vetted researchers publish concrete AI-safety questions and hypotheses worth investigating.' },
-    { n: '02', t: 'Funders back them', d: 'Supporters pledge toward the questions they want answered — building transparent, pooled support.' },
-    { n: '03', t: 'Researchers answer', d: 'Anyone can submit an answer with evidence and artifacts — code, papers, notebooks.' },
-    { n: '04', t: 'Verified payouts', d: 'The author verifies a result and the payout is recorded — a clear path from question to impact.' }
+    { n: '02', t: 'Funders back them', d: 'Supporters pledge toward the questions they want answered - building transparent, pooled support.' },
+    { n: '03', t: 'Researchers answer', d: 'Anyone can submit an answer with evidence and artifacts - code, papers, notebooks.' },
+    { n: '04', t: 'Verified payouts', d: 'The author verifies a result and the payout is recorded - a clear path from question to impact.' }
   ];
 </script>
 
@@ -21,7 +21,7 @@
       </h1>
       <p class="hero__lede font-serif reveal" style="animation-delay:150ms">
         Experts post the open questions. Funders back the ones worth answering. Researchers
-        submit evidence — and when an author verifies a result, the payout is recorded.
+        submit evidence - and when an author verifies a result, the payout is recorded.
         A transparent path from open question to real impact.
       </p>
       <div class="hero__cta reveal" style="animation-delay:210ms">

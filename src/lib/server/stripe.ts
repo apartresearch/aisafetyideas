@@ -2,7 +2,7 @@ import Stripe from 'stripe';
 import { env } from '$env/dynamic/private';
 
 // Mockable seam (cf. $lib/server/ai.ts): lazily construct the Stripe client so importing this
-// module never throws and tests can mock it wholesale. NO live calls in CI — always mocked.
+// module never throws and tests can mock it wholesale. NO live calls in CI - always mocked.
 let _stripe: Stripe | null = null;
 
 export function getStripe(): Stripe {

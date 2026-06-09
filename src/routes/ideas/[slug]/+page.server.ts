@@ -30,15 +30,15 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
   }
   if (!idea) error(404, 'Idea not found');
 
-  // Determine admin status early — needed for the draft/archived gate below.
+  // Determine admin status early - needed for the draft/archived gate below.
   let isAdminEarly = false;
   if (user) {
     const { data: me } = await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
     isAdminEarly = me?.is_admin === true;
   }
 
-  // Draft/archived ideas are only visible to their author or an admin.
-  if (idea.status === 'archived' || idea.status === 'draft') {
+  // Draft/review/archived ideas are only visible to their author or an admin.
+  if (idea.status === 'archived' || idea.status === 'draft' || idea.status === 'review') {
     const isAuthor = !!user && user.id === idea.author_id;
     if (!isAuthor && !isAdminEarly) error(404, 'Idea not found');
   }
@@ -113,7 +113,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     myInterestId = mine?.id ?? null;
   }
 
-  // platform funding flag — drives the Stripe Checkout path vs. the legacy pledge form
+  // platform funding flag - drives the Stripe Checkout path vs. the legacy pledge form
   const { fundingEnabled } = await getPlatformConfig(supabase);
 
   // votes: totals + the caller's own vote
@@ -212,7 +212,7 @@ export const actions: Actions = {
       idea_id: ideaId, profile_id: user.id, note_md
     });
     if (e) {
-      // a duplicate (double-click / stale tab) means "already interested" — idempotent, don't leak the constraint name
+      // a duplicate (double-click / stale tab) means "already interested" - idempotent, don't leak the constraint name
       if ((e as { code?: string }).code === '23505') return { ok: true };
       return fail(400, { message: e.message });
     }
@@ -229,7 +229,7 @@ export const actions: Actions = {
     const ideaId = await resolveIdeaId(supabase, params.slug);
     if (!ideaId) return fail(404, { message: 'Idea not found' });
     // switch = delete own row first (no UPDATE policy), then insert; a 23505 race means a vote
-    // already landed — treat as ok (the page re-load shows the truth)
+    // already landed - treat as ok (the page re-load shows the truth)
     const { error: delErr } = await supabase.from('idea_votes')
       .delete().eq('idea_id', ideaId).eq('profile_id', user.id);
     if (delErr) return fail(400, { message: delErr.message });

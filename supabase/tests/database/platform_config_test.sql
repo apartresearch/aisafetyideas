@@ -46,14 +46,14 @@ select throws_ok(
   '23514', null,
   '6: fee_bps check constraint rejects value > 2000');                                                                                        -- 6
 
--- ===== 7: no INSERT policy — authenticated cannot add a second row =====
+-- ===== 7: no INSERT policy - authenticated cannot add a second row =====
 reset role;
 set local role authenticated;
 set local request.jwt.claims = '{"sub":"aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa","role":"authenticated"}';
 select throws_ok(
   $$ insert into public.platform_config (id) values (false) $$,
   '42501', null,
-  '7: no INSERT policy — authenticated cannot insert rows');                                                                                   -- 7
+  '7: no INSERT policy - authenticated cannot insert rows');                                                                                   -- 7
 
 select * from finish();
 rollback;

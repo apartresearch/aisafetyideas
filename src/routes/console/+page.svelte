@@ -49,7 +49,7 @@
       if (!res.ok) { auditMsg = 'AI check unavailable right now.'; return; }
       auditHint = await res.json();
     } catch {
-      auditMsg = 'Could not reach the AI check — try again.';
+      auditMsg = 'Could not reach the AI check - try again.';
     } finally {
       auditLoading = false;
     }
@@ -87,6 +87,7 @@
   </select>
   <input name="claim" placeholder="Hypothesis claim (if hypothesis)" bind:value={newClaim} class="rounded-xl border px-3 py-2" style="border-color:var(--line)" />
   <textarea name="summary_md" placeholder="Summary (markdown)" bind:value={newSummary} class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
+  <p style="font-size:.75rem; color:var(--faint); margin:0">Markdown + LaTeX ($x^2$, $$\sum$$) supported</p>
   <textarea name="resolution_criteria_md" placeholder="Resolution criteria (optional, markdown)" bind:value={newResolutionCriteria} class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
   <textarea name="methodology_md" placeholder="Methodology (optional, markdown)" bind:value={newMethodology} class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
   <textarea name="theory_of_change_md" placeholder="Theory of change (optional, markdown)" bind:value={newTheoryOfChange} class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>

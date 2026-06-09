@@ -64,7 +64,7 @@ set local request.jwt.claims = '{"sub":"22222222-2222-2222-2222-222222222222","r
 select throws_ok($$ select public.escrow_pledge('a0000000-0000-0000-0000-000000000001', 999999, 'escrow-A-toomuch') $$,
   'P0001', null, '13: escrow throws on insufficient available balance');                               -- 13
 
--- ── escrow_pledge: happy path — A escrows 5000 ──────────────────────────────
+-- ── escrow_pledge: happy path - A escrows 5000 ──────────────────────────────
 select lives_ok($$ select public.escrow_pledge('a0000000-0000-0000-0000-000000000001', 5000, 'escrow-A-1') $$,
   '14: A escrows 5000');                                                                               -- 14
 reset role;

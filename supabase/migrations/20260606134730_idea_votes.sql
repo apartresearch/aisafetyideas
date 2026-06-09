@@ -28,9 +28,9 @@ create policy "members vote on visible ideas" on public.idea_votes for insert to
 -- DELETE: a member removes their own vote
 create policy "member removes own vote" on public.idea_votes for delete to authenticated
   using ((select auth.uid()) = profile_id);
--- NOTE: no UPDATE policy — switching a vote is delete + re-insert (same toggle pattern as interest).
+-- NOTE: no UPDATE policy - switching a vote is delete + re-insert (same toggle pattern as interest).
 
--- NOTE: aggregate-only — ideas with zero votes have NO row here; clients coalesce to 0 (by design).
+-- NOTE: aggregate-only - ideas with zero votes have NO row here; clients coalesce to 0 (by design).
 -- ============ idea_vote_totals (security_invoker: respects the caller's idea visibility) ============
 create view public.idea_vote_totals
   with (security_invoker = true) as

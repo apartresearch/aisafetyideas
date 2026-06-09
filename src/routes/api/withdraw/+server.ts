@@ -54,7 +54,7 @@ export const POST: RequestHandler = async ({ request, locals: { supabase, safeGe
 
   // 2) Create the transfer (same idempotency key). If this throws, the ledger reservation already
   // posted: we return 502 so the user knows support will reconcile. NOTE (Gate-0): test mode has no
-  // automatic compensating reversal — production needs a reconciliation job that, on a confirmed
+  // automatic compensating reversal - production needs a reconciliation job that, on a confirmed
   // transfer failure, posts the reversing external→payable legs. Out of scope for this phase.
   try {
     await getStripe().transfers.create(

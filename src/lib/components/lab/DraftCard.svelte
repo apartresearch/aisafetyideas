@@ -7,16 +7,21 @@
     draft = $bindable(),
     onremove,
     form = null,
+    isExpert = false,
   }: {
     draft: DraftRow;
     onremove: (id: string) => void;
     form?: { submitted?: boolean; message?: string } | null;
+    isExpert?: boolean;
   } = $props();
+
+  // Approved experts publish straight to live; everyone else submits for admin review.
+  let publishLabel = $derived(isExpert ? 'Publish' : 'Submit for review');
 
   let expanded = $state(false);
   let publishOpen = $state(false);
 
-  // Local editable copies seeded from prop — svelte-ignore state_referenced_locally
+  // Local editable copies seeded from prop - svelte-ignore state_referenced_locally
   // svelte-ignore state_referenced_locally
   let localTitle = $state(draft.title);
   // svelte-ignore state_referenced_locally
@@ -55,7 +60,7 @@
 </script>
 
 <article class="draft-card card card-hover" class:draft-card--expanded={expanded}>
-  <!-- Collapsed header — click anywhere on header row to expand -->
+  <!-- Collapsed header - click anywhere on header row to expand -->
   <div class="draft-card__header" role="button" tabindex="0"
        onclick={toggle} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } }}>
     <span class="draft-card__title-text" title={draft.title}>
@@ -95,6 +100,7 @@
           placeholder="Describe your idea, hypotheses, context…"
           rows={5}
         ></textarea>
+        <p style="font-size:.75rem; color:var(--faint); margin:0">Markdown + LaTeX ($x^2$, $$\sum$$) supported</p>
       </div>
 
       <ExpansionPanel
@@ -109,9 +115,9 @@
           class="btn btn-primary btn-sm"
           disabled={draft.pending || draft.id.startsWith('tmp-')}
           onclick={() => { publishOpen = true; }}
-          title="Publish this draft as a public idea"
+          title={isExpert ? 'Publish this draft as a public idea' : 'Submit this draft for admin review'}
         >
-          Publish
+          {publishLabel}
         </button>
         <button
           class="btn btn-ghost btn-sm draft-card__delete"
@@ -129,6 +135,7 @@
   bind:open={publishOpen}
   draft={{ id: draft.id, title: draft.title, summary_md: draft.summary_md ?? '' }}
   {form}
+  {isExpert}
 />
 
 <style>

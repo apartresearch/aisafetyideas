@@ -1,7 +1,7 @@
 export type DraftRow = {
 	id: string; slug: string | null; title: string; pending: boolean; errored: boolean;
 	summary_md: string; expansions: any;
-	/** Stable identity for keying {#each} — never changes after insertion (survives id reconcile). */
+	/** Stable identity for keying {#each} - never changes after insertion (survives id reconcile). */
 	key: string;
 };
 
@@ -18,7 +18,7 @@ export function createDraftsStore(initial: { id: string; slug: string; title: st
 			const res = await fetch('/api/drafts', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ title }) });
 			if (!res.ok) throw new Error((await res.json()).message);
 			const { id, slug } = await res.json();
-			// Reconcile id/slug but never touch key — it stays as tmpId to preserve DOM identity
+			// Reconcile id/slug but never touch key - it stays as tmpId to preserve DOM identity
 			row.id = id; row.slug = slug; row.pending = false;
 		} catch { row.errored = true; row.pending = false; }
 	}

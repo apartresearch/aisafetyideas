@@ -1,10 +1,10 @@
 # Authed Playwright E2E Suite Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development. Steps use checkbox (`- [ ]`). Tests-only — NO app/RPC/DB/migration changes. Constraints: never edit CLAUDE.md/docs//.claude//src_legacy_v0/; never `git add .`/`git add -A` (explicit paths). The local Supabase stack must be running (`supabase start`) for any task that runs Playwright.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development. Steps use checkbox (`- [ ]`). Tests-only - NO app/RPC/DB/migration changes. Constraints: never edit CLAUDE.md/docs//.claude//src_legacy_v0/; never `git add .`/`git add -A` (explicit paths). The local Supabase stack must be running (`supabase start`) for any task that runs Playwright.
 
-**Goal:** Cover the research-bounty loop with real authenticated journeys as four distinct roles — proving the loop works end-to-end through the UI (incl. the verify→payout moment), plus key authorization guards.
+**Goal:** Cover the research-bounty loop with real authenticated journeys as four distinct roles - proving the loop works end-to-end through the UI (incl. the verify→payout moment), plus key authorization guards.
 
-**Architecture:** A Playwright `global-setup` creates 5 role users via anon `auth.signUp`, sets roles via idempotent SQL, and mints per-role `storageState` by letting `@supabase/ssr` write the session cookies (in-memory jar + `signInWithPassword`) — **no service-role key, no hand-encoded cookies, no OAuth.** Specs drive the golden 4-role loop + negatives. Reduced-motion is **intentionally NOT forced** — the verify→payout moment's ~700ms hold is the assertion window (forcing reduce would skip the hold and the seal would vanish). Spec: `docs/superpowers/specs/2026-06-07-e2e-authed-suite-design.md`.
+**Architecture:** A Playwright `global-setup` creates 5 role users via anon `auth.signUp`, sets roles via idempotent SQL, and mints per-role `storageState` by letting `@supabase/ssr` write the session cookies (in-memory jar + `signInWithPassword`) - **no service-role key, no hand-encoded cookies, no OAuth.** Specs drive the golden 4-role loop + negatives. Reduced-motion is **intentionally NOT forced** - the verify→payout moment's ~700ms hold is the assertion window (forcing reduce would skip the hold and the seal would vanish). Spec: `docs/superpowers/specs/2026-06-07-e2e-authed-suite-design.md`.
 
 **Tech Stack:** `@playwright/test` ^1.60, `@supabase/ssr` ^0.10, `@supabase/supabase-js` ^2.107. Local Supabase: URL `http://127.0.0.1:54321`, anon key = the standard local demo JWT, DB container `supabase_db_aisafetyideas`.
 
@@ -17,8 +17,8 @@
   `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0`
 - **Real UI selectors** (so the journeys are concrete):
   - `/login`: heading "Sign in"; "Continue with Google" button; email input placeholder `you@email.com`.
-  - `/console`: post form — input placeholder `Title`, `<select name=type>`, button **Publish**. Review queue verify form — number input under label `Intended payout ($)`, button **Verify**; **Request revision** button; **Reject** button. On verify success the row header shows the **Verified** seal text + the count-up amount; on reject the row dims; revision keeps it in queue.
-  - `/ideas/[id]`: "Submit an answer" link (when `canSubmit`); pledge form — `<input name=amount>`, button **Pledge**; comment form; `StatusBadge`; `BountyMeter`.
+  - `/console`: post form - input placeholder `Title`, `<select name=type>`, button **Publish**. Review queue verify form - number input under label `Intended payout ($)`, button **Verify**; **Request revision** button; **Reject** button. On verify success the row header shows the **Verified** seal text + the count-up amount; on reject the row dims; revision keeps it in queue.
+  - `/ideas/[id]`: "Submit an answer" link (when `canSubmit`); pledge form - `<input name=amount>`, button **Pledge**; comment form; `StatusBadge`; `BountyMeter`.
   - `/ideas/[id]/answer`: input placeholder `Answer title`, `<textarea name=explanation_md>`, `<textarea name=artifacts>`, button **Submit**.
   - `/admin/payouts`: **Approve** / **Reject** buttons; on approve the cell shows the **Approved** seal.
   - `/dashboard`: heading "Dashboard"; tabs **Feed**/**Discover**; **Follow**/**Following** buttons; "My funding" section with "Total committed".
@@ -45,9 +45,9 @@ Existing 11 unauthed smoke specs (`auth/ideas/answers/funding/social.spec.ts`) s
 
 **Files:** Create `e2e/auth.ts`, `e2e/fixtures/seed.sql`, `e2e/global-setup.ts`; modify `playwright.config.ts`, `package.json`, `.gitignore`.
 
-- [ ] **Step 1: `.gitignore`** — append a line: `e2e/.auth/`
+- [ ] **Step 1: `.gitignore`** - append a line: `e2e/.auth/`
 
-- [ ] **Step 2: Create `e2e/auth.ts`** — role registry + the cookie-mint helper (lets `@supabase/ssr` encode the cookies; no hardcoding):
+- [ ] **Step 2: Create `e2e/auth.ts`** - role registry + the cookie-mint helper (lets `@supabase/ssr` encode the cookies; no hardcoding):
 
 ```ts
 import { createServerClient } from '@supabase/ssr';
@@ -72,7 +72,7 @@ export const ROLES: Record<RoleName, { email: string; password: string; state: s
 
 /**
  * Sign in via the anon client with an IN-MEMORY cookie jar so @supabase/ssr writes the exact
- * session cookie(s) the app reads (correct sb-…-auth-token name, chunking, base64- encoding —
+ * session cookie(s) the app reads (correct sb-…-auth-token name, chunking, base64- encoding -
  * no hand-encoding). Persist them as a Playwright storageState file.
  */
 export async function mintStorageState(email: string, password: string, statePath: string): Promise<void> {
@@ -101,7 +101,7 @@ export async function mintStorageState(email: string, password: string, statePat
 }
 ```
 
-- [ ] **Step 3: Create `e2e/fixtures/seed.sql`** — idempotent role/confirm SQL (matches by email; no service-role, no fixed UUIDs):
+- [ ] **Step 3: Create `e2e/fixtures/seed.sql`** - idempotent role/confirm SQL (matches by email; no service-role, no fixed UUIDs):
 
 ```sql
 -- Reset the per-user RPC rate-limit counters each run so the suite's repeated idea_create/answer/
@@ -138,7 +138,7 @@ export default async function globalSetup(_config: FullConfig) {
   });
 
   // 1. Create users via anon signUp (GoTrue owns the password hash). Tolerate "already registered"
-  //    (reruns) AND "rate limit" (GoTrue sign_in_sign_ups=30/5min trips on rapid local reruns —
+  //    (reruns) AND "rate limit" (GoTrue sign_in_sign_ups=30/5min trips on rapid local reruns -
   //    the user already exists from a prior run, so minting below still works).
   const tolerable = /already registered|already been registered|rate limit|429/i;
   for (const { email, password } of Object.values(ROLES)) {
@@ -207,7 +207,7 @@ export default defineConfig({
 });
 ```
 
-(The non-secret local anon key is duplicated in `auth.ts` and the config; that's fine — both are
+(The non-secret local anon key is duplicated in `auth.ts` and the config; that's fine - both are
 test-only local-dev values. `reducedMotion: 'reduce'` makes the verify→payout moment jump to final.)
 
 - [ ] **Step 6: Add the `test:e2e` script** to `package.json` `scripts`:
@@ -220,7 +220,7 @@ test-only local-dev values. `reducedMotion: 'reduce'` makes the verify→payout 
   file) → global-setup creates users + mints all 5 storageStates without error, the smoke tests pass,
   and `e2e/.auth/*.json` exist. (Running an existing spec proves setup works before writing new specs.)
 
-- [ ] **Step 8: Commit** `git add e2e/auth.ts e2e/fixtures/seed.sql e2e/global-setup.ts playwright.config.ts package.json .gitignore && git commit -m "test(e2e): global-setup — signUp roles + mint per-role storageState (no service-role)"`
+- [ ] **Step 8: Commit** `git add e2e/auth.ts e2e/fixtures/seed.sql e2e/global-setup.ts playwright.config.ts package.json .gitignore && git commit -m "test(e2e): global-setup - signUp roles + mint per-role storageState (no service-role)"`
 
 ---
 
@@ -284,7 +284,7 @@ test('golden loop: post → fund → answer → verify (payout moment) → admin
   const row = ap.locator('div.rounded-2xl', { hasText: answerTitle }).first();
   await row.getByLabel('Intended payout ($)').fill('120');
   await row.getByRole('button', { name: 'Verify' }).click();
-  // the verify→payout moment is held ~700ms before the row refetches away — assert it within that
+  // the verify→payout moment is held ~700ms before the row refetches away - assert it within that
   // window, scoped to this card. CountUp renders the amount in TWO spans (hidden sizer + visible),
   // so use .first() to avoid a strict-mode multi-match.
   await expect(row.getByText('Verified')).toBeVisible();
@@ -358,7 +358,7 @@ test('revision path: request_revision keeps the answer in the queue', async ({ b
   const row = ap.locator('div.rounded-2xl', { hasText: answerTitle }).first();
   await row.getByPlaceholder('What to revise').fill('Add detail.');
   await row.getByRole('button', { name: 'Request revision' }).click();
-  // revision_requested stays in the queue (in-place feedback) — the card remains after the refetch
+  // revision_requested stays in the queue (in-place feedback) - the card remains after the refetch
   await expect(ap.locator('div.rounded-2xl', { hasText: answerTitle }).first()).toBeVisible();
 
   await expert.close(); await submitter.close();
@@ -369,7 +369,7 @@ test('revision path: request_revision keeps the answer in the queue', async ({ b
 > right card. If the `div`-with-hasText matches too broadly (nested divs), narrow to the card
 > wrapper class `.rounded-2xl` (e.g. `ap.locator('.rounded-2xl', { hasText: answerTitle })`).
 > The exact funded-amount `$50.00` text appears in the Funders list (the funder is named); if the
-> funder has no display_name it shows the handle — assert the BountyMeter total instead if needed.
+> funder has no display_name it shows the handle - assert the BountyMeter total instead if needed.
 > Adjust selectors to what actually renders; the assertions (idea posted, pledge reflected, answer
 > visible, Verified+amount shown, Approved shown) are the contract.
 
@@ -477,7 +477,7 @@ test('funder dashboard reflects a pledge and a followed expert', async ({ browse
   await expect(fp.getByRole('link', { name: new RegExp(title) }).first()).toBeVisible();
 
   // My-funding half: the section + this pledge's row (the <li> links the idea title + shows $25.00).
-  // Don't assert the exact Total committed — it accumulates across the shared funder's pledges/reruns.
+  // Don't assert the exact Total committed - it accumulates across the shared funder's pledges/reruns.
   await expect(fp.getByText('My funding')).toBeVisible();
   await expect(fp.getByText(/Total committed/)).toBeVisible();
   await expect(fp.locator('li', { hasText: title }).filter({ hasText: '$25.00' }).first()).toBeVisible();
@@ -524,7 +524,7 @@ test('funder dashboard reflects a pledge and a followed expert', async ({ browse
 matching `global-setup.ts`'s `docker exec`. `webServer.reuseExistingServer:!CI` means CI always
 boots a fresh preview. Chromium-only for speed.)
 
-- [ ] **Step 2: Verify the YAML parses** — `npx --yes js-yaml .github/workflows/ci.yml >/dev/null` (or any YAML check) → no error. (CI itself proves it on push.)
+- [ ] **Step 2: Verify the YAML parses** - `npx --yes js-yaml .github/workflows/ci.yml >/dev/null` (or any YAML check) → no error. (CI itself proves it on push.)
 - [ ] **Step 3: Commit** `git add .github/workflows/ci.yml && git commit -m "ci: run authed Playwright E2E suite (local stack + chromium)"`
 
 ---
@@ -532,7 +532,7 @@ boots a fresh preview. Chromium-only for speed.)
 ## Task 5: Final verification
 - [ ] Local: with the stack up, `npm run test:e2e` → entire suite green (smoke + golden loop + guards + dashboard); `e2e/.auth/*.json` are gitignored (not staged).
 - [ ] `npm run check` → 0 errors; `npx vitest run` → unaffected/green; `supabase test db` → unchanged-green (no SQL touched outside `e2e/fixtures`).
-- [ ] Dispatch the final holistic review; finish the branch (PR). The PR push triggers the new CI `e2e` job — confirm it goes green there too.
+- [ ] Dispatch the final holistic review; finish the branch (PR). The PR push triggers the new CI `e2e` job - confirm it goes green there too.
 
 ## Done-when
 - Global-setup creates the 5 role users (anon signUp) + roles (SQL) + mints 5 `storageState`s with **no service-role key**; verifies each authenticates.

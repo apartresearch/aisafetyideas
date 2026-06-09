@@ -1070,6 +1070,26 @@ export type Database = {
         }
         Returns: string
       }
+      admin_dashboard_stats: {
+        Args: Record<string, never>
+        Returns: Json
+      }
+      admin_set_admin: {
+        Args: { p_is_admin: boolean; p_profile: string }
+        Returns: undefined
+      }
+      admin_set_expert: {
+        Args: { p_approved: boolean; p_profile: string }
+        Returns: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          featured: boolean
+          id: string
+          specialty: string | null
+          status: string
+        }
+      }
       admin_approve_payout: {
         Args: { p_answer_id: string; p_note?: string }
         Returns: {
@@ -1120,6 +1140,44 @@ export type Database = {
           p_profile: string
         }
         Returns: undefined
+      }
+      admin_moderate_idea: {
+        Args: { p_action: string; p_idea: string }
+        Returns: {
+          author_id: string | null
+          auto_resolve_days: number | null
+          claim: string | null
+          closes_at: string | null
+          contact: string | null
+          created_at: string
+          currency: string
+          estimated_hours: number | null
+          expansions: Json
+          extensions_md: string | null
+          from_date: string | null
+          id: string
+          importance: number | null
+          legacy: Json
+          legacy_id: number | null
+          methodology_md: string | null
+          published_at: string | null
+          resolution: string | null
+          resolution_criteria_md: string | null
+          slug: string
+          source_url: string | null
+          status: string
+          summary_md: string | null
+          theory_of_change_md: string | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "ideas"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       admin_reject_payout: {
         Args: { p_answer_id: string; p_note?: string }

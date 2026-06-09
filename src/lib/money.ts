@@ -21,7 +21,7 @@ function normalizeCurrency(currency: string): string {
  * We normalize known symbols and fall back to USD for anything not a valid ISO code.
  */
 export function formatCents(cents: number | null | undefined, currency = 'USD'): string {
-  if (cents == null) return '—';
+  if (cents == null) return '-';
   const code = normalizeCurrency(currency);
   try {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: code }).format(cents / 100);

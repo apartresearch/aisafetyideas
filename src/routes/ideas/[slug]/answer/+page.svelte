@@ -16,7 +16,8 @@
          class="rounded-xl border px-3 py-2" style="border-color:var(--line)" />
   <textarea name="explanation_md" placeholder="Explain your answer (markdown)" rows="6" bind:value={explanation_md}
             class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
-  <textarea name="artifacts" placeholder="Artifact links — one per line (GitHub, PDF, Colab, URL)" rows="3" bind:value={artifacts}
+  <p style="font-size:.75rem; color:var(--faint); margin:0">Markdown + LaTeX ($x^2$, $$\sum$$) supported</p>
+  <textarea name="artifacts" placeholder="Artifact links - one per line (GitHub, PDF, Colab, URL)" rows="3" bind:value={artifacts}
             class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
   <button class="self-start rounded-xl px-4 py-2 font-medium" style="background:var(--ink); color:#fff">Submit</button>
   {#if form?.message}<span style="color:var(--neg)">{form.message}</span>{/if}

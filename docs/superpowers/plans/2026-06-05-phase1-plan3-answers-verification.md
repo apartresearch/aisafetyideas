@@ -1,10 +1,10 @@
-# AI Safety Ideas — Phase 1 · Plan 3: Answers & Verification — Implementation Plan
+# AI Safety Ideas - Phase 1 · Plan 3: Answers & Verification - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax.
 
-**Goal:** Add the **answers** domain — `answers` + `answer_artifacts` + `answer_reviews` — and the full **verify / request-revision / reject** flow plus the **admin charitable-purpose gate** (recording *intended* payouts, **money OFF**), all RLS-secured, on the `plan-3-answers-verification` branch. Schema absorbs the old `results` columns via `legacy_id` + `legacy jsonb` for a lossless ETL.
+**Goal:** Add the **answers** domain - `answers` + `answer_artifacts` + `answer_reviews` - and the full **verify / request-revision / reject** flow plus the **admin charitable-purpose gate** (recording *intended* payouts, **money OFF**), all RLS-secured, on the `plan-3-answers-verification` branch. Schema absorbs the old `results` columns via `legacy_id` + `legacy jsonb` for a lossless ETL.
 
-**Architecture:** Builds on Plan 1 (identity/`is_admin()`/`touch_updated_at()`) + Plan 2 (`ideas`). Reads go through RLS-scoped `load()`; **answer state transitions go through `SECURITY DEFINER` RPCs** (locked `search_path=''`, internal `auth.uid()` checks, state-machine validation, audit row) — there is **no client UPDATE policy on `answers`** (deny-by-default). Initial submission is a plain RLS INSERT (status pinned to `submitted`). This mirrors the spec ("verify/reject: idea author or admin via RPC") and is the seam Phase 2 extends to fire real ledger entries.
+**Architecture:** Builds on Plan 1 (identity/`is_admin()`/`touch_updated_at()`) + Plan 2 (`ideas`). Reads go through RLS-scoped `load()`; **answer state transitions go through `SECURITY DEFINER` RPCs** (locked `search_path=''`, internal `auth.uid()` checks, state-machine validation, audit row) - there is **no client UPDATE policy on `answers`** (deny-by-default). Initial submission is a plain RLS INSERT (status pinned to `submitted`). This mirrors the spec ("verify/reject: idea author or admin via RPC") and is the seam Phase 2 extends to fire real ledger entries.
 
 **Tech Stack:** unchanged from Plans 1–2 (SvelteKit 2 + Svelte 5 runes + Supabase v2 + `@supabase/ssr`, pgTAP, Playwright, Vitest, Tailwind v4).
 
@@ -14,7 +14,7 @@
 
 ## Key design decisions
 
-- **Money OFF (per spec §7/§10).** The verify → admin-approve flow runs fully and records an **intended** payout on `answers.payout_amount_cents` + the `answer_reviews` audit trail. **No** `ledger_*` / `payouts` / `donations` tables in this plan — those land in the Phase-2 money plan. The admin gate is recorded as `answers.admin_approved_by/at` (or `admin_rejected_by/at`).
+- **Money OFF (per spec §7/§10).** The verify → admin-approve flow runs fully and records an **intended** payout on `answers.payout_amount_cents` + the `answer_reviews` audit trail. **No** `ledger_*` / `payouts` / `donations` tables in this plan - those land in the Phase-2 money plan. The admin gate is recorded as `answers.admin_approved_by/at` (or `admin_rejected_by/at`).
 - **Transitions via RPC, not RLS UPDATE.** `answers` has SELECT, INSERT, and DELETE policies only. Every status change is a `SECURITY DEFINER` function that authorizes internally and writes an `answer_reviews` row atomically. This prevents an author from rewriting answer content, prevents a submitter from self-verifying or setting a payout, and gives a tamper-evident audit trail.
 - **Submission is RLS INSERT** with a pinned `WITH CHECK` (`submitter_id = auth.uid()`, `status = 'submitted'`, all verification/payout columns null, target idea must be `open`). No RPC needed for the happy-path submit; artifacts are child RLS inserts.
 - **State machine (spec §5):** `submitted → under_review → {verified | revision_requested → (resubmit) → submitted | rejected}`; gate `verified → {admin_approved | admin_rejected}`.
@@ -26,14 +26,14 @@
 - **Auto-resolve timeout is deferred to the Phase-2 money plan** (spec §7 frames it as an escrow safeguard). `ideas.auto_resolve_days` already exists (Plan 2); no cron in Plan 3.
 
 ### Authorization, integrity & concurrency (hardened after adversarial plan review)
-- **Authority is the RPC, never the UI.** Each author-facing RPC re-checks `experts.status = 'approved'` (OR `is_admin()`), so a **revoked expert loses verify/reject power immediately** — matching the `ideas` INSERT gate. The console's `requireExpert()` is defense-in-depth, not the boundary.
-- **Single-winner is lock-enforced.** `verify_answer` takes `FOR UPDATE` on the answer **and** the idea before its open-check, so concurrent verifies on one hypothesis serialize — exactly one winner. The admin-gate RPCs take `FOR UPDATE` on the answer so the gate cannot be approved-and-rejected by a race. (Phase 1 concurrency is low, but this is the seam Phase 2 hangs real money on — it must be correct now.)
-- **General open-idea guard.** Every transition that produces a "winner" or re-queues work (`verify_answer`, `start_review`, `resubmit_answer`) requires `idea.status = 'open'`, mirroring the INSERT policy — no verifying/resubmitting on a closed, archived, or resolved idea.
+- **Authority is the RPC, never the UI.** Each author-facing RPC re-checks `experts.status = 'approved'` (OR `is_admin()`), so a **revoked expert loses verify/reject power immediately** - matching the `ideas` INSERT gate. The console's `requireExpert()` is defense-in-depth, not the boundary.
+- **Single-winner is lock-enforced.** `verify_answer` takes `FOR UPDATE` on the answer **and** the idea before its open-check, so concurrent verifies on one hypothesis serialize - exactly one winner. The admin-gate RPCs take `FOR UPDATE` on the answer so the gate cannot be approved-and-rejected by a race. (Phase 1 concurrency is low, but this is the seam Phase 2 hangs real money on - it must be correct now.)
+- **General open-idea guard.** Every transition that produces a "winner" or re-queues work (`verify_answer`, `start_review`, `resubmit_answer`) requires `idea.status = 'open'`, mirroring the INSERT policy - no verifying/resubmitting on a closed, archived, or resolved idea.
 - **No stuck states.** When a hypothesis resolves, `verify_answer` **auto-rejects every other undecided answer** on that idea (`submitted`/`under_review`/`revision_requested` → `rejected`) and writes an audit row for each. `reject_answer` may also fire from `revision_requested`, so an author can close out an abandoned revision.
-- **Verify records a real, non-fabricated decision.** `verify_answer` **requires `payout_amount_cents > 0`** (Phase-1 records *intended* payouts; a meaningless NULL grant is rejected) and **requires `p_resolution ∈ {yes,no,ambiguous}` for hypotheses** (no silent `'yes'` default — that would invent a research outcome). The payout is **immutable post-verify** in Phase 1 (no amend RPC; correct an over/under via admin reject). A Phase-2 `payout ≤ escrow` pot check is a documented TODO anchored on this RPC.
+- **Verify records a real, non-fabricated decision.** `verify_answer` **requires `payout_amount_cents > 0`** (Phase-1 records *intended* payouts; a meaningless NULL grant is rejected) and **requires `p_resolution ∈ {yes,no,ambiguous}` for hypotheses** (no silent `'yes'` default - that would invent a research outcome). The payout is **immutable post-verify** in Phase 1 (no amend RPC; correct an over/under via admin reject). A Phase-2 `payout ≤ escrow` pot check is a documented TODO anchored on this RPC.
 - **Payout-gate state is intentionally derived.** Per §10's "additive, no migration" promise, the gate is tracked by `status='verified'` + `admin_approved_at`/`admin_rejected_at` nullability (no `pending_admin`/`paid` enum on `answers`). The Phase-2 `paid` state lives on the future `payouts`/`ledger_*` tables, not on `answers`, so the no-migration claim holds.
 - **`legacy_*` is service-role-only.** The `answers` and `answer_artifacts` INSERT WITH CHECK pin `legacy_id IS NULL AND legacy = '{}'` (and `payout_currency='USD'`) so a live client cannot squat a `legacy_id` (UNIQUE) and break the lossless ETL, nor forge `legacy` provenance.
-- **Withdraw is `submitted`-only.** The DELETE policy allows withdrawing only an undecided `submitted` answer — a `revision_requested` answer carries the author's review thread, and `answer_reviews` cascades on delete, so withdrawing it would erase the tamper-evident trail.
+- **Withdraw is `submitted`-only.** The DELETE policy allows withdrawing only an undecided `submitted` answer - a `revision_requested` answer carries the author's review thread, and `answer_reviews` cascades on delete, so withdrawing it would erase the tamper-evident trail.
 - **Schema deltas vs spec §6 DDL (intentional, additive):** `payout_currency` mirrors `ideas.currency`; `admin_rejected_by/at` record the §5 `admin_rejected` gate branch; the `answer_reviews.action` enum extends §6 with `start_review`/`resubmit` to fully audit the §5 state machine. Open-ended ideas intentionally stay `open` on verify (the `closed` transition is a Phase-2 funder/pot action).
 - **`answer_reviews` ETL:** the old `results` table had **no** per-decision review history, so `answer_reviews` imports **zero** legacy rows; its `legacy_id` stays null for live data and is reserved for any future legacy verification-relation back-fill.
 
@@ -58,7 +58,7 @@
 
 ---
 
-## Task 1: Migration — answers / answer_artifacts / answer_reviews schema + RLS
+## Task 1: Migration - answers / answer_artifacts / answer_reviews schema + RLS
 
 **Files:** `supabase/migrations/<ts>_answers.sql`
 
@@ -120,12 +120,12 @@ create policy "members submit answers to open ideas" on public.answers for inser
     and exists (select 1 from public.ideas i where i.id = idea_id and i.status = 'open')
   );
 
--- DELETE: submitter may withdraw an undecided answer (submitted only — a revision_requested answer
+-- DELETE: submitter may withdraw an undecided answer (submitted only - a revision_requested answer
 -- carries the author's review thread, and answer_reviews cascades, so withdrawing it would erase the audit trail)
 create policy "submitter withdraws own submitted answer" on public.answers for delete to authenticated
   using ((select auth.uid()) = submitter_id and status = 'submitted');
 
--- NOTE: NO update policy on purpose — all status transitions go through SECURITY DEFINER RPCs (next migration).
+-- NOTE: NO update policy on purpose - all status transitions go through SECURITY DEFINER RPCs (next migration).
 
 -- updated_at trigger (touch_updated_at() created in Plan 2; search_path already locked)
 create trigger answers_touch_updated_at before update on public.answers
@@ -199,7 +199,7 @@ create policy "reviews readable by involved parties" on public.answer_reviews fo
              or exists (select 1 from public.ideas i where i.id = a.idea_id and i.author_id = (select auth.uid())))
     )
   );
--- NOTE: NO insert/update/delete policy — only the SECURITY DEFINER RPCs write here (deny-by-default for clients).
+-- NOTE: NO insert/update/delete policy - only the SECURITY DEFINER RPCs write here (deny-by-default for clients).
 ```
 
 - [ ] **Step 2: Apply locally**
@@ -223,7 +223,7 @@ git commit -m "feat(db): answers/answer_artifacts/answer_reviews schema + RLS (P
 
 ---
 
-## Task 2: Migration — answer transition RPCs (SECURITY DEFINER)
+## Task 2: Migration - answer transition RPCs (SECURITY DEFINER)
 
 **Files:** `supabase/migrations/<ts>_answer_rpcs.sql`
 
@@ -437,13 +437,13 @@ grant execute on function public.admin_reject_payout(uuid, text) to authenticate
 Run: `supabase db reset`
 Expected: applies clean.
 Run: `supabase db advisors --level warning` (or MCP `get_advisors` if CLI < 2.81.3).
-Expected: no NEW `function_search_path_mutable` warnings (all RPCs set `search_path=''`). The pre-existing accepted `is_admin` SECURITY DEFINER advisor may remain; do NOT add `SECURITY DEFINER` anywhere to silence an unrelated error. If a new advisor fires on these functions, fix the function — do not weaken it. An **informational** note that `answer_reviews` has RLS enabled with no write policy is **expected and intentional** (deny-by-default; only the RPCs, running as the table owner, write it) — do NOT "fix" it by adding a write policy.
+Expected: no NEW `function_search_path_mutable` warnings (all RPCs set `search_path=''`). The pre-existing accepted `is_admin` SECURITY DEFINER advisor may remain; do NOT add `SECURITY DEFINER` anywhere to silence an unrelated error. If a new advisor fires on these functions, fix the function - do not weaken it. An **informational** note that `answer_reviews` has RLS enabled with no write policy is **expected and intentional** (deny-by-default; only the RPCs, running as the table owner, write it) - do NOT "fix" it by adding a write policy.
 
 - [ ] **Step 3: Commit**
 
 ```bash
 git add supabase/migrations
-git commit -m "feat(db): answer transition RPCs (verify/revision/reject/resubmit/admin gate) — SECURITY DEFINER, locked search_path"
+git commit -m "feat(db): answer transition RPCs (verify/revision/reject/resubmit/admin gate) - SECURITY DEFINER, locked search_path"
 ```
 
 ---
@@ -694,7 +694,7 @@ export function inferKind(url: string): ArtifactKind {
 <script lang="ts">
   let { cents, currency = 'USD' }: { cents: number | null | undefined; currency?: string } = $props();
   const fmt = $derived(
-    cents == null ? '—' : new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(cents / 100)
+    cents == null ? '-' : new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(cents / 100)
   );
 </script>
 <span style="font-variant-numeric: tabular-nums">{fmt}</span>
@@ -746,7 +746,7 @@ git commit -m "feat: regenerate types + artifacts helper + Money/AnswerCard + St
 
 ---
 
-## Task 5: Submit an answer — `/ideas/[id]/answer`
+## Task 5: Submit an answer - `/ideas/[id]/answer`
 
 **Files:** `src/routes/ideas/[id]/answer/+page.server.ts`, `src/routes/ideas/[id]/answer/+page.svelte`
 
@@ -808,7 +808,7 @@ export const actions: Actions = {
          class="rounded-xl border px-3 py-2" style="border-color:var(--line)" />
   <textarea name="explanation_md" placeholder="Explain your answer (markdown)" rows="6"
             class="rounded-xl border px-3 py-2" style="border-color:var(--line)">{form?.explanation_md ?? ''}</textarea>
-  <textarea name="artifacts" placeholder="Artifact links — one per line (GitHub, PDF, Colab, URL)" rows="3"
+  <textarea name="artifacts" placeholder="Artifact links - one per line (GitHub, PDF, Colab, URL)" rows="3"
             class="rounded-xl border px-3 py-2" style="border-color:var(--line)"></textarea>
   <button class="self-start rounded-xl px-4 py-2 font-medium" style="background:var(--ink); color:#fff">Submit</button>
   {#if form?.message}<span style="color:var(--neg)">{form.message}</span>{/if}
@@ -821,7 +821,7 @@ export const actions: Actions = {
 
 ---
 
-## Task 6: Idea detail — show answers + submit CTA
+## Task 6: Idea detail - show answers + submit CTA
 
 **Files:** `src/routes/ideas/[id]/+page.server.ts` (modify), `src/routes/ideas/[id]/+page.svelte` (modify)
 
@@ -922,7 +922,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
 
 ---
 
-## Task 7: Expert console — review queue + verify / request-revision / reject
+## Task 7: Expert console - review queue + verify / request-revision / reject
 
 **Files:** `src/routes/console/+page.server.ts` (modify), `src/routes/console/+page.svelte` (modify)
 
@@ -947,7 +947,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
     .from('ideas').select('id, title, type, status').eq('author_id', user.id)
     .order('created_at', { ascending: false });
 
-  // answers awaiting a decision on MY ideas (ideas!inner — exactly one FK to ideas, so no hint needed; the
+  // answers awaiting a decision on MY ideas (ideas!inner - exactly one FK to ideas, so no hint needed; the
   // submitter embed names its constraint because answers has four FKs to profiles)
   const { data: rawQueue } = await supabase
     .from('answers')
@@ -1041,7 +1041,7 @@ export const actions: Actions = {
 };
 ```
 
-> **Note:** every action handler re-checks `requireExpert()` as defense-in-depth, but the **RPC is the real authority** — it independently re-checks `experts.status='approved'`, so a revoked expert is blocked even if they bypass the UI. The verify form sends `payout` (dollars → cents) and, for hypothesis ideas, a required `resolution`; the RPC rejects a missing/zero payout or a missing hypothesis resolution.
+> **Note:** every action handler re-checks `requireExpert()` as defense-in-depth, but the **RPC is the real authority** - it independently re-checks `experts.status='approved'`, so a revoked expert is blocked even if they bypass the UI. The verify form sends `payout` (dollars → cents) and, for hypothesis ideas, a required `resolution`; the RPC rejects a missing/zero payout or a missing hypothesis resolution.
 
 - [ ] **Step 2: Replace `+page.svelte`** (keeps the Plan 2 post-idea form + list; adds the review queue)
 
@@ -1133,11 +1133,11 @@ export const actions: Actions = {
 
 - [ ] **Step 3: Verify** `npm run check` (0 errors) + `npm run build` (clean).
 
-- [ ] **Step 4: Commit** `git add src/routes/console && git commit -m "feat: expert console review queue — verify/request-revision/reject via RPC"`
+- [ ] **Step 4: Commit** `git add src/routes/console && git commit -m "feat: expert console review queue - verify/request-revision/reject via RPC"`
 
 ---
 
-## Task 8: Admin charitable-purpose gate — `/admin/payouts`
+## Task 8: Admin charitable-purpose gate - `/admin/payouts`
 
 **Files:** `src/routes/admin/payouts/+page.server.ts`, `src/routes/admin/payouts/+page.svelte`
 
@@ -1253,7 +1253,7 @@ export const actions: Actions = {
 
 ---
 
-## Task 9: Tests — unit + E2E + full suite
+## Task 9: Tests - unit + E2E + full suite
 
 **Files:** `src/lib/artifacts.test.ts`, `e2e/answers.spec.ts`
 
@@ -1308,11 +1308,11 @@ Run, in order:
 
 - `answers` / `answer_artifacts` / `answer_reviews` exist with RLS; the **43-assertion** pgTAP suite proves: members submit only their own answers to open ideas (status + `legacy_id` pinned); non-involved users can't read non-verified answers **or their artifacts**; verified answers are public; **no direct client UPDATE** on `answers`; start-review/verify/request-revision/reject/resubmit/admin-approve/admin-reject work **only** for the right actor; a **revoked expert cannot verify** (RPC re-checks `experts.status`); hypothesis verify resolves the idea and **auto-rejects the losers**; an already-resolved idea blocks new submissions and further verifies; the admin gate **cannot be decided twice**; the audit table is **deny-by-default** (client INSERT denied) and is written by the RPCs.
 - A member can submit an answer (title + explanation + artifact links) to an open idea; the idea page shows verified answers publicly and the submitter's own answer privately.
-- An approved expert sees a review queue for their ideas and can verify (recording a **required positive** intended payout, + a **required** resolution for hypotheses), request revision, or reject — each writing an `answer_reviews` audit row.
+- An approved expert sees a review queue for their ideas and can verify (recording a **required positive** intended payout, + a **required** resolution for hypotheses), request revision, or reject - each writing an `answer_reviews` audit row.
 - An admin sees the charitable-purpose gate queue and can approve/reject verified answers. **No funds move (money OFF).**
-- Single-winner and gate-decision invariants are **lock-enforced** (`FOR UPDATE`), so they hold under concurrency — the seam Phase 2 hangs real money on is correct now.
+- Single-winner and gate-decision invariants are **lock-enforced** (`FOR UPDATE`), so they hold under concurrency - the seam Phase 2 hangs real money on is correct now.
 - Schema carries `legacy_id` + `legacy jsonb` so the later ETL of old `results` is lossless (`answer_reviews` imports zero legacy rows).
 - All suites green; no secrets; no `@html` of user content; advisors show no new findings (the informational `answer_reviews` RLS-no-write-policy note is expected). The authed browser E2E (submit→verify→gate) is intentionally deferred to Plan 5; the flow is proven by pgTAP.
 
-**After merge:** controller applies both Plan-3 migrations to cloud `gjomchhbsbtauzkpyjwa` via MCP, re-runs advisors, then authors **Plan 4 (Funding pledges & Dashboards — add the chart tokens here)**.
+**After merge:** controller applies both Plan-3 migrations to cloud `gjomchhbsbtauzkpyjwa` via MCP, re-runs advisors, then authors **Plan 4 (Funding pledges & Dashboards - add the chart tokens here)**.
 ```
