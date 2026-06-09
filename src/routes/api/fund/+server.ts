@@ -5,7 +5,7 @@ import { getPlatformConfig } from '$lib/server/config';
 import { getStripe } from '$lib/server/stripe';
 
 // Create a Stripe Checkout session for a donation. The donor pays Stripe directly; the credit
-// to their on-platform balance (and any per-idea escrow) happens later in the webhook — never here.
+// to their on-platform balance (and any per-idea escrow) happens later in the webhook - never here.
 export const POST: RequestHandler = async ({ request, url, locals: { supabase, safeGetSession } }) => {
   const { user } = await safeGetSession();
   if (!user) return json({ message: 'Sign in' }, { status: 401 });

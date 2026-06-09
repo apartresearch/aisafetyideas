@@ -24,7 +24,7 @@
           {#if u.handle}<span style="color:var(--faint)"> @{u.handle}</span>{/if}
           {#if u.is_admin}<span class="ml-2 text-xs" style="color:var(--green-deep)">admin</span>{/if}
         </td>
-        <td style="color:var(--muted)">{u.expert_status ?? '—'}</td>
+        <td style="color:var(--muted)">{u.expert_status ?? '-'}</td>
         <td class="py-2 text-right">
           <form method="POST" action="?/setExpert" class="inline">
             <input type="hidden" name="id" value={u.id} />

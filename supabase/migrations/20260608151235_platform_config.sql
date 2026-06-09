@@ -11,7 +11,7 @@ create table public.platform_config (
   updated_by            uuid references public.profiles(id)
 );
 
--- Seed the one row (no INSERT policy exists — clients cannot add rows; only this migration does).
+-- Seed the one row (no INSERT policy exists - clients cannot add rows; only this migration does).
 insert into public.platform_config (id) values (true);
 
 alter table public.platform_config enable row level security;

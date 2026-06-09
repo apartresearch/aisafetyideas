@@ -21,7 +21,7 @@
   let expanded = $state(false);
   let publishOpen = $state(false);
 
-  // Local editable copies seeded from prop — svelte-ignore state_referenced_locally
+  // Local editable copies seeded from prop - svelte-ignore state_referenced_locally
   // svelte-ignore state_referenced_locally
   let localTitle = $state(draft.title);
   // svelte-ignore state_referenced_locally
@@ -60,7 +60,7 @@
 </script>
 
 <article class="draft-card card card-hover" class:draft-card--expanded={expanded}>
-  <!-- Collapsed header — click anywhere on header row to expand -->
+  <!-- Collapsed header - click anywhere on header row to expand -->
   <div class="draft-card__header" role="button" tabindex="0"
        onclick={toggle} onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } }}>
     <span class="draft-card__title-text" title={draft.title}>

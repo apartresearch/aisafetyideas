@@ -31,7 +31,7 @@ create policy "members comment on visible ideas" on public.comments for insert t
 -- DELETE: the author, or an admin (moderation)
 create policy "author or admin deletes comment" on public.comments for delete to authenticated
   using ((select auth.uid()) = author_id or public.is_admin());
--- NOTE: no UPDATE policy — editing is delete-and-repost in v1.
+-- NOTE: no UPDATE policy - editing is delete-and-repost in v1.
 
 -- ============ interest (one per member per idea; a toggle) ============
 create table public.interest (
@@ -64,4 +64,4 @@ create policy "members express interest on visible ideas" on public.interest for
 -- DELETE: a member withdraws their own interest
 create policy "member withdraws own interest" on public.interest for delete to authenticated
   using ((select auth.uid()) = profile_id);
--- NOTE: no UPDATE policy — toggle is insert/delete; note set at insert.
+-- NOTE: no UPDATE policy - toggle is insert/delete; note set at insert.

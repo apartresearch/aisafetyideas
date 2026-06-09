@@ -15,7 +15,7 @@ const SAFE_DEFAULTS: PlatformConfig = {
 /**
  * Read the single platform_config row.
  * Falls back to safe defaults if the row is somehow missing (should never happen
- * in production — the migration seeds it — but guards against a broken state).
+ * in production - the migration seeds it - but guards against a broken state).
  */
 export async function getPlatformConfig(supabase: SupabaseClient): Promise<PlatformConfig> {
   const { data, error } = await supabase

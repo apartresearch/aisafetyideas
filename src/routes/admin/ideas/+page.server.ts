@@ -16,7 +16,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
   const { data: me } = await supabase.from('profiles').select('is_admin').eq('id', user.id).maybeSingle();
   if (!me?.is_admin) error(403, 'Admins only');
 
-  // Primary view: the review queue — non-expert submissions awaiting moderation.
+  // Primary view: the review queue - non-expert submissions awaiting moderation.
   const { data: review } = await supabase
     .from('ideas').select(SELECT).eq('status', 'review').order('created_at', { ascending: false });
 

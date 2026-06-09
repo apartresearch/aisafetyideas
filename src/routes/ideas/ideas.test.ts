@@ -4,7 +4,7 @@ import { load } from './+page.server';
 function mkLocals(rows: unknown[], totals: unknown[] = []) {
   const make = (table: string): any => {
     if (table === 'idea_vote_totals') return { select: () => Promise.resolve({ data: totals }) };
-    // enrichCards reads answers/comments via .select(...).in(...) — return no stats
+    // enrichCards reads answers/comments via .select(...).in(...) - return no stats
     if (table === 'answers' || table === 'comments') {
       return { select: () => ({ in: () => Promise.resolve({ data: [] }) }) };
     }

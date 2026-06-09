@@ -1,7 +1,7 @@
-# AI Safety Ideas — 2026 Overhaul Design Spec
+# AI Safety Ideas - 2026 Overhaul Design Spec
 
 **Date:** 2026-06-04
-**Status:** Design approved (brainstorming complete) — pending written-spec review, then implementation plan.
+**Status:** Design approved (brainstorming complete) - pending written-spec review, then implementation plan.
 **Owner:** Esben (Apart Research)
 **Brand & motion:** see `CLAUDE.md` (source of truth for visual + animation system).
 
@@ -21,8 +21,8 @@ AI Safety Ideas (`aisafetyideas.com`, by Apart Research) was a research-idea agg
 **The core loop:** admin-vetted **experts** post **ideas** (bounties) → **funders** attach money → **submitters** submit **answers** → the idea **author verifies/rejects** → an **admin approves the charitable-purpose gate** → a **payout** flows to the submitter, who can **withdraw** to a bank.
 
 **Two idea types:**
-- **Hypothesis** — a yes/no claim. **Single winner:** the first answer the author verifies takes the pot; the idea resolves.
-- **Open-ended** — no fixed answer. **Multiple winners:** the author can verify several answers, each paid from the pot; funders can top up; stays open until the funder closes it or the pot is exhausted.
+- **Hypothesis** - a yes/no claim. **Single winner:** the first answer the author verifies takes the pot; the idea resolves.
+- **Open-ended** - no fixed answer. **Multiple winners:** the author can verify several answers, each paid from the pot; funders can top up; stays open until the funder closes it or the pot is exhausted.
 
 **Surfaces:** public bounty interface · funder dashboard · expert console · admin.
 
@@ -33,7 +33,7 @@ AI Safety Ideas (`aisafetyideas.com`, by Apart Research) was a research-idea agg
 - **Two approval gates before any payout:** (1) idea author verifies the research; (2) admin approves the charitable-purpose gate.
 - **Safeguards:** auto-resolve timeout so a silent author can't trap escrowed funds; "request revision" is distinct from "reject."
 - **Submitters:** global from day one.
-- **Payment rail:** **Stripe only** — Stripe Connect for payouts, Stripe Global Payouts / stablecoin payouts for wider country reach, Stripe for inbound donations. (No PayPal/Wise/every.org.)
+- **Payment rail:** **Stripe only** - Stripe Connect for payouts, Stripe Global Payouts / stablecoin payouts for wider country reach, Stripe for inbound donations. (No PayPal/Wise/every.org.)
 - **Platform fee:** configurable; **decided at Phase 2** (Manifund uses ~5%).
 - **Build sequencing:** **phased, with a payment-complete schema from day one and real money OFF in Phase 1.**
 - **Stack:** SvelteKit 2 + Svelte 5 (runes), Supabase JS v2 + `@supabase/ssr` (cookie sessions, RLS enforced, typed client), `@sveltejs/adapter-vercel`, Stripe, Tailwind.
@@ -44,13 +44,13 @@ AI Safety Ideas (`aisafetyideas.com`, by Apart Research) was a research-idea agg
 
 | Role | Capabilities | Gating |
 |---|---|---|
-| **Visitor** (anon) | Browse public ideas, answers (once verified), experts | — |
+| **Visitor** (anon) | Browse public ideas, answers (once verified), experts | - |
 | **Member** | Submit answers, follow experts, comment, express interest; becomes a funder by donating | Email / OAuth |
 | **Expert / Creator** | Post ideas (bounties); verify / request-revision / reject answers **to their own ideas** | **Admin-vetted** (`experts.status = approved`) |
 | **Funder** | Donate, attach money to ideas, dashboard of followed experts | Activity-based (any member who donates) |
 | **Admin** (Apart staff) | Vet experts; charitable-purpose gate; withdrawal review; moderation | `profiles.is_admin` |
 
-Roles are capabilities, not exclusive identities (one person may be several). Authorization is enforced **in RLS (source of truth)** and mirrored in UI gating. Roles derive from `is_admin` / `experts.status` — **never** from `user_metadata`.
+Roles are capabilities, not exclusive identities (one person may be several). Authorization is enforced **in RLS (source of truth)** and mirrored in UI gating. Roles derive from `is_admin` / `experts.status` - **never** from `user_metadata`.
 
 ## 5. Lifecycle state machines
 
@@ -131,7 +131,7 @@ interest ( id, idea_id -> ideas, profile_id -> profiles, note_md )
 | `profiles` (public cols / view) | anyone | self only; email never exposed |
 | `ideas` | anyone if `status ≠ draft` | author (if approved expert) / admin |
 | `answers` | submitter + idea author + admin; **public once `verified`** | insert: any member; verify/reject: idea author or admin (via RPC) |
-| money tables | own rows only | **no client writes — `SECURITY DEFINER` RPCs only**, after `auth.uid()` checks |
+| money tables | own rows only | **no client writes - `SECURITY DEFINER` RPCs only**, after `auth.uid()` checks |
 | `comments` / `interest` / `follows` | public / owner | owner only |
 
 ## 7. Money architecture
@@ -147,7 +147,7 @@ Four movements, each an **append-only balanced double-entry transaction**. Syste
 
 **Invariants (server-enforced):** every txn balances to 0; ledger append-only (corrections = reversing entries); no negative balances; payout ≤ idea escrow; all money RPCs `SECURITY DEFINER` + `auth.uid()` + idempotency keys; Stripe webhooks signature-verified; sessions validated with `getUser()`.
 
-**Phase gating (one switch, no migration):** Phase 1 — donation/escrow/withdrawal RPCs flagged off; `idea_funding` shown as a visible pledge; the verify → admin-approve flow runs fully and records *intended* payouts + audit trail, but no `ledger_entries` fire. Phase 2 — flip the flags; the same RPCs perform real ledger entries + Stripe calls.
+**Phase gating (one switch, no migration):** Phase 1 - donation/escrow/withdrawal RPCs flagged off; `idea_funding` shown as a visible pledge; the verify → admin-approve flow runs fully and records *intended* payouts + audit trail, but no `ledger_entries` fire. Phase 2 - flip the flags; the same RPCs perform real ledger entries + Stripe calls.
 
 ## 8. App structure & surfaces
 
@@ -175,7 +175,7 @@ src/
 ### Surfaces
 - **Public bounty interface** (`/`, `/ideas`, `/ideas/[id]`): browse/search/filter by type, category, status, funding; idea detail with claim, markdown body, pot + funders (`BountyMeter`), related ideas, answers (private-until-verified), submit CTA, comments, interest. Server-paginated.
 - **Funder dashboard** (`/dashboard`): feed of followed experts' new ideas; **if none followed, show all experts with follow options**; a **persistent Discover tab** always available; my funded ideas + escrow/outcome; balance + donate (Phase 2 / pledge in Phase 1).
-- **Expert console** (`/console`, expert-only): post/edit ideas; review queue (verify / request-revision / reject with notes) — home of the verify→payout interaction.
+- **Expert console** (`/console`, expert-only): post/edit ideas; review queue (verify / request-revision / reject with notes) - home of the verify→payout interaction.
 - **Admin** (`/admin`): vet experts; charitable-purpose gate queue; withdrawal review; moderation.
 
 ### Data flow
@@ -211,13 +211,13 @@ New Supabase project in the *Apart Research* org (old one unrecoverable), latest
 
 **Phase 1 (relaunch, money OFF):** auth + profiles + roles; expert vetting; ideas (both types) + categories + relations; answers + artifacts + the verify / request-revision / reject flow; the admin charitable-purpose gate (recording intended payouts); funder follows + dashboard (pledges, not money); public browse; comments + interest; full RLS; the new design system + signature interactions. Ships a usable platform and recovers the community.
 
-**Phase 2 (payments ON):** donations (Stripe in) + balances; escrow at post; payout execution on verify+approve; withdrawals + KYC/tax (W-9/W-8BEN, 1099/1042-S); Stripe Connect / Global / stablecoin rails; platform fee. Gated on nonprofit/fintech sign-off. **Additive — no schema migration.**
+**Phase 2 (payments ON):** donations (Stripe in) + balances; escrow at post; payout execution on verify+approve; withdrawals + KYC/tax (W-9/W-8BEN, 1099/1042-S); Stripe Connect / Global / stablecoin rails; platform fee. Gated on nonprofit/fintech sign-off. **Additive - no schema migration.**
 
 ## 11. Out of scope / deferred
 Regrantor *budgets*; impact certificates; the experimental *map*; old *lists/agendas* (may return as a `collections` table for funding-calls/hackathon pages); archive content back-fill.
 
 ## 12. External dependencies & risks (need owner / counsel action)
-1. **Confirm Apart's charitable vehicle** — own 501(c)(3) or a named fiscal sponsor — and **nonprofit-tax counsel** on grants-to-individuals / DAF rules (IRC §4966/4967).
+1. **Confirm Apart's charitable vehicle** - own 501(c)(3) or a named fiscal sponsor - and **nonprofit-tax counsel** on grants-to-individuals / DAF rules (IRC §4966/4967).
 2. **Fintech/regulatory counsel** sign-off on the donate-then-grant money-transmitter posture before Phase 2.
 3. **Stripe account** (Connect + Global Payouts/stablecoin enablement); KYC/tax operational process.
 4. **Platform fee** decision (0% vs ~5%).
@@ -225,13 +225,13 @@ Regrantor *budgets*; impact certificates; the experimental *map*; old *lists/age
 *All legal/tax statements in this spec are general information, not legal advice (Appendix A).*
 
 ## 13. Brand & motion
-Per `CLAUDE.md`: greyscale UI; bright green `#44ff98` as **accent only** (logo, graphs, strokes, progress, focus, the verify→payout mark); Sora + Lora; Linear-style motion with two signature interactions — the **card expand/morph** and the **verify→payout moment**. `prefers-reduced-motion` is a hard gate.
+Per `CLAUDE.md`: greyscale UI; bright green `#44ff98` as **accent only** (logo, graphs, strokes, progress, focus, the verify→payout mark); Sora + Lora; Linear-style motion with two signature interactions - the **card expand/morph** and the **verify→payout moment**. `prefers-reduced-motion` is a hard gate.
 
 ---
 
-## Appendix A — Manifund money model (cited research summary)
-Manifund is **Manifold for Charity, Inc.**, a US **501(c)(3)** (EIN 88-3668801) running a **closed internal USD ledger + donor-advised fund** ([ProPublica](https://projects.propublica.org/nonprofits/organizations/883668801)). Money in = a tax-deductible **donation** to the nonprofit; internal moves are ledger transfers; payouts are **charitable grants** (Manifund acts as fiscal sponsor for individuals); recipients withdraw to a bank; it retains ~**5%**. Verification is by a **Manifund admin** (the model adopted here: author + admin). There is **no generic bounty/auto-payout primitive** — our per-submission accept/reject flow is assembled from Algora/Replit/Bountysource patterns (**escrow-at-post + auto-resolve timeout**; Bountysource's collapse is the cautionary tale).
-**Verified caveats:** the MT-licensing protection comes from the **donate-then-grant structure, not a blanket charity exemption**; "Stripe is the processor so no MT license" is **only** true for a true pass-through and is *uncertain* when the platform deliberately escrows — **get counsel**. Manifund's exact 1099/W-8BEN practice is undocumented. *(Full cited brief produced via research workflow this session.)*
+## Appendix A - Manifund money model (cited research summary)
+Manifund is **Manifold for Charity, Inc.**, a US **501(c)(3)** (EIN 88-3668801) running a **closed internal USD ledger + donor-advised fund** ([ProPublica](https://projects.propublica.org/nonprofits/organizations/883668801)). Money in = a tax-deductible **donation** to the nonprofit; internal moves are ledger transfers; payouts are **charitable grants** (Manifund acts as fiscal sponsor for individuals); recipients withdraw to a bank; it retains ~**5%**. Verification is by a **Manifund admin** (the model adopted here: author + admin). There is **no generic bounty/auto-payout primitive** - our per-submission accept/reject flow is assembled from Algora/Replit/Bountysource patterns (**escrow-at-post + auto-resolve timeout**; Bountysource's collapse is the cautionary tale).
+**Verified caveats:** the MT-licensing protection comes from the **donate-then-grant structure, not a blanket charity exemption**; "Stripe is the processor so no MT license" is **only** true for a true pass-through and is *uncertain* when the platform deliberately escrows - **get counsel**. Manifund's exact 1099/W-8BEN practice is undocumented. *(Full cited brief produced via research workflow this session.)*
 
-## Appendix B — Recovered old schema (reference only)
+## Appendix B - Recovered old schema (reference only)
 The dead DB held ~16 tables reconstructed from code: `ideas`, `nodes` (lists), `nodes_ideas`, `comments`, `categories`, `problems`, `results`, `users`, and `idea_*_relation` join tables (likes, interest, verification, funding, mentorship, category, problem, idea-idea). FK columns used singular `idea`/`user`; IDs were client-generated integers. This new design **supersedes** it: `results → answers`, `nodes/lists` deferred, integer PKs → UUID, no-RLS → RLS-everywhere, `funding/mentorship` text columns → the charitable ledger.

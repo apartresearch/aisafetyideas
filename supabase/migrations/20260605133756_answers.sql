@@ -51,12 +51,12 @@ create policy "members submit answers to open ideas" on public.answers for inser
     and exists (select 1 from public.ideas i where i.id = idea_id and i.status = 'open')
   );
 
--- DELETE: submitter may withdraw an undecided answer (submitted only — a revision_requested answer
+-- DELETE: submitter may withdraw an undecided answer (submitted only - a revision_requested answer
 -- carries the author's review thread, and answer_reviews cascades, so withdrawing it would erase the audit trail)
 create policy "submitter withdraws own submitted answer" on public.answers for delete to authenticated
   using ((select auth.uid()) = submitter_id and status = 'submitted');
 
--- NOTE: NO update policy on purpose — all status transitions go through SECURITY DEFINER RPCs (next migration).
+-- NOTE: NO update policy on purpose - all status transitions go through SECURITY DEFINER RPCs (next migration).
 
 -- updated_at trigger (touch_updated_at() created in Plan 2; search_path already locked)
 create trigger answers_touch_updated_at before update on public.answers
@@ -130,4 +130,4 @@ create policy "reviews readable by involved parties" on public.answer_reviews fo
              or exists (select 1 from public.ideas i where i.id = a.idea_id and i.author_id = (select auth.uid())))
     )
   );
--- NOTE: NO insert/update/delete policy — only the SECURITY DEFINER RPCs write here (deny-by-default for clients).
+-- NOTE: NO insert/update/delete policy - only the SECURITY DEFINER RPCs write here (deny-by-default for clients).

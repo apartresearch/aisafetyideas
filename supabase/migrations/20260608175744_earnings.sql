@@ -17,7 +17,7 @@ grant execute on function public.lookup_notification_email(uuid) to authenticate
 -- ── profile_earnings ───────────────────────────────────────────────────────────
 -- World-readable aggregate view: lifetime released grants per profile.
 -- Runs as the view owner (postgres), so it aggregates across all ledger rows;
--- only per-profile totals are exposed — never individual entries.
+-- only per-profile totals are exposed - never individual entries.
 -- Withdrawals (kind='withdrawal') do NOT reduce lifetime_cents.
 create view public.profile_earnings as
 select profile_id,

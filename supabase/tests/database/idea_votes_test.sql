@@ -45,7 +45,7 @@ insert into public.idea_votes (idea_id, profile_id, value)
 select ok((select count(*) from public.idea_votes) = 2, '8: second member downvotes');
 update public.idea_votes set value = 1 where profile_id = '44444444-4444-4444-4444-444444444444';
 select ok((select value from public.idea_votes where profile_id = '44444444-4444-4444-4444-444444444444') = -1,
-  '8b: no UPDATE policy — a client update is a silent no-op (toggle is delete + re-insert)');
+  '8b: no UPDATE policy - a client update is a silent no-op (toggle is delete + re-insert)');
 delete from public.idea_votes where profile_id = '22222222-2222-2222-2222-222222222222';
 select ok((select count(*) from public.idea_votes) = 2, '9: deleting another member''s vote is a no-op');
 select results_eq(
@@ -64,7 +64,7 @@ select ok((select count(*) from public.idea_votes where idea_id = 'a0000000-0000
   '12: draft author can vote their own draft');
 
 set local role anon;
--- CRITICAL: clear the stale JWT claims — `set local role` does NOT reset request.jwt.claims, so
+-- CRITICAL: clear the stale JWT claims - `set local role` does NOT reset request.jwt.claims, so
 -- auth.uid() would still be alice and the own-row SELECT branch would leak her draft vote into
 -- test 14. The POLICY is correct; only an uncleared fixture would make it look broken. Do NOT
 -- "fix" a red test 14 by weakening the policy or the view.

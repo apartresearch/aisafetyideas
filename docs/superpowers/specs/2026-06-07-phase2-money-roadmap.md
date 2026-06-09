@@ -1,4 +1,4 @@
-# Phase 2 (Real Money) — Scoping Roadmap
+# Phase 2 (Real Money) - Scoping Roadmap
 
 **Date:** 2026-06-07 · **Status:** scoping decomposition (NOT a buildable spec)
 **Owner-confirmed framing:** full donate→escrow→payout→withdraw chain launched together · Stripe Connect
@@ -11,26 +11,26 @@ first (PayPal/Wise/USDC later) · designed around **Apart Research's 501(c)(3)/f
 
 ## What already exists (Phase 1, money OFF)
 The payment-complete schema is in place and waiting:
-- `public.idea_funding` — statuses `committed | escrowed | released | refunded`, `amount_cents` (>0, ≤ $1M cap), `currency`. Client INSERT pins `committed`; **no UPDATE policy** — the escrow/release/refund transitions are reserved for Phase-2 SECURITY DEFINER money RPCs.
-- `public.answers` — `payout_amount_cents`, `payout_currency`, and the admin charitable-purpose gate (`admin_approved_by/at`, `admin_rejected_by/at`).
+- `public.idea_funding` - statuses `committed | escrowed | released | refunded`, `amount_cents` (>0, ≤ $1M cap), `currency`. Client INSERT pins `committed`; **no UPDATE policy** - the escrow/release/refund transitions are reserved for Phase-2 SECURITY DEFINER money RPCs.
+- `public.answers` - `payout_amount_cents`, `payout_currency`, and the admin charitable-purpose gate (`admin_approved_by/at`, `admin_rejected_by/at`).
 - `bounty_pot` view sums `committed+escrowed`.
 - App-wide rate limiting (DEFINER RPC) already covers mutation endpoints.
 
 ## Firmed money model (from earlier brainstorming)
 Charitable **donate→grant**: funders donate (tax-deductible to Apart Research's 501(c)(3)) → internal
 USD balance → **escrow at pledge** → **payout-on-verify** (charitable grant, after the admin gate) →
-**withdrawal** to the submitter. Donate-then-grant is what avoids money-transmitter licensing — *not*
+**withdrawal** to the submitter. Donate-then-grant is what avoids money-transmitter licensing - *not*
 a blanket charity exemption. Global submitters from day one. Auto-resolve timeout so a silent author
 can't trap escrowed funds. Append-only ledger with invariants. Mirrors Manifund (~5% fee, internal
-ledger). **No service-role client in app code — money mutations are SECURITY DEFINER RPCs only**
+ledger). **No service-role client in app code - money mutations are SECURITY DEFINER RPCs only**
 ([[no-service-role-in-app]]).
 
 ---
 
-## Gate 0 — Counsel & fintech sign-off (BLOCKS all real-fund work)
+## Gate 0 - Counsel & fintech sign-off (BLOCKS all real-fund work)
 Must clear before any component touches real money (test-mode build proceeds in parallel):
 - [ ] Confirm the **501(c)(3)/fiscal-sponsor** vehicle (own status vs fiscal sponsor) and that donations are tax-deductible to it; payouts are charitable grants.
-- [ ] **Money-transmitter analysis** (FinCEN MSB + state MTLs) confirming the donate-then-grant structure keeps the platform out of money-transmission. *(General info, not legal advice — counsel decides.)*
+- [ ] **Money-transmitter analysis** (FinCEN MSB + state MTLs) confirming the donate-then-grant structure keeps the platform out of money-transmission. *(General info, not legal advice - counsel decides.)*
 - [ ] **Stripe Connect platform agreement** + acceptable-use review for the charitable/grant use case.
 - [ ] **Tax**: US payees → 1099-NEC thresholds; foreign payees → W-8BEN + 1042-S withholding; data-capture obligations.
 - [ ] **State charitable-solicitation registration** where required.
@@ -38,7 +38,7 @@ Must clear before any component touches real money (test-mode build proceeds in 
 
 ## Components (dependency-ordered; one money launch)
 
-### A · Ledger & balances — the foundation
+### A · Ledger & balances - the foundation
 - Append-only **double-entry** `ledger_entries` (debit/credit, account, txn group, idempotency key, ref to the originating entity); per-account balances (each user: donor *available*, *escrowed*, submitter *payable*; plus platform fee + Apart charitable accounts).
 - SECURITY DEFINER RPCs post **balanced** transactions; **invariants**: per-txn sum = 0; no negative *available*; release ≤ escrowed for a pledge; payout ≤ released; every external-money RPC idempotent on a key.
 - **Heaviest test coverage in the codebase**: pgTAP invariant tests + property/fuzz tests (balance-to-zero, no negative, idempotent replays) before anything posts to it.
@@ -46,7 +46,7 @@ Must clear before any component touches real money (test-mode build proceeds in 
 
 ### B · Donation intake
 - Stripe Checkout / PaymentIntent for a donation → **signed webhook** → ledger RPC credits the donor's *available* balance + records a tax-deductible donation + emails a receipt.
-- Pre-funded balance model (firmed): donate → balance, then allocate to pledges (vs charge-per-pledge — decided pre-funded).
+- Pre-funded balance model (firmed): donate → balance, then allocate to pledges (vs charge-per-pledge - decided pre-funded).
 - *Depends on:* A, F(webhooks). *Blocks:* C.
 
 ### C · Escrow at pledge
@@ -63,7 +63,7 @@ Must clear before any component touches real money (test-mode build proceeds in 
 - **Stripe Connect first** (US + ~46 countries); PayPal/Wise/USDC as later increments for unsupported regions.
 - *Depends on:* A, D. *Blocks:* nothing (last in the chain).
 
-### F · Webhooks, reconciliation, refunds — spans all
+### F · Webhooks, reconciliation, refunds - spans all
 - **Signed, idempotent** Stripe webhooks (the only trusted source of payment truth).
 - **Daily reconciliation**: ledger balances ↔ Stripe balance, with drift alerting.
 - Refund/cancel (`committed → refunded`; donation refunds), dispute/chargeback handling.

@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 
-// Landing page: a few recent open ideas + headline counts. Degrades gracefully — if any query
+// Landing page: a few recent open ideas + headline counts. Degrades gracefully - if any query
 // fails or returns nothing (e.g. before the production deploy can read the DB), the section hides.
 export const load: PageServerLoad = async ({ locals: { supabase, user } }) => {
   const [{ data: recent }, ideasCount, expertsCount] = await Promise.all([

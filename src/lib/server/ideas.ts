@@ -15,7 +15,7 @@ export function ideaParamColumn(param: string): 'id' | 'slug' {
 /**
  * Resolve an /ideas/<param> route param to the idea's UUID, for form actions that write rows
  * keyed by idea_id. Returns null if no idea matches (caller should fail/404).
- * RLS still governs the subsequent write — this only maps the public URL to a primary key.
+ * RLS still governs the subsequent write - this only maps the public URL to a primary key.
  */
 export async function resolveIdeaId(
   supabase: SupabaseClient,

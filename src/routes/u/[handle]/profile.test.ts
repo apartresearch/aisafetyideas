@@ -24,7 +24,7 @@ function mkLocals(profile: unknown, expert: unknown = null, authored: unknown = 
       from: (table: string) => {
         if (table === 'experts') return mkQuery(expert);
         if (table === 'ideas') return mkQuery(authored);
-        // profiles table — profile query
+        // profiles table - profile query
         return mkQuery(profile);
       }
     },

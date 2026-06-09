@@ -125,6 +125,6 @@ begin
 end;
 $$;
 
--- post_ledger is an INTERNAL helper — not callable by clients or anon.
+-- post_ledger is an INTERNAL helper - not callable by clients or anon.
 -- Phase 2 DEFINER RPCs (owned by postgres) call it directly; no grant needed.
 revoke all on function public.post_ledger(jsonb, text) from public, anon, authenticated;

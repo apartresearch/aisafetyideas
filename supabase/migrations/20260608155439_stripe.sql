@@ -1,4 +1,4 @@
--- ============ Phase 3 — Stripe intake (test mode) ============
+-- ============ Phase 3 - Stripe intake (test mode) ============
 -- Webhook dedupe ledger + customer map + escrow-on-behalf refactor + 'donate' rate bucket.
 -- No service-role client: the webhook authenticates as a dedicated system user (is_admin)
 -- and calls the admin-only money RPCs. These two tables are admin-only / own-or-admin.
@@ -73,7 +73,7 @@ begin
 end; $$;
 revoke all on function public._escrow_core(uuid, uuid, bigint, text) from public, anon, authenticated;
 
--- 2) escrow_pledge: same signature/grants — delegates to _escrow_core keyed on auth.uid().
+-- 2) escrow_pledge: same signature/grants - delegates to _escrow_core keyed on auth.uid().
 create or replace function public.escrow_pledge(
   p_idea uuid, p_amount_cents bigint, p_idempotency_key text)
 returns uuid language plpgsql security definer set search_path = '' as $$

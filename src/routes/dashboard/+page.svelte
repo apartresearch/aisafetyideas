@@ -45,7 +45,7 @@
       });
       const body = await res.json();
       if (res.ok) {
-        payoutMsg = 'Withdrawal sent — your balance will update shortly.';
+        payoutMsg = 'Withdrawal sent - your balance will update shortly.';
         withdrawAmount = '';
       } else {
         payoutMsg = body.message ?? 'Withdrawal failed';

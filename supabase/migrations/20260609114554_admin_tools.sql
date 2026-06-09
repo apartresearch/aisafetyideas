@@ -1,4 +1,4 @@
--- ============ Admin tools — role management + stats ============
+-- ============ Admin tools - role management + stats ============
 -- All SECURITY DEFINER, set search_path = '', fully-qualified. Internal is_admin()
 -- guard carries all authority (no service-role client anywhere). Counts in the
 -- stats RPC are DEFINER so they span all rows regardless of RLS.

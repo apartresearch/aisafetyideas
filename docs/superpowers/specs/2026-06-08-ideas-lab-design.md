@@ -1,4 +1,4 @@
-# Ideas Lab — Design Spec
+# Ideas Lab - Design Spec
 
 > **Status:** Approved for planning (2026-06-08). Single PR. Builds on the redesigned public
 > face (PR #62) and the submission-gating work started on `feat-open-submissions`.
@@ -7,7 +7,7 @@
 
 A personal **Ideas Lab** in the dashboard: capture research ideas at notes-app speed, then
 incubate each one through an AI-powered **critique ↔ refine loop**, distill it into an
-**ExecPlan** + a **readable plan**, and hand both off to an agent — or publish the idea to the
+**ExecPlan** + a **readable plan**, and hand both off to an agent - or publish the idea to the
 platform. Each draft behaves like a to-do with expandable tools.
 
 **The cool part:** simulated peer review. You write a rough idea; a panel of AI "reviewers"
@@ -28,7 +28,7 @@ to an agent that builds the paper.
 **Non-goals (this PR)**
 - Real recurring billing / Stripe subscriptions (Phase 2). The supporter flag exists; it's
   populated by an admin for now and by billing later.
-- GitHub repo scaffolding, venue/conference discovery, "link up agents" — registered as
+- GitHub repo scaffolding, venue/conference discovery, "link up agents" - registered as
   visible **"coming soon"** tools to prove extensibility; not implemented.
 - Streaming token UI (responses render on completion; streaming is a later polish).
 
@@ -37,7 +37,7 @@ to an agent that builds the paper.
 A single migration `add_ideas_lab` extending the in-progress `open_idea_submissions` work:
 
 **`ideas` table**
-- `expansions jsonb not null default '{}'` — per-draft tool output, keyed by tool:
+- `expansions jsonb not null default '{}'` - per-draft tool output, keyed by tool:
   - `agent_prompt`: `{ text, at }`
   - `critiques`: `[ { round, at, reviewers: [{ persona, comments[], questions[] }] } ]`
   - `exec_plan_md`: `{ md, at }`
@@ -45,20 +45,20 @@ A single migration `add_ideas_lab` extending the in-progress `open_idea_submissi
   Published ideas simply carry whatever they had; the field is harmless there.
 
 **`profiles` table**
-- `supporter_until timestamptz` — null = not a supporter; a future timestamp = active monthly
+- `supporter_until timestamptz` - null = not a supporter; a future timestamp = active monthly
   supporter. Set by admin today; by billing in Phase 2. (No new RLS; profiles already
-  readable; only admin/self/ billing may update — covered by existing update policy + admin.)
+  readable; only admin/self/ billing may update - covered by existing update policy + admin.)
 
 **Submission gating (extends `enforce_idea_submission`)**
 - *INSERT:* if `new.status = 'draft'` → leave as draft (private scratchpad, not published).
   Otherwise keep the rule: approved expert → `open`, else → `archived`.
-- *UPDATE (publish) — new `BEFORE UPDATE` trigger `enforce_idea_publish`:* when `status`
+- *UPDATE (publish) - new `BEFORE UPDATE` trigger `enforce_idea_publish`:* when `status`
   changes **to a public status** (`open`/`resolved`/`closed`) from a non-public one, re-apply
-  the expert check — approved expert/admin author → `open`; otherwise coerce to `archived`
+  the expert check - approved expert/admin author → `open`; otherwise coerce to `archived`
   (submitted for admin review). Prevents the "create draft → edit to open" self-publish bypass.
   Status changes *between* public states by the author are unaffected.
 
-**AI access predicate — `public.can_use_lab_ai()`** (SECURITY DEFINER, pinned search_path):
+**AI access predicate - `public.can_use_lab_ai()`** (SECURITY DEFINER, pinned search_path):
 ```
 returns is_admin()
      OR exists(approved expert where id = auth.uid())
@@ -67,7 +67,7 @@ returns is_admin()
 Used by the AI endpoints (defense in depth; the endpoints also check it in app code).
 
 **Rate limit:** add an `ai_generate` bucket to `consume_rate_limit` (server-authoritative,
-e.g. 30/hour) — the existing zero-policy `rate_limits` table + RPC.
+e.g. 30/hour) - the existing zero-policy `rate_limits` table + RPC.
 
 ## 4. Drafts capture & list (optimistic, no AI)
 
@@ -80,12 +80,12 @@ e.g. 30/hour) — the existing zero-policy `rate_limits` table + RPC.
 3. Reconcile the temp row to the real id/slug. On failure: mark the row errored + offer retry.
 
 **List:** the author's `ideas` where `status='draft'`, newest first (SSR initial load; author-only
-RLS). Each row collapses/expands. **Draft notes reuse `ideas.summary_md`** (no new column) — the
+RLS). Each row collapses/expands. **Draft notes reuse `ideas.summary_md`** (no new column) - the
 freeform markdown you write under a draft; capture leaves it empty, expanding reveals the notes
 editor. Title + notes inline-editable; edits autosave debounced (~600ms, optimistic) via
 `PATCH /api/drafts/[id]`. Delete with a brief undo window.
 
-**Drafts are edited only in the Lab** — the public `/ideas/<slug>` page stays 404 for `draft`
+**Drafts are edited only in the Lab** - the public `/ideas/<slug>` page stays 404 for `draft`
 (and `archived`) status, except the author/admin may preview (needed for moderation; see §7).
 
 ## 5. Expansion registry
@@ -94,14 +94,14 @@ A registry of tool definitions, each: `key`, `label`, `icon`, `gated` (needs `ca
 `status` ('ready' | 'soon'), and a runner. The expanded-draft panel renders every tool uniformly:
 a button → runs → shows the stored output (from `ideas.expansions[key]`) + timestamp, re-runnable.
 
-- Client tools (no server): **Copy to agent** — formats title + notes + latest ExecPlan/readable
+- Client tools (no server): **Copy to agent** - formats title + notes + latest ExecPlan/readable
   plan into a clean handoff prompt → clipboard. Always available.
 - Server tools (write to `expansions`): the AI tools in §6.
 - "Coming soon" (registered, disabled): **GitHub repo**, **Find venues**, **Link agent**.
 
 Adding a tool = one registry entry + (for server tools) one endpoint. The panel needs no changes.
 
-## 6. The Lab — AI critique↔refine loop & plans
+## 6. The Lab - AI critique↔refine loop & plans
 
 **Engine:** Vercel AI Gateway + Claude via the AI SDK, behind a single server seam
 `generate(prompt, schema?)` in `$lib/server/ai.ts` (model string `anthropic/claude-...`; reads
@@ -155,7 +155,7 @@ submissions with a **Promote to open** action (RLS `admins manage ideas` already
   expert/admin publish → `open`; `can_use_lab_ai()` truth table (admin / approved expert /
   supporter_until future vs past / none).
 - **vitest:** expansion registry; agent-prompt formatter; critique-JSON schema parse/guard;
-  `can_use_lab_ai` app-side mirror. AI `generate()` is stubbed — **no live model calls in CI.**
+  `can_use_lab_ai` app-side mirror. AI `generate()` is stubbed - **no live model calls in CI.**
 - **e2e:** quick-add a draft (optimistic → appears) → publish as expert → reachable at slug;
   AI tools mocked at the endpoint.
 

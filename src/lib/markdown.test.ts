@@ -39,7 +39,7 @@ describe('renderMarkdown', () => {
   });
 });
 
-describe('renderMarkdown — LaTeX/MathML', () => {
+describe('renderMarkdown - LaTeX/MathML', () => {
   it('renders inline math ($E = mc^2$) as MathML', () => {
     const html = renderMarkdown('$E = mc^2$');
     expect(html).toContain('<math');
@@ -81,7 +81,7 @@ describe('renderMarkdown — LaTeX/MathML', () => {
     // The style must be stripped by sanitize-html
     const html = renderMarkdown('$\\frac{1}{$');
     expect(html).not.toContain('style=');
-    // Does not throw — returns a string (throwOnError:false)
+    // Does not throw - returns a string (throwOnError:false)
     expect(typeof html).toBe('string');
   });
 

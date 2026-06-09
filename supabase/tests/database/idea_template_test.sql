@@ -34,7 +34,7 @@ select is(
   '## Resolution criteria',
   'resolution_criteria_md round-trips');
 
--- 6) An insert WITHOUT the template columns still works (nullable — existing behaviour unaffected)
+-- 6) An insert WITHOUT the template columns still works (nullable - existing behaviour unaffected)
 insert into public.ideas (
   id, author_id, type, title, status
 ) values (

@@ -1,8 +1,8 @@
-# AI Safety Ideas — Phase 1 · Plan 1: Foundation & Auth — Implementation Plan
+# AI Safety Ideas - Phase 1 · Plan 1: Foundation & Auth - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Stand up a deployable SvelteKit 2 + Svelte 5 app on the `rebuild-2026` branch with Supabase v2 (local + a new cloud project), the `CLAUDE.md` design tokens, SSR cookie auth via `@supabase/ssr` (Google + email magic-link), a `profiles`/`experts`/`follows` schema under full RLS, pgTAP RLS tests, and CI — ending at: a user can sign in and see/edit their profile.
+**Goal:** Stand up a deployable SvelteKit 2 + Svelte 5 app on the `rebuild-2026` branch with Supabase v2 (local + a new cloud project), the `CLAUDE.md` design tokens, SSR cookie auth via `@supabase/ssr` (Google + email magic-link), a `profiles`/`experts`/`follows` schema under full RLS, pgTAP RLS tests, and CI - ending at: a user can sign in and see/edit their profile.
 
 **Architecture:** SvelteKit App Router with server-side data loading; Supabase Postgres is the source of truth with **RLS on every table** and roles derived from the DB (never `user_metadata`). Auth runs server-side through `@supabase/ssr` cookies validated with `getUser()`. The global design system lives in `app.css` (never in a component). Schema is **payment-complete by Phase 2** but this plan only creates identity tables.
 
@@ -14,11 +14,11 @@
 
 Each plan ships working, testable software; later plans are authored just-in-time after the prior milestone lands.
 
-1. **Foundation & Auth** *(this document)* — scaffold, design tokens, Supabase, SSR auth, `profiles`/`experts`/`follows`, RLS, CI.
-2. **Ideas & Experts** — `ideas` (hypothesis/open_ended) + `categories` + `idea_categories` + `idea_relations`; admin expert-vetting; public browse + idea detail (server-paginated); expert console post/edit; RLS + tests.
-3. **Answers & Verification** — `answers` + `answer_artifacts` + `answer_reviews`; submit flow; author verify / request-revision / reject; **admin charitable-purpose gate** recording *intended* `payouts` (money OFF); `auto_resolve_days` escalation; RLS + tests.
-4. **Funding pledges & Dashboards** — `idea_funding` (pledge/`committed`, no ledger) + `bounty_pot` view; funder follows + dashboard (followed feed, all-experts fallback, persistent Discover tab); create the full ledger/`donations`/`payouts`/`withdrawals` tables **flagged off**; RLS + tests.
-5. **Social & Polish** — `comments` + `interest`; signature interactions from `CLAUDE.md` (card-morph, verify→payout motion); a11y/reduced-motion pass; full E2E of the money-off core loop; production deploy.
+1. **Foundation & Auth** *(this document)* - scaffold, design tokens, Supabase, SSR auth, `profiles`/`experts`/`follows`, RLS, CI.
+2. **Ideas & Experts** - `ideas` (hypothesis/open_ended) + `categories` + `idea_categories` + `idea_relations`; admin expert-vetting; public browse + idea detail (server-paginated); expert console post/edit; RLS + tests.
+3. **Answers & Verification** - `answers` + `answer_artifacts` + `answer_reviews`; submit flow; author verify / request-revision / reject; **admin charitable-purpose gate** recording *intended* `payouts` (money OFF); `auto_resolve_days` escalation; RLS + tests.
+4. **Funding pledges & Dashboards** - `idea_funding` (pledge/`committed`, no ledger) + `bounty_pot` view; funder follows + dashboard (followed feed, all-experts fallback, persistent Discover tab); create the full ledger/`donations`/`payouts`/`withdrawals` tables **flagged off**; RLS + tests.
+5. **Social & Polish** - `comments` + `interest`; signature interactions from `CLAUDE.md` (card-morph, verify→payout motion); a11y/reduced-motion pass; full E2E of the money-off core loop; production deploy.
 
 ---
 
@@ -118,7 +118,7 @@ git add -A && git commit -m "feat: scaffold SvelteKit 2 + Svelte 5 + Vercel adap
 
 **Files:**
 - Create: `src/app.css`, `src/lib/motion.ts`
-- Modify: `vite.config.ts` (Tailwind v4 plugin), `src/routes/+layout.svelte` (import css — created in Task 7; for now create a temporary import in `+page.svelte`)
+- Modify: `vite.config.ts` (Tailwind v4 plugin), `src/routes/+layout.svelte` (import css - created in Task 7; for now create a temporary import in `+page.svelte`)
 
 - [ ] **Step 1: Enable Tailwind v4 in Vite**
 
@@ -134,7 +134,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 2: Write `src/app.css` with the brand + motion tokens** (greyscale UI, `#44ff98` accent-only — verbatim from `CLAUDE.md`)
+- [ ] **Step 2: Write `src/app.css` with the brand + motion tokens** (greyscale UI, `#44ff98` accent-only - verbatim from `CLAUDE.md`)
 
 ```css
 @import 'tailwindcss';
@@ -215,7 +215,7 @@ git add -A && git commit -m "feat: design tokens (app.css) + motion presets per 
 
 ---
 
-## Task 3: Supabase — local stack + new cloud project + env
+## Task 3: Supabase - local stack + new cloud project + env
 
 **Files:**
 - Create: `supabase/config.toml` (via CLI), `.env.example`, `.env.local` (gitignored)
@@ -263,7 +263,7 @@ git add supabase/config.toml .env.example .gitignore && git commit -m "chore: su
 
 ---
 
-## Task 4: Migration 0001 — identity schema + RLS + signup trigger
+## Task 4: Migration 0001 - identity schema + RLS + signup trigger
 
 **Files:**
 - Create: `supabase/migrations/0001_identity.sql`
@@ -278,7 +278,7 @@ supabase migration new identity
 - [ ] **Step 2: Write the full schema + RLS** into `supabase/migrations/0001_identity.sql`
 
 ```sql
--- ============ profiles (1:1 with auth.users; NO email column — email stays in auth.users) ============
+-- ============ profiles (1:1 with auth.users; NO email column - email stays in auth.users) ============
 create table public.profiles (
   id           uuid primary key references auth.users(id) on delete cascade,
   handle       text unique not null,
@@ -453,10 +453,10 @@ select * from finish();
 rollback;
 ```
 
-- [ ] **Step 2: Run the test — expect FAIL if any policy is wrong**
+- [ ] **Step 2: Run the test - expect FAIL if any policy is wrong**
 
 Run: `supabase test db`
-Expected on a correct migration: all 6 assertions PASS. If a policy is missing, the corresponding assertion FAILs — fix the migration (Task 4) and re-run.
+Expected on a correct migration: all 6 assertions PASS. If a policy is missing, the corresponding assertion FAILs - fix the migration (Task 4) and re-run.
 > CLI < 2.81 for advisors: skip advisors here; `supabase test db` (pgTAP) is available from 2.x.
 
 - [ ] **Step 3: Commit**
@@ -520,7 +520,7 @@ const supabase: Handle = async ({ event, resolve }) => {
   event.locals.safeGetSession = async () => {
     const { data: { session } } = await event.locals.supabase.auth.getSession();
     if (!session) return { session: null, user: null };
-    // ALWAYS validate the JWT with getUser() — never trust getSession alone
+    // ALWAYS validate the JWT with getUser() - never trust getSession alone
     const { data: { user }, error } = await event.locals.supabase.auth.getUser();
     if (error) return { session: null, user: null };
     return { session, user };
@@ -532,7 +532,7 @@ const supabase: Handle = async ({ event, resolve }) => {
   });
 };
 
-const PROTECTED = ['/dashboard', '/console', '/admin']; // NOT /u — profiles are public to view
+const PROTECTED = ['/dashboard', '/console', '/admin']; // NOT /u - profiles are public to view
 
 const authGuard: Handle = async ({ event, resolve }) => {
   const { session, user } = await event.locals.safeGetSession();
@@ -564,9 +564,9 @@ git add src/hooks.server.ts src/app.d.ts src/lib/types/database.ts && git commit
 
 **Files:**
 - Create: `src/routes/+layout.server.ts`, `src/routes/+layout.ts`, `src/routes/+layout.svelte`, `src/routes/+error.svelte`
-- Modify: `src/routes/+page.svelte` (remove the temporary css import — layout now owns it)
+- Modify: `src/routes/+page.svelte` (remove the temporary css import - layout now owns it)
 
-- [ ] **Step 1: `+layout.server.ts` — expose session + cookies**
+- [ ] **Step 1: `+layout.server.ts` - expose session + cookies**
 
 ```ts
 import type { LayoutServerLoad } from './$types';
@@ -576,7 +576,7 @@ export const load: LayoutServerLoad = async ({ locals: { safeGetSession }, cooki
 };
 ```
 
-- [ ] **Step 2: `+layout.ts` — universal Supabase client**
+- [ ] **Step 2: `+layout.ts` - universal Supabase client**
 
 ```ts
 import { createBrowserClient, createServerClient, isBrowser } from '@supabase/ssr';
@@ -597,7 +597,7 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 };
 ```
 
-- [ ] **Step 3: `+layout.svelte` — shell + auth refresh (Svelte 5 runes)**
+- [ ] **Step 3: `+layout.svelte` - shell + auth refresh (Svelte 5 runes)**
 
 ```svelte
 <script lang="ts">
@@ -631,7 +631,7 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 <main class="mx-auto max-w-5xl p-6">{@render children()}</main>
 ```
 
-- [ ] **Step 4: `+error.svelte` — real error page (old app had none)**
+- [ ] **Step 4: `+error.svelte` - real error page (old app had none)**
 
 ```svelte
 <script lang="ts">
@@ -666,7 +666,7 @@ git add -A && git commit -m "feat: session wiring, app shell, and error page"
 - Create: `src/routes/login/+page.svelte`, `src/routes/login/+page.server.ts`, `src/routes/auth/callback/+server.ts`, `src/routes/auth/error/+page.svelte`, `src/routes/logout/+page.server.ts`, `e2e/auth.spec.ts`
 - Modify: `playwright.config.ts` (created by scaffold or add)
 
-- [ ] **Step 1: `login/+page.server.ts` — actions for OAuth + magic link**
+- [ ] **Step 1: `login/+page.server.ts` - actions for OAuth + magic link**
 
 ```ts
 import { redirect, fail } from '@sveltejs/kit';
@@ -715,7 +715,7 @@ export const actions: Actions = {
 </section>
 ```
 
-- [ ] **Step 3: `auth/callback/+server.ts` — exchange code for a session**
+- [ ] **Step 3: `auth/callback/+server.ts` - exchange code for a session**
 
 ```ts
 import { redirect } from '@sveltejs/kit';
@@ -783,7 +783,7 @@ export default defineConfig({
 });
 ```
 
-- [ ] **Step 8: Run E2E — expect PASS**
+- [ ] **Step 8: Run E2E - expect PASS**
 
 Run: `npx playwright test`
 Expected: both tests PASS (redirect guard works; login renders).
@@ -801,7 +801,7 @@ git add -A && git commit -m "feat(auth): Google + magic-link sign-in, callback, 
 **Files:**
 - Create: `src/routes/u/[handle]/+page.server.ts`, `src/routes/u/[handle]/+page.svelte`
 
-- [ ] **Step 1: `+page.server.ts` — load by handle + self-edit action (RLS does the auth)**
+- [ ] **Step 1: `+page.server.ts` - load by handle + self-edit action (RLS does the auth)**
 
 ```ts
 import { error, fail } from '@sveltejs/kit';
@@ -836,7 +836,7 @@ export const actions: Actions = {
 };
 ```
 
-- [ ] **Step 2: `+page.svelte` — render + inline edit when it's your profile**
+- [ ] **Step 2: `+page.svelte` - render + inline edit when it's your profile**
 
 ```svelte
 <script lang="ts">
@@ -889,9 +889,9 @@ describe('profile load', () => {
 });
 ```
 
-- [ ] **Step 4: Run the test — expect PASS**
+- [ ] **Step 4: Run the test - expect PASS**
 
-Run: `npx vitest run "src/routes/u/[handle]/profile.test.ts"` (quote the path — the shell would otherwise expand `[handle]`)
+Run: `npx vitest run "src/routes/u/[handle]/profile.test.ts"` (quote the path - the shell would otherwise expand `[handle]`)
 Expected: 2 passing.
 
 - [ ] **Step 5: Commit**

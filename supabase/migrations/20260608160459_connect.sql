@@ -1,4 +1,4 @@
--- ============ Phase 4 — Payouts (Stripe Connect Express + withdrawals) ============
+-- ============ Phase 4 - Payouts (Stripe Connect Express + withdrawals) ============
 -- A profile ↔ Stripe Connect (Express) account map, plus two withdrawal RPCs that
 -- RESERVE the payout in the ledger before any Stripe Transfer is created (reserve-first:
 -- the ledger gates the money). No service-role client: user actions are self-keyed on
@@ -27,7 +27,7 @@ create policy "connect insert own not-enabled" on public.stripe_connect_accounts
   for insert to authenticated
   with check (profile_id = (select auth.uid()) and payouts_enabled = false);
 
--- UPDATE: admin-only — the account.updated webhook (system user, is_admin) flips payouts_enabled.
+-- UPDATE: admin-only - the account.updated webhook (system user, is_admin) flips payouts_enabled.
 create policy "connect admin update" on public.stripe_connect_accounts
   for update to authenticated
   using (public.is_admin()) with check (public.is_admin());
@@ -117,7 +117,7 @@ begin
     raise exception 'insufficient payable balance' using errcode = 'P0001'; end if;
   if not exists (select 1 from public.stripe_connect_accounts
                  where profile_id = v_uid and payouts_enabled = true) then
-    raise exception 'payouts not enabled — complete onboarding' using errcode = 'P0001'; end if;
+    raise exception 'payouts not enabled - complete onboarding' using errcode = 'P0001'; end if;
   v_entries := jsonb_build_array(
     jsonb_build_object('kind','withdrawal','account','payable','profile_id', v_uid, 'amount_cents', -p_amount_cents),
     jsonb_build_object('kind','withdrawal','account','external','amount_cents', p_amount_cents)

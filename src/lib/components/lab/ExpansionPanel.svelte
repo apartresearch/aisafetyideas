@@ -118,7 +118,7 @@
     <CritiqueRounds rounds={critiques} />
   {/if}
 
-  <!-- Plan outputs (raw markdown from AI — rendered as preformatted text; no HTML injection) -->
+  <!-- Plan outputs (raw markdown from AI - rendered as preformatted text; no HTML injection) -->
   {#if execPlan}
     <div class="exp-plan">
       <p class="u-label exp-plan__label">ExecPlan</p>

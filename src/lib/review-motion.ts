@@ -7,7 +7,7 @@ export const HOLD_MS: Record<OutcomeKind, number> = {
   verifying: 700, approving: 400, rejecting: 260, revising: 260
 };
 
-/** The after-submit callback type — always returned (never void) for non-pending submits. */
+/** The after-submit callback type - always returned (never void) for non-pending submits. */
 type AfterSubmit = (opts: {
   result: ActionResult;
   update: (options?: { reset?: boolean; invalidateAll?: boolean }) => Promise<void>;
@@ -15,10 +15,10 @@ type AfterSubmit = (opts: {
 
 /**
  * Build a `use:enhance` SubmitFunction that plays the review-outcome moment, then refetches.
- * SUCCESS-GATED: the before-submit phase only marks the row in-flight (markPending — NO green seal,
+ * SUCCESS-GATED: the before-submit phase only marks the row in-flight (markPending - NO green seal,
  * so a rejected/failed request never flashes a fake "Verified"). The success visual (showSucceeded)
  * mounts ONLY when result.type === 'success', then holds the full sequence (skipped under reduced
- * motion), then update() refetches, then finish(). On fail(): no visual, no hold — update + finish.
+ * motion), then update() refetches, then finish(). On fail(): no visual, no hold - update + finish.
  */
 export function makeOutcomeEnhancer(opts: {
   kind: OutcomeKind;

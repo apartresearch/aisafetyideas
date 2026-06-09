@@ -1,21 +1,21 @@
-# ETL — Restore v1 (Users + Ideas) — Implementation Plan
+# ETL - Restore v1 (Users + Ideas) - Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development for Tasks 1–4. Steps use checkbox (`- [ ]`) syntax. **Tasks 5–6 are CONTROLLER-ONLY** (they touch the real PII backup + the cloud project) — a subagent must NOT run them.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development for Tasks 1–4. Steps use checkbox (`- [ ]`) syntax. **Tasks 5–6 are CONTROLLER-ONLY** (they touch the real PII backup + the cloud project) - a subagent must NOT run them.
 
 **Goal:** Build a tested, idempotent ETL that restores the original **265 users (verbatim auth) + 238 ideas** (+ categories & relations) from the pg_dump backup into the new schema, emitting one re-runnable SQL artifact that the controller applies to cloud.
 
-**Architecture:** A small TypeScript ETL under `scripts/etl/`: a pg_dump **COPY-block parser** → pure **transforms** (old→new per the spec's §3 mappings, with bigint→uuid remapping) → a **SQL emitter** that writes an idempotent `restore-v1.generated.sql` (`set session_replication_role = replica` → `insert … on conflict do nothing` batches → `origin` → count + FK-integrity assertions, wrapped `begin/commit`). *(Trigger suppression uses `session_replication_role`, not `ALTER TABLE … DISABLE TRIGGER`, because the load runs as `postgres` which does not own the `supabase_auth_admin`-owned `auth.users` — a review caught the ownership failure.)* The generated SQL is applied to a fresh **local** stack to rehearse (controller), then to **cloud** via the Supabase MCP (controller). Unit tests use **synthetic fixtures only** — never the real PII backup.
+**Architecture:** A small TypeScript ETL under `scripts/etl/`: a pg_dump **COPY-block parser** → pure **transforms** (old→new per the spec's §3 mappings, with bigint→uuid remapping) → a **SQL emitter** that writes an idempotent `restore-v1.generated.sql` (`set session_replication_role = replica` → `insert … on conflict do nothing` batches → `origin` → count + FK-integrity assertions, wrapped `begin/commit`). *(Trigger suppression uses `session_replication_role`, not `ALTER TABLE … DISABLE TRIGGER`, because the load runs as `postgres` which does not own the `supabase_auth_admin`-owned `auth.users` - a review caught the ownership failure.)* The generated SQL is applied to a fresh **local** stack to rehearse (controller), then to **cloud** via the Supabase MCP (controller). Unit tests use **synthetic fixtures only** - never the real PII backup.
 
 **Tech Stack:** TypeScript run via `tsx` (add as devDep) or `node --import tsx`; `vitest` for unit tests (already present). No DB driver needed (the emitter produces SQL; rehearsal/cloud apply it). Spec: `docs/superpowers/specs/2026-06-06-etl-restore-v1-design.md`.
 
-**Security:** the real backup + the generated `*.generated.sql` contain PII (emails, bcrypt hashes, OAuth tokens) — both are **gitignored**; only parametric code + synthetic fixtures are committed. Subagents work with fixtures only.
+**Security:** the real backup + the generated `*.generated.sql` contain PII (emails, bcrypt hashes, OAuth tokens) - both are **gitignored**; only parametric code + synthetic fixtures are committed. Subagents work with fixtures only.
 
 ---
 
 ## Key design decisions
 - **Emit SQL literals, rely on assignment casts.** Every value from the dump is emitted as either `NULL` or a single-quoted, quote-doubled literal (`'…''…'`); Postgres assignment-casts the unknown-typed literal to each column's type on INSERT (works for int/bool/timestamptz/jsonb/uuid). Computed values (`gen_random_uuid()`, `now()`, built `legacy` jsonb) are emitted as SQL expressions. This avoids per-column type logic.
-- **jsonb columns are canonically re-serialized, NOT emitted via `lit()`.** The COPY parser unescapes `\t`/`\n`/etc. for text fields, which would corrupt a `jsonb` source field whose text contains escaped control characters → a jsonb literal Postgres rejects (`Character with value 0x09 must be escaped`). So every `jsonb`-typed source column — `auth.users.raw_app_meta_data`, `auth.users.raw_user_meta_data`, `auth.identities.identity_data` (verbatim), and any `legacy` we build — must be emitted through **`jsonbLit(JSON.parse(field))`** (parse the unescaped text, then re-stringify canonically). Null jsonb fields → `NULL`. The CLI **fails fast** (throws, logging only the table + row id — never the PII content) if a field isn't valid JSON, so a malformed value is caught at generation, before any DB write.
-- **Standard string literals.** `standard_conforming_strings` is on by default, so backslashes in the (already-unescaped) dump text are literal — JSON `\uXXXX`/`\/` survive correctly inside `'…'`. Only `'` needs doubling.
+- **jsonb columns are canonically re-serialized, NOT emitted via `lit()`.** The COPY parser unescapes `\t`/`\n`/etc. for text fields, which would corrupt a `jsonb` source field whose text contains escaped control characters → a jsonb literal Postgres rejects (`Character with value 0x09 must be escaped`). So every `jsonb`-typed source column - `auth.users.raw_app_meta_data`, `auth.users.raw_user_meta_data`, `auth.identities.identity_data` (verbatim), and any `legacy` we build - must be emitted through **`jsonbLit(JSON.parse(field))`** (parse the unescaped text, then re-stringify canonically). Null jsonb fields → `NULL`. The CLI **fails fast** (throws, logging only the table + row id - never the PII content) if a field isn't valid JSON, so a malformed value is caught at generation, before any DB write.
+- **Standard string literals.** `standard_conforming_strings` is on by default, so backslashes in the (already-unescaped) dump text are literal - JSON `\uXXXX`/`\/` survive correctly inside `'…'`. Only `'` needs doubling.
 - **Idempotent + additive.** Every insert `on conflict do nothing` on a stable key; the cloud's 1 pre-existing test user is skipped; safe to re-run.
 - **User UUIDs preserved** → no user remap; only `ideas`/`categories` get bigint→uuid maps, and the relation tables resolve against them.
 
@@ -103,7 +103,7 @@ export function parseCopyBlock(dump: string, table: string): CopyBlock {
 }
 ```
 
-> **Caveat for the implementer:** pg_dump emits embedded newlines in text as `\n` (escaped), so a logical row never spans output lines — line-splitting is safe. Verify against the real backup in Task 5 (a row count mismatch would reveal any multi-line edge case).
+> **Caveat for the implementer:** pg_dump emits embedded newlines in text as `\n` (escaped), so a logical row never spans output lines - line-splitting is safe. Verify against the real backup in Task 5 (a row count mismatch would reveal any multi-line edge case).
 
 - [ ] **Step 4: Run** `npx vitest run scripts/etl/parse-dump.test.ts` → PASS.
 - [ ] **Step 5: Commit** `git add scripts/etl/parse-dump.ts scripts/etl/parse-dump.test.ts .gitignore package.json package-lock.json && git commit -m "feat(etl): pg_dump COPY-block parser"`
@@ -228,7 +228,7 @@ describe('jsonbFromText', () => {
 });
 ```
 
-- [ ] **Step 2: Implement** `scripts/etl/transform.ts` — exported pure helpers + the row builders. Minimum exported surface (the test pins the first four; implement the rest to the §3 mapping):
+- [ ] **Step 2: Implement** `scripts/etl/transform.ts` - exported pure helpers + the row builders. Minimum exported surface (the test pins the first four; implement the rest to the §3 mapping):
 
 ```ts
 import { lit, jsonbLit, type Cell } from './sql';
@@ -294,7 +294,7 @@ export const ideaStatus = (r: { archived: string | null; finished: string | null
 
 **Files:** `scripts/etl/emit.ts`, `scripts/etl/emit.test.ts`, `scripts/etl/restore-v1.ts`
 
-- [ ] **Step 1: Write the failing test** `scripts/etl/emit.test.ts` — assert the document's shape (ordering + assertions), using a tiny in-memory parsed dataset:
+- [ ] **Step 1: Write the failing test** `scripts/etl/emit.test.ts` - assert the document's shape (ordering + assertions), using a tiny in-memory parsed dataset:
 
 ```ts
 import { describe, it, expect } from 'vitest';
@@ -319,7 +319,7 @@ describe('buildDocument', () => {
 });
 ```
 
-- [ ] **Step 2: Implement** `scripts/etl/emit.ts` — `buildDocument(data)` assembles, in the spec §4 order: `begin;` → disable trigger → `insertRows` for `auth.users`, `auth.identities`, `public.profiles`, `public.experts` → enable trigger → `insertRows` for `public.categories`, `public.ideas`, `public.idea_categories`, `public.idea_relations` → a `do $$ begin assert (select count(*) from public.ideas) >= 238; assert (select count(*) from public.profiles) >= 266; … end $$;` block (use `>=` so re-runs/the pre-existing test row don't trip it) → `commit;`. Conflict targets: `id` for auth/profiles/experts, `legacy_id` for categories/ideas/idea_relations, `(idea_id, category_id)` for idea_categories, `(parent_id, child_id)` for idea_relations (pick the matching unique key).
+- [ ] **Step 2: Implement** `scripts/etl/emit.ts` - `buildDocument(data)` assembles, in the spec §4 order: `begin;` → disable trigger → `insertRows` for `auth.users`, `auth.identities`, `public.profiles`, `public.experts` → enable trigger → `insertRows` for `public.categories`, `public.ideas`, `public.idea_categories`, `public.idea_relations` → a `do $$ begin assert (select count(*) from public.ideas) >= 238; assert (select count(*) from public.profiles) >= 266; … end $$;` block (use `>=` so re-runs/the pre-existing test row don't trip it) → `commit;`. Conflict targets: `id` for auth/profiles/experts, `legacy_id` for categories/ideas/idea_relations, `(idea_id, category_id)` for idea_categories, `(parent_id, child_id)` for idea_relations (pick the matching unique key).
 
 - [ ] **Step 3: Implement the CLI** `scripts/etl/restore-v1.ts`
 
@@ -348,21 +348,21 @@ console.log(`wrote ${OUT}: users=${authUsers.length} ideas=${ideas.length} categ
   `identities=${identities.length} idea_categories=${ideaCatRels.length} idea_relations=${ideaRels.length}`);
 ```
 
-(Wire the transforms: build `oldIdeaId→newUuid` / `oldCatId→newUuid` maps with `crypto.randomUUID()`, a shared `used` handle Set, then map each batch. The CLI prints only **counts**, never row contents — PII discipline.)
+(Wire the transforms: build `oldIdeaId→newUuid` / `oldCatId→newUuid` maps with `crypto.randomUUID()`, a shared `used` handle Set, then map each batch. The CLI prints only **counts**, never row contents - PII discipline.)
 
-> **Verbatim auth rows (Task 4):** build each `auth.users` / `auth.identities` row by emitting every dump column via `lit()`, **except** the jsonb columns — `auth.users.raw_app_meta_data`, `auth.users.raw_user_meta_data`, and `auth.identities.identity_data` — which MUST go through **`jsonbFromText()`** (see Key design decisions; `lit()` on those would corrupt control chars). Skip the generated columns (`auth.users.confirmed_at`, `auth.identities.email`). Conflict target: `id`.
+> **Verbatim auth rows (Task 4):** build each `auth.users` / `auth.identities` row by emitting every dump column via `lit()`, **except** the jsonb columns - `auth.users.raw_app_meta_data`, `auth.users.raw_user_meta_data`, and `auth.identities.identity_data` - which MUST go through **`jsonbFromText()`** (see Key design decisions; `lit()` on those would corrupt control chars). Skip the generated columns (`auth.users.confirmed_at`, `auth.identities.email`). Conflict target: `id`.
 
 - [ ] **Step 4: Verify** `npm run check` stays 0 errors (the script is TS; ensure it's excluded from the SvelteKit app types or type-checks cleanly). Run `npx vitest run scripts/etl` → all green.
 - [ ] **Step 5: Commit** `git add scripts/etl/emit.ts scripts/etl/emit.test.ts scripts/etl/restore-v1.ts && git commit -m "feat(etl): SQL emitter + restore-v1 CLI"`
 
 ---
 
-## Task 5 (CONTROLLER ONLY — real PII backup, local): rehearse
+## Task 5 (CONTROLLER ONLY - real PII backup, local): rehearse
 
-> A subagent must NOT do this — it reads the real backup. The controller runs it.
+> A subagent must NOT do this - it reads the real backup. The controller runs it.
 
 - [ ] Generate against the real backup: `npm run etl:restore-v1` → writes `scripts/etl/restore-v1.generated.sql`; confirm the printed counts are **users=265, ideas=238, categories=19, identities=268**.
-- [ ] Fresh local stack: `supabase db reset`. Apply the artifact **with `ON_ERROR_STOP` so no failed statement is masked**: `docker exec -i supabase_db_aisafetyideas psql -U postgres -d postgres -v ON_ERROR_STOP=1 < scripts/etl/restore-v1.generated.sql`. The document brackets the load with `set session_replication_role = replica … origin` (suppresses the `on_auth_user_created` trigger + defers FK checks; `postgres` can SET this without owning `auth.users`), and the embedded `assert` block (counts + no orphan author) must pass — with `ON_ERROR_STOP=1` psql exits non-zero on any error or failed assertion.
+- [ ] Fresh local stack: `supabase db reset`. Apply the artifact **with `ON_ERROR_STOP` so no failed statement is masked**: `docker exec -i supabase_db_aisafetyideas psql -U postgres -d postgres -v ON_ERROR_STOP=1 < scripts/etl/restore-v1.generated.sql`. The document brackets the load with `set session_replication_role = replica … origin` (suppresses the `on_auth_user_created` trigger + defers FK checks; `postgres` can SET this without owning `auth.users`), and the embedded `assert` block (counts + no orphan author) must pass - with `ON_ERROR_STOP=1` psql exits non-zero on any error or failed assertion.
 - [ ] Verify locally:
   - counts: `select (select count(*) from auth.users), (select count(*) from public.profiles), (select count(*) from public.experts), (select count(*) from public.ideas), (select count(*) from public.categories), (select count(*) from public.idea_categories), (select count(*) from public.idea_relations);`
   - FK integrity: `select count(*) from public.ideas i left join public.profiles p on p.id=i.author_id where i.author_id is not null and p.id is null;` → **0**.
@@ -372,14 +372,14 @@ console.log(`wrote ${OUT}: users=${authUsers.length} ideas=${ideas.length} categ
 
 ---
 
-## Task 6 (CONTROLLER ONLY — cloud + PII): load to cloud
+## Task 6 (CONTROLLER ONLY - cloud + PII): load to cloud
 
 > Controller-only via the Supabase MCP. Subagents never touch cloud.
 
 - [ ] Apply the (rehearsed, deterministic) artifact to `gjomchhbsbtauzkpyjwa` via MCP `execute_sql`. If the payload is too large for one call, split on the batch boundaries (auth.users → identities → profiles/experts → categories/ideas → relations), each already `on conflict do nothing`; the trigger disable/enable must bracket the auth-users insert. Finish with the count-assertion block.
 - [ ] Verify on cloud (MCP `execute_sql`): the same count + FK-integrity queries as Task 5; expect `profiles ≈ 266`, `ideas = 238`, `categories = 19`.
 - [ ] **Sign-in smoke test:** confirm one restored account can authenticate (the owner's own Google login is the easiest check) and that `/ideas` browses the restored ideas.
-- [ ] Re-run `get_advisors` (security + performance) — expect no new findings beyond the accepted set.
+- [ ] Re-run `get_advisors` (security + performance) - expect no new findings beyond the accepted set.
 - [ ] Set the owner's admin flag manually (not imported): `update public.profiles set is_admin = true where id = '<owner uuid>';` (and add an `experts` row if desired).
 - [ ] Update the project memory: Restore v1 complete (counts), and that **Restore v2** (comments/interest/funding/answers) is the next ETL.
 

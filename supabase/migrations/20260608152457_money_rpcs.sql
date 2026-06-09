@@ -1,8 +1,8 @@
--- ============ Phase 2 — Money RPCs ============
+-- ============ Phase 2 - Money RPCs ============
 -- All writes are SECURITY DEFINER (owned by postgres), set search_path = '', fully-qualified.
 -- They post to the ledger ONLY via public.post_ledger(jsonb, text), which enforces
 -- balanced-sum-zero + >=2 legs + idempotency. Internal guards (is_admin, funding_enabled,
--- auth.uid) carry all authority — no service-role client anywhere.
+-- auth.uid) carry all authority - no service-role client anywhere.
 
 -- ── 1. credit_balance: admin/test funding credit. NOT gated by funding_enabled. ──
 -- Donation in: external -amount; funder +net; platform_treasury +fee (only if fee>0).

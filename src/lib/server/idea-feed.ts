@@ -30,7 +30,7 @@ export type IdeaListItem = {
 
 /**
  * Attach per-card engagement stats (answers, comments, first verified solution) to a page of ideas.
- * Two small reads keyed by the page's idea ids — RLS governs visibility (same as the detail page).
+ * Two small reads keyed by the page's idea ids - RLS governs visibility (same as the detail page).
  */
 async function enrichCards(
   supabase: SupabaseClient,
@@ -71,7 +71,7 @@ export type IdeaFeedPage = {
  * Shared by the SSR page loader and the /api/ideas infinite-scroll endpoint so both stay in lockstep.
  *
  * 'new' sorts in the DB and pages with range(). 'top' (net upvotes) needs a global score sort, so it
- * fetches the whole (small, < 1000-row) set, ranks in memory, and slices the page — same caveat as
+ * fetches the whole (small, < 1000-row) set, ranks in memory, and slices the page - same caveat as
  * before: revisit if the idea count ever approaches PostgREST's 1000-row cap.
  */
 export async function loadIdeaFeed(

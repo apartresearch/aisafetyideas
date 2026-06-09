@@ -12,7 +12,7 @@
   }
 
   function formatDate(iso: string | null) {
-    if (!iso) return '—';
+    if (!iso) return '-';
     return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   }
 
@@ -82,7 +82,7 @@
           <td class="py-2 pr-3 font-mono text-xs max-w-[260px] truncate" style="color:var(--body)">
             {inv.invite_url}
           </td>
-          <td class="py-2 pr-3" style="color:var(--muted)">{inv.specialty ?? '—'}</td>
+          <td class="py-2 pr-3" style="color:var(--muted)">{inv.specialty ?? '-'}</td>
           <td class="py-2 text-right tabular-nums" style="color:{exhausted ? 'var(--neg)' : 'var(--ink)'}">
             {inv.used_count}/{inv.max_uses}
           </td>

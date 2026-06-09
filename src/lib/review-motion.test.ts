@@ -31,7 +31,7 @@ describe('makeOutcomeEnhancer', () => {
     expect(hold).toHaveBeenCalledWith(HOLD_MS.verifying);
     expect(calls).toEqual(['markPending', 'showSucceeded', 'hold', 'update', 'finish']);
   });
-  it('FAILURE: never shows the success visual, no hold — just update + finish', async () => {
+  it('FAILURE: never shows the success visual, no hold - just update + finish', async () => {
     const { enhancer, calls, hold } = harness();
     const update = vi.fn(() => { calls.push('update'); return Promise.resolve(); });
     await enhancer({ cancel: vi.fn() } as any)!({ result: { type: 'failure' }, update } as any);

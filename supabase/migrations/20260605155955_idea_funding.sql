@@ -17,7 +17,7 @@ create index idea_funding_idea_id_idx on public.idea_funding (idea_id);
 create index idea_funding_funder_id_idx on public.idea_funding (funder_id);
 
 -- SELECT: a pledge is readable when the caller can see its idea (the ideas RLS hides drafts), OR the caller
--- is the funder. So un-publishing an idea (revert to draft) hides its pledges + pot too — no money-leak.
+-- is the funder. So un-publishing an idea (revert to draft) hides its pledges + pot too - no money-leak.
 create policy "idea_funding readable when its idea is visible" on public.idea_funding for select
   using (
     (select auth.uid()) = funder_id
@@ -42,7 +42,7 @@ create policy "members pledge to open ideas" on public.idea_funding for insert t
 create policy "funder withdraws own committed pledge" on public.idea_funding for delete to authenticated
   using ((select auth.uid()) = funder_id and status = 'committed');
 
--- NOTE: NO update policy — committed -> escrowed -> released/refunded are Phase-2 SECURITY DEFINER money RPCs.
+-- NOTE: NO update policy - committed -> escrowed -> released/refunded are Phase-2 SECURITY DEFINER money RPCs.
 
 -- ============ bounty_pot (sum of active pledges per idea; no mutable column on ideas) ============
 -- security_invoker so the view respects idea_funding RLS (which is public-select anyway).

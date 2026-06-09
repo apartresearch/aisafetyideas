@@ -40,7 +40,7 @@ export const load: PageServerLoad = async ({ locals: { supabase, safeGetSession 
     .from('ideas').select('id, slug, title, type, status').eq('author_id', user.id)
     .order('created_at', { ascending: false });
 
-  // answers awaiting a decision on MY ideas (ideas!inner — exactly one FK to ideas, so no hint needed; the
+  // answers awaiting a decision on MY ideas (ideas!inner - exactly one FK to ideas, so no hint needed; the
   // submitter embed names its constraint because answers has four FKs to profiles)
   const { data: rawQueue } = await supabase
     .from('answers')
@@ -111,7 +111,7 @@ export const actions: Actions = {
     const dollars = Number(fd.get('payout') ?? '');
     // Pass `undefined` (not null) for omitted optional RPC params: supabase-js types defaulted params as
     // optional (`p_note?: string`), drops undefined keys from the request, and the SQL `default null` yields
-    // the same NULL — while keeping full compile-time checking of the RPC name and param names.
+    // the same NULL - while keeping full compile-time checking of the RPC name and param names.
     const payout = Number.isFinite(dollars) && dollars > 0 ? Math.round(dollars * 100) : undefined;
     const resolutionRaw = String(fd.get('resolution') ?? '');
     const resolution = ['yes', 'no', 'ambiguous'].includes(resolutionRaw) ? resolutionRaw : undefined;

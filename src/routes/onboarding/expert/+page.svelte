@@ -5,7 +5,7 @@
 </script>
 
 <svelte:head>
-  <title>Welcome, expert — AI Safety Ideas</title>
+  <title>Welcome, expert - AI Safety Ideas</title>
 </svelte:head>
 
 <main class="mx-auto max-w-2xl px-6 py-16">
@@ -31,7 +31,7 @@
     </h1>
     <p class="mb-8 text-base leading-relaxed" style="color:var(--body);font-family:'Lora',serif">
       You can now post research ideas and have funders attach money to them. When a strong answer arrives,
-      you verify it — and the payout flows. Here's how to write an idea that earns serious attention.
+      you verify it - and the payout flows. Here's how to write an idea that earns serious attention.
     </p>
   {/if}
 
@@ -84,7 +84,7 @@
           <p class="font-semibold" style="color:var(--ink)">What a good answer looks like</p>
           <p class="mt-1 text-sm leading-relaxed" style="color:var(--body);font-family:'Lora',serif">
             Describe the evidence, methodology, or artefacts you'd need to verify an answer.
-            This is your verification rubric — be specific enough that a well-qualified submitter
+            This is your verification rubric - be specific enough that a well-qualified submitter
             knows what to produce, and that your future self can apply it consistently.
           </p>
         </div>
@@ -98,10 +98,10 @@
       Tips from the platform
     </h2>
     <ul class="space-y-2 text-sm leading-relaxed" style="color:var(--body);font-family:'Lora',serif">
-      <li>Set a realistic payout range in mind before publishing — funders use it to calibrate pledges.</li>
+      <li>Set a realistic payout range in mind before publishing - funders use it to calibrate pledges.</li>
       <li>Narrow scope beats broad scope. A tight question with a $5k bounty gets better answers than a vague one with $50k.</li>
       <li>You can revise a draft before publishing; once open, funders may start pledging.</li>
-      <li>You verify answers — take the rubric seriously. Verification is permanent and triggers payout.</li>
+      <li>You verify answers - take the rubric seriously. Verification is permanent and triggers payout.</li>
     </ul>
   </section>
   {/if}

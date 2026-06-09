@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// ── mock the seams (Stripe + config + rate-limit) — NO live calls ──
+// ── mock the seams (Stripe + config + rate-limit) - NO live calls ──
 const transfersCreate = vi.fn();
 vi.mock('$lib/server/stripe', () => ({
   getStripe: () => ({ transfers: { create: transfersCreate } })

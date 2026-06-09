@@ -1,8 +1,8 @@
-# AI Safety Ideas — Phase 1 · Plan 2: Ideas & Experts — Implementation Plan
+# AI Safety Ideas - Phase 1 · Plan 2: Ideas & Experts - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax.
 
-**Goal:** Add the `ideas` domain (the two idea types) + `categories` + relations to the schema, plus expert-vetting and the first product surfaces (public browse, idea detail, expert console, admin expert-vetting) — all RLS-secured — on the `plan-2-ideas-experts` branch. Schema is designed to **absorb the old backup columns** (`legacy_id` + `legacy jsonb`) so the later one-big ETL is lossless.
+**Goal:** Add the `ideas` domain (the two idea types) + `categories` + relations to the schema, plus expert-vetting and the first product surfaces (public browse, idea detail, expert console, admin expert-vetting) - all RLS-secured - on the `plan-2-ideas-experts` branch. Schema is designed to **absorb the old backup columns** (`legacy_id` + `legacy jsonb`) so the later one-big ETL is lossless.
 
 **Architecture:** Builds on Plan 1 (SvelteKit 2 + Svelte 5 + Supabase v2 + `@supabase/ssr`, RLS-first, server-side `load()` + form actions → RLS). New tables reuse Plan 1's `experts`/`is_admin()`. Authorization is enforced in RLS (source of truth) and mirrored in UI gating. The expert-only "insert idea" check is **inlined** in the RLS policy (an `EXISTS` on `experts`), avoiding a new exposed SECURITY DEFINER RPC.
 
@@ -14,9 +14,9 @@
 
 ## Key design decisions (from the approved schema review)
 - `ideas` is the clean new shape; old columns map in per the table below; anything without a first-class home rides in **`legacy jsonb`**; `legacy_id bigint unique` anchors the ETL.
-- The "only approved experts post ideas" rule is an **RLS check on client inserts** (`EXISTS` on `experts`), not a hard FK — so the ETL can later insert old ideas (often non-expert authors) via service-role.
+- The "only approved experts post ideas" rule is an **RLS check on client inserts** (`EXISTS` on `experts`), not a hard FK - so the ETL can later insert old ideas (often non-expert authors) via service-role.
 - `author_id` is `on delete set null` (an idea outlives a deleted author; the original author name also lives in `legacy`).
-- FK columns get indexes now (`ideas.author_id`, `idea_categories.category_id`, `idea_relations.child_id`) — closing the Plan-1 deferral.
+- FK columns get indexes now (`ideas.author_id`, `idea_categories.category_id`, `idea_relations.child_id`) - closing the Plan-1 deferral.
 
 ---
 
@@ -37,7 +37,7 @@
 
 ---
 
-## Task 1: Migrations — handle_new_user revoke + ideas schema
+## Task 1: Migrations - handle_new_user revoke + ideas schema
 
 **Files:** `supabase/migrations/<ts>_harden_handle_new_user.sql`, `supabase/migrations/<ts>_ideas.sql`
 
@@ -313,11 +313,11 @@ Confirm `ideas`, `categories`, `idea_categories`, `idea_relations` appear in the
 
 ---
 
-## Task 4: Public browse — `/ideas`
+## Task 4: Public browse - `/ideas`
 
 **Files:** `src/routes/ideas/+page.server.ts`, `src/routes/ideas/+page.svelte`
 
-- [ ] **Step 1: `+page.server.ts`** — server load with filters + pagination (RLS scopes visibility)
+- [ ] **Step 1: `+page.server.ts`** - server load with filters + pagination (RLS scopes visibility)
 
 ```ts
 import type { PageServerLoad } from './$types';
@@ -338,7 +338,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 };
 ```
 
-- [ ] **Step 2: `+page.svelte`** — grid + type filter + pager
+- [ ] **Step 2: `+page.svelte`** - grid + type filter + pager
 
 ```svelte
 <script lang="ts">
@@ -371,7 +371,7 @@ export const load: PageServerLoad = async ({ url, locals: { supabase } }) => {
 
 ---
 
-## Task 5: Idea detail — `/ideas/[id]`
+## Task 5: Idea detail - `/ideas/[id]`
 
 **Files:** `src/routes/ideas/[id]/+page.server.ts`, `src/routes/ideas/[id]/+page.svelte`
 
@@ -397,7 +397,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 };
 ```
 
-- [ ] **Step 2: `+page.svelte`** (bio/markdown shown as text for now — no `@html`; sanitized rendering is a later plan)
+- [ ] **Step 2: `+page.svelte`** (bio/markdown shown as text for now - no `@html`; sanitized rendering is a later plan)
 
 ```svelte
 <script lang="ts">
@@ -423,11 +423,11 @@ export const load: PageServerLoad = async ({ params, locals: { supabase } }) => 
 
 ---
 
-## Task 6: Expert console — `/console` (post + list own ideas)
+## Task 6: Expert console - `/console` (post + list own ideas)
 
 **Files:** `src/routes/console/+page.server.ts`, `src/routes/console/+page.svelte`
 
-- [ ] **Step 1: `+page.server.ts`** — gate to approved experts; list own ideas; create-idea action
+- [ ] **Step 1: `+page.server.ts`** - gate to approved experts; list own ideas; create-idea action
 
 ```ts
 import { error, fail, redirect } from '@sveltejs/kit';
@@ -500,15 +500,15 @@ export const actions: Actions = {
 ```
 
 - [ ] **Step 3: Verify** `npm run check` + `npm run build`.
-- [ ] **Step 4: Commit** `git add src/routes/console && git commit -m "feat: expert console — post + list own ideas (expert-gated)"`
+- [ ] **Step 4: Commit** `git add src/routes/console && git commit -m "feat: expert console - post + list own ideas (expert-gated)"`
 
 ---
 
-## Task 7: Admin expert-vetting — `/admin/experts`
+## Task 7: Admin expert-vetting - `/admin/experts`
 
 **Files:** `src/routes/admin/experts/+page.server.ts`, `src/routes/admin/experts/+page.svelte`
 
-- [ ] **Step 1: `+page.server.ts`** — gate to admins; list experts; approve/revoke actions
+- [ ] **Step 1: `+page.server.ts`** - gate to admins; list experts; approve/revoke actions
 
 ```ts
 import { error, fail, redirect } from '@sveltejs/kit';
@@ -580,7 +580,7 @@ export const actions: Actions = {
 
 ---
 
-## Task 8: Tests — loader units + E2E + final suite
+## Task 8: Tests - loader units + E2E + final suite
 
 **Files:** `src/routes/ideas/ideas.test.ts`, `e2e/ideas.spec.ts`
 

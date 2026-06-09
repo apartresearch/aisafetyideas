@@ -26,7 +26,7 @@ $$;
 
 -- ── column ──
 -- DEFAULT '' (a transient placeholder) so the trigger below always populates it AND so generated
--- TypeScript Insert types treat slug as optional — column defaults are applied before BEFORE-triggers,
+-- TypeScript Insert types treat slug as optional - column defaults are applied before BEFORE-triggers,
 -- so a slug-less insert arrives at the trigger as '' and gets a real slug. It is never persisted as ''.
 alter table public.ideas add column slug text not null default '';
 

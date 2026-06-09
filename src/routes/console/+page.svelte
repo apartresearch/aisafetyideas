@@ -49,7 +49,7 @@
       if (!res.ok) { auditMsg = 'AI check unavailable right now.'; return; }
       auditHint = await res.json();
     } catch {
-      auditMsg = 'Could not reach the AI check — try again.';
+      auditMsg = 'Could not reach the AI check - try again.';
     } finally {
       auditLoading = false;
     }

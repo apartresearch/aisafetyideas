@@ -73,7 +73,7 @@ select is(
   '8: approved_by is set to invite creator'
 );
 
--- used_count incremented — read as admin because RLS blocks member from seeing expert_invites
+-- used_count incremented - read as admin because RLS blocks member from seeing expert_invites
 set local request.jwt.claims = '{"sub":"aaaa0001-0000-0000-0000-000000000001","role":"authenticated"}';
 select is(
   (select used_count from public.expert_invites where token = 'valid-token-member'),

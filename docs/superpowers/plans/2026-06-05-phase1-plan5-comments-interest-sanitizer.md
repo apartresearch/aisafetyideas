@@ -1,10 +1,10 @@
-# AI Safety Ideas — Phase 1 · Plan 5: Comments, Interest, Experts roster & Markdown sanitizer — Implementation Plan
+# AI Safety Ideas - Phase 1 · Plan 5: Comments, Interest, Experts roster & Markdown sanitizer - Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax.
 
-**Goal:** Finish the Phase-1 **data model** — `comments` + `interest` (the last spec §6 tables) — add a public **experts roster** (`/experts`), and introduce a **server-side Markdown sanitizer** so user content renders as real, safe HTML instead of the temporary `whitespace-pre-wrap` plain text. This completes the schema so the later ETL can losslessly restore the old 83 comments + 133 interests, and closes the "no `@html` of unsanitized user content" requirement from `CLAUDE.md` properly.
+**Goal:** Finish the Phase-1 **data model** - `comments` + `interest` (the last spec §6 tables) - add a public **experts roster** (`/experts`), and introduce a **server-side Markdown sanitizer** so user content renders as real, safe HTML instead of the temporary `whitespace-pre-wrap` plain text. This completes the schema so the later ETL can losslessly restore the old 83 comments + 133 interests, and closes the "no `@html` of unsanitized user content" requirement from `CLAUDE.md` properly.
 
-**Architecture:** Builds on Plans 1–4. `comments`/`interest` follow the established posture: plain RLS INSERT pinned to `auth.uid()`, `legacy_id`/`legacy` pinned (service-role-only), and **visibility-gated SELECT** (a comment/interest is readable only when its idea is — mirroring `idea_funding`). Markdown is rendered + sanitized **server-side** in `$lib/server/markdown.ts` (so `marked` + DOMPurify never ship to the client); loaders produce `*_html` fields and components `{@html}` the pre-sanitized output. Comments are flat (top-level) in the v1 UI; the `reply_to` column exists for the ETL + future threading.
+**Architecture:** Builds on Plans 1–4. `comments`/`interest` follow the established posture: plain RLS INSERT pinned to `auth.uid()`, `legacy_id`/`legacy` pinned (service-role-only), and **visibility-gated SELECT** (a comment/interest is readable only when its idea is - mirroring `idea_funding`). Markdown is rendered + sanitized **server-side** in `$lib/server/markdown.ts` (so `marked` + DOMPurify never ship to the client); loaders produce `*_html` fields and components `{@html}` the pre-sanitized output. Comments are flat (top-level) in the v1 UI; the `reply_to` column exists for the ETL + future threading.
 
 **Tech Stack:** Plans 1–4 stack + two new server-only deps: **`marked`** (Markdown→HTML) and **`isomorphic-dompurify`** (sanitize, works under SSR/Node + the jsdom test env).
 
@@ -14,12 +14,12 @@
 
 ## Key design decisions
 
-- **Comments/interest read = idea visibility** (mirrors `idea_funding`): `using (exists (select 1 from public.ideas i where i.id = idea_id))` — the `ideas` RLS hides drafts, so comments/interest on a non-public idea aren't leaked, and the same gate keeps them off un-published ideas.
+- **Comments/interest read = idea visibility** (mirrors `idea_funding`): `using (exists (select 1 from public.ideas i where i.id = idea_id))` - the `ideas` RLS hides drafts, so comments/interest on a non-public idea aren't leaked, and the same gate keeps them off un-published ideas.
 - **Plain RLS INSERT, pinned:** `author_id`/`profile_id = auth.uid()`, `legacy_id IS NULL AND legacy = '{}'` (service-role-only ETL anchors). No money, no RPC.
-- **Comments: insert + delete, no edit.** `SELECT` (idea-visible) · `INSERT` (own, on a visible idea) · `DELETE` (own **or** admin, for moderation). **No UPDATE policy** — editing is delete-and-repost in v1 (keeps the surface minimal; matches the deny-by-default ethos). `reply_to uuid → comments(id) on delete cascade` is stored for ETL/future threading but the v1 UI posts only top-level comments.
+- **Comments: insert + delete, no edit.** `SELECT` (idea-visible) · `INSERT` (own, on a visible idea) · `DELETE` (own **or** admin, for moderation). **No UPDATE policy** - editing is delete-and-repost in v1 (keeps the surface minimal; matches the deny-by-default ethos). `reply_to uuid → comments(id) on delete cascade` is stored for ETL/future threading but the v1 UI posts only top-level comments.
 - **Interest is a toggle:** `unique (idea_id, profile_id)` so one interest per member per idea; `INSERT` (own) / `DELETE` (own). `note_md` optional (the old `how` column maps here). Withdraw is a fail-loud delete (`.select()` + 409), like the Plan-4 pledge withdraw.
 - **`author_id`/`profile_id` are `on delete set null`** (a comment/interest outlives a deleted account; original anchored in `legacy`), mirroring every other table.
-- **Markdown is sanitized server-side.** `$lib/server/markdown.ts#renderMarkdown(md)` = `marked` → `isomorphic-dompurify`; it lives under `$lib/server` so the deps stay out of the client bundle. Loaders compute `*_html` (e.g. `summary_html`, `explanation_html`, `body_html`, `bio_html`) for the `*_md` columns and the components render `{@html ...}` of that **already-sanitized** string — never `{@html}` of raw user input. Beyond DOMPurify's default (strips `<script>`/`on*`/`javascript:`/`data:`), the config **forbids interactive form controls** (`FORBID_TAGS`, anti-phishing) and the **`style` attribute** (`FORBID_ATTR`, anti-clickjacking), and an `afterSanitizeAttributes` hook adds `rel="noopener noreferrer"` to any `target` link. The plain-text hypothesis **`claim`** (a yes/no statement, not `*_md`) is rendered as escaped plain text, **not** through markdown. Comment/interest bodies are length-capped in the action as a cheap pre-limit.
+- **Markdown is sanitized server-side.** `$lib/server/markdown.ts#renderMarkdown(md)` = `marked` → `isomorphic-dompurify`; it lives under `$lib/server` so the deps stay out of the client bundle. Loaders compute `*_html` (e.g. `summary_html`, `explanation_html`, `body_html`, `bio_html`) for the `*_md` columns and the components render `{@html ...}` of that **already-sanitized** string - never `{@html}` of raw user input. Beyond DOMPurify's default (strips `<script>`/`on*`/`javascript:`/`data:`), the config **forbids interactive form controls** (`FORBID_TAGS`, anti-phishing) and the **`style` attribute** (`FORBID_ATTR`, anti-clickjacking), and an `afterSanitizeAttributes` hook adds `rel="noopener noreferrer"` to any `target` link. The plain-text hypothesis **`claim`** (a yes/no statement, not `*_md`) is rendered as escaped plain text, **not** through markdown. Comment/interest bodies are length-capped in the action as a cheap pre-limit.
 - **Experts roster `/experts`** is a public list of `experts.status='approved'` (featured first), linking to the existing `/u/[handle]` profile. No separate `/experts/[handle]` (the profile already lives at `/u/[handle]`).
 - **ETL mapping:** old `comments` (`text`→`body_md`, `reply_to` self-ref, `anon_author`/`anon_author_url`/`upvotes`→`legacy`) and `idea_user_interest_relation` (`how`→`note_md`, `contact_if_started`→`legacy`) land via `legacy_id` + `legacy jsonb`, imported by the service-role ETL.
 - **Rate-limiting (spec §9)** for the new comment/interest endpoints remains part of the deferred single app-wide pass; not built here.
@@ -33,7 +33,7 @@
 | `supabase/migrations/<ts>_comments_interest.sql` | `comments` + `interest` tables + RLS + indexes |
 | `supabase/tests/database/comments_interest_test.sql` | pgTAP RLS tests |
 | `package.json` / `package-lock.json` | add `marked` + `isomorphic-dompurify` |
-| `src/lib/server/markdown.ts` | `renderMarkdown()` — server-only MD→sanitized HTML |
+| `src/lib/server/markdown.ts` | `renderMarkdown()` - server-only MD→sanitized HTML |
 | `src/lib/markdown.test.ts` | Vitest unit (renders + sanitizes) |
 | `src/lib/types/database.ts` | Regenerated (comments + interest) |
 | `src/lib/components/AnswerCard.svelte`, `Markdown.svelte` | `Markdown.svelte` renders pre-sanitized HTML; AnswerCard uses it |
@@ -45,7 +45,7 @@
 
 ---
 
-## Task 1: Migration — comments + interest
+## Task 1: Migration - comments + interest
 
 **Files:** `supabase/migrations/<ts>_comments_interest.sql`
 
@@ -87,7 +87,7 @@ create policy "members comment on visible ideas" on public.comments for insert t
 -- DELETE: the author, or an admin (moderation)
 create policy "author or admin deletes comment" on public.comments for delete to authenticated
   using ((select auth.uid()) = author_id or public.is_admin());
--- NOTE: no UPDATE policy — editing is delete-and-repost in v1.
+-- NOTE: no UPDATE policy - editing is delete-and-repost in v1.
 
 -- ============ interest (one per member per idea; a toggle) ============
 create table public.interest (
@@ -120,18 +120,18 @@ create policy "members express interest on visible ideas" on public.interest for
 -- DELETE: a member withdraws their own interest
 create policy "member withdraws own interest" on public.interest for delete to authenticated
   using ((select auth.uid()) = profile_id);
--- NOTE: no UPDATE policy — toggle is insert/delete; note set at insert.
+-- NOTE: no UPDATE policy - toggle is insert/delete; note set at insert.
 ```
 
 - [ ] **Step 2: Apply locally**
 
-Run: `supabase db reset` (full rebuild — not `migration up`).
+Run: `supabase db reset` (full rebuild - not `migration up`).
 Expected: all migrations (Plans 1–5) apply with no errors.
 
 - [ ] **Step 3: Smoke-check**
 
 Run: `docker exec supabase_db_aisafetyideas psql -U postgres -d postgres -c "select tablename, cmd, roles from pg_policies where schemaname='public' and tablename in ('comments','interest') order by 1,2;"`
-Expected: each table has exactly 3 policies — `SELECT` with `roles={public}` (anon-readable), `INSERT` and `DELETE` with `roles={authenticated}`. (No `UPDATE` policy on either.)
+Expected: each table has exactly 3 policies - `SELECT` with `roles={public}` (anon-readable), `INSERT` and `DELETE` with `roles={authenticated}`. (No `UPDATE` policy on either.)
 
 - [ ] **Step 4: Commit**
 
@@ -142,7 +142,7 @@ git commit -m "feat(db): comments + interest tables + RLS (Plan 5)"
 
 ---
 
-## Task 2: pgTAP — comments + interest RLS
+## Task 2: pgTAP - comments + interest RLS
 
 **Files:** `supabase/tests/database/comments_interest_test.sql`
 
@@ -268,7 +268,7 @@ git commit -m "test(db): pgTAP RLS tests for comments + interest"
 Run: `npm install marked isomorphic-dompurify`
 This pins both into `dependencies` and updates `package-lock.json`. Commit the lockfile with the code (Step 6).
 
-- [ ] **Step 2: `src/lib/server/markdown.ts`** (server-only — keeps `marked`/DOMPurify out of the client bundle)
+- [ ] **Step 2: `src/lib/server/markdown.ts`** (server-only - keeps `marked`/DOMPurify out of the client bundle)
 
 ```ts
 import { marked } from 'marked';
@@ -356,7 +356,7 @@ describe('renderMarkdown', () => {
   let { html, class: klass = '' }: { html: string; class?: string } = $props();
 </script>
 {#if html}
-  <!-- eslint-disable-next-line svelte/no-at-html-tags — server-sanitized via renderMarkdown -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags - server-sanitized via renderMarkdown -->
   <div class="prose-sm {klass}" style="color:var(--body)">{@html html}</div>
 {/if}
 ```
@@ -376,7 +376,7 @@ git commit -m "feat: server-side Markdown sanitizer (marked + DOMPurify) + Markd
 
 > Idea-detail + AnswerCard get the sanitizer in Task 5 (where that surface is rewritten anyway). This task covers the two standalone spots.
 
-- [ ] **Step 1: Profile — sanitize `bio_md`.** In `src/routes/u/[handle]/+page.server.ts`, import the sanitizer and add `bio_html` to the returned profile data.
+- [ ] **Step 1: Profile - sanitize `bio_md`.** In `src/routes/u/[handle]/+page.server.ts`, import the sanitizer and add `bio_html` to the returned profile data.
 
 Add at the top: `import { renderMarkdown } from '$lib/server/markdown';`
 Where the loader returns the profile, add a sibling field, e.g.:
@@ -385,15 +385,15 @@ Where the loader returns the profile, add a sibling field, e.g.:
 ```
 (Keep all existing returned fields; only ADD `bio_html`.)
 
-- [ ] **Step 2: Profile svelte** — replace ONLY the read-only bio render `<p class="mt-3" ...>{data.profile.bio_md ?? ''}</p>` with the sanitized component (leave the edit `<textarea name="bio_md">` intact — it must keep the RAW `bio_md` for editing):
+- [ ] **Step 2: Profile svelte** - replace ONLY the read-only bio render `<p class="mt-3" ...>{data.profile.bio_md ?? ''}</p>` with the sanitized component (leave the edit `<textarea name="bio_md">` intact - it must keep the RAW `bio_md` for editing):
 ```svelte
   <Markdown html={data.bio_html} class="mt-3" />
 ```
 Add `import Markdown from '$lib/components/Markdown.svelte';` to the `<script>`.
 
-- [ ] **Step 3: Console queue — sanitize `explanation_md`.** In `src/routes/console/+page.server.ts`, import `renderMarkdown` and, when building the `queue`, add `explanation_html: renderMarkdown(q.explanation_md)` to each normalized row (alongside the existing `submitter`/`ideas` normalization).
+- [ ] **Step 3: Console queue - sanitize `explanation_md`.** In `src/routes/console/+page.server.ts`, import `renderMarkdown` and, when building the `queue`, add `explanation_html: renderMarkdown(q.explanation_md)` to each normalized row (alongside the existing `submitter`/`ideas` normalization).
 
-- [ ] **Step 4: Console svelte** — replace the queue's WHOLE `{#if a.explanation_md}<p class="... whitespace-pre-wrap ...">{a.explanation_md}</p>{/if}` block with `<Markdown html={a.explanation_html} class="mb-2" />` (Markdown self-guards on empty `html`) and import `Markdown from '$lib/components/Markdown.svelte'`.
+- [ ] **Step 4: Console svelte** - replace the queue's WHOLE `{#if a.explanation_md}<p class="... whitespace-pre-wrap ...">{a.explanation_md}</p>{/if}` block with `<Markdown html={a.explanation_html} class="mb-2" />` (Markdown self-guards on empty `html`) and import `Markdown from '$lib/components/Markdown.svelte'`.
 
 - [ ] **Step 5: Verify** `npm run check` (0 errors) + `npm run build` (clean).
 
@@ -401,11 +401,11 @@ Add `import Markdown from '$lib/components/Markdown.svelte';` to the `<script>`.
 
 ---
 
-## Task 5: Idea detail — sanitized content + comments + interest
+## Task 5: Idea detail - sanitized content + comments + interest
 
 **Files:** `src/routes/ideas/[id]/+page.server.ts` / `+page.svelte` (modify), `src/lib/components/AnswerCard.svelte` (modify)
 
-- [ ] **Step 1: AnswerCard — render sanitized explanation.** Replace the `{#if answer.explanation_md}<p ... whitespace-pre-wrap ...>{answer.explanation_md}</p>{/if}` block with:
+- [ ] **Step 1: AnswerCard - render sanitized explanation.** Replace the `{#if answer.explanation_md}<p ... whitespace-pre-wrap ...>{answer.explanation_md}</p>{/if}` block with:
 ```svelte
   {#if answer.explanation_html}<Markdown html={answer.explanation_html} class="mt-2" />{/if}
 ```
@@ -565,7 +565,7 @@ export const actions: Actions = {
       idea_id: params.id, profile_id: user.id, note_md
     });
     if (e) {
-      // a duplicate (double-click / stale tab) means "already interested" — idempotent, don't leak the constraint name
+      // a duplicate (double-click / stale tab) means "already interested" - idempotent, don't leak the constraint name
       if ((e as { code?: string }).code === '23505') return { ok: true };
       return fail(400, { message: e.message });
     }
@@ -658,7 +658,7 @@ export const actions: Actions = {
           <input name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required class="mt-1 block w-full rounded-xl border px-3 py-2" style="border-color:var(--line)" />
         </label>
         <button class="mt-3 w-full rounded-xl px-4 py-2 text-sm font-medium" style="background:var(--ink); color:#fff">Pledge</button>
-        <p class="mt-2 text-xs" style="color:var(--faint)">A pledge is a commitment — no funds move yet.</p>
+        <p class="mt-2 text-xs" style="color:var(--faint)">A pledge is a commitment - no funds move yet.</p>
       </form>
     {/if}
 
@@ -670,7 +670,7 @@ export const actions: Actions = {
       {#if data.canEngage}
         {#if data.myInterestId}
           <form method="POST" action="?/uninterest" class="mt-2">
-            <button class="w-full rounded-xl border px-4 py-2 text-sm" style="border-color:var(--green); color:var(--green-deep)">Interested ✓ — withdraw</button>
+            <button class="w-full rounded-xl border px-4 py-2 text-sm" style="border-color:var(--green); color:var(--green-deep)">Interested ✓ - withdraw</button>
           </form>
         {:else}
           <form method="POST" action="?/interest" class="mt-2">
@@ -701,11 +701,11 @@ export const actions: Actions = {
 
 - [ ] **Step 4: Verify** `npm run check` (0 errors) + `npm run build` (clean).
 
-- [ ] **Step 5: Commit** `git add src/routes/ideas src/lib/components/AnswerCard.svelte && git commit -m "feat: idea detail — sanitized markdown + comments + interest"`
+- [ ] **Step 5: Commit** `git add src/routes/ideas src/lib/components/AnswerCard.svelte && git commit -m "feat: idea detail - sanitized markdown + comments + interest"`
 
 ---
 
-## Task 6: Experts roster — `/experts`
+## Task 6: Experts roster - `/experts`
 
 **Files:** `src/routes/experts/+page.server.ts`, `src/routes/experts/+page.svelte`
 
@@ -761,7 +761,7 @@ export const load: PageServerLoad = async ({ locals: { supabase } }) => {
 
 ---
 
-## Task 7: Tests — E2E + full suite
+## Task 7: Tests - E2E + full suite
 
 **Files:** `e2e/social.spec.ts`
 
@@ -790,7 +790,7 @@ test('experts roster is public (no login redirect)', async ({ page }) => {
 - `npm run build` → clean
 - `npx playwright test` → all pass (free the port first if needed)
 
-- [ ] **Step 3: Commit** — stage only the new test file explicitly (NOT `git add .`, to avoid sweeping in untracked `.claude/settings.json`): `git add e2e/social.spec.ts && git commit -m "test: experts roster + browse E2E"`
+- [ ] **Step 3: Commit** - stage only the new test file explicitly (NOT `git add .`, to avoid sweeping in untracked `.claude/settings.json`): `git add e2e/social.spec.ts && git commit -m "test: experts roster + browse E2E"`
 
 ---
 
@@ -800,7 +800,7 @@ test('experts roster is public (no login redirect)', async ({ page }) => {
 - User-authored Markdown (idea summary, answer explanations, comments, profile bios) renders as **sanitized HTML** via the server-only `renderMarkdown` (`marked` + DOMPurify, `FORBID_TAGS` form-controls + `FORBID_ATTR` style + a `rel=noopener` link hook); the unit test proves `<script>`/`on*`/`javascript:`/`data:` AND the surviving-element boundary (`<img onerror>`) AND form/style injection are all neutralized. The only `{@html}` in the app is `Markdown.svelte` rendering that already-sanitized string. (The plain-text hypothesis `claim` is **not** run through markdown.)
 - The idea page has a Discussion section (post a comment + own/**admin**-moderate delete; bodies length-capped) and an Interested toggle + count (idempotent on double-submit).
 - `/experts` lists approved experts (featured first), linking to `/u/[handle]`.
-- `legacy_id` + `legacy jsonb` carried so the old `comments` + `idea_user_interest_relation` ETL is lossless — **this completes the Phase-1 schema; the one-big ETL is unblocked.**
+- `legacy_id` + `legacy jsonb` carried so the old `comments` + `idea_user_interest_relation` ETL is lossless - **this completes the Phase-1 schema; the one-big ETL is unblocked.**
 - All suites green; no secrets; no raw `@html` of unsanitized input; advisors show **no new findings** (`interest.profile_id` is indexed; one policy per command). Per-endpoint rate-limiting (spec §9) stays in the deferred app-wide pass; an inline length cap bounds payloads in the meantime.
 
-**After merge:** controller applies the Plan-5 migration to cloud `gjomchhbsbtauzkpyjwa` via MCP + re-runs advisors. Then the **one-big ETL** (full restore: 265 accounts+emails, 238 ideas, 83 comments, 133 interests, funding/results → the new schema via the `legacy_*` anchors, run as service-role) — to be brainstormed + planned on its own (PII-sensitive: old emails, auth users, password/identity migration). Remaining Phase-1 polish (verify→payout signature animation, app-wide rate-limiting) can follow or fold into the ETL launch.
+**After merge:** controller applies the Plan-5 migration to cloud `gjomchhbsbtauzkpyjwa` via MCP + re-runs advisors. Then the **one-big ETL** (full restore: 265 accounts+emails, 238 ideas, 83 comments, 133 interests, funding/results → the new schema via the `legacy_*` anchors, run as service-role) - to be brainstormed + planned on its own (PII-sensitive: old emails, auth users, password/identity migration). Remaining Phase-1 polish (verify→payout signature animation, app-wide rate-limiting) can follow or fold into the ETL launch.

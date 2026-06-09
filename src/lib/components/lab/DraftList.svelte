@@ -17,7 +17,7 @@
   <DraftCapture {store} />
 
   {#if store.drafts.length === 0}
-    <p class="draft-list__empty">Capture your first idea — type a line and hit Enter.</p>
+    <p class="draft-list__empty">Capture your first idea - type a line and hit Enter.</p>
   {:else}
     <ul class="draft-list__items">
       {#each store.drafts as draft, i (draft.key)}

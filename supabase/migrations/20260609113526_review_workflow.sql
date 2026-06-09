@@ -8,7 +8,7 @@ alter table public.ideas add constraint ideas_status_check
   check (status in ('draft','review','open','resolved','closed','archived'));
 
 -- 2) INSERT gate: a draft stays a draft; approved expert → open; everyone else → review.
---    create or replace — replaces the version from 20260608095408_add_ideas_lab.sql
+--    create or replace - replaces the version from 20260608095408_add_ideas_lab.sql
 create or replace function public.enforce_idea_submission()
 returns trigger language plpgsql set search_path = '' as $$
 begin
@@ -23,7 +23,7 @@ end; $$;
 
 -- 3) UPDATE (publish) gate: a non-expert, non-admin moving an idea to a public state is
 --    routed to `review` instead (was `archived`).
---    create or replace — replaces the version from 20260608095408_add_ideas_lab.sql
+--    create or replace - replaces the version from 20260608095408_add_ideas_lab.sql
 create or replace function public.enforce_idea_publish()
 returns trigger language plpgsql set search_path = '' as $$
 begin

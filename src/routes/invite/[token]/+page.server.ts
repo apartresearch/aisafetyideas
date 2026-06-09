@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, safeGet
     redirect(303, '/onboarding/expert');
   }
 
-  // Surface a friendly error — check for "already an approved expert" and redirect gracefully
+  // Surface a friendly error - check for "already an approved expert" and redirect gracefully
   if (error.message?.toLowerCase().includes('already an approved expert')) {
     redirect(303, '/onboarding/expert?already=1');
   }

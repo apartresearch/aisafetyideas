@@ -65,7 +65,7 @@ set local request.jwt.claims = '{"sub":"44444444-4444-4444-4444-444444444444","r
 update public.stripe_connect_accounts set payouts_enabled = true, onboarding_status = 'enabled'
   where stripe_account_id = 'acct_S';
 
--- ── request_withdrawal: happy path — S withdraws 2000 ───────────────────────
+-- ── request_withdrawal: happy path - S withdraws 2000 ───────────────────────
 set local request.jwt.claims = '{"sub":"33333333-3333-3333-3333-333333333333","role":"authenticated"}';
 select lives_ok($$ select public.request_withdrawal(2000, 'wd-S-1') $$,
   '9: S withdraws 2000 (payouts enabled)');                                                                -- 9

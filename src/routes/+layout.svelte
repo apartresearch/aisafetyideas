@@ -17,7 +17,7 @@
 <div class="site">
   <header class="site-header">
     <div class="site-header__inner">
-      <a href="/" class="site-brand" aria-label="AI Safety Ideas — home">
+      <a href="/" class="site-brand" aria-label="AI Safety Ideas - home">
         <Logo size={26} />
         <span class="site-brand__name">AI&nbsp;Safety&nbsp;Ideas</span>
       </a>
@@ -46,7 +46,7 @@
       <div class="site-footer__brand">
         <a href="/" class="site-brand"><Logo size={22} /><span class="site-brand__name">AI&nbsp;Safety&nbsp;Ideas</span></a>
         <p class="site-footer__mission">
-          A charitable research-bounty platform — experts post the open questions in AI safety,
+          A charitable research-bounty platform - experts post the open questions in AI safety,
           funders back them, researchers answer.
         </p>
       </div>

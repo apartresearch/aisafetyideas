@@ -6,7 +6,7 @@ import { getPlatformConfig } from '$lib/server/config';
 import { splitFee } from '$lib/fee';
 
 // Stripe webhook. Authenticates as the dedicated system user (is_admin) to call the admin-only
-// money RPCs — NO service-role client. Dedupes on event.id; replays short-circuit to a fast 200.
+// money RPCs - NO service-role client. Dedupes on event.id; replays short-circuit to a fast 200.
 export const POST: RequestHandler = async ({ request }) => {
   const body = await request.text();
   const sig = request.headers.get('stripe-signature');
@@ -21,7 +21,7 @@ export const POST: RequestHandler = async ({ request }) => {
   const sys = await getSystemClient();
 
   // Dedupe: if we've already fully processed this event, do nothing (a fast 200 so Stripe stops
-  // retrying). We record the event AFTER processing — the money RPCs are idempotent on event.id,
+  // retrying). We record the event AFTER processing - the money RPCs are idempotent on event.id,
   // so a retry after a mid-process failure safely re-runs them (no double-credit) instead of
   // losing a credit to a prematurely-recorded event.
   const { data: existing } = await sys.from('stripe_events').select('id').eq('id', event.id).maybeSingle();
@@ -33,7 +33,7 @@ export const POST: RequestHandler = async ({ request }) => {
     const amount = s.amount_total as number;
 
     // credit_balance credits the donor NET of the platform fee. So we must escrow the NET, not
-    // the gross — otherwise escrow would exceed the donor's available balance and fail.
+    // the gross - otherwise escrow would exceed the donor's available balance and fail.
     await sys.rpc('credit_balance', {
       p_profile: meta.profile_id,
       p_amount_cents: amount,
