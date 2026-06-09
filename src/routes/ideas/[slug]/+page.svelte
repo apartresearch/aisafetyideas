@@ -85,6 +85,7 @@
       {#if data.canEngage}
         <form method="POST" action="?/comment" class="comment-form">
           <textarea name="body_md" required placeholder="Add a comment (markdown supported)" rows="3" class="textarea"></textarea>
+          <p style="font-size:.75rem; color:var(--faint); margin:0">Markdown + LaTeX ($x^2$, $$\sum$$) supported</p>
           <button class="btn btn-secondary btn-sm comment-form__btn">Comment</button>
         </form>
       {/if}

@@ -100,6 +100,7 @@
           placeholder="Describe your idea, hypotheses, context…"
           rows={5}
         ></textarea>
+        <p style="font-size:.75rem; color:var(--faint); margin:0">Markdown + LaTeX ($x^2$, $$\sum$$) supported</p>
       </div>
 
       <ExpansionPanel
